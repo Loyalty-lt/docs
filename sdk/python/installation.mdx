@@ -1,0 +1,739 @@
+---
+title: "Python SDK"
+description: "Complete guide to using the Loyalty.lt Python SDK for server-side integrations"
+---
+
+# Python SDK
+
+The Loyalty.lt Python SDK provides a convenient way to integrate loyalty program functionality into your Python applications, web services, and backend systems.
+
+<Info>
+The Python SDK supports Python 3.7+ and is compatible with Django, Flask, FastAPI, and other Python frameworks.
+</Info>
+
+## Installation
+
+<Tabs>
+<Tab title="pip">
+```bash
+pip install loyalty-lt
+```
+</Tab>
+
+<Tab title="poetry">
+```bash
+poetry add loyalty-lt
+```
+</Tab>
+
+<Tab title="pipenv">
+```bash
+pipenv install loyalty-lt
+```
+</Tab>
+
+<Tab title="conda">
+```bash
+conda install -c conda-forge loyalty-lt
+```
+</Tab>
+</Tabs>
+
+## Quick Start
+
+### Basic Setup
+
+```python
+from loyalty_lt import LoyaltyClient
+
+# Initialize the client
+client = LoyaltyClient(
+    api_key="your_api_key",
+    shop_id="your_shop_id",
+    environment="production"  # or "staging"
+)
+
+# Check connection
+try:
+    status = client.get_status()
+    print(f"Connected to Loyalty.lt: {status}")
+except Exception as e:
+    print(f"Connection failed: {e}")
+```
+
+### Framework Integration
+
+<Tabs>
+<Tab title="Django">
+```python
+# settings.py
+LOYALTY_LT = {
+    'API_KEY': 'your_api_key',
+    'SHOP_ID': 'your_shop_id',
+    'ENVIRONMENT': 'production',
+    'TIMEOUT': 30,
+    'RETRY_ATTEMPTS': 3
+}
+
+# loyalty_service.py
+from django.conf import settings
+from loyalty_lt import LoyaltyClient
+
+class LoyaltyService:
+    def __init__(self):
+        self.client = LoyaltyClient(**settings.LOYALTY_LT)
+    
+    def award_purchase_points(self, user, order):
+        return self.client.points.award(
+            customer_id=user.id,
+            points=int(order.total),
+            reason="purchase",
+            order_id=order.id
+        )
+```
+</Tab>
+
+<Tab title="Flask">
+```python
+# app.py
+from flask import Flask, request, jsonify
+from loyalty_lt import LoyaltyClient
+import os
+
+app = Flask(__name__)
+
+loyalty_client = LoyaltyClient(
+    api_key=os.getenv('LOYALTY_API_KEY'),
+    shop_id=os.getenv('LOYALTY_SHOP_ID'),
+    environment=os.getenv('LOYALTY_ENV', 'staging')
+)
+
+@app.route('/webhook/order-completed', methods=['POST'])
+def handle_order_completed():
+    order_data = request.json
+    
+    # Award points for purchase
+    result = loyalty_client.points.award(
+        customer_id=order_data['customer_id'],
+        points=order_data['points_earned'],
+        reason="purchase",
+        order_id=order_data['order_id']
+    )
+    
+    return jsonify({'success': True, 'transaction_id': result['id']})
+```
+</Tab>
+
+<Tab title="FastAPI">
+```python
+# main.py
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from loyalty_lt import LoyaltyClient
+import os
+
+app = FastAPI()
+
+loyalty_client = LoyaltyClient(
+    api_key=os.getenv('LOYALTY_API_KEY'),
+    shop_id=os.getenv('LOYALTY_SHOP_ID')
+)
+
+class PointsRequest(BaseModel):
+    customer_id: str
+    points: int
+    reason: str
+
+@app.post("/award-points")
+async def award_points(request: PointsRequest):
+    try:
+        result = loyalty_client.points.award(
+            customer_id=request.customer_id,
+            points=request.points,
+            reason=request.reason
+        )
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+```
+</Tab>
+</Tabs>
+
+## Core Features
+
+### Customer Management
+
+```python
+# Register a new customer
+customer = client.customers.create({
+    'email': 'customer@example.com',
+    'first_name': 'John',
+    'last_name': 'Doe',
+    'phone': '+1234567890',
+    'birth_date': '1990-01-15'
+})
+
+# Get customer information
+customer = client.customers.get('customer_id')
+
+# Update customer information
+client.customers.update('customer_id', {
+    'first_name': 'Jane',
+    'marketing_consent': True
+})
+
+# Get customer loyalty balance
+balance = client.customers.get_balance('customer_id')
+print(f"Customer has {balance['points']} points")
+```
+
+### Points Management
+
+#### Award Points
+
+```python
+# Award points for purchase
+transaction = client.points.award(
+    customer_id="customer_123",
+    points=150,
+    reason="purchase",
+    order_id="order_456",
+    metadata={
+        'order_total': 150.00,
+        'currency': 'USD',
+        'products': ['product_1', 'product_2']
+    }
+)
+
+# Award bonus points
+client.points.award(
+    customer_id="customer_123",
+    points=50,
+    reason="review",
+    reference_id="review_789"
+)
+
+# Award points with expiration
+client.points.award(
+    customer_id="customer_123",
+    points=100,
+    reason="birthday_bonus",
+    expires_at="2024-12-31"
+)
+```
+
+#### Redeem Points
+
+```python
+# Redeem points for discount
+redemption = client.points.redeem(
+    customer_id="customer_123",
+    points=200,
+    reason="discount",
+    order_id="order_456"
+)
+
+# Check redemption result
+if redemption['success']:
+    discount_amount = redemption['discount_amount']
+    print(f"Applied ${discount_amount} discount")
+```
+
+#### Points History
+
+```python
+# Get points history
+history = client.points.get_history(
+    customer_id="customer_123",
+    limit=20,
+    type="all"  # "earned", "redeemed", "expired", "all"
+)
+
+for transaction in history['transactions']:
+    print(f"{transaction['date']}: {transaction['points']} points - {transaction['reason']}")
+```
+
+### Loyalty Cards
+
+```python
+# Create loyalty card
+card = client.loyalty_cards.create(
+    customer_id="customer_123",
+    card_type="digital",
+    design_id="design_1"
+)
+
+# Get card information
+card = client.loyalty_cards.get("card_id")
+
+# Generate QR code for card
+qr_code = client.loyalty_cards.generate_qr("card_id")
+print(f"QR Code URL: {qr_code['url']}")
+
+# Scan QR code
+scan_result = client.loyalty_cards.scan("qr_code_data")
+customer = scan_result['customer']
+```
+
+### Offers & Coupons
+
+```python
+# Get available offers
+offers = client.offers.get_available(customer_id="customer_123")
+
+# Redeem an offer
+coupon = client.offers.redeem(
+    customer_id="customer_123",
+    offer_id="offer_456",
+    order_id="order_789"
+)
+
+# Validate coupon
+validation = client.coupons.validate(
+    coupon_code=coupon['code'],
+    order_total=100.00
+)
+
+if validation['valid']:
+    discount = validation['discount_amount']
+```
+
+### Games Integration
+
+```python
+# Get available games
+games = client.games.get_available(customer_id="customer_123")
+
+# Start game session
+session = client.games.start_session(
+    customer_id="customer_123",
+    game_id="game_456"
+)
+
+# Submit game result
+result = client.games.submit_result(
+    session_id=session['id'],
+    score=1250,
+    completed=True
+)
+
+# Get game leaderboard
+leaderboard = client.games.get_leaderboard(
+    game_id="game_456",
+    period="weekly"
+)
+```
+
+## Advanced Features
+
+### Bulk Operations
+
+```python
+# Bulk award points
+bulk_awards = [
+    {
+        'customer_id': 'customer_1',
+        'points': 100,
+        'reason': 'holiday_bonus'
+    },
+    {
+        'customer_id': 'customer_2',
+        'points': 150,
+        'reason': 'holiday_bonus'
+    }
+]
+
+results = client.points.bulk_award(bulk_awards)
+
+# Process results
+for result in results:
+    if result['success']:
+        print(f"Awarded {result['points']} points to {result['customer_id']}")
+    else:
+        print(f"Failed to award points: {result['error']}")
+```
+
+### Webhooks
+
+```python
+from loyalty_lt.webhooks import WebhookVerifier
+
+# Webhook verification
+verifier = WebhookVerifier(webhook_secret="your_webhook_secret")
+
+def handle_webhook(request):
+    # Verify webhook signature
+    if not verifier.verify(request.body, request.headers.get('X-Signature')):
+        return "Invalid signature", 401
+    
+    # Process webhook data
+    webhook_data = request.json
+    event_type = webhook_data['event']
+    
+    if event_type == 'points.awarded':
+        customer_id = webhook_data['customer_id']
+        points = webhook_data['points']
+        print(f"Customer {customer_id} earned {points} points")
+    
+    elif event_type == 'tier.upgraded':
+        customer_id = webhook_data['customer_id']
+        new_tier = webhook_data['new_tier']
+        print(f"Customer {customer_id} upgraded to {new_tier}")
+    
+    return "OK", 200
+```
+
+### Analytics & Reporting
+
+```python
+# Get loyalty analytics
+analytics = client.analytics.get_summary(
+    date_from="2024-01-01",
+    date_to="2024-01-31"
+)
+
+print(f"Total members: {analytics['total_members']}")
+print(f"Points awarded: {analytics['points_awarded']}")
+print(f"Points redeemed: {analytics['points_redeemed']}")
+
+# Customer segmentation
+segments = client.analytics.get_customer_segments(
+    criteria={
+        'tier': 'gold',
+        'points_range': [1000, 5000],
+        'last_activity': '30d'
+    }
+)
+
+# Export customer data
+export_job = client.analytics.export_customers(
+    format='csv',
+    filters={
+        'tier': ['gold', 'platinum'],
+        'active': True
+    }
+)
+
+# Check export status
+status = client.analytics.get_export_status(export_job['id'])
+if status['completed']:
+    download_url = status['download_url']
+```
+
+## Error Handling
+
+```python
+from loyalty_lt.exceptions import (
+    LoyaltyAPIError,
+    AuthenticationError,
+    CustomerNotFoundError,
+    InsufficientPointsError,
+    RateLimitError
+)
+
+try:
+    # Attempt to redeem points
+    result = client.points.redeem(
+        customer_id="customer_123",
+        points=500
+    )
+except AuthenticationError:
+    print("Invalid API credentials")
+except CustomerNotFoundError:
+    print("Customer not found")
+except InsufficientPointsError as e:
+    print(f"Customer has insufficient points. Available: {e.available_points}")
+except RateLimitError as e:
+    print(f"Rate limit exceeded. Retry after: {e.retry_after}")
+except LoyaltyAPIError as e:
+    print(f"API error: {e.message}")
+```
+
+## Configuration Options
+
+```python
+from loyalty_lt import LoyaltyClient
+
+client = LoyaltyClient(
+    api_key="your_api_key",
+    shop_id="your_shop_id",
+    environment="production",  # "staging" or "production"
+    timeout=30,  # Request timeout in seconds
+    retry_attempts=3,  # Number of retry attempts
+    retry_delay=1,  # Delay between retries in seconds
+    base_url="https://api.loyalty.lt",  # Custom base URL
+    user_agent="MyApp/1.0",  # Custom user agent
+    debug=False  # Enable debug logging
+)
+
+# Update configuration
+client.configure(timeout=60, retry_attempts=5)
+```
+
+## Testing & Development
+
+### Mock Client
+
+```python
+from loyalty_lt.testing import MockLoyaltyClient
+
+# Use mock client for testing
+mock_client = MockLoyaltyClient()
+
+# Set up mock responses
+mock_client.set_customer_response({
+    'id': 'customer_123',
+    'email': 'test@example.com',
+    'points': 1000
+})
+
+# Use in tests
+def test_customer_points():
+    points = mock_client.customers.get_balance('customer_123')
+    assert points['points'] == 1000
+```
+
+### Testing Webhooks
+
+```python
+from loyalty_lt.testing import WebhookTester
+
+def test_webhook_handling():
+    tester = WebhookTester(webhook_secret="test_secret")
+    
+    # Generate test webhook
+    webhook_data = tester.generate_webhook('points.awarded', {
+        'customer_id': 'customer_123',
+        'points': 100
+    })
+    
+    # Test webhook handler
+    response = handle_webhook(webhook_data)
+    assert response[1] == 200
+```
+
+## Integration Examples
+
+### E-commerce Integration
+
+```python
+class EcommerceIntegration:
+    def __init__(self):
+        self.loyalty = LoyaltyClient(
+            api_key=settings.LOYALTY_API_KEY,
+            shop_id=settings.LOYALTY_SHOP_ID
+        )
+    
+    def handle_order_completed(self, order):
+        # Calculate points
+        points = self.calculate_points(order)
+        
+        # Award points
+        try:
+            result = self.loyalty.points.award(
+                customer_id=order.customer_id,
+                points=points,
+                reason="purchase",
+                order_id=order.id,
+                metadata={
+                    'order_total': float(order.total),
+                    'currency': order.currency,
+                    'product_count': len(order.items)
+                }
+            )
+            
+            # Send notification
+            self.send_points_notification(order.customer, points)
+            
+        except Exception as e:
+            # Log error and potentially retry
+            logger.error(f"Failed to award points: {e}")
+    
+    def apply_loyalty_discount(self, cart, points_to_redeem):
+        try:
+            redemption = self.loyalty.points.redeem(
+                customer_id=cart.customer_id,
+                points=points_to_redeem,
+                reason="discount"
+            )
+            
+            # Apply discount to cart
+            cart.apply_discount(
+                amount=redemption['discount_amount'],
+                description=f"Loyalty points ({points_to_redeem} points)"
+            )
+            
+            return True
+            
+        except InsufficientPointsError:
+            return False
+```
+
+### Background Tasks with Celery
+
+```python
+from celery import Celery
+from loyalty_lt import LoyaltyClient
+
+app = Celery('loyalty_tasks')
+loyalty_client = LoyaltyClient(api_key="your_api_key", shop_id="your_shop_id")
+
+@app.task(retry_kwargs={'max_retries': 3})
+def award_points_async(customer_id, points, reason, metadata=None):
+    try:
+        result = loyalty_client.points.award(
+            customer_id=customer_id,
+            points=points,
+            reason=reason,
+            metadata=metadata
+        )
+        return result
+    except Exception as exc:
+        # Retry the task
+        raise award_points_async.retry(exc=exc, countdown=60)
+
+# Usage
+award_points_async.delay('customer_123', 100, 'purchase')
+```
+
+## Performance Optimization
+
+### Connection Pooling
+
+```python
+from loyalty_lt import LoyaltyClient
+import requests.adapters
+
+# Configure connection pooling
+session = requests.Session()
+adapter = requests.adapters.HTTPAdapter(
+    pool_connections=10,
+    pool_maxsize=20,
+    max_retries=3
+)
+session.mount('https://', adapter)
+
+client = LoyaltyClient(
+    api_key="your_api_key",
+    shop_id="your_shop_id",
+    session=session
+)
+```
+
+### Caching
+
+```python
+from functools import lru_cache
+import redis
+
+# Redis caching
+redis_client = redis.Redis(host='localhost', port=6379, db=0)
+
+class CachedLoyaltyService:
+    def __init__(self):
+        self.loyalty = LoyaltyClient(api_key="your_api_key", shop_id="your_shop_id")
+    
+    def get_customer_points(self, customer_id):
+        cache_key = f"customer_points:{customer_id}"
+        
+        # Try to get from cache
+        cached_points = redis_client.get(cache_key)
+        if cached_points:
+            return int(cached_points)
+        
+        # Get from API
+        balance = self.loyalty.customers.get_balance(customer_id)
+        points = balance['points']
+        
+        # Cache for 5 minutes
+        redis_client.setex(cache_key, 300, points)
+        
+        return points
+    
+    @lru_cache(maxsize=1000)
+    def get_available_offers(self, customer_id):
+        return self.loyalty.offers.get_available(customer_id)
+```
+
+## Migration & Data Import
+
+```python
+import csv
+from loyalty_lt import LoyaltyClient
+
+def migrate_customers_from_csv(csv_file_path):
+    client = LoyaltyClient(api_key="your_api_key", shop_id="your_shop_id")
+    
+    with open(csv_file_path, 'r') as file:
+        reader = csv.DictReader(file)
+        
+        for row in reader:
+            try:
+                # Create customer
+                customer = client.customers.create({
+                    'email': row['email'],
+                    'first_name': row['first_name'],
+                    'last_name': row['last_name'],
+                    'phone': row['phone']
+                })
+                
+                # Award existing points
+                if int(row['points']) > 0:
+                    client.points.award(
+                        customer_id=customer['id'],
+                        points=int(row['points']),
+                        reason="migration"
+                    )
+                
+                print(f"Migrated customer: {customer['email']}")
+                
+            except Exception as e:
+                print(f"Failed to migrate {row['email']}: {e}")
+```
+
+## Support & Resources
+
+### Debug Logging
+
+```python
+import logging
+from loyalty_lt import LoyaltyClient
+
+# Enable debug logging
+logging.basicConfig(level=logging.DEBUG)
+
+client = LoyaltyClient(
+    api_key="your_api_key",
+    shop_id="your_shop_id",
+    debug=True
+)
+```
+
+### API Reference
+
+- **Documentation**: [docs.loyalty.lt/api](https://docs.loyalty.lt/api)
+- **Python SDK**: [pypi.org/project/loyalty-lt](https://pypi.org/project/loyalty-lt)
+- **GitHub Repository**: [github.com/loyalty-lt/python-sdk](https://github.com/loyalty-lt/python-sdk)
+- **Support**: support@loyalty.lt
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+<Card title="Shop API Reference" icon="store" href="/api/shop/loyalty-cards">
+  Explore the full Shop API documentation
+</Card>
+
+<Card title="Partner API Reference" icon="handshake" href="/api/partners/overview">
+  Learn about Partner API capabilities
+</Card>
+
+<Card title="JavaScript SDK" icon="js-square" href="/sdk/javascript/installation">
+  Integrate with frontend applications
+</Card>
+
+<Card title="Troubleshooting" icon="tools" href="/troubleshooting/faq">
+  Get help with common issues
+</Card>
+</CardGroup> 

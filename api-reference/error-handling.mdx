@@ -1,0 +1,665 @@
+---
+title: "Error Handling"
+description: "Learn how to handle errors and troubleshoot issues with the Loyalty.lt API"
+---
+
+# Error Handling
+
+The Loyalty.lt API uses conventional HTTP response codes to indicate the success or failure of an API request. In general, codes in the 2xx range indicate success, codes in the 4xx range indicate an error that failed given the information provided, and codes in the 5xx range indicate an error with our servers.
+
+<Info>
+All error responses include a detailed error message and unique request ID to help with debugging and support.
+</Info>
+
+## Response Structure
+
+### Success Response
+```json
+{
+  "success": true,
+  "code": 200,
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  "message": "Operation completed successfully",
+  "data": {
+    // Response data here
+  }
+}
+```
+
+### Error Response
+```json
+{
+  "success": false,
+  "code": 400,
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  "message": "Validation failed",
+  "errors": [
+    {
+      "field": "email",
+      "message": "Email address is required",
+      "code": "REQUIRED_FIELD"
+    }
+  ]
+}
+```
+
+## HTTP Status Codes
+
+### 2xx Success
+
+| Code | Status | Description |
+|------|--------|-------------|
+| 200 | OK | Request succeeded |
+| 201 | Created | Resource was successfully created |
+| 202 | Accepted | Request accepted for processing |
+| 204 | No Content | Request succeeded with no response body |
+
+### 4xx Client Errors
+
+<Tabs>
+<Tab title="400 Bad Request">
+The request was unacceptable, often due to missing or invalid parameters.
+
+```json
+{
+  "success": false,
+  "code": 400,
+  "request_id": "req_123",
+  "message": "Invalid request parameters",
+  "errors": [
+    {
+      "field": "points",
+      "message": "Points must be a positive integer",
+      "code": "INVALID_VALUE"
+    }
+  ]
+}
+```
+
+**Common Causes:**
+- Invalid JSON in request body
+- Missing required parameters
+- Invalid parameter types or formats
+- Request body too large
+</Tab>
+
+<Tab title="401 Unauthorized">
+Authentication credentials are missing or invalid.
+
+```json
+{
+  "success": false,
+  "code": 401,
+  "request_id": "req_124",
+  "message": "Authentication required",
+  "errors": [
+    {
+      "field": "authentication",
+      "message": "Invalid API credentials",
+      "code": "INVALID_CREDENTIALS"
+    }
+  ]
+}
+```
+
+**Common Causes:**
+- Missing API Key or Secret headers
+- Invalid or expired JWT token
+- Malformed authentication headers
+- Using wrong authentication method
+</Tab>
+
+<Tab title="403 Forbidden">
+The API key doesn't have permissions to perform the request.
+
+```json
+{
+  "success": false,
+  "code": 403,
+  "request_id": "req_125",
+  "message": "Insufficient permissions",
+  "errors": [
+    {
+      "field": "authorization",
+      "message": "Access denied for this resource",
+      "code": "INSUFFICIENT_PERMISSIONS"
+    }
+  ]
+}
+```
+
+**Common Causes:**
+- API credentials lack required scope
+- User role restrictions
+- IP address not whitelisted
+- Resource access restrictions
+</Tab>
+
+<Tab title="404 Not Found">
+The requested resource doesn't exist.
+
+```json
+{
+  "success": false,
+  "code": 404,
+  "request_id": "req_126",
+  "message": "Resource not found",
+  "errors": [
+    {
+      "field": "customer_id",
+      "message": "Customer with ID 'cust_123' not found",
+      "code": "RESOURCE_NOT_FOUND"
+    }
+  ]
+}
+```
+
+**Common Causes:**
+- Invalid resource ID
+- Resource was deleted
+- Wrong API endpoint
+- Typos in URL path
+</Tab>
+
+<Tab title="422 Validation Error">
+The request was well-formed but contains semantic errors.
+
+```json
+{
+  "success": false,
+  "code": 422,
+  "request_id": "req_127",
+  "message": "Validation failed",
+  "errors": [
+    {
+      "field": "email",
+      "message": "Email address is already registered",
+      "code": "DUPLICATE_VALUE"
+    },
+    {
+      "field": "points",
+      "message": "Insufficient points balance",
+      "code": "INSUFFICIENT_BALANCE"
+    }
+  ]
+}
+```
+
+**Common Causes:**
+- Business rule violations
+- Duplicate resource creation
+- Insufficient balance/credits
+- Invalid state transitions
+</Tab>
+
+<Tab title="429 Rate Limited">
+Too many requests hit the API too quickly.
+
+```json
+{
+  "success": false,
+  "code": 429,
+  "request_id": "req_128",
+  "message": "Rate limit exceeded",
+  "errors": [
+    {
+      "field": "rate_limit",
+      "message": "API rate limit exceeded. Try again in 60 seconds",
+      "code": "RATE_LIMIT_EXCEEDED"
+    }
+  ]
+}
+```
+
+**Headers Included:**
+```http
+X-RateLimit-Limit: 1000
+X-RateLimit-Remaining: 0
+X-RateLimit-Reset: 1642694400
+Retry-After: 60
+```
+</Tab>
+</Tabs>
+
+### 5xx Server Errors
+
+| Code | Status | Description |
+|------|--------|-------------|
+| 500 | Internal Server Error | Something went wrong on our end |
+| 502 | Bad Gateway | Invalid response from upstream server |
+| 503 | Service Unavailable | Service temporarily overloaded or down |
+| 504 | Gateway Timeout | Request timed out |
+
+## Error Codes
+
+Each error includes a specific error code for programmatic handling:
+
+### Authentication Errors
+- `INVALID_CREDENTIALS` - API key or secret is invalid
+- `EXPIRED_TOKEN` - JWT token has expired
+- `MISSING_AUTHENTICATION` - No authentication provided
+- `INVALID_TOKEN_FORMAT` - Malformed JWT token
+
+### Authorization Errors
+- `INSUFFICIENT_PERMISSIONS` - Lacking required permissions
+- `ACCESS_DENIED` - Resource access denied
+- `IP_NOT_WHITELISTED` - IP address not allowed
+- `SCOPE_INSUFFICIENT` - API key scope limitations
+
+### Validation Errors
+- `REQUIRED_FIELD` - Required field is missing
+- `INVALID_VALUE` - Field value is invalid
+- `DUPLICATE_VALUE` - Value already exists
+- `INVALID_FORMAT` - Field format is incorrect
+- `OUT_OF_RANGE` - Value outside allowed range
+
+### Business Logic Errors
+- `INSUFFICIENT_BALANCE` - Not enough points/credits
+- `RESOURCE_NOT_FOUND` - Requested resource doesn't exist
+- `INVALID_STATE` - Operation not allowed in current state
+- `QUOTA_EXCEEDED` - Usage quota exceeded
+- `EXPIRED_OFFER` - Offer or coupon has expired
+
+### Rate Limiting Errors
+- `RATE_LIMIT_EXCEEDED` - Too many requests
+- `DAILY_QUOTA_EXCEEDED` - Daily API quota reached
+- `CONCURRENT_LIMIT_EXCEEDED` - Too many concurrent requests
+
+## Error Handling Best Practices
+
+### Implement Robust Error Handling
+
+<CodeGroup>
+```javascript Node.js
+const axios = require('axios');
+
+async function makeAPICall() {
+  try {
+    const response = await axios.post('https://staging-api.loyalty.lt/api/customers', {
+      email: 'customer@example.com',
+      first_name: 'John'
+    }, {
+      headers: {
+        'X-API-Key': process.env.LOYALTY_API_KEY,
+        'X-API-Secret': process.env.LOYALTY_API_SECRET
+      }
+    });
+    
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      // API returned an error response
+      const { status, data } = error.response;
+      
+      switch (status) {
+        case 400:
+          console.error('Bad Request:', data.message);
+          break;
+        case 401:
+          console.error('Authentication failed:', data.message);
+          // Refresh credentials or redirect to login
+          break;
+        case 422:
+          console.error('Validation errors:');
+          data.errors.forEach(err => {
+            console.error(`- ${err.field}: ${err.message}`);
+          });
+          break;
+        case 429:
+          console.error('Rate limited. Retry after:', error.response.headers['retry-after']);
+          // Implement exponential backoff
+          break;
+        default:
+          console.error('API Error:', data.message);
+      }
+    } else if (error.request) {
+      // Network error
+      console.error('Network error:', error.message);
+    } else {
+      // Other error
+      console.error('Error:', error.message);
+    }
+    throw error;
+  }
+}
+```
+
+```python Python
+import requests
+import time
+import random
+
+def make_api_call_with_retry(url, data=None, max_retries=3):
+    headers = {
+        'X-API-Key': os.getenv('LOYALTY_API_KEY'),
+        'X-API-Secret': os.getenv('LOYALTY_API_SECRET'),
+        'Content-Type': 'application/json'
+    }
+    
+    for attempt in range(max_retries + 1):
+        try:
+            response = requests.post(url, json=data, headers=headers)
+            
+            if response.status_code == 429:
+                # Rate limited
+                retry_after = int(response.headers.get('Retry-After', 60))
+                if attempt < max_retries:
+                    time.sleep(retry_after + random.uniform(0, 5))
+                    continue
+                    
+            response.raise_for_status()
+            return response.json()
+            
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code in [400, 401, 403, 404, 422]:
+                # Client errors - don't retry
+                error_data = e.response.json()
+                print(f"API Error: {error_data.get('message')}")
+                if 'errors' in error_data:
+                    for error in error_data['errors']:
+                        print(f"- {error.get('field')}: {error.get('message')}")
+                raise
+            elif attempt < max_retries:
+                # Server errors - retry with exponential backoff
+                wait_time = (2 ** attempt) + random.uniform(0, 1)
+                time.sleep(wait_time)
+            else:
+                raise
+                
+        except requests.exceptions.RequestException as e:
+            if attempt < max_retries:
+                wait_time = (2 ** attempt) + random.uniform(0, 1)
+                time.sleep(wait_time)
+            else:
+                raise
+
+    return None
+```
+
+```php PHP
+<?php
+function makeAPICallWithRetry($url, $data = null, $maxRetries = 3) {
+    $headers = [
+        'X-API-Key: ' . $_ENV['LOYALTY_API_KEY'],
+        'X-API-Secret: ' . $_ENV['LOYALTY_API_SECRET'],
+        'Content-Type: application/json'
+    ];
+    
+    for ($attempt = 0; $attempt <= $maxRetries; $attempt++) {
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => $headers,
+            CURLOPT_POST => true,
+            CURLOPT_POSTFIELDS => json_encode($data),
+            CURLOPT_TIMEOUT => 30
+        ]);
+        
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+        
+        if ($error) {
+            error_log("cURL Error: $error");
+            if ($attempt < $maxRetries) {
+                sleep(pow(2, $attempt) + rand(0, 1000) / 1000);
+                continue;
+            }
+            throw new Exception("Network error: $error");
+        }
+        
+        $data = json_decode($response, true);
+        
+        switch ($httpCode) {
+            case 200:
+            case 201:
+                return $data;
+                
+            case 400:
+            case 422:
+                error_log("Validation Error: " . $data['message']);
+                foreach ($data['errors'] as $error) {
+                    error_log("- {$error['field']}: {$error['message']}");
+                }
+                throw new Exception("Validation failed");
+                
+            case 401:
+                error_log("Authentication failed: " . $data['message']);
+                throw new Exception("Invalid credentials");
+                
+            case 429:
+                if ($attempt < $maxRetries) {
+                    $retryAfter = 60; // Default retry after
+                    sleep($retryAfter + rand(0, 5));
+                    continue;
+                }
+                throw new Exception("Rate limited");
+                
+            case 500:
+            case 502:
+            case 503:
+            case 504:
+                if ($attempt < $maxRetries) {
+                    sleep(pow(2, $attempt) + rand(0, 1000) / 1000);
+                    continue;
+                }
+                throw new Exception("Server error");
+                
+            default:
+                throw new Exception("Unexpected HTTP code: $httpCode");
+        }
+    }
+}
+?>
+```
+</CodeGroup>
+
+### Implement Exponential Backoff
+
+For rate limiting and server errors, implement exponential backoff:
+
+```javascript
+async function exponentialBackoff(fn, maxRetries = 3) {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (error.response?.status === 429 || error.response?.status >= 500) {
+        if (attempt === maxRetries) throw error;
+        
+        const delay = Math.min(1000 * Math.pow(2, attempt), 10000);
+        const jitter = Math.random() * 1000;
+        await new Promise(resolve => setTimeout(resolve, delay + jitter));
+      } else {
+        throw error;
+      }
+    }
+  }
+}
+```
+
+### Log Errors with Context
+
+Always log errors with sufficient context for debugging:
+
+```javascript
+function logAPIError(error, context) {
+  const logData = {
+    timestamp: new Date().toISOString(),
+    context,
+    request_id: error.response?.data?.request_id,
+    status: error.response?.status,
+    message: error.response?.data?.message,
+    errors: error.response?.data?.errors
+  };
+  
+  console.error('API Error:', JSON.stringify(logData, null, 2));
+}
+```
+
+## Common Error Scenarios
+
+### Insufficient Points Balance
+
+```json
+{
+  "success": false,
+  "code": 422,
+  "message": "Cannot redeem points",
+  "errors": [
+    {
+      "field": "points",
+      "message": "Customer has 150 points but 200 points requested",
+      "code": "INSUFFICIENT_BALANCE",
+      "meta": {
+        "available_points": 150,
+        "requested_points": 200
+      }
+    }
+  ]
+}
+```
+
+**Handling:**
+```javascript
+if (error.response?.data?.errors?.[0]?.code === 'INSUFFICIENT_BALANCE') {
+  const available = error.response.data.errors[0].meta.available_points;
+  console.log(`Customer only has ${available} points available`);
+  // Update UI to show available points
+}
+```
+
+### Expired Offers
+
+```json
+{
+  "success": false,
+  "code": 422,
+  "message": "Cannot redeem offer",
+  "errors": [
+    {
+      "field": "offer_id",
+      "message": "Offer expired on 2024-01-15",
+      "code": "EXPIRED_OFFER",
+      "meta": {
+        "expired_at": "2024-01-15T23:59:59Z"
+      }
+    }
+  ]
+}
+```
+
+### Duplicate Customer Registration
+
+```json
+{
+  "success": false,
+  "code": 422,
+  "message": "Customer already exists",
+  "errors": [
+    {
+      "field": "email",
+      "message": "Email address is already registered",
+      "code": "DUPLICATE_VALUE",
+      "meta": {
+        "existing_customer_id": "cust_123"
+      }
+    }
+  ]
+}
+```
+
+## Webhooks Error Handling
+
+When receiving webhooks, always return appropriate HTTP status codes:
+
+```javascript
+app.post('/webhooks/loyalty', (req, res) => {
+  try {
+    // Verify webhook signature
+    if (!verifyWebhookSignature(req.body, req.headers['x-signature'])) {
+      return res.status(401).json({ error: 'Invalid signature' });
+    }
+    
+    // Process webhook
+    processLoyaltyEvent(req.body);
+    
+    // Return success
+    res.status(200).json({ received: true });
+  } catch (error) {
+    console.error('Webhook processing failed:', error);
+    // Return 5xx to trigger retry
+    res.status(500).json({ error: 'Processing failed' });
+  }
+});
+```
+
+## Testing Error Scenarios
+
+### Simulate Errors in Staging
+
+Use these techniques to test error handling:
+
+```bash
+# Test validation errors
+curl -X POST "https://staging-api.loyalty.lt/api/customers" \
+  -H "X-API-Key: your_key" \
+  -H "X-API-Secret: your_secret" \
+  -d '{"email": "invalid-email"}'
+
+# Test authentication errors  
+curl -X GET "https://staging-api.loyalty.lt/api/customers" \
+  -H "X-API-Key: invalid_key"
+
+# Test rate limiting (make many rapid requests)
+for i in {1..100}; do
+  curl -X GET "https://staging-api.loyalty.lt/api/customers"
+done
+```
+
+### Error Monitoring
+
+Set up monitoring for common error patterns:
+
+```javascript
+// Monitor error rates
+function trackAPIError(error) {
+  const metrics = {
+    error_type: error.response?.data?.errors?.[0]?.code || 'UNKNOWN',
+    status_code: error.response?.status,
+    endpoint: error.config?.url,
+    timestamp: Date.now()
+  };
+  
+  // Send to monitoring service
+  analytics.track('api_error', metrics);
+}
+```
+
+---
+
+## Support & Debugging
+
+<CardGroup cols={2}>
+<Card title="Request ID Tracking" icon="search">
+  Always include the `request_id` when contacting support for faster resolution.
+</Card>
+
+<Card title="Status Page" icon="chart-line" href="https://status.loyalty.lt">
+  Check our status page for known issues and maintenance windows.
+</Card>
+
+<Card title="API Logs" icon="file-text" href="https://partners.loyalty.lt/logs">
+  View detailed API logs in the Partners Portal.
+</Card>
+
+<Card title="Contact Support" icon="envelope" href="mailto:support@loyalty.lt">
+  Email our technical support team with error details.
+</Card>
+</CardGroup>
+
+<Tip>
+When reporting errors, include the request ID, timestamp, endpoint URL, and request/response bodies (excluding sensitive data).
+</Tip> 

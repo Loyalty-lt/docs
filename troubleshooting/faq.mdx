@@ -1,0 +1,1021 @@
+---
+title: "Frequently Asked Questions"
+description: "Common questions and solutions for Loyalty.lt integration"
+---
+
+# Frequently Asked Questions
+
+Find answers to common questions about integrating and using the Loyalty.lt loyalty program platform.
+
+## General Questions
+
+<AccordionGroup>
+
+<Accordion title="What is Loyalty.lt and how does it work?">
+Loyalty.lt is a comprehensive loyalty program platform that helps businesses increase customer retention and engagement. It works by:
+
+- **Points System**: Customers earn points for purchases, reviews, referrals, and other activities
+- **Tier Management**: Customers progress through tiers (Bronze, Silver, Gold, Platinum) with increasing benefits
+- **Rewards & Offers**: Customers can redeem points for discounts, free products, or special offers
+- **Gamification**: Interactive games and challenges to boost engagement
+- **Digital Cards**: QR code-based loyalty cards for easy identification
+
+The platform provides APIs for Shop owners, Partners, and SDK integration for seamless integration into your existing systems.
+</Accordion>
+
+<Accordion title="Which platforms and frameworks are supported?">
+Loyalty.lt supports a wide range of platforms and frameworks:
+
+**Backend/Server-side:**
+- PHP 7.4+ (Laravel, Symfony, CodeIgniter, Pure PHP)
+- Python 3.7+ (Django, Flask, FastAPI)
+- Node.js (Express, NestJS, Next.js)
+
+**Frontend/Client-side:**
+- JavaScript (Vanilla, React, Angular)
+- Vue.js 3.x (with Nuxt.js support)
+- TypeScript support across all SDKs
+
+**E-commerce Platforms:**
+- WooCommerce (WordPress)
+- Shopify
+- PrestaShop
+- Magento (via API)
+- Custom e-commerce solutions
+
+**Mobile:**
+- React Native
+- iOS (Swift)
+- Android (Kotlin/Java)
+</Accordion>
+
+<Accordion title="What are the different API types and when should I use each?">
+Loyalty.lt offers three main API types:
+
+**1. Shop API**
+- **Use Case**: Direct integration with your e-commerce store
+- **Authentication**: API credentials (shop-specific)
+- **Features**: Customer management, points, loyalty cards, offers
+- **Best For**: Single store owners, direct integrations
+
+**2. Partner API**
+- **Use Case**: Managing multiple shops, white-label solutions
+- **Authentication**: JWT tokens with partner permissions
+- **Features**: Multi-shop management, analytics, bulk operations
+- **Best For**: Agencies, SaaS providers, enterprise partners
+
+**3. SDK API**
+- **Use Case**: Embedded widgets, mobile apps, custom UIs
+- **Authentication**: API credentials + customer context
+- **Features**: Customer-facing functionality, games, redemptions
+- **Best For**: Custom applications, mobile apps, embedded solutions
+</Accordion>
+
+<Accordion title="How much does Loyalty.lt cost?">
+Loyalty.lt offers flexible pricing plans:
+
+- **Starter**: Free for up to 1,000 customers
+- **Professional**: Usage-based pricing for growing businesses
+- **Enterprise**: Custom pricing for large-scale implementations
+
+Pricing is based on:
+- Number of active customers
+- API calls per month
+- Advanced features usage
+- Support level required
+
+Contact our sales team at sales@loyalty.lt for detailed pricing information.
+</Accordion>
+
+</AccordionGroup>
+
+## Integration Questions
+
+<AccordionGroup>
+
+<Accordion title="How do I get started with integration?">
+Follow these steps to get started:
+
+1. **Sign up**: Create an account at [partners.loyalty.lt](https://partners.loyalty.lt)
+2. **Get credentials**: Generate your API key and shop ID
+3. **Choose integration method**:
+   - Use our SDKs for quick setup
+   - Direct API calls for custom implementations
+   - E-commerce plugins for platforms like WooCommerce
+
+4. **Test in staging**: Always test in our staging environment first
+5. **Go live**: Switch to production when ready
+
+**Quick Start Resources:**
+- [Quick Start Guide](/overview/quick-start)
+- [API Documentation](/api-reference/introduction)
+- [SDK Installation Guides](/sdk/javascript/installation)
+</Accordion>
+
+<Accordion title="What's the difference between staging and production environments?">
+**Staging Environment:**
+- **Purpose**: Testing and development
+- **URL**: `https://staging-api.loyalty.lt`
+- **Data**: Test data only, reset periodically
+- **Limitations**: Rate limiting, some features may be disabled
+- **Usage**: Safe for testing, won't affect real customers
+
+**Production Environment:**
+- **Purpose**: Live customer data and transactions
+- **URL**: `https://api.loyalty.lt`
+- **Data**: Real customer data, permanent storage
+- **Performance**: Full performance, all features enabled
+- **Usage**: Only use when ready for live customers
+
+**Best Practice**: Always develop and test in staging before deploying to production.
+</Accordion>
+
+<Accordion title="How do I migrate from staging to production?">
+To migrate from staging to production:
+
+1. **Update environment variables**:
+   ```bash
+   # Change from staging to production
+   LOYALTY_ENV=production
+   LOYALTY_API_URL=https://api.loyalty.lt
+   ```
+
+2. **Update API endpoints** in your code if hardcoded
+3. **Test thoroughly** in staging first
+4. **Export/import data** if needed (contact support for assistance)
+5. **Monitor closely** after deployment
+
+**Important**: Staging and production are separate environments. Data doesn't automatically transfer between them.
+</Accordion>
+
+<Accordion title="Can I test with real customer data?">
+**No, never use real customer data in staging.**
+
+Instead:
+- Create test customers with fake emails
+- Use realistic but fictional data
+- Test all scenarios with dummy data
+- Use our testing tools and mock clients
+
+**For production testing:**
+- Start with a small group of real customers
+- Use feature flags to gradually roll out
+- Monitor error rates and performance
+- Have a rollback plan ready
+</Accordion>
+
+</AccordionGroup>
+
+## Technical Questions
+
+<AccordionGroup>
+
+<Accordion title="What authentication methods are supported?">
+Loyalty.lt supports multiple authentication methods:
+
+**1. API Credentials (Recommended for most use cases)**
+```javascript
+// Shop API authentication
+headers: {
+  'Authorization': 'Bearer your_api_key',
+  'Shop-ID': 'your_shop_id'
+}
+```
+
+**2. JWT Tokens (Partner API)**
+```javascript
+// Partner API authentication
+headers: {
+  'Authorization': 'Bearer jwt_token'
+}
+```
+
+**3. OAuth 2.0 (Advanced integrations)**
+- Used for third-party app integrations
+- Requires approval from Loyalty.lt team
+- Supports various grant types
+
+**Security Best Practices:**
+- Never expose API keys in client-side code
+- Use environment variables for credentials
+- Rotate keys regularly
+- Monitor API usage for anomalies
+</Accordion>
+
+<Accordion title="How do rate limits work?">
+Rate limits protect our API and ensure fair usage:
+
+**Default Limits:**
+- **Shop API**: 1,000 requests per hour per shop
+- **Partner API**: 5,000 requests per hour per partner
+- **SDK API**: 10,000 requests per hour per shop
+
+**Rate Limit Headers:**
+```http
+X-RateLimit-Limit: 1000
+X-RateLimit-Remaining: 999
+X-RateLimit-Reset: 1609459200
+```
+
+**When Rate Limited:**
+- HTTP 429 status code returned
+- Retry after time provided in response
+- Implement exponential backoff in your code
+
+**Increasing Limits:**
+- Contact support for higher limits
+- Enterprise plans include higher limits
+- Bulk operations use separate limits
+</Accordion>
+
+<Accordion title="How should I handle API errors?">
+Implement robust error handling for all API calls:
+
+**HTTP Status Codes:**
+- `200`: Success
+- `400`: Bad Request (validation errors)
+- `401`: Unauthorized (invalid credentials)
+- `403`: Forbidden (insufficient permissions)
+- `404`: Not Found (resource doesn't exist)
+- `409`: Conflict (duplicate data)
+- `429`: Rate Limited
+- `500`: Server Error
+
+**Error Response Format:**
+```json
+{
+  "error": {
+    "code": "CUSTOMER_NOT_FOUND",
+    "message": "Customer with ID 'xyz' not found",
+    "details": {
+      "customer_id": "xyz",
+      "shop_id": "abc123"
+    }
+  }
+}
+```
+
+**Best Practices:**
+- Always check HTTP status codes
+- Parse error messages for user feedback
+- Implement retry logic for transient errors
+- Log errors for debugging
+- Provide fallback behavior when possible
+</Accordion>
+
+<Accordion title="What data formats are supported?">
+**Request/Response Format:**
+- **Primary**: JSON (application/json)
+- **Webhooks**: JSON payload with signature verification
+- **Exports**: CSV, JSON, Excel formats
+
+**Date/Time Format:**
+- **ISO 8601**: `2024-01-15T10:30:00Z`
+- **Date only**: `2024-01-15`
+- **Timezone**: UTC recommended, local timezone supported
+
+**Currencies:**
+- **ISO 4217** currency codes (USD, EUR, GBP, etc.)
+- **Decimal precision**: 2 decimal places
+- **Format**: Numeric (not string with symbols)
+
+**Example:**
+```json
+{
+  "customer_id": "cust_123",
+  "points": 150,
+  "currency": "USD",
+  "amount": 99.99,
+  "created_at": "2024-01-15T10:30:00Z"
+}
+```
+</Accordion>
+
+</AccordionGroup>
+
+## Common Issues
+
+<AccordionGroup>
+
+<Accordion title="Why am I getting 'Invalid API credentials' errors?">
+This error indicates authentication issues. Check these common causes:
+
+**1. Wrong API Key or Shop ID**
+```bash
+# Verify your credentials in Partners Portal
+https://partners.loyalty.lt/dashboard
+```
+
+**2. Environment Mismatch**
+```javascript
+// Make sure you're using the right environment
+const isProduction = process.env.NODE_ENV === 'production'
+const apiKey = isProduction ? PROD_API_KEY : STAGING_API_KEY
+```
+
+**3. Header Format Issues**
+```javascript
+// Correct format
+headers: {
+  'Authorization': 'Bearer ' + apiKey,  // Note the space after 'Bearer'
+  'Shop-ID': shopId,
+  'Content-Type': 'application/json'
+}
+```
+
+**4. Expired or Revoked Keys**
+- Check if keys were recently regenerated
+- Verify account is active and in good standing
+- Contact support if keys appear corrupted
+
+**Debugging Steps:**
+1. Test credentials in our API explorer
+2. Check for typos in key/ID
+3. Verify environment URLs
+4. Test with curl to isolate SDK issues
+</Accordion>
+
+<Accordion title="Points aren't being awarded to customers. What's wrong?">
+Several factors can prevent points from being awarded:
+
+**1. Customer Not Found**
+```javascript
+// Ensure customer exists first
+const customer = await loyalty.customers.get(customerId)
+if (!customer) {
+  // Create customer first
+  await loyalty.customers.create(customerData)
+}
+```
+
+**2. Invalid Point Amount**
+```javascript
+// Points must be positive integers
+const points = Math.max(1, Math.floor(calculatedPoints))
+```
+
+**3. Duplicate Transaction Prevention**
+```javascript
+// Use unique order IDs to prevent duplicates
+await loyalty.points.award({
+  customer_id: customerId,
+  points: points,
+  reason: 'purchase',
+  order_id: uniqueOrderId  // This prevents duplicates
+})
+```
+
+**4. Shop Configuration Issues**
+- Check if points earning is enabled for your shop
+- Verify minimum order amounts
+- Review earning rate settings
+
+**Debugging:**
+- Check API response for error details
+- Verify customer ID format and existence
+- Test with a known working customer
+- Review shop settings in Partners Portal
+</Accordion>
+
+<Accordion title="Webhooks aren't working. How do I fix them?">
+Webhook issues are common but usually easy to fix:
+
+**1. Verify Webhook URL**
+- Must be publicly accessible HTTPS URL
+- Should return 200 status code for valid requests
+- Test URL manually with tools like curl or Postman
+
+**2. Check Signature Verification**
+```javascript
+// Proper webhook verification
+const crypto = require('crypto')
+
+function verifyWebhook(payload, signature, secret) {
+  const expectedSignature = crypto
+    .createHmac('sha256', secret)
+    .update(payload)
+    .digest('hex')
+  
+  return crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(`sha256=${expectedSignature}`)
+  )
+}
+```
+
+**3. Common Response Issues**
+```javascript
+// Webhook handler should return 200
+app.post('/webhook', (req, res) => {
+  try {
+    // Process webhook
+    processWebhook(req.body)
+    res.status(200).send('OK')  // Important!
+  } catch (error) {
+    res.status(500).send('Error')
+  }
+})
+```
+
+**4. Debugging Steps**
+- Check webhook logs in Partners Portal
+- Verify HTTPS certificate is valid
+- Test with ngrok for local development
+- Monitor server logs for errors
+- Use webhook testing tools
+</Accordion>
+
+<Accordion title="My integration is slow. How can I improve performance?">
+Several strategies can improve integration performance:
+
+**1. Use Bulk Operations**
+```javascript
+// Instead of individual API calls
+for (const customer of customers) {
+  await loyalty.points.award(customer.id, points)
+}
+
+// Use bulk operations
+await loyalty.points.bulkAward(customers.map(c => ({
+  customer_id: c.id,
+  points: points,
+  reason: 'bulk_bonus'
+})))
+```
+
+**2. Implement Caching**
+```javascript
+// Cache customer data
+const cache = new Map()
+
+async function getCustomerPoints(customerId) {
+  if (cache.has(customerId)) {
+    return cache.get(customerId)
+  }
+  
+  const balance = await loyalty.customers.getBalance(customerId)
+  cache.set(customerId, balance, { ttl: 300 }) // 5 minute cache
+  return balance
+}
+```
+
+**3. Use Asynchronous Processing**
+```javascript
+// Queue API calls for background processing
+const queue = new Queue('loyalty-operations')
+
+queue.add('award-points', {
+  customerId,
+  points,
+  reason
+})
+```
+
+**4. Optimize Network Requests**
+- Use HTTP/2 when available
+- Implement connection pooling
+- Reduce payload sizes
+- Batch related operations
+
+**5. Database Optimization**
+- Index customer lookup fields
+- Cache frequently accessed data
+- Use read replicas for queries
+</Accordion>
+
+</AccordionGroup>
+
+## E-commerce Specific
+
+<AccordionGroup>
+
+<Accordion title="How do I integrate with WooCommerce?">
+WooCommerce integration can be done in several ways:
+
+**1. Official Plugin (Recommended)**
+- Download from WordPress Plugin Directory
+- Easy setup through admin interface
+- Automatic point calculation and redemption
+- Built-in customer synchronization
+
+**2. Custom Integration**
+```php
+// Hook into WooCommerce events
+add_action('woocommerce_order_status_completed', 'award_loyalty_points');
+
+function award_loyalty_points($order_id) {
+    $order = wc_get_order($order_id);
+    $customer_id = $order->get_customer_id();
+    $points = calculate_points($order->get_total());
+    
+    // Award points via API
+    $loyalty = new LoyaltyClient($api_key, $shop_id);
+    $loyalty->points()->award([
+        'customer_id' => $customer_id,
+        'points' => $points,
+        'reason' => 'purchase',
+        'order_id' => $order_id
+    ]);
+}
+```
+
+**3. Configuration Steps**
+1. Install and activate the plugin
+2. Configure API credentials
+3. Set point earning rules
+4. Configure redemption options
+5. Test with a small order
+
+**Common Issues:**
+- Ensure customer accounts are linked properly
+- Check point calculation rules
+- Verify webhook endpoints are working
+- Test redemption flow thoroughly
+
+[View Full WooCommerce Guide](/sdk/ecommerce/woocommerce)
+</Accordion>
+
+<Accordion title="Can customers use points across multiple stores?">
+Yes, Loyalty.lt supports multi-store point sharing:
+
+**Partner-level Points**
+- Points earned at any partner store
+- Can be redeemed at any partner store
+- Unified customer profiles across stores
+- Centralized tier progression
+
+**Configuration Required:**
+```javascript
+// Enable multi-store points in Partner API
+await loyalty.partners.updateSettings({
+  multi_store_points: true,
+  point_sharing: 'full', // 'full', 'earning_only', 'redemption_only'
+  unified_tiers: true
+})
+```
+
+**Customer Experience:**
+- Single login across all stores
+- Combined points balance
+- Tier benefits at all locations
+- Unified transaction history
+
+**Implementation:**
+- Use Partner API for multi-store setups
+- Implement customer SSO if needed
+- Configure store-specific earning rates
+- Set up cross-store redemption rules
+
+**Note:** This feature requires Partner-level access and configuration.
+</Accordion>
+
+<Accordion title="How do I handle refunds and returns?">
+Refunds require careful handling of loyalty points:
+
+**1. Automatic Point Deduction**
+```javascript
+// When processing a refund
+await loyalty.points.deduct({
+  customer_id: customerId,
+  points: pointsToDeduct,
+  reason: 'refund',
+  order_id: originalOrderId,
+  refund_id: refundId
+})
+```
+
+**2. Partial Refunds**
+```javascript
+// Calculate proportional point deduction
+const originalPoints = 150
+const originalAmount = 150.00
+const refundAmount = 50.00
+const pointsToDeduct = Math.floor((refundAmount / originalAmount) * originalPoints)
+```
+
+**3. Grace Period Handling**
+```javascript
+// Check if points were already redeemed
+const customerBalance = await loyalty.customers.getBalance(customerId)
+if (customerBalance.points < pointsToDeduct) {
+  // Handle insufficient points scenario
+  // Options: partial deduction, negative balance, or block refund
+}
+```
+
+**Best Practices:**
+- Deduct points immediately upon refund
+- Handle insufficient point scenarios gracefully
+- Maintain detailed refund logs
+- Consider grace periods for accidental purchases
+- Communicate point changes to customers
+
+**Configuration Options:**
+- Allow negative point balances
+- Set maximum refund timeframes
+- Configure automatic vs manual point adjustments
+</Accordion>
+
+</AccordionGroup>
+
+## Mobile & SDK Questions
+
+<AccordionGroup>
+
+<Accordion title="How do I implement QR code scanning for loyalty cards?">
+QR code scanning can be implemented across platforms:
+
+**JavaScript (Web)**
+```javascript
+import { LoyaltySDK } from '@loyalty-lt/sdk'
+
+// Initialize QR scanner
+const scanner = LoyaltySDK.createQRScanner({
+  onScan: (qrData) => {
+    // Handle scanned loyalty card
+    handleLoyaltyCardScan(qrData)
+  },
+  onError: (error) => {
+    console.error('QR scan error:', error)
+  }
+})
+
+async function handleLoyaltyCardScan(qrData) {
+  try {
+    const result = await loyalty.loyaltyCards.scan(qrData)
+    const customer = result.customer
+    
+    // Show customer info or award points
+    displayCustomerInfo(customer)
+  } catch (error) {
+    // Handle invalid QR code
+    showError('Invalid loyalty card')
+  }
+}
+```
+
+**React Native**
+```javascript
+import { Camera } from 'expo-camera'
+import { LoyaltySDK } from '@loyalty-lt/react-native-sdk'
+
+function QRScanner() {
+  const handleBarCodeScanned = async ({ data }) => {
+    try {
+      const result = await LoyaltySDK.scanLoyaltyCard(data)
+      // Handle successful scan
+    } catch (error) {
+      // Handle scan error
+    }
+  }
+
+  return (
+    <Camera
+      onBarCodeScanned={handleBarCodeScanned}
+      barCodeScannerSettings={{
+        barCodeTypes: ['qr'],
+      }}
+    />
+  )
+}
+```
+
+**Native Mobile Integration:**
+- iOS: Use AVFoundation for camera access
+- Android: Use Camera2 API or CameraX
+- Consider using existing QR libraries like ZXing
+
+**QR Code Format:**
+- Contains encrypted customer ID and validation data
+- Includes expiration timestamp
+- Has built-in error correction
+</Accordion>
+
+<Accordion title="Can I customize the loyalty widget appearance?">
+Yes, loyalty widgets are highly customizable:
+
+**Theme Configuration**
+```javascript
+LoyaltySDK.init({
+  apiKey: 'your_api_key',
+  shopId: 'your_shop_id',
+  theme: {
+    primaryColor: '#007bff',
+    secondaryColor: '#6c757d',
+    backgroundColor: '#ffffff',
+    textColor: '#333333',
+    borderRadius: '8px',
+    fontFamily: 'Arial, sans-serif'
+  }
+})
+```
+
+**CSS Customization**
+```css
+/* Override widget styles */
+.loyalty-widget {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.loyalty-points {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.loyalty-tier {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+```
+
+**Component Customization**
+```javascript
+// Custom loyalty card component
+function CustomLoyaltyCard({ customer }) {
+  return (
+    <div className="custom-loyalty-card">
+      <div className="card-header">
+        <h3>{customer.firstName}'s Rewards</h3>
+      </div>
+      <div className="card-body">
+        <div className="points-display">
+          {customer.points} Points
+        </div>
+        <div className="tier-display">
+          {customer.tier} Member
+        </div>
+      </div>
+    </div>
+  )
+}
+```
+
+**Available Customization Options:**
+- Colors and branding
+- Font styles and sizes
+- Layout and positioning
+- Button styles and text
+- Animation effects
+- Responsive behavior
+</Accordion>
+
+<Accordion title="How do I handle offline scenarios in mobile apps?">
+Offline support is crucial for mobile loyalty apps:
+
+**1. Local Data Storage**
+```javascript
+// Store customer data locally
+import AsyncStorage from '@react-native-async-storage/async-storage'
+
+class OfflineLoyalty {
+  async cacheCustomerData(customerId, data) {
+    await AsyncStorage.setItem(
+      `loyalty_customer_${customerId}`,
+      JSON.stringify({
+        ...data,
+        cached_at: new Date().toISOString()
+      })
+    )
+  }
+  
+  async getCachedCustomerData(customerId) {
+    const cached = await AsyncStorage.getItem(`loyalty_customer_${customerId}`)
+    if (cached) {
+      const data = JSON.parse(cached)
+      // Check if cache is still valid (e.g., less than 1 hour old)
+      const isValid = new Date() - new Date(data.cached_at) < 3600000
+      return isValid ? data : null
+    }
+    return null
+  }
+}
+```
+
+**2. Queue Offline Actions**
+```javascript
+// Queue actions for when connection is restored
+class ActionQueue {
+  constructor() {
+    this.queue = []
+  }
+  
+  addAction(action) {
+    this.queue.push({
+      ...action,
+      timestamp: new Date().toISOString()
+    })
+    this.saveQueue()
+  }
+  
+  async processQueue() {
+    if (!this.isOnline()) return
+    
+    for (const action of this.queue) {
+      try {
+        await this.executeAction(action)
+        this.removeFromQueue(action)
+      } catch (error) {
+        // Keep in queue for retry
+        console.log('Action failed, will retry:', error)
+      }
+    }
+  }
+}
+```
+
+**3. Sync Strategy**
+```javascript
+// Implement smart sync when connection restored
+NetInfo.addEventListener(state => {
+  if (state.isConnected) {
+    syncOfflineData()
+  }
+})
+
+async function syncOfflineData() {
+  // Process queued actions
+  await actionQueue.processQueue()
+  
+  // Refresh customer data
+  await refreshCustomerData()
+  
+  // Update local cache
+  await updateLocalCache()
+}
+```
+
+**Best Practices:**
+- Cache essential data for offline viewing
+- Queue actions for later sync
+- Show clear offline indicators
+- Handle conflicts gracefully
+- Implement retry mechanisms
+</Accordion>
+
+</AccordionGroup>
+
+## Support & Contact
+
+<AccordionGroup>
+
+<Accordion title="How do I get technical support?">
+Loyalty.lt offers multiple support channels:
+
+**1. Documentation**
+- Comprehensive guides at [docs.loyalty.lt](https://docs.loyalty.lt)
+- API reference and examples
+- Video tutorials and webinars
+- Community-contributed content
+
+**2. Developer Support**
+- **Email**: dev-support@loyalty.lt
+- **Response Time**: 24-48 hours for technical issues
+- **Include**: Error messages, API responses, code snippets
+- **Priority**: Critical issues get faster response
+
+**3. Community Forums**
+- **URL**: [community.loyalty.lt](https://community.loyalty.lt)
+- **Features**: Q&A, code sharing, feature requests
+- **Monitoring**: Developer team actively participates
+- **Search**: Check existing posts before asking
+
+**4. Live Chat** (Partners Portal)
+- Available during business hours
+- Direct access to technical team
+- Screen sharing for complex issues
+- Available for paid plans
+
+**5. GitHub Issues**
+- SDK-specific issues
+- Bug reports with reproducible examples
+- Feature requests for SDKs
+- Community contributions welcome
+
+**When Contacting Support:**
+- Provide clear error messages
+- Include relevant code snippets
+- Specify environment (staging/production)
+- Share API request/response details
+- Mention your integration platform
+</Accordion>
+
+<Accordion title="Where can I find code examples and tutorials?">
+**Official Resources:**
+
+1. **Documentation Examples**
+   - Each API endpoint includes working examples
+   - SDK guides with complete code samples
+   - Integration tutorials for popular platforms
+
+2. **GitHub Repositories**
+   - [github.com/loyalty-lt/examples](https://github.com/loyalty-lt/examples)
+   - Platform-specific example projects
+   - Complete working applications
+   - Community contributions
+
+3. **Video Tutorials**
+   - YouTube channel: Loyalty.lt Developers
+   - Step-by-step integration guides
+   - Best practices webinars
+   - Live coding sessions
+
+**Community Resources:**
+
+1. **Blog Posts**
+   - Medium: @loyalty-lt
+   - Dev.to: loyalty-lt
+   - Community tutorials and tips
+
+2. **Stack Overflow**
+   - Tag: loyalty-lt
+   - Search existing questions
+   - Post new questions with tag
+
+3. **Discord Community**
+   - Real-time developer chat
+   - Code sharing and collaboration
+   - Direct access to team members
+
+**Example Projects:**
+- E-commerce integrations
+- Mobile app examples
+- Widget implementations
+- Advanced use cases
+</Accordion>
+
+<Accordion title="How do I report bugs or request features?">
+**Bug Reports:**
+
+1. **GitHub Issues** (Preferred for SDK bugs)
+   - Repository-specific issues
+   - Use provided bug report template
+   - Include reproduction steps
+   - Attach relevant logs/screenshots
+
+2. **Support Email**: bugs@loyalty.lt
+   - API-related bugs
+   - Platform-specific issues
+   - Security-related concerns
+
+**Feature Requests:**
+
+1. **Community Forum**
+   - Vote on existing requests
+   - Propose new features
+   - Discuss implementation details
+
+2. **Partners Portal**
+   - Feature request form
+   - Business impact description
+   - Use case examples
+
+**What to Include:**
+
+**For Bugs:**
+- Clear description of expected vs actual behavior
+- Steps to reproduce the issue
+- Environment details (OS, framework versions)
+- Error messages and logs
+- Code snippets if relevant
+
+**For Features:**
+- Use case description
+- Business value/impact
+- Proposed implementation
+- Examples from other platforms
+- Willingness to contribute/test
+
+**Response Expectations:**
+- **Bugs**: Acknowledged within 24-48 hours
+- **Features**: Initial response within 1 week
+- **Critical Issues**: Immediate attention
+- **Updates**: Regular status updates provided
+</Accordion>
+
+</AccordionGroup>
+
+---
+
+## Still Need Help?
+
+<CardGroup cols={2}>
+<Card title="Technical Support" icon="headset" href="mailto:dev-support@loyalty.lt">
+  Get help with integration issues and technical questions
+</Card>
+
+<Card title="Community Forum" icon="users" href="https://community.loyalty.lt">
+  Connect with other developers and share knowledge
+</Card>
+
+<Card title="API Reference" icon="book" href="/api-reference/introduction">
+  Detailed documentation for all API endpoints
+</Card>
+
+<Card title="Contact Sales" icon="phone" href="mailto:sales@loyalty.lt">
+  Questions about pricing, features, or enterprise solutions
+</Card>
+</CardGroup> 

@@ -1,0 +1,414 @@
+---
+title: "Partner API Endpoints"
+description: "Business management endpoints for partners and multi-location operations"
+---
+
+# Partner API Endpoints
+
+The Partner APIs provide comprehensive business management tools for partners operating single or multiple locations. These endpoints offer advanced analytics, staff management, and white-label solutions for enterprise customers.
+
+<Info>
+Partner APIs include advanced business intelligence, multi-store management, and enterprise-grade features designed for scalable loyalty program operations.
+</Info>
+
+## Endpoint Categories
+
+### Partner Management
+- **Partner Registration**: Onboard new business partners
+- **Partner Profiles**: Manage partner business information
+- **Partner Settings**: Configure partner-specific preferences
+- **Partner Analytics**: Track partner performance metrics
+
+### Shop Management
+- **Multi-Shop Operations**: Manage multiple store locations
+- **Shop Configuration**: Configure individual shop settings
+- **Shop Analytics**: Per-location performance tracking
+- **Shop Staff**: Manage shop-level staff and permissions
+
+### Customer Management (Partner View)
+- **Customer Overview**: View all customers across partner shops
+- **Customer Analytics**: Advanced customer behavior analysis
+- **Customer Segmentation**: Create and manage customer segments
+- **Cross-Shop Tracking**: Track customers across multiple locations
+
+### Analytics & Reporting
+- **Business Intelligence**: Comprehensive business analytics
+- **Custom Reports**: Generate tailored business reports
+- **Performance Dashboards**: Real-time KPI monitoring
+- **Data Export**: Export data for external analysis
+
+### Staff & Permissions
+- **Staff Management**: Manage partner and shop staff
+- **Role Assignment**: Configure role-based access control
+- **Permission Management**: Fine-grained permission controls
+- **Audit Logs**: Track staff actions and changes
+
+### White-Label Solutions
+- **Brand Customization**: Customize appearance and branding
+- **Custom Domains**: Configure custom domain names
+- **API Customization**: Customize API responses and behavior
+- **Integration Management**: Manage third-party integrations
+
+## Authentication Methods
+
+Partner APIs require enhanced authentication with proper authorization:
+
+<Tabs>
+<Tab title="Partner JWT">
+For partner user sessions:
+
+```bash
+curl -X GET "https://staging-api.loyalty.lt/api/partners/dashboard" \
+  -H "Authorization: Bearer partner_jwt_token" \
+  -H "X-Partner-ID: partner_123"
+```
+</Tab>
+
+<Tab title="API Credentials">
+For automated partner operations:
+
+```bash
+curl -X GET "https://staging-api.loyalty.lt/api/partners/analytics" \
+  -H "X-API-Key: partner_api_key" \
+  -H "X-API-Secret: partner_api_secret" \
+  -H "X-Partner-ID: partner_123"
+```
+</Tab>
+
+<Tab title="Staff Tokens">
+For partner staff access:
+
+```bash
+curl -X GET "https://staging-api.loyalty.lt/api/partners/shops" \
+  -H "Authorization: Bearer staff_jwt_token" \
+  -H "X-Partner-ID: partner_123" \
+  -H "X-Shop-ID: shop_456"
+```
+</Tab>
+</Tabs>
+
+## Multi-Store Operations
+
+### Cross-Shop Analytics
+View performance across all partner locations:
+
+```bash
+GET /api/partners/analytics/cross-shop
+{
+  "date_range": "30d",
+  "metrics": ["revenue", "customers", "transactions"],
+  "group_by": "shop"
+}
+```
+
+### Centralized Point Management
+Manage points across multiple shops:
+
+```bash
+POST /api/partners/points/cross-shop-award
+{
+  "customer_id": "cust_123",
+  "points": 100,
+  "reason": "purchase",
+  "shop_id": "shop_456",
+  "distribute_to_all_shops": false
+}
+```
+
+### Multi-Shop Customer Tracking
+Track customer behavior across locations:
+
+```bash
+GET /api/partners/customers/cross-shop-activity?customer_id=cust_123
+```
+
+## Advanced Analytics
+
+### Business Intelligence
+```bash
+POST /api/partners/analytics/custom-report
+{
+  "name": "Monthly Performance Report",
+  "metrics": [
+    "customer_acquisition",
+    "customer_retention", 
+    "average_order_value",
+    "points_redemption_rate"
+  ],
+  "dimensions": ["shop", "date", "customer_segment"],
+  "filters": {
+    "date_range": "2024-01-01:2024-01-31",
+    "shop_ids": ["shop_1", "shop_2"]
+  }
+}
+```
+
+### Predictive Analytics
+```bash
+GET /api/partners/analytics/predictions
+{
+  "type": "customer_churn",
+  "time_horizon": "90d",
+  "include_recommendations": true
+}
+```
+
+### Performance Dashboards
+```bash
+GET /api/partners/dashboard/widgets
+{
+  "widgets": [
+    "revenue_trends",
+    "customer_growth", 
+    "top_performing_shops",
+    "loyalty_engagement"
+  ],
+  "time_period": "7d"
+}
+```
+
+## Staff Management
+
+### Role-Based Access Control
+```bash
+POST /api/partners/staff/assign-role
+{
+  "staff_id": "staff_123",
+  "role": "shop_manager",
+  "shop_ids": ["shop_456", "shop_789"],
+  "permissions": [
+    "view_customers",
+    "award_points",
+    "view_analytics"
+  ]
+}
+```
+
+### Staff Activity Monitoring
+```bash
+GET /api/partners/staff/activity-logs
+{
+  "staff_id": "staff_123",
+  "date_range": "7d",
+  "actions": ["point_award", "customer_edit"]
+}
+```
+
+## White-Label Features
+
+### Brand Customization
+```bash
+PUT /api/partners/branding
+{
+  "primary_color": "#FF5722",
+  "secondary_color": "#FFC107", 
+  "logo_url": "https://partner.com/logo.png",
+  "custom_css": "/* custom styles */",
+  "email_templates": {
+    "welcome": "custom_welcome_template"
+  }
+}
+```
+
+### Custom Domain Configuration
+```bash
+POST /api/partners/domains
+{
+  "domain": "loyalty.yourstore.com",
+  "ssl_enabled": true,
+  "redirect_rules": [
+    {
+      "from": "/old-path",
+      "to": "/new-path", 
+      "status": 301
+    }
+  ]
+}
+```
+
+## Enterprise Features
+
+### API Rate Limits
+Enhanced rate limits for enterprise partners:
+
+| Partner Tier | Rate Limit | Burst | Analytics |
+|--------------|------------|-------|-----------|
+| Starter | 500/min | 750 | 100/min |
+| Business | 2000/min | 3000 | 500/min |
+| Enterprise | 10000/min | 15000 | 2000/min |
+
+### Advanced Security
+```bash
+POST /api/partners/security/ip-whitelist
+{
+  "ip_addresses": [
+    "192.168.1.100",
+    "10.0.0.0/24"
+  ],
+  "description": "Office and VPN IPs"
+}
+```
+
+### Compliance & Auditing
+```bash
+GET /api/partners/compliance/audit-trail
+{
+  "actions": ["customer_data_access", "data_export"],
+  "date_range": "30d",
+  "include_staff_details": true
+}
+```
+
+## Integration Management
+
+### Third-Party Integrations
+```bash
+POST /api/partners/integrations/configure
+{
+  "integration_type": "email_marketing",
+  "provider": "mailchimp", 
+  "credentials": {
+    "api_key": "encrypted_api_key"
+  },
+  "sync_settings": {
+    "sync_customers": true,
+    "sync_frequency": "hourly"
+  }
+}
+```
+
+### Webhook Management
+```bash
+POST /api/partners/webhooks
+{
+  "url": "https://partner.com/webhook",
+  "events": [
+    "customer.created",
+    "points.awarded",
+    "transaction.completed"
+  ],
+  "secret": "webhook_secret",
+  "retry_policy": {
+    "max_retries": 3,
+    "backoff": "exponential"
+  }
+}
+```
+
+## Data Export & Import
+
+### Bulk Data Export
+```bash
+POST /api/partners/export/customers
+{
+  "format": "csv",
+  "filters": {
+    "tier": ["gold", "platinum"],
+    "last_activity": "30d"
+  },
+  "fields": [
+    "email", "points", "tier", "lifetime_value"
+  ],
+  "delivery_method": "email"
+}
+```
+
+### Data Import
+```bash
+POST /api/partners/import/customers
+{
+  "source_url": "https://partner.com/customer-data.csv",
+  "mapping": {
+    "email": "customer_email",
+    "points": "loyalty_points",
+    "tier": "membership_level"
+  },
+  "options": {
+    "update_existing": true,
+    "send_welcome_email": false
+  }
+}
+```
+
+## Error Handling
+
+Partner APIs include detailed error context:
+
+```json
+{
+  "success": false,
+  "code": 403,
+  "request_id": "req_partner_123",
+  "message": "Insufficient partner permissions",
+  "errors": [
+    {
+      "field": "shop_access",
+      "message": "Partner does not have access to shop 'shop_789'",
+      "code": "SHOP_ACCESS_DENIED",
+      "meta": {
+        "partner_id": "partner_123",
+        "requested_shop_id": "shop_789",
+        "allowed_shop_ids": ["shop_456"]
+      }
+    }
+  ],
+  "partner_context": {
+    "partner_id": "partner_123",
+    "tier": "business",
+    "shops_count": 2
+  }
+}
+```
+
+## Common Use Cases
+
+### Multi-Location Chain
+```bash
+# Get performance across all locations
+GET /api/partners/analytics/locations
+
+# Transfer customer points between shops  
+POST /api/partners/points/transfer
+{
+  "customer_id": "cust_123",
+  "from_shop": "shop_1",
+  "to_shop": "shop_2",
+  "points": 100
+}
+```
+
+### Franchise Operations
+```bash
+# Manage franchise locations
+GET /api/partners/franchises
+
+# Franchise-specific analytics
+GET /api/partners/analytics/franchise?franchise_id=fran_123
+```
+
+### Enterprise Integration
+```bash
+# Sync with ERP systems
+POST /api/partners/integrations/erp-sync
+
+# Custom business rules
+POST /api/partners/rules/custom
+{
+  "rule_type": "point_multiplier",
+  "conditions": {
+    "customer_tier": "vip",
+    "purchase_amount": ">100"
+  },
+  "action": {
+    "multiplier": 2.0
+  }
+}
+```
+
+<Warning>
+Partner APIs require proper authorization. Ensure your integration respects partner boundaries and shop-level permissions.
+</Warning>
+
+<Note>
+Complete Partner API documentation with interactive examples is automatically generated below from our OpenAPI specification. Test all endpoints with proper partner context.
+</Note> 

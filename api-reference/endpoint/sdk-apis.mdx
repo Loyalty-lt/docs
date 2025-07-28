@@ -1,0 +1,259 @@
+---
+title: "SDK API Endpoints"
+description: "Developer-focused endpoints for building custom applications and integrations"
+---
+
+# SDK API Endpoints
+
+The SDK APIs provide developer-focused endpoints for building custom applications, integrations, and third-party services. These endpoints are optimized for SDK libraries and offer enhanced functionality for application development.
+
+<Info>
+SDK APIs include real-time capabilities, bulk operations, and advanced developer features not available in standard Shop APIs.
+</Info>
+
+## Endpoint Categories
+
+### Customer SDK APIs
+- **Customer Registration**: Enhanced customer onboarding with validation
+- **Profile Management**: Advanced customer profile operations
+- **Authentication**: Customer login and session management
+- **Preferences**: Customer notification and privacy settings
+
+### Loyalty Card SDK APIs  
+- **Card Generation**: Create cards with custom designs and data
+- **QR Code Management**: Advanced QR code generation and scanning
+- **Card Analytics**: Track card usage and engagement metrics
+- **Bulk Card Operations**: Process multiple cards efficiently
+
+### Points SDK APIs
+- **Transaction Processing**: Advanced point award and redemption logic
+- **Balance Management**: Real-time balance tracking and updates
+- **History & Analytics**: Detailed transaction analysis
+- **Batch Operations**: Bulk point processing for high-volume scenarios
+
+### Offers SDK APIs
+- **Dynamic Offers**: Create personalized, real-time offers
+- **Coupon Management**: Advanced coupon generation and tracking
+- **Redemption Analytics**: Track offer performance and usage patterns
+- **A/B Testing**: Test different offer strategies
+
+### Games SDK APIs
+- **Game Sessions**: Manage interactive loyalty game sessions
+- **Score Validation**: Secure score submission and validation
+- **Leaderboards**: Real-time leaderboard management
+- **Achievement Systems**: Track and reward customer achievements
+
+### Real-time & WebSocket APIs
+- **Live Updates**: Real-time point balance and transaction updates
+- **Event Streaming**: Stream loyalty events to applications
+- **Push Notifications**: Trigger real-time notifications
+- **Live Analytics**: Real-time dashboard data feeds
+
+## Authentication Methods
+
+SDK APIs support enhanced authentication options:
+
+<Tabs>
+<Tab title="API Credentials">
+Primary authentication for server applications:
+
+```bash
+curl -X GET "https://staging-api.loyalty.lt/api/sdk/customers" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -H "X-SDK-Version: 1.0"
+```
+</Tab>
+
+<Tab title="JWT Tokens">
+For user-context operations:
+
+```bash
+curl -X GET "https://staging-api.loyalty.lt/api/sdk/customer/profile" \
+  -H "Authorization: Bearer your_jwt_token" \
+  -H "X-SDK-Version: 1.0"
+```
+</Tab>
+
+<Tab title="OAuth 2.0">
+For third-party integrations:
+
+```bash
+curl -X GET "https://staging-api.loyalty.lt/api/sdk/data" \
+  -H "Authorization: Bearer oauth_access_token" \
+  -H "X-SDK-Version: 1.0"
+```
+</Tab>
+</Tabs>
+
+## Enhanced Features
+
+### Bulk Operations
+Process multiple operations in a single request:
+
+```bash
+POST /api/sdk/points/bulk-award
+{
+  "operations": [
+    {
+      "customer_id": "cust_1",
+      "points": 100,
+      "reason": "purchase"
+    },
+    {
+      "customer_id": "cust_2", 
+      "points": 150,
+      "reason": "purchase"
+    }
+  ]
+}
+```
+
+### Real-time WebSocket
+Connect to live data streams:
+
+```javascript
+const ws = new WebSocket('wss://staging-api.loyalty.lt/websocket');
+ws.send(JSON.stringify({
+  type: 'subscribe',
+  channel: 'customer.points',
+  customer_id: 'cust_123'
+}));
+```
+
+### Advanced Filtering
+Enhanced query capabilities:
+
+```bash
+GET /api/sdk/customers?filter[tier]=gold&filter[status]=active&include=points,offers&sort=-created_at
+```
+
+## SDK-Specific Endpoints
+
+### Analytics & Reporting
+- **Custom Reports**: Generate tailored analytics reports
+- **Data Export**: Export data in various formats (CSV, JSON, XML)
+- **Real-time Metrics**: Live dashboard and KPI data
+- **Predictive Analytics**: Customer behavior predictions
+
+### Integration Helpers
+- **Webhook Management**: Configure and test webhook endpoints
+- **API Health Checks**: Monitor API status and performance
+- **Rate Limit Status**: Check current usage and limits
+- **Debug Information**: Detailed request/response logging
+
+### Developer Tools
+- **Sandbox Mode**: Safe testing environment with mock data
+- **API Versioning**: Access different API versions
+- **Schema Validation**: Validate requests against OpenAPI spec
+- **Mock Responses**: Generate test data for development
+
+## Rate Limits & Performance
+
+SDK APIs have enhanced rate limits for development needs:
+
+| Authentication | Rate Limit | Burst | Bulk Operations |
+|----------------|------------|-------|-----------------|
+| API Credentials | 2000/min | 3000 | 500/min |
+| JWT Tokens | 1000/min | 1500 | 200/min |
+| OAuth 2.0 | 1000/min | 1500 | 200/min |
+
+<Tip>
+Use bulk endpoints for high-volume operations to stay within rate limits and improve performance.
+</Tip>
+
+## SDK Integration Examples
+
+### JavaScript/TypeScript
+```javascript
+import { LoyaltySDK } from '@loyalty-lt/sdk';
+
+const sdk = new LoyaltySDK({
+  apiKey: 'your_api_key',
+  apiSecret: 'your_api_secret',
+  environment: 'staging'
+});
+
+// Award points with enhanced error handling
+try {
+  const result = await sdk.points.award({
+    customerId: 'cust_123',
+    points: 100,
+    reason: 'purchase',
+    metadata: { orderId: 'order_456' }
+  });
+  console.log('Points awarded:', result);
+} catch (error) {
+  console.error('SDK Error:', error.message);
+}
+```
+
+### Python
+```python
+from loyalty_lt import LoyaltySDK
+
+sdk = LoyaltySDK(
+    api_key='your_api_key',
+    api_secret='your_api_secret',
+    environment='staging'
+)
+
+# Bulk operations
+operations = [
+    {'customer_id': 'cust_1', 'points': 100},
+    {'customer_id': 'cust_2', 'points': 150}
+]
+
+results = sdk.points.bulk_award(operations)
+for result in results:
+    print(f"Customer {result['customer_id']}: {result['status']}")
+```
+
+### PHP
+```php
+use LoyaltyLT\SDK\Client;
+
+$sdk = new Client([
+    'api_key' => 'your_api_key',
+    'api_secret' => 'your_api_secret',
+    'environment' => 'staging'
+]);
+
+// Real-time customer data
+$customer = $sdk->customers()->getWithLiveData('cust_123');
+echo "Current points: " . $customer['live_points'];
+```
+
+## Error Handling
+
+SDK APIs provide enhanced error information:
+
+```json
+{
+  "success": false,
+  "code": 422,
+  "request_id": "req_sdk_123",
+  "message": "Bulk operation failed",
+  "errors": [
+    {
+      "operation_index": 0,
+      "field": "customer_id",
+      "message": "Customer not found",
+      "code": "CUSTOMER_NOT_FOUND"
+    }
+  ],
+  "sdk_context": {
+    "version": "1.0",
+    "operation": "bulk_award_points",
+    "batch_id": "batch_456"
+  }
+}
+```
+
+<Warning>
+SDK APIs may have different error response formats compared to standard Shop APIs. Always check the SDK documentation for specific error handling patterns.
+</Warning>
+
+<Note>
+Complete SDK API documentation with interactive examples is automatically generated below from our OpenAPI specification. Test all endpoints directly in your browser.
+</Note> 

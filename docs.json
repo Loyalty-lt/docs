@@ -3,11 +3,12 @@
   "theme": "mint",
   "name": "Loyalty.lt Documentation",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#29594B",
+    "light": "#CFFF45",
+    "dark": "#0C3A30"
   },
   "favicon": "/favicon.svg",
+  "openapi": "/api-reference/openapi.json",
   "navigation": {
     "tabs": [
       {
@@ -38,41 +39,20 @@
         "tab": "API Reference",
         "groups": [
           {
-            "group": "Authentication",
+            "group": "Introduction",
             "pages": [
-              "api/authentication/overview",
-              "api/authentication/jwt-tokens",
-              "api/authentication/api-credentials"
+              "api-reference/introduction",
+              "api-reference/authentication",
+              "api-reference/error-handling"
             ]
           },
           {
-            "group": "Shop APIs",
+            "group": "Endpoints",
             "pages": [
-              "api/shop/loyalty-cards",
-              "api/shop/points",
-              "api/shop/offers",
-              "api/shop/games",
-              "api/shop/customers"
-            ]
-          },
-          {
-            "group": "SDK APIs",
-            "pages": [
-              "api/sdk/authentication",
-              "api/sdk/loyalty-cards",
-              "api/sdk/points",
-              "api/sdk/offers",
-              "api/sdk/games"
-            ]
-          },
-          {
-            "group": "Partner APIs",
-            "pages": [
-              "api/partners/authentication",
-              "api/partners/shops",
-              "api/partners/analytics",
-              "api/partners/settings",
-              "api/partners/onboarding"
+              "api-reference/endpoint/authentication",
+              "api-reference/endpoint/shop-apis",
+              "api-reference/endpoint/sdk-apis",
+              "api-reference/endpoint/partner-apis"
             ]
           }
         ]

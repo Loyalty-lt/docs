@@ -1,0 +1,141 @@
+---
+title: "Shop API Endpoints"
+description: "Core business functionality endpoints for loyalty program management"
+---
+
+# Shop API Endpoints
+
+The Shop APIs provide the core functionality for managing loyalty programs, customer interactions, and business operations. These endpoints are designed for direct integration with e-commerce platforms, POS systems, and business applications.
+
+<Info>
+All endpoints are automatically documented from our OpenAPI specification with interactive examples and real-time testing capabilities.
+</Info>
+
+## Endpoint Categories
+
+### Customer Management
+- **Customer Registration**: Create and onboard new customers
+- **Customer Profiles**: Update and manage customer information  
+- **Customer Search**: Find customers by various criteria
+- **Customer Analytics**: Track customer behavior and engagement
+
+### Loyalty Cards
+- **Card Creation**: Generate digital and physical loyalty cards
+- **Card Management**: Update card details and status
+- **QR Code Generation**: Create scannable QR codes for cards
+- **Card Lookup**: Find cards by customer or card ID
+
+### Points System
+- **Award Points**: Grant points for purchases and activities
+- **Redeem Points**: Process point redemptions for rewards
+- **Points History**: Track all point transactions
+- **Balance Inquiries**: Check current point balances
+- **Bulk Operations**: Process multiple point transactions
+
+### Offers & Coupons
+- **Offer Management**: Create and manage promotional offers
+- **Coupon Generation**: Generate redeemable coupons
+- **Redemption Processing**: Handle offer and coupon redemptions
+- **Offer Analytics**: Track offer performance and usage
+
+### Games & Engagement
+- **Game Sessions**: Manage interactive loyalty games
+- **Score Tracking**: Record and validate game results
+- **Leaderboards**: Display top performers and achievements
+- **Reward Distribution**: Distribute game-based rewards
+
+### Transactions & History
+- **Transaction Logging**: Record all loyalty interactions
+- **History Retrieval**: Access customer transaction history
+- **Reporting Data**: Generate business intelligence reports
+- **Audit Trails**: Maintain compliance and tracking logs
+
+## Authentication
+
+Shop API endpoints support multiple authentication methods:
+
+<Tabs>
+<Tab title="API Credentials">
+Recommended for server-to-server integrations:
+
+```bash
+curl -X GET "https://staging-api.loyalty.lt/api/customers" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"
+```
+</Tab>
+
+<Tab title="JWT Tokens">
+For user-authenticated requests:
+
+```bash
+curl -X GET "https://staging-api.loyalty.lt/api/customer/profile" \
+  -H "Authorization: Bearer your_jwt_token"
+```
+</Tab>
+</Tabs>
+
+## Rate Limits
+
+- **API Credentials**: 1000 requests per minute
+- **JWT Tokens**: 300 requests per minute
+- **Bulk Operations**: 100 requests per minute
+
+<Warning>
+Bulk operations have separate, lower rate limits to ensure system stability. Use batch endpoints for high-volume operations.
+</Warning>
+
+## Common Use Cases
+
+### E-commerce Integration
+```bash
+# Award points after purchase
+POST /api/points/award
+{
+  "customer_id": "cust_123",
+  "points": 100,
+  "reason": "purchase",
+  "order_id": "order_456"
+}
+
+# Check available offers
+GET /api/offers/available?customer_id=cust_123
+```
+
+### POS System Integration  
+```bash
+# Scan loyalty card
+POST /api/loyalty-cards/scan
+{
+  "qr_data": "loyalty_card_qr_code"
+}
+
+# Apply discount with points
+POST /api/points/redeem
+{
+  "customer_id": "cust_123", 
+  "points": 200,
+  "reason": "discount"
+}
+```
+
+### Mobile App Integration
+```bash
+# Get customer dashboard data  
+GET /api/customer/dashboard
+
+# Redeem coupon
+POST /api/coupons/redeem
+{
+  "coupon_code": "SAVE20",
+  "customer_id": "cust_123"
+}
+```
+
+<Check>
+All endpoints include comprehensive validation, error handling, and detailed response codes for robust integration.
+</Check>
+
+<Note>
+The complete API documentation with interactive examples is automatically generated below from our OpenAPI specification. You can test all endpoints directly in your browser.
+</Note> 

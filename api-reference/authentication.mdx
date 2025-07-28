@@ -1,0 +1,395 @@
+---
+title: "Authentication"
+description: "Learn how to authenticate your requests to the Loyalty.lt API"
+---
+
+# Authentication
+
+The Loyalty.lt API uses secure authentication methods to protect your data and ensure authorized access. We support multiple authentication methods depending on your integration type and security requirements.
+
+<Info>
+All API requests must be made over HTTPS. Requests made over plain HTTP will be rejected.
+</Info>
+
+## Authentication Methods
+
+### API Credentials (Recommended for Server-Side)
+
+API Credentials provide the highest level of security for server-to-server integrations. They consist of an API Key and API Secret pair.
+
+#### How it Works
+
+```bash
+curl -X GET "https://staging-api.loyalty.lt/api/customers" \
+  -H "X-API-Key: your_api_key_here" \
+  -H "X-API-Secret: your_api_secret_here" \
+  -H "Content-Type: application/json"
+```
+
+#### Getting API Credentials
+
+<Steps>
+<Step title="Access Partners Portal">
+  Log in to the [Partners Portal](https://partners.loyalty.lt) with your account.
+</Step>
+
+<Step title="Navigate to API Settings">
+  Go to **Settings** → **API Credentials** in the sidebar.
+</Step>
+
+<Step title="Generate New Credentials">
+  Click **Generate New API Key** and provide a descriptive name for your integration.
+</Step>
+
+<Step title="Secure Storage">
+  Store your API Key and Secret securely. The secret will only be shown once.
+</Step>
+</Steps>
+
+<Warning>
+Never expose your API credentials in client-side code, version control, or logs. Use environment variables or secure configuration management.
+</Warning>
+
+#### Security Features
+
+- **IP Whitelisting**: Restrict API access to specific IP addresses
+- **Scope Limitations**: Limit credentials to specific API endpoints
+- **Automatic Rotation**: Set up automatic credential rotation
+- **Usage Monitoring**: Track API usage and detect anomalies
+
+### JWT Tokens (For User Sessions)
+
+JWT (JSON Web Tokens) are used for user authentication and session management, primarily in frontend applications.
+
+#### Obtaining JWT Tokens
+
+**Customer Authentication:**
+```bash
+curl -X POST "https://staging-api.loyalty.lt/api/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "customer@example.com",
+    "password": "secure_password"
+  }'
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+    "token_type": "Bearer",
+    "expires_in": 3600,
+    "user": {
+      "id": "customer_123",
+      "email": "customer@example.com",
+      "name": "John Doe"
+    }
+  }
+}
+```
+
+#### Using JWT Tokens
+
+```bash
+curl -X GET "https://staging-api.loyalty.lt/api/customer/profile" \
+  -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..." \
+  -H "Content-Type: application/json"
+```
+
+#### Token Management
+
+<Tabs>
+<Tab title="Token Refresh">
+```bash
+curl -X POST "https://staging-api.loyalty.lt/api/auth/refresh" \
+  -H "Authorization: Bearer your_current_token" \
+  -H "Content-Type: application/json"
+```
+</Tab>
+
+<Tab title="Token Validation">
+```bash
+curl -X POST "https://staging-api.loyalty.lt/api/auth/me" \
+  -H "Authorization: Bearer your_token" \
+  -H "Content-Type: application/json"
+```
+</Tab>
+
+<Tab title="Logout">
+```bash
+curl -X POST "https://staging-api.loyalty.lt/api/auth/logout" \
+  -H "Authorization: Bearer your_token" \
+  -H "Content-Type: application/json"
+```
+</Tab>
+</Tabs>
+
+## Authentication Comparison
+
+| Method | Use Case | Security Level | Rate Limits |
+|--------|----------|----------------|-------------|
+| **API Credentials** | Server-to-server, Backend services | Highest | 1000 req/min |
+| **JWT Tokens** | User sessions, Frontend apps | High | 300 req/min |
+
+## Environment-Specific Authentication
+
+### Staging Environment
+
+```bash
+# API Credentials
+curl -X GET "https://staging-api.loyalty.lt/api/shops" \
+  -H "X-API-Key: staging_api_key" \
+  -H "X-API-Secret: staging_api_secret"
+
+# JWT Authentication
+curl -X POST "https://staging-api.loyalty.lt/api/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{"email": "test@example.com", "password": "password"}'
+```
+
+### Production Environment
+
+```bash
+# API Credentials  
+curl -X GET "https://api.loyalty.lt/api/shops" \
+  -H "X-API-Key: production_api_key" \
+  -H "X-API-Secret: production_api_secret"
+
+# JWT Authentication
+curl -X POST "https://api.loyalty.lt/api/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com", "password": "secure_password"}'
+```
+
+<Warning>
+Never use production credentials in staging environments or vice versa. Keep environments strictly separated.
+</Warning>
+
+## Common Authentication Errors
+
+### 401 Unauthorized
+
+```json
+{
+  "success": false,
+  "code": 401,
+  "message": "Unauthorized access",
+  "errors": [
+    {
+      "field": "authentication",
+      "message": "Invalid or missing API credentials"
+    }
+  ]
+}
+```
+
+**Common Causes:**
+- Missing authentication headers
+- Invalid API Key or Secret
+- Expired JWT token
+- Incorrect authentication method for endpoint
+
+### 403 Forbidden
+
+```json
+{
+  "success": false,
+  "code": 403,
+  "message": "Access denied",
+  "errors": [
+    {
+      "field": "authorization",
+      "message": "Insufficient permissions for this operation"
+    }
+  ]
+}
+```
+
+**Common Causes:**
+- API credentials lack required permissions
+- User role doesn't have access to endpoint
+- IP address not whitelisted
+- Scope limitations on API credentials
+
+## Best Practices
+
+### Security Guidelines
+
+<Check>
+**✅ DO**
+- Store credentials in environment variables
+- Use HTTPS for all API requests
+- Implement token refresh logic for JWT
+- Monitor API usage for anomalies
+- Rotate credentials regularly
+- Use appropriate authentication method for your use case
+</Check>
+
+<Warning>
+**❌ DON'T**
+- Expose credentials in client-side code
+- Store credentials in version control
+- Use production credentials for testing
+- Share credentials between applications
+- Ignore token expiration
+</Warning>
+
+### Implementation Examples
+
+<CodeGroup>
+```javascript Node.js
+// Using API Credentials
+const axios = require('axios');
+
+const apiClient = axios.create({
+  baseURL: 'https://staging-api.loyalty.lt',
+  headers: {
+    'X-API-Key': process.env.LOYALTY_API_KEY,
+    'X-API-Secret': process.env.LOYALTY_API_SECRET,
+    'Content-Type': 'application/json'
+  }
+});
+
+// Using JWT Token
+const authenticatedClient = axios.create({
+  baseURL: 'https://staging-api.loyalty.lt',
+  headers: {
+    'Authorization': `Bearer ${userToken}`,
+    'Content-Type': 'application/json'
+  }
+});
+```
+
+```python Python
+import requests
+import os
+
+# Using API Credentials
+api_headers = {
+    'X-API-Key': os.getenv('LOYALTY_API_KEY'),
+    'X-API-Secret': os.getenv('LOYALTY_API_SECRET'),
+    'Content-Type': 'application/json'
+}
+
+response = requests.get(
+    'https://staging-api.loyalty.lt/api/customers',
+    headers=api_headers
+)
+
+# Using JWT Token
+jwt_headers = {
+    'Authorization': f'Bearer {user_token}',
+    'Content-Type': 'application/json'
+}
+
+response = requests.get(
+    'https://staging-api.loyalty.lt/api/customer/profile',
+    headers=jwt_headers
+)
+```
+
+```php PHP
+<?php
+// Using API Credentials
+$apiHeaders = [
+    'X-API-Key: ' . $_ENV['LOYALTY_API_KEY'],
+    'X-API-Secret: ' . $_ENV['LOYALTY_API_SECRET'],
+    'Content-Type: application/json'
+];
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, 'https://staging-api.loyalty.lt/api/customers');
+curl_setopt($ch, CURLOPT_HTTPHEADER, $apiHeaders);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+$response = curl_exec($ch);
+curl_close($ch);
+
+// Using JWT Token
+$jwtHeaders = [
+    'Authorization: Bearer ' . $userToken,
+    'Content-Type: application/json'
+];
+
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, 'https://staging-api.loyalty.lt/api/customer/profile');
+curl_setopt($ch, CURLOPT_HTTPHEADER, $jwtHeaders);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+$response = curl_exec($ch);
+curl_close($ch);
+?>
+```
+</CodeGroup>
+
+## Rate Limiting by Authentication
+
+Authentication method affects your rate limits:
+
+| Authentication | Rate Limit | Burst Allowance | Reset Window |
+|----------------|------------|-----------------|--------------|
+| API Credentials | 1000/min | 1500 requests | 60 seconds |
+| JWT Tokens | 300/min | 500 requests | 60 seconds |
+| Unauthenticated | 60/min | 100 requests | 60 seconds |
+
+### Rate Limit Headers
+
+Monitor your usage with these response headers:
+
+```http
+X-RateLimit-Limit: 1000
+X-RateLimit-Remaining: 999
+X-RateLimit-Reset: 1642694400
+X-RateLimit-Reset-After: 3600
+```
+
+## Testing Authentication
+
+### Postman Collection
+
+Download our Postman collection with pre-configured authentication:
+
+<Card title="Loyalty.lt API Collection" icon="download" href="https://github.com/loyalty-lt/postman-collection">
+  Complete Postman collection with environment templates
+</Card>
+
+### Authentication Test Endpoints
+
+**Test API Credentials:**
+```bash
+curl -X GET "https://staging-api.loyalty.lt/api/auth/test" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"
+```
+
+**Test JWT Token:**
+```bash
+curl -X GET "https://staging-api.loyalty.lt/api/auth/me" \
+  -H "Authorization: Bearer your_jwt_token"
+```
+
+<Tip>
+Use the test endpoints to verify your authentication setup before integrating with production endpoints.
+</Tip>
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+<Card title="Error Handling" icon="exclamation-triangle" href="/api-reference/error-handling">
+  Learn how to handle API errors and troubleshoot issues
+</Card>
+
+<Card title="API Endpoints" icon="code" href="/api-reference/endpoint/shop-apis">
+  Explore available API endpoints and their functionality
+</Card>
+
+<Card title="SDKs" icon="puzzle-piece" href="/sdk/javascript/installation">
+  Use our official SDKs for easier integration
+</Card>
+
+<Card title="Partners Portal" icon="users" href="https://partners.loyalty.lt">
+  Manage your API credentials and monitor usage
+</Card>
+</CardGroup> 

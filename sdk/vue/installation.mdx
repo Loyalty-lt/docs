@@ -1,0 +1,1202 @@
+---
+title: "Vue.js SDK"
+description: "Complete guide to using the Loyalty.lt Vue.js SDK for frontend integrations"
+---
+
+# Vue.js SDK
+
+The Loyalty.lt Vue.js SDK provides reactive components and composables for seamlessly integrating loyalty program functionality into your Vue applications.
+
+<Info>
+The Vue.js SDK supports Vue 3.x and provides TypeScript support. It's compatible with Nuxt.js, Vite, and other Vue ecosystems.
+</Info>
+
+## Installation
+
+<Tabs>
+<Tab title="npm">
+```bash
+npm install @loyalty-lt/vue-sdk
+```
+</Tab>
+
+<Tab title="yarn">
+```bash
+yarn add @loyalty-lt/vue-sdk
+```
+</Tab>
+
+<Tab title="pnpm">
+```bash
+pnpm add @loyalty-lt/vue-sdk
+```
+</Tab>
+
+<Tab title="CDN">
+```html
+<script src="https://unpkg.com/@loyalty-lt/vue-sdk@latest/dist/loyalty-vue.umd.js"></script>
+```
+</Tab>
+</Tabs>
+
+## Quick Start
+
+### Basic Setup
+
+```javascript
+// main.js
+import { createApp } from 'vue'
+import { LoyaltyPlugin } from '@loyalty-lt/vue-sdk'
+import App from './App.vue'
+
+const app = createApp(App)
+
+app.use(LoyaltyPlugin, {
+  apiKey: 'your_api_key',
+  shopId: 'your_shop_id',
+  environment: 'production' // or 'staging'
+})
+
+app.mount('#app')
+```
+
+### Environment Configuration
+
+```javascript
+// .env
+VUE_APP_LOYALTY_API_KEY=your_api_key
+VUE_APP_LOYALTY_SHOP_ID=your_shop_id
+VUE_APP_LOYALTY_ENV=production
+
+// main.js
+app.use(LoyaltyPlugin, {
+  apiKey: process.env.VUE_APP_LOYALTY_API_KEY,
+  shopId: process.env.VUE_APP_LOYALTY_SHOP_ID,
+  environment: process.env.VUE_APP_LOYALTY_ENV
+})
+```
+
+## Core Composables
+
+### useLoyalty
+
+The main composable for loyalty operations:
+
+```vue
+<template>
+  <div class="loyalty-dashboard">
+    <div v-if="loading" class="loading">Loading...</div>
+    <div v-else-if="error" class="error">{{ error }}</div>
+    <div v-else>
+      <h3>Loyalty Dashboard</h3>
+      <p>Points: {{ customerData?.points || 0 }}</p>
+      <p>Tier: {{ customerData?.tier || 'Bronze' }}</p>
+      
+      <button 
+        @click="refreshBalance"
+        :disabled="refreshing"
+      >
+        {{ refreshing ? 'Refreshing...' : 'Refresh Balance' }}
+      </button>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { useLoyalty } from '@loyalty-lt/vue-sdk'
+
+const {
+  customerData,
+  loading,
+  error,
+  refreshBalance,
+  refreshing
+} = useLoyalty('customer_123')
+</script>
+```
+
+### useCustomer
+
+For customer management operations:
+
+```vue
+<template>
+  <div class="customer-profile">
+    <form @submit.prevent="updateProfile">
+      <input 
+        v-model="profile.firstName" 
+        placeholder="First Name"
+        :disabled="updating"
+      />
+      <input 
+        v-model="profile.lastName" 
+        placeholder="Last Name"
+        :disabled="updating"
+      />
+      <input 
+        v-model="profile.email" 
+        type="email" 
+        placeholder="Email"
+        :disabled="updating"
+      />
+      
+      <button type="submit" :disabled="updating">
+        {{ updating ? 'Updating...' : 'Update Profile' }}
+      </button>
+    </form>
+    
+    <div v-if="updateSuccess" class="success">
+      Profile updated successfully!
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import { useCustomer } from '@loyalty-lt/vue-sdk'
+
+const {
+  customer,
+  updateCustomer,
+  updating,
+  updateSuccess
+} = useCustomer('customer_123')
+
+const profile = ref({
+  firstName: '',
+  lastName: '',
+  email: ''
+})
+
+// Initialize profile with customer data
+watchEffect(() => {
+  if (customer.value) {
+    profile.value = {
+      firstName: customer.value.firstName,
+      lastName: customer.value.lastName,
+      email: customer.value.email
+    }
+  }
+})
+
+const updateProfile = async () => {
+  await updateCustomer(profile.value)
+}
+</script>
+```
+
+### usePoints
+
+For points management:
+
+```vue
+<template>
+  <div class="points-manager">
+    <!-- Points History -->
+    <div class="points-history">
+      <h4>Points History</h4>
+      <div v-if="loadingHistory">Loading history...</div>
+      <div v-else>
+        <div 
+          v-for="transaction in pointsHistory" 
+          :key="transaction.id"
+          class="transaction"
+          :class="transaction.type"
+        >
+          <span class="date">{{ formatDate(transaction.date) }}</span>
+          <span class="points">{{ transaction.points }} points</span>
+          <span class="reason">{{ transaction.reason }}</span>
+        </div>
+      </div>
+      
+      <button @click="loadMoreHistory" v-if="hasMoreHistory">
+        Load More
+      </button>
+    </div>
+    
+    <!-- Point Redemption -->
+    <div class="redemption-section">
+      <h4>Redeem Points</h4>
+      <input 
+        v-model.number="pointsToRedeem" 
+        type="number" 
+        :max="currentBalance"
+        placeholder="Points to redeem"
+      />
+      <p>Discount: ${{ calculateDiscount(pointsToRedeem) }}</p>
+      
+      <button 
+        @click="redeemPoints" 
+        :disabled="!canRedeem || redeeming"
+      >
+        {{ redeeming ? 'Redeeming...' : 'Redeem Points' }}
+      </button>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue'
+import { usePoints } from '@loyalty-lt/vue-sdk'
+
+const props = defineProps({
+  customerId: String,
+  orderId: String
+})
+
+const {
+  currentBalance,
+  pointsHistory,
+  loadingHistory,
+  hasMoreHistory,
+  getHistory,
+  loadMoreHistory,
+  redeemPoints: redeem,
+  redeeming,
+  calculateDiscount
+} = usePoints(props.customerId)
+
+const pointsToRedeem = ref(0)
+
+const canRedeem = computed(() => 
+  pointsToRedeem.value > 0 && 
+  pointsToRedeem.value <= currentBalance.value
+)
+
+const redeemPoints = async () => {
+  const result = await redeem({
+    points: pointsToRedeem.value,
+    orderId: props.orderId,
+    reason: 'discount'
+  })
+  
+  if (result.success) {
+    pointsToRedeem.value = 0
+    // Handle successful redemption
+  }
+}
+
+const formatDate = (date) => {
+  return new Date(date).toLocaleDateString()
+}
+</script>
+```
+
+### useOffers
+
+For managing offers and coupons:
+
+```vue
+<template>
+  <div class="offers-section">
+    <h3>Available Offers</h3>
+    
+    <div v-if="loadingOffers">Loading offers...</div>
+    
+    <div v-else class="offers-grid">
+      <div 
+        v-for="offer in availableOffers" 
+        :key="offer.id"
+        class="offer-card"
+      >
+        <h4>{{ offer.title }}</h4>
+        <p>{{ offer.description }}</p>
+        <div class="offer-cost">{{ offer.pointsCost }} points</div>
+        
+        <button 
+          @click="redeemOffer(offer.id)"
+          :disabled="!canRedeemOffer(offer) || redeeming"
+        >
+          {{ redeeming === offer.id ? 'Redeeming...' : 'Redeem' }}
+        </button>
+      </div>
+    </div>
+    
+    <!-- Redeemed Coupons -->
+    <div class="coupons-section" v-if="redeemedCoupons.length">
+      <h4>Your Coupons</h4>
+      <div 
+        v-for="coupon in redeemedCoupons" 
+        :key="coupon.code"
+        class="coupon"
+      >
+        <div class="coupon-code">{{ coupon.code }}</div>
+        <div class="coupon-value">${{ coupon.discountAmount }} off</div>
+        <div class="coupon-expiry">Expires: {{ formatDate(coupon.expiresAt) }}</div>
+        
+        <button @click="copyCouponCode(coupon.code)">
+          Copy Code
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import { useOffers, useLoyalty } from '@loyalty-lt/vue-sdk'
+
+const props = defineProps({
+  customerId: String
+})
+
+const { customerData } = useLoyalty(props.customerId)
+
+const {
+  availableOffers,
+  redeemedCoupons,
+  loadingOffers,
+  redeemOffer: redeem,
+  redeeming
+} = useOffers(props.customerId)
+
+const canRedeemOffer = (offer) => {
+  return customerData.value?.points >= offer.pointsCost
+}
+
+const redeemOffer = async (offerId) => {
+  const result = await redeem(offerId)
+  if (result.success) {
+    // Handle successful redemption
+    console.log('Coupon code:', result.coupon.code)
+  }
+}
+
+const copyCouponCode = (code) => {
+  navigator.clipboard.writeText(code)
+  // Show feedback to user
+}
+
+const formatDate = (date) => {
+  return new Date(date).toLocaleDateString()
+}
+</script>
+```
+
+### useGames
+
+For gamification features:
+
+```vue
+<template>
+  <div class="games-section">
+    <h3>Loyalty Games</h3>
+    
+    <div class="available-games">
+      <div 
+        v-for="game in availableGames" 
+        :key="game.id"
+        class="game-card"
+        @click="startGame(game.id)"
+      >
+        <h4>{{ game.title }}</h4>
+        <p>{{ game.description }}</p>
+        <div class="game-rewards">
+          Win up to {{ game.maxPoints }} points!
+        </div>
+      </div>
+    </div>
+    
+    <!-- Active Game Session -->
+    <div v-if="activeSession" class="game-session">
+      <h4>{{ activeGame.title }}</h4>
+      <div class="game-container">
+        <!-- Game content would go here -->
+        <p>Score: {{ gameScore }}</p>
+        <button @click="incrementScore">Play Game</button>
+      </div>
+      
+      <button 
+        @click="submitGameResult"
+        :disabled="submittingResult"
+      >
+        {{ submittingResult ? 'Submitting...' : 'Finish Game' }}
+      </button>
+    </div>
+    
+    <!-- Game Results -->
+    <div v-if="gameResult" class="game-result">
+      <h4>Game Complete!</h4>
+      <p>You scored {{ gameResult.score }} points!</p>
+      <p>Loyalty points earned: {{ gameResult.pointsEarned }}</p>
+    </div>
+    
+    <!-- Leaderboard -->
+    <div class="leaderboard">
+      <h4>Leaderboard</h4>
+      <div 
+        v-for="(player, index) in leaderboard" 
+        :key="player.customerId"
+        class="leaderboard-entry"
+      >
+        <span class="rank">{{ index + 1 }}</span>
+        <span class="name">{{ player.name }}</span>
+        <span class="score">{{ player.score }}</span>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import { useGames } from '@loyalty-lt/vue-sdk'
+
+const props = defineProps({
+  customerId: String
+})
+
+const {
+  availableGames,
+  activeSession,
+  activeGame,
+  leaderboard,
+  gameResult,
+  startGameSession,
+  submitResult,
+  submittingResult,
+  getLeaderboard
+} = useGames(props.customerId)
+
+const gameScore = ref(0)
+
+const startGame = async (gameId) => {
+  await startGameSession(gameId)
+  gameScore.value = 0
+}
+
+const incrementScore = () => {
+  gameScore.value += 10
+}
+
+const submitGameResult = async () => {
+  await submitResult({
+    score: gameScore.value,
+    completed: true
+  })
+  
+  // Load updated leaderboard
+  await getLeaderboard(activeGame.value.id)
+}
+</script>
+```
+
+## Ready-to-Use Components
+
+### LoyaltyCard
+
+```vue
+<template>
+  <LoyaltyCard 
+    :customer-id="customerId"
+    :show-qr="true"
+    :theme="'modern'"
+    @card-scanned="handleCardScan"
+  />
+</template>
+
+<script setup>
+import { LoyaltyCard } from '@loyalty-lt/vue-sdk'
+
+const props = defineProps({
+  customerId: String
+})
+
+const handleCardScan = (scanData) => {
+  console.log('Card scanned:', scanData)
+}
+</script>
+```
+
+### PointsBalance
+
+```vue
+<template>
+  <div class="dashboard">
+    <PointsBalance 
+      :customer-id="customerId"
+      :show-tier="true"
+      :animate="true"
+      format="detailed"
+    />
+  </div>
+</template>
+
+<script setup>
+import { PointsBalance } from '@loyalty-lt/vue-sdk'
+
+defineProps({
+  customerId: String
+})
+</script>
+```
+
+### OffersList
+
+```vue
+<template>
+  <OffersList 
+    :customer-id="customerId"
+    :layout="'grid'"
+    :show-expired="false"
+    @offer-redeemed="handleOfferRedeemed"
+  />
+</template>
+
+<script setup>
+import { OffersList } from '@loyalty-lt/vue-sdk'
+
+const handleOfferRedeemed = (offer, coupon) => {
+  console.log('Offer redeemed:', offer, coupon)
+  // Show success message or redirect
+}
+</script>
+```
+
+### GamesList
+
+```vue
+<template>
+  <GamesList 
+    :customer-id="customerId"
+    :show-leaderboard="true"
+    @game-completed="handleGameCompleted"
+  />
+</template>
+
+<script setup>
+import { GamesList } from '@loyalty-lt/vue-sdk'
+
+const handleGameCompleted = (result) => {
+  console.log('Game completed:', result)
+  // Show congratulations message
+}
+</script>
+```
+
+## Framework Integration
+
+### Nuxt.js Plugin
+
+```javascript
+// plugins/loyalty.client.js
+import { LoyaltyPlugin } from '@loyalty-lt/vue-sdk'
+
+export default defineNuxtPlugin((nuxtApp) => {
+  nuxtApp.vueApp.use(LoyaltyPlugin, {
+    apiKey: useRuntimeConfig().public.loyaltyApiKey,
+    shopId: useRuntimeConfig().public.loyaltyShopId,
+    environment: useRuntimeConfig().public.loyaltyEnv
+  })
+})
+
+// nuxt.config.ts
+export default defineNuxtConfig({
+  plugins: ['~/plugins/loyalty.client.js'],
+  runtimeConfig: {
+    public: {
+      loyaltyApiKey: process.env.LOYALTY_API_KEY,
+      loyaltyShopId: process.env.LOYALTY_SHOP_ID,
+      loyaltyEnv: process.env.LOYALTY_ENV
+    }
+  }
+})
+```
+
+### Vuex Integration
+
+```javascript
+// store/loyalty.js
+import { useLoyalty } from '@loyalty-lt/vue-sdk'
+
+export const state = () => ({
+  customer: null,
+  points: 0,
+  tier: 'bronze',
+  offers: [],
+  loading: false
+})
+
+export const mutations = {
+  SET_CUSTOMER(state, customer) {
+    state.customer = customer
+  },
+  SET_POINTS(state, points) {
+    state.points = points
+  },
+  SET_TIER(state, tier) {
+    state.tier = tier
+  },
+  SET_OFFERS(state, offers) {
+    state.offers = offers
+  },
+  SET_LOADING(state, loading) {
+    state.loading = loading
+  }
+}
+
+export const actions = {
+  async fetchCustomerData({ commit }, customerId) {
+    commit('SET_LOADING', true)
+    
+    try {
+      const { customerData } = useLoyalty(customerId)
+      
+      if (customerData.value) {
+        commit('SET_CUSTOMER', customerData.value)
+        commit('SET_POINTS', customerData.value.points)
+        commit('SET_TIER', customerData.value.tier)
+      }
+    } catch (error) {
+      console.error('Failed to fetch customer data:', error)
+    } finally {
+      commit('SET_LOADING', false)
+    }
+  }
+}
+```
+
+### Pinia Integration
+
+```javascript
+// stores/loyalty.js
+import { defineStore } from 'pinia'
+import { useLoyalty, useOffers } from '@loyalty-lt/vue-sdk'
+
+export const useLoyaltyStore = defineStore('loyalty', () => {
+  const customerId = ref(null)
+  const customer = ref(null)
+  const loading = ref(false)
+  
+  const { 
+    customerData, 
+    refreshBalance 
+  } = useLoyalty(customerId)
+  
+  const { 
+    availableOffers,
+    redeemOffer 
+  } = useOffers(customerId)
+  
+  // Watch for customer data changes
+  watch(customerData, (newData) => {
+    customer.value = newData
+  })
+  
+  const setCustomerId = (id) => {
+    customerId.value = id
+  }
+  
+  const updateBalance = async () => {
+    loading.value = true
+    try {
+      await refreshBalance()
+    } finally {
+      loading.value = false
+    }
+  }
+  
+  return {
+    customerId,
+    customer,
+    loading,
+    availableOffers,
+    setCustomerId,
+    updateBalance,
+    redeemOffer
+  }
+})
+```
+
+## TypeScript Support
+
+### Type Definitions
+
+```typescript
+// types/loyalty.ts
+export interface Customer {
+  id: string
+  email: string
+  firstName: string
+  lastName: string
+  points: number
+  tier: 'bronze' | 'silver' | 'gold' | 'platinum'
+  joinedAt: string
+}
+
+export interface PointsTransaction {
+  id: string
+  customerId: string
+  points: number
+  type: 'earned' | 'redeemed' | 'expired'
+  reason: string
+  date: string
+  metadata?: Record<string, any>
+}
+
+export interface Offer {
+  id: string
+  title: string
+  description: string
+  pointsCost: number
+  discountType: 'percentage' | 'fixed'
+  discountValue: number
+  validUntil: string
+  category: string
+}
+
+export interface Coupon {
+  code: string
+  offerId: string
+  customerId: string
+  discountAmount: number
+  expiresAt: string
+  used: boolean
+}
+
+export interface Game {
+  id: string
+  title: string
+  description: string
+  type: 'scratch' | 'wheel' | 'memory' | 'quiz'
+  maxPoints: number
+  dailyLimit: number
+  active: boolean
+}
+
+export interface GameSession {
+  id: string
+  gameId: string
+  customerId: string
+  startedAt: string
+  completed: boolean
+  score?: number
+  pointsEarned?: number
+}
+```
+
+### Typed Composables
+
+```vue
+<template>
+  <div class="typed-loyalty-component">
+    <h3>{{ customer?.firstName }}'s Loyalty Status</h3>
+    <p>Points: {{ customer?.points }}</p>
+    <p>Tier: {{ customer?.tier }}</p>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { useLoyalty } from '@loyalty-lt/vue-sdk'
+import type { Customer } from '~/types/loyalty'
+
+interface Props {
+  customerId: string
+}
+
+const props = defineProps<Props>()
+
+const {
+  customerData,
+  loading,
+  error
+} = useLoyalty(props.customerId)
+
+// Type-safe customer data
+const customer = computed<Customer | null>(() => customerData.value)
+</script>
+```
+
+## Advanced Usage
+
+### Custom Hooks
+
+```javascript
+// composables/useLoyaltyRewards.js
+import { ref, computed } from 'vue'
+import { useOffers, usePoints } from '@loyalty-lt/vue-sdk'
+
+export function useLoyaltyRewards(customerId) {
+  const { availableOffers, redeemOffer } = useOffers(customerId)
+  const { currentBalance } = usePoints(customerId)
+  
+  const affordableOffers = computed(() => 
+    availableOffers.value.filter(offer => 
+      offer.pointsCost <= currentBalance.value
+    )
+  )
+  
+  const expiringSoon = computed(() => {
+    const tomorrow = new Date()
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    
+    return availableOffers.value.filter(offer => 
+      new Date(offer.validUntil) <= tomorrow
+    )
+  })
+  
+  const redeemBestOffer = async () => {
+    const bestOffer = affordableOffers.value.reduce((best, current) => 
+      current.discountValue > (best?.discountValue || 0) ? current : best
+    , null)
+    
+    if (bestOffer) {
+      return await redeemOffer(bestOffer.id)
+    }
+    
+    return null
+  }
+  
+  return {
+    affordableOffers,
+    expiringSoon,
+    redeemBestOffer
+  }
+}
+```
+
+### Event Handling
+
+```vue
+<template>
+  <div class="loyalty-events">
+    <PointsBalance 
+      :customer-id="customerId"
+      @points-updated="handlePointsUpdate"
+    />
+    
+    <OffersList 
+      :customer-id="customerId"
+      @offer-redeemed="handleOfferRedeemed"
+      @error="handleError"
+    />
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+
+const notifications = ref([])
+
+const handlePointsUpdate = (newBalance, previousBalance) => {
+  if (newBalance > previousBalance) {
+    notifications.value.push({
+      type: 'success',
+      message: `You earned ${newBalance - previousBalance} points!`
+    })
+  }
+}
+
+const handleOfferRedeemed = (offer, coupon) => {
+  notifications.value.push({
+    type: 'success',
+    message: `Offer redeemed! Your coupon code is: ${coupon.code}`
+  })
+}
+
+const handleError = (error) => {
+  notifications.value.push({
+    type: 'error',
+    message: error.message
+  })
+}
+</script>
+```
+
+### Performance Optimization
+
+```vue
+<template>
+  <div class="optimized-loyalty">
+    <!-- Lazy load heavy components -->
+    <Suspense>
+      <template #default>
+        <AsyncGamesList 
+          v-if="showGames"
+          :customer-id="customerId"
+        />
+      </template>
+      <template #fallback>
+        <div>Loading games...</div>
+      </template>
+    </Suspense>
+    
+    <!-- Virtual scrolling for large lists -->
+    <VirtualOffersList 
+      :customer-id="customerId"
+      :item-height="120"
+      :visible-range="10"
+    />
+  </div>
+</template>
+
+<script setup>
+import { defineAsyncComponent } from 'vue'
+
+// Lazy load components
+const AsyncGamesList = defineAsyncComponent(() => 
+  import('@/components/GamesList.vue')
+)
+
+const VirtualOffersList = defineAsyncComponent(() => 
+  import('@/components/VirtualOffersList.vue')
+)
+
+const showGames = ref(false)
+
+// Load games only when needed
+const loadGames = () => {
+  showGames.value = true
+}
+</script>
+```
+
+### Caching Strategy
+
+```javascript
+// composables/useCachedLoyalty.js
+import { ref, computed } from 'vue'
+import { useLoyalty } from '@loyalty-lt/vue-sdk'
+
+export function useCachedLoyalty(customerId, cacheTime = 5 * 60 * 1000) {
+  const cache = ref(new Map())
+  
+  const getCacheKey = (id) => `loyalty_${id}`
+  
+  const getCachedData = (customerId) => {
+    const key = getCacheKey(customerId)
+    const cached = cache.value.get(key)
+    
+    if (cached && Date.now() - cached.timestamp < cacheTime) {
+      return cached.data
+    }
+    
+    return null
+  }
+  
+  const setCachedData = (customerId, data) => {
+    const key = getCacheKey(customerId)
+    cache.value.set(key, {
+      data,
+      timestamp: Date.now()
+    })
+  }
+  
+  const { customerData, ...rest } = useLoyalty(customerId)
+  
+  // Cache customer data
+  watch(customerData, (newData) => {
+    if (newData) {
+      setCachedData(customerId, newData)
+    }
+  })
+  
+  // Return cached data if available
+  const cachedCustomerData = computed(() => {
+    return getCachedData(customerId) || customerData.value
+  })
+  
+  return {
+    customerData: cachedCustomerData,
+    ...rest
+  }
+}
+```
+
+## Testing
+
+### Component Testing
+
+```javascript
+// tests/LoyaltyCard.test.js
+import { mount } from '@vue/test-utils'
+import { LoyaltyCard } from '@loyalty-lt/vue-sdk'
+
+// Mock the SDK
+vi.mock('@loyalty-lt/vue-sdk', () => ({
+  LoyaltyCard: {
+    template: '<div class="loyalty-card">{{ customerId }}</div>',
+    props: ['customerId', 'showQr', 'theme']
+  },
+  useLoyalty: () => ({
+    customerData: ref({
+      id: 'test_customer',
+      points: 1000,
+      tier: 'gold'
+    }),
+    loading: ref(false),
+    error: ref(null)
+  })
+}))
+
+describe('LoyaltyCard', () => {
+  test('renders customer ID', () => {
+    const wrapper = mount(LoyaltyCard, {
+      props: {
+        customerId: 'test_customer_123'
+      }
+    })
+    
+    expect(wrapper.text()).toContain('test_customer_123')
+  })
+  
+  test('emits card-scanned event', async () => {
+    const wrapper = mount(LoyaltyCard, {
+      props: {
+        customerId: 'test_customer_123'
+      }
+    })
+    
+    await wrapper.vm.$emit('card-scanned', { customerId: 'test_customer_123' })
+    
+    expect(wrapper.emitted('card-scanned')).toBeTruthy()
+  })
+})
+```
+
+### E2E Testing
+
+```javascript
+// tests/e2e/loyalty.spec.js
+import { test, expect } from '@playwright/test'
+
+test('loyalty program flow', async ({ page }) => {
+  await page.goto('/loyalty')
+  
+  // Check points balance
+  await expect(page.locator('[data-testid="points-balance"]')).toBeVisible()
+  
+  // Redeem an offer
+  await page.click('[data-testid="offer-card"]:first-child')
+  await page.click('[data-testid="redeem-offer-btn"]')
+  
+  // Verify coupon is generated
+  await expect(page.locator('[data-testid="coupon-code"]')).toBeVisible()
+  
+  // Check updated balance
+  const newBalance = await page.textContent('[data-testid="points-balance"]')
+  expect(parseInt(newBalance)).toBeLessThan(1000)
+})
+```
+
+## Configuration Options
+
+```javascript
+// main.js
+app.use(LoyaltyPlugin, {
+  apiKey: 'your_api_key',
+  shopId: 'your_shop_id',
+  environment: 'production',
+  
+  // Optional configurations
+  timeout: 10000,
+  retryAttempts: 3,
+  
+  // UI configurations
+  theme: {
+    primaryColor: '#007bff',
+    secondaryColor: '#6c757d',
+    successColor: '#28a745',
+    errorColor: '#dc3545'
+  },
+  
+  // Caching
+  cache: {
+    enabled: true,
+    ttl: 5 * 60 * 1000, // 5 minutes
+    strategy: 'memory' // 'memory' | 'localStorage'
+  },
+  
+  // Localization
+  locale: 'en',
+  translations: {
+    en: {
+      points: 'Points',
+      tier: 'Tier',
+      redeem: 'Redeem'
+    }
+  },
+  
+  // Analytics
+  analytics: {
+    enabled: true,
+    trackPageViews: true,
+    trackEvents: true
+  }
+})
+```
+
+## Error Handling
+
+```vue
+<template>
+  <div class="loyalty-app">
+    <div v-if="globalError" class="error-banner">
+      {{ globalError }}
+      <button @click="clearError">Dismiss</button>
+    </div>
+    
+    <ErrorBoundary @error="handleComponentError">
+      <LoyaltyDashboard :customer-id="customerId" />
+    </ErrorBoundary>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'vue'
+import { useLoyaltyError } from '@loyalty-lt/vue-sdk'
+
+const { globalError, clearError } = useLoyaltyError()
+
+const handleComponentError = (error, instance, errorInfo) => {
+  console.error('Component error:', error, errorInfo)
+  
+  // Send to error tracking service
+  if (process.env.NODE_ENV === 'production') {
+    // analytics.track('loyalty_error', { error: error.message })
+  }
+}
+</script>
+```
+
+## Support & Resources
+
+### Debug Mode
+
+```javascript
+// Enable debug mode
+app.use(LoyaltyPlugin, {
+  apiKey: 'your_api_key',
+  shopId: 'your_shop_id',
+  debug: true,
+  logLevel: 'verbose' // 'error' | 'warn' | 'info' | 'verbose'
+})
+```
+
+### API Reference
+
+- **Documentation**: [docs.loyalty.lt/api](https://docs.loyalty.lt/api)
+- **Vue SDK**: [npmjs.com/package/@loyalty-lt/vue-sdk](https://www.npmjs.com/package/@loyalty-lt/vue-sdk)
+- **GitHub Repository**: [github.com/loyalty-lt/vue-sdk](https://github.com/loyalty-lt/vue-sdk)
+- **Support**: support@loyalty.lt
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+<Card title="Shop API Reference" icon="store" href="/api/shop/loyalty-cards">
+  Explore the full Shop API documentation
+</Card>
+
+<Card title="JavaScript SDK" icon="js-square" href="/sdk/javascript/installation">
+  Learn about our vanilla JavaScript SDK
+</Card>
+
+<Card title="Partner API Reference" icon="handshake" href="/api/partners/overview">
+  Understand Partner API capabilities
+</Card>
+
+<Card title="Troubleshooting" icon="tools" href="/troubleshooting/faq">
+  Get help with common issues
+</Card>
+</CardGroup> 

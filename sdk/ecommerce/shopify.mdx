@@ -1,0 +1,628 @@
+---
+title: "Shopify Integration"
+description: "Complete guide to integrating Loyalty.lt with your Shopify store"
+---
+
+# Shopify Integration
+
+Integrate Loyalty.lt loyalty program seamlessly with your Shopify store to reward customers and boost engagement.
+
+<Info>
+The Loyalty.lt Shopify integration works with all Shopify plans and supports both online stores and Shopify POS.
+</Info>
+
+## Overview
+
+The Loyalty.lt Shopify integration provides:
+- **Automatic Point Earning**: Points awarded for purchases, reviews, referrals
+- **Point Redemption**: Customers redeem points for discounts and rewards
+- **Loyalty Cards**: Digital loyalty cards with QR codes
+- **Games & Engagement**: Interactive games and challenges
+- **Customer Portal**: Self-service loyalty dashboard
+- **Multi-Store Support**: Centralized loyalty across multiple Shopify stores
+
+## Key Features
+
+### For Customers
+- Automatic points on purchase
+- Point redemption for discounts
+- Digital loyalty card with QR code
+- Loyalty dashboard and history
+- Referral bonuses
+- Birthday rewards
+- Tier-based benefits
+
+### For Store Owners
+- Real-time customer analytics
+- Loyalty campaign management
+- Automated reward distribution
+- Customer segmentation
+- Performance tracking
+- Multi-language support
+
+## Installation Methods
+
+<Tabs>
+<Tab title="Shopify App Store">
+**Recommended for most users**
+
+1. Visit the [Shopify App Store](https://apps.shopify.com)
+2. Search for "Loyalty.lt"
+3. Click "Add app" on the Loyalty.lt listing
+4. Follow the installation prompts
+5. Complete the setup wizard
+
+<Check>This method provides automatic updates and seamless integration</Check>
+</Tab>
+
+<Tab title="Manual Installation">
+**For custom implementations**
+
+1. Contact our team at support@loyalty.lt
+2. Receive custom installation package
+3. Upload to your Shopify store
+4. Configure webhook endpoints
+5. Test the integration
+
+<Warning>Manual installation requires technical knowledge and may need developer assistance</Warning>
+</Tab>
+</Tabs>
+
+## Configuration
+
+### Basic Setup
+
+<Steps>
+<Step title="Connect Your Store">
+After installation, connect your Shopify store to Loyalty.lt:
+
+```javascript
+// Automatic configuration via Shopify App
+// No code required - handled by the app interface
+```
+</Step>
+
+<Step title="Configure Point Rules">
+Set up how customers earn points:
+
+```json
+{
+  "earning_rules": {
+    "purchase": {
+      "rate": 1,
+      "per_dollar": true,
+      "minimum_order": 10
+    },
+    "signup": {
+      "points": 100,
+      "one_time": true
+    },
+    "referral": {
+      "points": 500,
+      "referee_bonus": 250
+    }
+  }
+}
+```
+</Step>
+
+<Step title="Set Redemption Options">
+Configure how points can be redeemed:
+
+```json
+{
+  "redemption_rules": {
+    "discount": {
+      "rate": 100,
+      "per_dollar": true,
+      "minimum_points": 500
+    },
+    "free_shipping": {
+      "points_cost": 200,
+      "minimum_order": 50
+    }
+  }
+}
+```
+</Step>
+</Steps>
+
+### Advanced Configuration
+
+#### Webhook Setup
+Configure webhooks for real-time synchronization:
+
+```javascript
+// Shopify webhook endpoints
+const webhooks = {
+  "orders/create": "https://api.loyalty.lt/webhooks/shopify/order-created",
+  "orders/updated": "https://api.loyalty.lt/webhooks/shopify/order-updated",
+  "customers/create": "https://api.loyalty.lt/webhooks/shopify/customer-created",
+  "customers/update": "https://api.loyalty.lt/webhooks/shopify/customer-updated"
+};
+```
+
+#### Custom Fields
+Map Shopify customer fields to Loyalty.lt:
+
+```json
+{
+  "field_mapping": {
+    "shopify_customer_id": "external_id",
+    "email": "email",
+    "first_name": "first_name",
+    "last_name": "last_name",
+    "phone": "phone",
+    "birthday": "birth_date",
+    "accepts_marketing": "marketing_consent"
+  }
+}
+```
+
+## Customer Experience
+
+### Registration Flow
+
+<Tabs>
+<Tab title="Automatic Registration">
+Customers are automatically enrolled when they:
+1. Create a Shopify account
+2. Make their first purchase
+3. Subscribe to newsletter
+
+```liquid
+<!-- Shopify Liquid template -->
+{% if customer %}
+  <div class="loyalty-widget" data-customer-id="{{ customer.id }}">
+    <h3>Welcome to our Loyalty Program!</h3>
+    <p>You've earned {{ customer.metafields.loyalty.points }} points</p>
+  </div>
+{% endif %}
+```
+</Tab>
+
+<Tab title="Manual Registration">
+Customers can register via:
+1. Loyalty widget on your site
+2. QR code scanning
+3. SMS/email invitation
+
+```html
+<!-- Loyalty registration widget -->
+<div id="loyalty-signup">
+  <button onclick="openLoyaltySignup()">Join Loyalty Program</button>
+</div>
+
+<script>
+function openLoyaltySignup() {
+  LoyaltySDK.showSignupModal({
+    shopId: 'your-shop-id',
+    source: 'website',
+    onSuccess: function(customer) {
+      console.log('Customer registered:', customer);
+    }
+  });
+}
+</script>
+```
+</Tab>
+</Tabs>
+
+### Points Earning
+
+#### Purchase Points
+```liquid
+<!-- Order confirmation page -->
+{% if order.customer %}
+  <div class="points-earned">
+    <h4>🎉 You earned {{ order.total_price | times: 1 | round }} points!</h4>
+    <p>Total points: {{ customer.metafields.loyalty.points }}</p>
+  </div>
+{% endif %}
+```
+
+#### Bonus Actions
+```javascript
+// Award bonus points
+LoyaltySDK.awardPoints({
+  customerId: customer.id,
+  points: 50,
+  reason: 'Product review',
+  orderId: order.id
+});
+```
+
+### Points Redemption
+
+#### Discount Application
+```liquid
+<!-- Cart page -->
+{% if customer and customer.metafields.loyalty.points > 0 %}
+  <div class="loyalty-redemption">
+    <h4>Use {{ customer.metafields.loyalty.points }} points</h4>
+    <button onclick="applyLoyaltyDiscount()">Apply ${{ customer.metafields.loyalty.points | divided_by: 100 }} discount</button>
+  </div>
+{% endif %}
+```
+
+#### Redemption Flow
+```javascript
+function applyLoyaltyDiscount() {
+  LoyaltySDK.redeemPoints({
+    customerId: customer.id,
+    points: pointsToRedeem,
+    orderId: cart.token,
+    onSuccess: function(discount) {
+      // Apply discount code to cart
+      applyShopifyDiscount(discount.code);
+    }
+  });
+}
+```
+
+## Admin Features
+
+### Customer Management
+
+<Tabs>
+<Tab title="Customer Overview">
+View customer loyalty data directly in Shopify admin:
+
+```javascript
+// Customer metafields for loyalty data
+{
+  "loyalty": {
+    "points": 1250,
+    "tier": "gold",
+    "lifetime_spent": 2500,
+    "referrals": 3,
+    "last_activity": "2024-01-15"
+  }
+}
+```
+</Tab>
+
+<Tab title="Bulk Operations">
+Manage multiple customers at once:
+
+```javascript
+// Bulk point operations
+LoyaltySDK.bulkOperations({
+  operation: 'award_points',
+  customers: customerIds,
+  points: 100,
+  reason: 'Holiday bonus'
+});
+```
+</Tab>
+</Tabs>
+
+### Reporting & Analytics
+
+#### Sales Impact
+```javascript
+// Loyalty impact report
+const report = await LoyaltySDK.getReport({
+  type: 'loyalty_impact',
+  dateRange: '30d',
+  metrics: ['revenue', 'orders', 'redemptions']
+});
+```
+
+#### Customer Insights
+```javascript
+// Customer segmentation
+const segments = await LoyaltySDK.getCustomerSegments({
+  criteria: {
+    points_range: [1000, 5000],
+    tier: 'gold',
+    last_purchase: '30d'
+  }
+});
+```
+
+## Customization
+
+### Theme Integration
+
+#### Loyalty Widget
+```liquid
+<!-- Add to theme.liquid -->
+<div id="loyalty-widget" 
+     data-shop-id="{{ shop.permanent_domain }}"
+     data-customer-id="{% if customer %}{{ customer.id }}{% endif %}">
+</div>
+
+<script src="https://cdn.loyalty.lt/shopify-widget.js"></script>
+```
+
+#### Point Display
+```liquid
+<!-- Product page points preview -->
+{% assign points_earned = product.price | times: 1 | round %}
+<div class="points-preview">
+  <span>Earn {{ points_earned }} points with this purchase</span>
+</div>
+```
+
+### Custom Liquid Tags
+
+```liquid
+<!-- Loyalty balance -->
+{{ customer | loyalty_points }}
+
+<!-- Points earning preview -->
+{{ product.price | points_preview }}
+
+<!-- Tier status -->
+{{ customer | loyalty_tier }}
+
+<!-- Redemption options -->
+{% loyalty_redemptions customer %}
+```
+
+## Troubleshooting
+
+### Common Issues
+
+<AccordionGroup>
+<Accordion title="Points Not Awarded">
+**Symptoms**: Customer made purchase but didn't receive points
+
+**Causes & Solutions**:
+- Check webhook configuration
+- Verify customer is enrolled in loyalty program
+- Ensure minimum purchase amount is met
+- Check for duplicate orders
+
+```javascript
+// Debug point calculation
+LoyaltySDK.debug.calculatePoints({
+  orderId: 'order_id',
+  customerId: 'customer_id'
+});
+```
+</Accordion>
+
+<Accordion title="Redemption Failures">
+**Symptoms**: Points deducted but discount not applied
+
+**Causes & Solutions**:
+- Verify Shopify discount API permissions
+- Check discount code generation
+- Ensure cart meets redemption requirements
+
+```javascript
+// Debug redemption
+LoyaltySDK.debug.testRedemption({
+  customerId: 'customer_id',
+  points: 500
+});
+```
+</Accordion>
+
+<Accordion title="Widget Not Loading">
+**Symptoms**: Loyalty widget doesn't appear on site
+
+**Causes & Solutions**:
+- Check JavaScript console for errors
+- Verify widget placement in theme
+- Ensure correct shop ID configuration
+
+```html
+<!-- Debug widget loading -->
+<script>
+LoyaltySDK.debug.checkWidget({
+  shopId: 'your-shop-id',
+  placement: 'theme'
+});
+</script>
+```
+</Accordion>
+</AccordionGroup>
+
+### Testing & Validation
+
+<Steps>
+<Step title="Test Customer Registration">
+```javascript
+// Create test customer
+const testCustomer = {
+  email: 'test@example.com',
+  first_name: 'Test',
+  last_name: 'Customer'
+};
+
+LoyaltySDK.test.registerCustomer(testCustomer);
+```
+</Step>
+
+<Step title="Test Points Earning">
+```javascript
+// Simulate order
+LoyaltySDK.test.simulateOrder({
+  customerId: 'test_customer_id',
+  amount: 100,
+  items: ['product_1', 'product_2']
+});
+```
+</Step>
+
+<Step title="Test Redemption">
+```javascript
+// Test point redemption
+LoyaltySDK.test.redeemPoints({
+  customerId: 'test_customer_id',
+  points: 500
+});
+```
+</Step>
+</Steps>
+
+## Performance Optimization
+
+### Caching Strategies
+```javascript
+// Cache customer loyalty data
+const cache = {
+  duration: 300, // 5 minutes
+  keys: ['points', 'tier', 'available_rewards']
+};
+
+LoyaltySDK.configure({
+  cache: cache,
+  lazy_load: true
+});
+```
+
+### Loading Optimization
+```html
+<!-- Lazy load loyalty widget -->
+<script async defer src="https://cdn.loyalty.lt/shopify-widget.js"></script>
+
+<!-- Critical CSS for loyalty elements -->
+<style>
+.loyalty-widget { display: none; }
+.loyalty-widget.loaded { display: block; }
+</style>
+```
+
+## Security Considerations
+
+### API Security
+- Use HTTPS for all API calls
+- Implement proper webhook verification
+- Secure customer data transmission
+- Regular security audits
+
+```javascript
+// Webhook verification
+const crypto = require('crypto');
+
+function verifyWebhook(payload, signature) {
+  const hmac = crypto.createHmac('sha256', process.env.LOYALTY_WEBHOOK_SECRET);
+  hmac.update(payload);
+  const calculatedSignature = hmac.digest('base64');
+  
+  return crypto.timingSafeEqual(
+    Buffer.from(signature),
+    Buffer.from(calculatedSignature)
+  );
+}
+```
+
+### Data Protection
+- GDPR compliance for EU customers
+- Customer consent management
+- Data encryption in transit
+- Secure storage of customer data
+
+## Migration & Data Import
+
+### Existing Loyalty Program
+```javascript
+// Import existing customer data
+const migrationData = {
+  customers: [
+    {
+      shopify_id: 'customer_123',
+      email: 'customer@example.com',
+      points: 1500,
+      tier: 'gold',
+      transactions: []
+    }
+  ]
+};
+
+LoyaltySDK.migrate.importData(migrationData);
+```
+
+### Data Export
+```javascript
+// Export loyalty data
+const exportData = await LoyaltySDK.export.customerData({
+  format: 'csv',
+  fields: ['email', 'points', 'tier', 'lifetime_value']
+});
+```
+
+## Advanced Features
+
+### Multi-Store Management
+```javascript
+// Configure multiple Shopify stores
+LoyaltySDK.configure({
+  stores: [
+    { id: 'store1', domain: 'store1.myshopify.com' },
+    { id: 'store2', domain: 'store2.myshopify.com' }
+  ],
+  shared_loyalty: true
+});
+```
+
+### API Extensions
+```javascript
+// Custom loyalty rules
+LoyaltySDK.extend({
+  customRule: function(order, customer) {
+    // Custom point calculation logic
+    if (customer.tier === 'vip') {
+      return order.total * 2; // Double points for VIP
+    }
+    return order.total;
+  }
+});
+```
+
+### Automation & Workflows
+```javascript
+// Automated campaigns
+LoyaltySDK.automation.create({
+  trigger: 'birthday',
+  action: 'award_points',
+  points: 100,
+  message: 'Happy Birthday! Here are 100 bonus points!'
+});
+```
+
+## Support & Resources
+
+### Getting Help
+- **Documentation**: [docs.loyalty.lt](https://docs.loyalty.lt)
+- **Support Email**: support@loyalty.lt
+- **Live Chat**: Available in Partners Portal
+- **Community Forum**: [community.loyalty.lt](https://community.loyalty.lt)
+
+### Development Resources
+- **Shopify Partner Resources**: [partners.shopify.com](https://partners.shopify.com)
+- **API Reference**: [docs.loyalty.lt/api](https://docs.loyalty.lt/api)
+- **SDK Documentation**: [docs.loyalty.lt/sdk](https://docs.loyalty.lt/sdk)
+- **Code Examples**: [github.com/loyalty-lt/examples](https://github.com/loyalty-lt/examples)
+
+### Updates & Maintenance
+- Automatic app updates via Shopify App Store
+- Webhook health monitoring
+- Performance optimization recommendations
+- Security patch notifications
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+<Card title="API Reference" icon="code" href="/api/shop/loyalty-cards">
+  Explore the Shop API endpoints for advanced customization
+</Card>
+
+<Card title="JavaScript SDK" icon="js" href="/sdk/javascript/installation">
+  Learn how to use our JavaScript SDK for custom implementations
+</Card>
+
+<Card title="Partners Portal" icon="store" href="/apps/partners/overview">
+  Manage your Shopify integration from the Partners Portal
+</Card>
+
+<Card title="Troubleshooting" icon="wrench" href="/troubleshooting/faq">
+  Get help with common integration issues
+</Card>
+</CardGroup> 
