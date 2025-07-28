@@ -1,0 +1,608 @@
+---
+title: QR Code Authentication
+description: Primary authentication method using QR codes for secure login across devices
+---
+
+<Info>
+**QR Code authentication is the primary login method** in Loyalty.lt, enabling secure authentication between desktop/web and mobile applications using real-time communication.
+</Info>
+
+## Overview
+
+QR Code authentication allows users to securely log in to desktop or web applications by scanning a QR code with their mobile device. This method provides enhanced security and convenience.
+
+### Authentication Flow
+
+<Steps>
+  <Step title="Generate QR Code Session">
+    Desktop/web application generates a unique QR code session
+  </Step>
+  <Step title="Display QR Code">
+    QR code is displayed to user on desktop/web interface
+  </Step>
+  <Step title="User Scans QR Code">
+    Authenticated user scans QR code using mobile app
+  </Step>
+  <Step title="User Confirms Login">
+    User confirms login on mobile device
+  </Step>
+  <Step title="Receive Authentication">
+    Desktop/web receives authentication tokens via real-time notification
+  </Step>
+</Steps>
+
+## Endpoints
+
+### Generate QR Login Session
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://api.loyalty.lt/en/shop/auth/qr-login/generate" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "device_name": "My Desktop"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('/en/shop/auth/qr-login/generate', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    device_name: 'My Desktop'
+  })
+});
+
+const data = await response.json();
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://api.loyalty.lt/en/shop/auth/qr-login/generate',
+    json={
+        'device_name': 'My Desktop'
+    }
+)
+
+data = response.json()
+```
+</RequestExample>
+
+<ResponseExample>
+```json Success
+{
+  "success": true,
+  "data": {
+    "session_id": "550e8400-e29b-41d4-a716-446655440000",
+    "qr_code": "abcd1234efgh5678",
+    "expires_at": "2024-01-15T14:35:00Z"
+  }
+}
+```
+
+```json Validation Error
+{
+  "success": false,
+  "message": "Validation failed",
+  "code": "VALIDATION_ERROR",
+  "errors": {
+    "device_name": ["The device name must not be greater than 255 characters."]
+  }
+}
+```
+</ResponseExample>
+
+**API Path:** `POST /{locale}/shop/auth/qr-login/generate`
+
+**Parameters:**
+<ParamField path="locale" type="string" required>
+  Language locale code (en, lt, etc.)
+</ParamField>
+
+<ParamField body="device_name" type="string" optional>
+  Name of the device generating the QR session (max 255 characters)
+</ParamField>
+
+**Response:**
+<ResponseField name="session_id" type="string">
+  Unique session identifier for tracking QR login process
+</ResponseField>
+
+<ResponseField name="qr_code" type="string">
+  QR code string to be encoded and displayed to user
+</ResponseField>
+
+<ResponseField name="expires_at" type="string">
+  Session expiration timestamp (5 minutes from creation)
+</ResponseField>
+
+---
+
+### Poll QR Login Status
+
+<RequestExample>
+```bash cURL
+curl -X GET "https://api.loyalty.lt/en/shop/auth/qr-login/poll/550e8400-e29b-41d4-a716-446655440000"
+```
+
+```javascript JavaScript
+const sessionId = '550e8400-e29b-41d4-a716-446655440000';
+const response = await fetch(`/en/shop/auth/qr-login/poll/${sessionId}`);
+const data = await response.json();
+```
+
+```python Python
+import requests
+
+session_id = '550e8400-e29b-41d4-a716-446655440000'
+response = requests.get(f'https://api.loyalty.lt/en/shop/auth/qr-login/poll/{session_id}')
+data = response.json()
+```
+</RequestExample>
+
+<ResponseExample>
+```json Pending
+{
+  "success": true,
+  "data": {
+    "session_id": "550e8400-e29b-41d4-a716-446655440000",
+    "status": "pending",
+    "expires_at": "2024-01-15T14:35:00Z"
+  }
+}
+```
+
+```json Scanned
+{
+  "success": true,
+  "data": {
+    "session_id": "550e8400-e29b-41d4-a716-446655440000",
+    "status": "scanned",
+    "expires_at": "2024-01-15T14:35:00Z"
+  }
+}
+```
+
+```json Session Not Found
+{
+  "success": false,
+  "message": "QR session expired or not found",
+  "code": "QR_SESSION_NOT_FOUND"
+}
+```
+</ResponseExample>
+
+**API Path:** `GET /{locale}/shop/auth/qr-login/poll/{sessionId}`
+
+**Parameters:**
+<ParamField path="locale" type="string" required>
+  Language locale code
+</ParamField>
+
+<ParamField path="sessionId" type="string" required>
+  The session ID from generate QR endpoint
+</ParamField>
+
+**Response:**
+<ResponseField name="session_id" type="string">
+  Session identifier
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Current session status: `pending`, `scanned`, or `confirmed`
+</ResponseField>
+
+<ResponseField name="expires_at" type="string">
+  Session expiration timestamp
+</ResponseField>
+
+---
+
+### Scan QR Code (Mobile App)
+
+<Warning>
+This endpoint requires the user to be authenticated via mobile app with valid JWT token.
+</Warning>
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://api.loyalty.lt/en/shop/auth/qr-login/scan/abcd1234efgh5678" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+```javascript JavaScript
+const qrCode = 'abcd1234efgh5678';
+const response = await fetch(`/en/shop/auth/qr-login/scan/${qrCode}`, {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer ' + jwt_token
+  }
+});
+
+const data = await response.json();
+```
+
+```python Python
+import requests
+
+qr_code = 'abcd1234efgh5678'
+headers = {'Authorization': f'Bearer {jwt_token}'}
+
+response = requests.post(
+    f'https://api.loyalty.lt/en/shop/auth/qr-login/scan/{qr_code}',
+    headers=headers
+)
+
+data = response.json()
+```
+</RequestExample>
+
+<ResponseExample>
+```json Success
+{
+  "success": true,
+  "message": "QR code scanned successfully",
+  "data": {
+    "session_id": "550e8400-e29b-41d4-a716-446655440000",
+    "device_name": "My Desktop"
+  }
+}
+```
+
+```json Authentication Required
+{
+  "success": false,
+  "message": "Authentication required",
+  "code": "AUTH_REQUIRED"
+}
+```
+
+```json QR Code Not Found
+{
+  "success": false,
+  "message": "QR code not found or expired",
+  "code": "QR_CODE_NOT_FOUND"
+}
+```
+</ResponseExample>
+
+**API Path:** `POST /{locale}/shop/auth/qr-login/scan/{qrCode}`
+
+**Parameters:**
+<ParamField path="locale" type="string" required>
+  Language locale code
+</ParamField>
+
+<ParamField path="qrCode" type="string" required>
+  QR code string from the generated session
+</ParamField>
+
+**Headers:**
+<ParamField header="Authorization" type="string" required>
+  Bearer JWT token of authenticated mobile user
+</ParamField>
+
+**Response:**
+<ResponseField name="session_id" type="string">
+  Session identifier that was scanned
+</ResponseField>
+
+<ResponseField name="device_name" type="string">
+  Name of the device requesting authentication
+</ResponseField>
+
+---
+
+### Confirm QR Login (Mobile App)
+
+<RequestExample>
+```bash cURL
+curl -X POST "https://api.loyalty.lt/en/shop/auth/qr-login/confirm/550e8400-e29b-41d4-a716-446655440000" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+```javascript JavaScript
+const sessionId = '550e8400-e29b-41d4-a716-446655440000';
+const response = await fetch(`/en/shop/auth/qr-login/confirm/${sessionId}`, {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer ' + jwt_token
+  }
+});
+
+const data = await response.json();
+```
+
+```python Python
+import requests
+
+session_id = '550e8400-e29b-41d4-a716-446655440000'
+headers = {'Authorization': f'Bearer {jwt_token}'}
+
+response = requests.post(
+    f'https://api.loyalty.lt/en/shop/auth/qr-login/confirm/{session_id}',
+    headers=headers
+)
+
+data = response.json()
+```
+</RequestExample>
+
+<ResponseExample>
+```json Success
+{
+  "success": true,
+  "message": "QR login confirmed successfully"
+}
+```
+
+```json Unauthorized
+{
+  "success": false,
+  "message": "QR session not found or unauthorized",
+  "code": "QR_SESSION_UNAUTHORIZED"
+}
+```
+</ResponseExample>
+
+**API Path:** `POST /{locale}/shop/auth/qr-login/confirm/{sessionId}`
+
+**Parameters:**
+<ParamField path="locale" type="string" required>
+  Language locale code
+</ParamField>
+
+<ParamField path="sessionId" type="string" required>
+  Session ID from the scanned QR code
+</ParamField>
+
+**Headers:**
+<ParamField header="Authorization" type="string" required>
+  Bearer JWT token of authenticated mobile user
+</ParamField>
+
+## Real-time Communication
+
+<Info>
+The QR login system uses **Ably** for real-time communication to notify the desktop/web application when authentication status changes.
+</Info>
+
+### WebSocket Channel
+Subscribe to: `qr-login:{sessionId}`
+
+### Event Types
+<Tabs>
+  <Tab title="qr_login_status">
+    **Payload when scanned:**
+    ```json
+    {
+      "session_id": "550e8400-e29b-41d4-a716-446655440000",
+      "status": "scanned",
+      "user": {
+        "id": 123,
+        "name": "John Doe"
+      }
+    }
+    ```
+
+    **Payload when confirmed:**
+    ```json
+    {
+      "session_id": "550e8400-e29b-41d4-a716-446655440000",
+      "status": "confirmed",
+      "user": {
+        "id": 123,
+        "name": "John Doe",
+        "phone": "+37060000000",
+        "email": "john@example.com"
+      },
+      "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9...",
+      "refresh_token": "def502004f4c7e1e3a5b...",
+      "expires_in": 3600
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Implementation Example
+
+<CodeGroup>
+```javascript Frontend (React)
+import { useEffect, useState } from 'react';
+import Ably from 'ably/promises';
+
+function QRLogin() {
+  const [qrData, setQrData] = useState(null);
+  const [status, setStatus] = useState('pending');
+  const [authData, setAuthData] = useState(null);
+
+  useEffect(() => {
+    generateQRSession();
+  }, []);
+
+  const generateQRSession = async () => {
+    const response = await fetch('/api/en/shop/auth/qr-login/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ device_name: 'Web Browser' })
+    });
+    
+    const data = await response.json();
+    if (data.success) {
+      setQrData(data.data);
+      subscribeToUpdates(data.data.session_id);
+    }
+  };
+
+  const subscribeToUpdates = (sessionId) => {
+    const ably = new Ably.Realtime('YOUR_ABLY_KEY');
+    const channel = ably.channels.get(`qr-login:${sessionId}`);
+    
+    channel.subscribe('qr_login_status', (message) => {
+      const { status, token, refresh_token, user } = message.data;
+      setStatus(status);
+      
+      if (status === 'confirmed' && token) {
+        setAuthData({ token, refresh_token, user });
+        // Store tokens and redirect user
+        localStorage.setItem('auth_token', token);
+        localStorage.setItem('refresh_token', refresh_token);
+        window.location.href = '/dashboard';
+      }
+    });
+  };
+
+  return (
+    <div>
+      {qrData && (
+        <div>
+          <QRCodeDisplay value={qrData.qr_code} />
+          <p>Status: {status}</p>
+          {status === 'pending' && <p>Scan QR code with your mobile app</p>}
+          {status === 'scanned' && <p>Confirm login on your mobile device</p>}
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+```swift Mobile App (iOS)
+import Foundation
+
+class QRLoginService {
+    func scanQRCode(_ qrCode: String) async throws -> QRScanResponse {
+        guard let token = AuthManager.shared.currentToken else {
+            throw AuthError.notAuthenticated
+        }
+        
+        let url = URL(string: "https://api.loyalty.lt/en/shop/auth/qr-login/scan/\(qrCode)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        let (data, _) = try await URLSession.shared.data(for: request)
+        return try JSONDecoder().decode(QRScanResponse.self, from: data)
+    }
+    
+    func confirmLogin(sessionId: String) async throws {
+        guard let token = AuthManager.shared.currentToken else {
+            throw AuthError.notAuthenticated
+        }
+        
+        let url = URL(string: "https://api.loyalty.lt/en/shop/auth/qr-login/confirm/\(sessionId)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        let (_, _) = try await URLSession.shared.data(for: request)
+    }
+}
+```
+
+```kotlin Mobile App (Android)
+class QRLoginService(private val apiClient: ApiClient) {
+    
+    suspend fun scanQRCode(qrCode: String): QRScanResponse {
+        return apiClient.post("/en/shop/auth/qr-login/scan/$qrCode") {
+            headers {
+                append("Authorization", "Bearer ${AuthManager.getToken()}")
+            }
+        }
+    }
+    
+    suspend fun confirmLogin(sessionId: String) {
+        apiClient.post("/en/shop/auth/qr-login/confirm/$sessionId") {
+            headers {
+                append("Authorization", "Bearer ${AuthManager.getToken()}")
+            }
+        }
+    }
+}
+
+// Usage in Activity/Fragment
+class QRScannerActivity : AppCompatActivity() {
+    private val qrLoginService = QRLoginService(apiClient)
+    
+    private fun onQRCodeScanned(qrCode: String) {
+        lifecycleScope.launch {
+            try {
+                val response = qrLoginService.scanQRCode(qrCode)
+                showConfirmDialog(response.data.sessionId, response.data.deviceName)
+            } catch (e: Exception) {
+                showError("Failed to scan QR code: ${e.message}")
+            }
+        }
+    }
+    
+    private fun confirmLogin(sessionId: String) {
+        lifecycleScope.launch {
+            try {
+                qrLoginService.confirmLogin(sessionId)
+                showSuccess("Login confirmed successfully")
+                finish()
+            } catch (e: Exception) {
+                showError("Failed to confirm login: ${e.message}")
+            }
+        }
+    }
+}
+```
+</CodeGroup>
+
+## Security Features
+
+<AccordionGroup>
+  <Accordion title="Session Expiration">
+    - QR sessions automatically expire after 5 minutes
+    - Expired sessions cannot be scanned or confirmed
+    - Real-time status updates stop when session expires
+  </Accordion>
+
+  <Accordion title="User Authorization">
+    - Only authenticated mobile users can scan QR codes
+    - User must be the same who scanned the QR to confirm login
+    - Each session is tied to specific user ID
+  </Accordion>
+
+  <Accordion title="Secure Token Generation">
+    - JWT tokens generated specifically for QR login
+    - Refresh tokens provided for token renewal
+    - Tokens transmitted via secure real-time channel
+  </Accordion>
+
+  <Accordion title="Real-time Security">
+    - Uses Ably for secure WebSocket communication
+    - Session-specific channels prevent cross-session access
+    - Authentication data only sent on successful confirmation
+  </Accordion>
+</AccordionGroup>
+
+## Error Handling
+
+| Error Code | Description | Resolution |
+|------------|-------------|------------|
+| `VALIDATION_ERROR` | Invalid request parameters | Check device_name length |
+| `QR_SESSION_NOT_FOUND` | Session expired or doesn't exist | Generate new QR session |
+| `AUTH_REQUIRED` | Mobile user not authenticated | Login to mobile app first |
+| `QR_CODE_NOT_FOUND` | QR code expired or invalid | Generate new QR code |
+| `QR_SESSION_UNAUTHORIZED` | User not authorized for session | Use same account that scanned QR |
+| `QR_GENERATION_ERROR` | Failed to create QR session | Try again or contact support |
+| `QR_SCAN_ERROR` | Failed to scan QR code | Check network and try again |
+| `QR_CONFIRM_ERROR` | Failed to confirm login | Check authentication and retry |
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+  <Card title="Phone + OTP Login" href="/api-reference/endpoints/shop/auth/login">
+    Alternative authentication method using phone number and OTP
+  </Card>
+  
+  <Card title="Request OTP" href="/api-reference/endpoints/shop/auth/request-otp">
+    Request OTP code for phone-based authentication
+  </Card>
+</CardGroup> 

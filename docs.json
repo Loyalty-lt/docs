@@ -49,6 +49,7 @@
           {
             "group": "Authentication",
             "pages": [
+              "api-reference/endpoints/shop/auth/qr-login",
               "api-reference/endpoints/shop/auth/request-otp",
               "api-reference/endpoints/shop/auth/login",
               "api-reference/endpoint/authentication"

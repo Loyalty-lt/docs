@@ -1,0 +1,139 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Loyalty.lt Documentation",
+  "colors": {
+    "primary": "#29594B",
+    "light": "#CFFF45",
+    "dark": "#0C3A30"
+  },
+  "favicon": "/favicon.svg",
+  "openapi": "/api-reference/openapi.json",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Overview",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "index",
+              "overview/quick-start",
+              "overview/architecture",
+              "overview/components"
+            ]
+          },
+          {
+            "group": "System Architecture",
+            "pages": [
+              "architecture/overview",
+              "architecture/backend",
+              "architecture/frontend",
+              "architecture/database",
+              "architecture/authentication"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Introduction",
+            "pages": [
+              "api-reference/introduction",
+              "api-reference/authentication",
+              "api-reference/error-handling"
+            ]
+          },
+          {
+            "group": "Shop APIs (Auto-generated)",
+            "openapi": {
+              "source": "/api-reference/openapi.json",
+              "directory": "api-reference/auto",
+              "filter": {
+                "tags": ["Authentication", "Shop Loyalty Cards", "Shop Points", "Shop Offers & Coupons", "Shop Coupons", "Shop Games", "Shop Shops", "Shop Transactions", "Shop - XML Import"]
+              }
+            }
+          },
+          {
+            "group": "Partner APIs (Auto-generated)", 
+            "openapi": {
+              "source": "/api-reference/openapi.json",
+              "directory": "api-reference/auto",
+              "filter": {
+                "tags": ["Partners", "Partner Games", "Pricing Rules", "Settings"]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "tab": "Shop Integration",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "shop/introduction",
+              "shop/getting-started",
+              "shop/authentication"
+            ]
+          },
+          {
+            "group": "Core Features",
+            "pages": [
+              "shop/loyalty-cards",
+              "shop/points-system",
+              "shop/offers-coupons",
+              "shop/games",
+              "shop/analytics"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Partner Management",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "partners/introduction",
+              "partners/onboarding",
+              "partners/dashboard"
+            ]
+          },
+          {
+            "group": "Features",
+            "pages": [
+              "partners/customer-management",
+              "partners/campaign-management",
+              "partners/analytics",
+              "partners/white-label"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "anchors": [
+    {
+      "name": "Partners Portal",
+      "icon": "store",
+      "url": "https://partners.loyalty.lt"
+    },
+    {
+      "name": "Support",
+      "icon": "life-ring",
+      "url": "https://help.loyalty.lt"
+    },
+    {
+      "name": "GitHub",
+      "icon": "github",
+      "url": "https://github.com/loyalty-lt"
+    }
+  ],
+  "feedback": {
+    "thumbs": true,
+    "suggestEdit": true
+  }
+} 

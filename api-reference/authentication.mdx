@@ -13,11 +13,139 @@ All authentication methods use HTTPS encryption and include rate limiting for se
 
 ## Authentication Methods Overview
 
+<Info>
+**QR Code Authentication is the primary login method** for Loyalty.lt, enabling secure cross-device authentication with real-time communication.
+</Info>
+
 | Method | Use Case | Security Level | Rate Limit |
 |--------|----------|----------------|------------|
+| **🔥 QR Code Auth** | **Primary: Desktop/Mobile** | **High** | **1,000/hour** |
+| **Phone + OTP** | Mobile app login | High | 500/hour |
 | **API Credentials** | Server integrations | High | 2,000/hour |
 | **JWT Tokens** | User sessions | Medium | 1,000/hour |
 | **Partner Authentication** | Partner management | High | 5,000/hour |
+
+---
+
+## QR Code Authentication (Primary Method)
+
+**Best for:** Desktop/web applications with mobile app authentication, cross-device login
+
+QR Code authentication is the **primary authentication method** for Loyalty.lt, providing secure login by scanning QR codes with the mobile app. This method offers enhanced security through device separation and real-time verification.
+
+### How QR Authentication Works
+
+<Steps>
+<Step title="Generate QR Session">
+  Desktop/web app creates a unique QR code session with 5-minute expiration.
+</Step>
+
+<Step title="Display QR Code">
+  QR code is displayed to the user on desktop/web interface.
+</Step>
+
+<Step title="Mobile Scan">
+  Authenticated mobile user scans the QR code using the Loyalty.lt app.
+</Step>
+
+<Step title="User Confirmation">
+  User confirms login on mobile device after reviewing session details.
+</Step>
+
+<Step title="Real-time Authentication">
+  Desktop/web receives authentication tokens via Ably WebSocket connection.
+</Step>
+</Steps>
+
+### Quick Start Example
+
+```javascript
+// 1. Generate QR session
+const qrResponse = await fetch('/en/shop/auth/qr-login/generate', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ device_name: 'Web Browser' })
+});
+
+const { session_id, qr_code } = qrResponse.data;
+
+// 2. Subscribe to real-time updates
+const ably = new Ably.Realtime('YOUR_ABLY_KEY');
+const channel = ably.channels.get(`qr-login:${session_id}`);
+
+channel.subscribe('qr_login_status', (message) => {
+  if (message.data.status === 'confirmed') {
+    // User authenticated - redirect to dashboard
+    localStorage.setItem('auth_token', message.data.token);
+    window.location.href = '/dashboard';
+  }
+});
+
+// 3. Display QR code for user to scan
+displayQRCode(qr_code);
+```
+
+### Security Features
+
+- **Session Expiration:** 5-minute timeout for enhanced security
+- **Device Separation:** Authentication happens on separate trusted device
+- **Real-time Verification:** Instant status updates via WebSocket
+- **User Authorization:** Only authenticated mobile users can complete login
+
+<Note>
+For complete QR authentication documentation with all endpoints, examples, and implementation guides, see the [QR Code Authentication](/api-reference/endpoints/shop/auth/qr-login) section.
+</Note>
+
+---
+
+## Phone + OTP Authentication
+
+**Best for:** Mobile applications, direct phone number verification
+
+Alternative authentication method using phone number and one-time password (OTP) verification.
+
+### Basic Flow
+
+<Steps>
+<Step title="Request OTP">
+  Send OTP code to user's phone number for authentication.
+</Step>
+
+<Step title="User Enters OTP">
+  User receives and enters the 6-digit verification code.
+</Step>
+
+<Step title="Verify & Login">
+  API verifies OTP and returns JWT tokens for session management.
+</Step>
+</Steps>
+
+### Quick Example
+
+```javascript
+// 1. Request OTP
+await fetch('/en/shop/auth/request-otp', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    phone: '+37060000000',
+    type: 'login'
+  })
+});
+
+// 2. Login with OTP
+const loginResponse = await fetch('/en/shop/auth/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    phone: '+37060000000',
+    otp: '123456',
+    device_name: 'Mobile App'
+  })
+});
+
+const { token, refresh_token } = loginResponse.data;
+```
 
 ---
 

@@ -1,0 +1,37 @@
+---
+title: "Generate QR Login Session"
+description: "Generate a QR code session for cross-device authentication"
+openapi: "/api-reference/openapi.json POST /{locale}/shop/auth/qr-login/generate"
+---
+
+## Overview
+
+This endpoint demonstrates how to reference OpenAPI operations directly in MDX frontmatter. The API playground, parameters, and responses are automatically generated from the OpenAPI specification.
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Desktop Authentication" icon="desktop">
+    Generate QR codes for users to scan with mobile apps
+  </Card>
+  
+  <Card title="Cross-device Login" icon="mobile">
+    Enable secure authentication between desktop and mobile
+  </Card>
+</CardGroup>
+
+## Security Considerations
+
+<Warning>
+QR sessions expire after 5 minutes for enhanced security. Always implement proper session management and real-time status monitoring.
+</Warning>
+
+## Real-time Integration
+
+This endpoint works in conjunction with Ably WebSocket communication for real-time status updates. Subscribe to the `qr-login:{sessionId}` channel to receive authentication events.
+
+## Related Endpoints
+
+- [Poll QR Login Status](/api-reference/endpoints/shop/auth/qr-login-poll)
+- [Scan QR Code](/api-reference/endpoints/shop/auth/qr-login-scan)
+- [Confirm QR Login](/api-reference/endpoints/shop/auth/qr-login-confirm) 
