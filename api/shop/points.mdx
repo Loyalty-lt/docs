@@ -1,0 +1,890 @@
+---
+title: "Points Management API"
+description: "Shop API endpoints for awarding, redeeming, and managing loyalty points"
+---
+
+# Points Management API
+
+The Points Management API is the core of the loyalty program system, allowing you to award points to customers, process redemptions, and track point transactions. This API works directly with loyalty cards to manage customer rewards.
+
+<Info>
+All Shop API endpoints require API Key and Secret authentication. See [Authentication Overview](/api/authentication/overview) for details.
+</Info>
+
+## Base URL
+
+```
+https://staging-api.loyalty.lt/api/points
+```
+
+## Core Concepts
+
+<AccordionGroup>
+  <Accordion title="Points Transactions">
+    Every point operation creates a transaction record with a unique ID, timestamp, and reason. This provides a complete audit trail of all point activities.
+  </Accordion>
+  
+  <Accordion title="Point Types">
+    - **Award**: Add points to a customer's balance
+    - **Redeem**: Subtract points from balance (for rewards)
+    - **Expire**: Remove expired points automatically
+    - **Adjust**: Manual corrections (positive or negative)
+  </Accordion>
+  
+  <Accordion title="Transaction References">
+    Link point transactions to external systems using reference IDs (order numbers, invoice IDs, etc.) for better tracking and reconciliation.
+  </Accordion>
+  
+  <Accordion title="Point Expiration">
+    Points can have expiration dates. Expired points are automatically removed from customer balances and tracked separately.
+  </Accordion>
+</AccordionGroup>
+
+## Endpoints Overview
+
+<CardGroup cols={2}>
+  <Card title="Award Points" icon="plus-circle">
+    **POST** `/points/award`
+    
+    Add points to a customer's loyalty card
+  </Card>
+  
+  <Card title="Redeem Points" icon="minus-circle">
+    **POST** `/points/redeem`
+    
+    Subtract points from a customer's balance
+  </Card>
+  
+  <Card title="Points History" icon="clock">
+    **GET** `/points/history/{card_id}`
+    
+    Get detailed transaction history for a card
+  </Card>
+  
+  <Card title="Points Balance" icon="wallet">
+    **GET** `/points/balance/{card_id}`
+    
+    Get current points balance and details
+  </Card>
+  
+  <Card title="Bulk Operations" icon="layer-group">
+    **POST** `/points/bulk`
+    
+    Process multiple point transactions at once
+  </Card>
+  
+  <Card title="Expire Points" icon="calendar-times">
+    **POST** `/points/expire`
+    
+    Manually expire points by date or amount
+  </Card>
+</CardGroup>
+
+## Award Points
+
+Award points to a customer's loyalty card. This is typically done after a purchase, completed action, or as a bonus reward.
+
+<RequestExample>
+```bash cURL
+curl -X POST 'https://staging-api.loyalty.lt/api/points/award' \
+  -H 'Content-Type: application/json' \
+  -H 'X-API-Key: your_api_key' \
+  -H 'X-API-Secret: your_api_secret' \
+  -d '{
+    "card_id": "card_123456789",
+    "points": 100,
+    "reason": "Purchase reward",
+    "reference": "order_12345",
+    "metadata": {
+      "order_total": 50.00,
+      "currency": "USD",
+      "store_location": "Main Street"
+    }
+  }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Success Response
+{
+  "success": true,
+  "data": {
+    "transaction_id": "txn_987654321",
+    "card_id": "card_123456789",
+    "type": "award",
+    "points": 100,
+    "reason": "Purchase reward",
+    "reference": "order_12345",
+    "previous_balance": 150,
+    "new_balance": 250,
+    "created_at": "2024-12-27T15:45:00Z",
+    "expires_at": "2025-12-27T15:45:00Z",
+    "staff_member": null,
+    "metadata": {
+      "order_total": 50.00,
+      "currency": "USD",
+      "store_location": "Main Street"
+    }
+  }
+}
+```
+</ResponseExample>
+
+### Request Parameters
+
+<ParamField body="card_id" type="string" required>
+  The loyalty card ID to award points to
+</ParamField>
+
+<ParamField body="points" type="integer" required>
+  Number of points to award (must be positive)
+</ParamField>
+
+<ParamField body="reason" type="string" required>
+  Description of why points were awarded (shown to customer)
+</ParamField>
+
+<ParamField body="reference" type="string">
+  External reference ID (order number, invoice ID, etc.)
+</ParamField>
+
+<ParamField body="expires_at" type="string">
+  Point expiration date in ISO 8601 format. If not provided, uses default expiration policy.
+</ParamField>
+
+<ParamField body="staff_member" type="string">
+  ID or name of staff member who awarded the points
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Additional data to store with the transaction (max 1KB)
+</ParamField>
+
+## Redeem Points
+
+Redeem points from a customer's loyalty card balance. This reduces their available points in exchange for rewards, discounts, or other benefits.
+
+<RequestExample>
+```bash cURL
+curl -X POST 'https://staging-api.loyalty.lt/api/points/redeem' \
+  -H 'Content-Type: application/json' \
+  -H 'X-API-Key: your_api_key' \
+  -H 'X-API-Secret: your_api_secret' \
+  -d '{
+    "card_id": "card_123456789",
+    "points": 50,
+    "reason": "Discount redemption",
+    "reference": "discount_789",
+    "metadata": {
+      "discount_amount": 10.00,
+      "currency": "USD",
+      "discount_type": "percentage"
+    }
+  }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Success Response
+{
+  "success": true,
+  "data": {
+    "transaction_id": "txn_987654322",
+    "card_id": "card_123456789",
+    "type": "redeem",
+    "points": -50,
+    "reason": "Discount redemption",
+    "reference": "discount_789",
+    "previous_balance": 250,
+    "new_balance": 200,
+    "created_at": "2024-12-27T16:00:00Z",
+    "staff_member": "staff_001",
+    "metadata": {
+      "discount_amount": 10.00,
+      "currency": "USD",
+      "discount_type": "percentage"
+    }
+  }
+}
+```
+</ResponseExample>
+
+### Request Parameters
+
+<ParamField body="card_id" type="string" required>
+  The loyalty card ID to redeem points from
+</ParamField>
+
+<ParamField body="points" type="integer" required>
+  Number of points to redeem (must be positive, will be subtracted from balance)
+</ParamField>
+
+<ParamField body="reason" type="string" required>
+  Description of what the points were redeemed for
+</ParamField>
+
+<ParamField body="reference" type="string">
+  External reference ID for the redemption
+</ParamField>
+
+<ParamField body="staff_member" type="string">
+  ID or name of staff member who processed the redemption
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Additional data about the redemption (discount amount, item details, etc.)
+</ParamField>
+
+## Get Points Balance
+
+Retrieve the current points balance and related information for a loyalty card.
+
+<RequestExample>
+```bash cURL
+curl -X GET 'https://staging-api.loyalty.lt/api/points/balance/card_123456789' \
+  -H 'X-API-Key: your_api_key' \
+  -H 'X-API-Secret: your_api_secret'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Success Response
+{
+  "success": true,
+  "data": {
+    "card_id": "card_123456789",
+    "current_balance": 200,
+    "lifetime_earned": 500,
+    "lifetime_redeemed": 300,
+    "points_expiring_soon": [
+      {
+        "points": 25,
+        "expires_at": "2024-01-15T00:00:00Z",
+        "days_until_expiry": 19
+      }
+    ],
+    "last_activity": {
+      "transaction_id": "txn_987654322",
+      "type": "redeem",
+      "points": -50,
+      "created_at": "2024-12-27T16:00:00Z"
+    },
+    "tier_info": {
+      "current_tier": "silver",
+      "points_to_next_tier": 300,
+      "next_tier": "gold"
+    }
+  }
+}
+```
+</ResponseExample>
+
+### Response Fields
+
+<ResponseField name="current_balance" type="integer">
+  Available points that can be redeemed
+</ResponseField>
+
+<ResponseField name="lifetime_earned" type="integer">
+  Total points ever earned on this card
+</ResponseField>
+
+<ResponseField name="lifetime_redeemed" type="integer">
+  Total points ever redeemed from this card
+</ResponseField>
+
+<ResponseField name="points_expiring_soon" type="array">
+  Points that will expire within the next 30 days
+</ResponseField>
+
+<ResponseField name="tier_info" type="object">
+  Customer tier status and progression information
+</ResponseField>
+
+## Points Transaction History
+
+Get detailed transaction history for a loyalty card with filtering and pagination options.
+
+<RequestExample>
+```bash cURL
+curl -X GET 'https://staging-api.loyalty.lt/api/points/history/card_123456789?type=all&from_date=2024-01-01&page=1&limit=20' \
+  -H 'X-API-Key: your_api_key' \
+  -H 'X-API-Secret: your_api_secret'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Success Response
+{
+  "success": true,
+  "data": {
+    "transactions": [
+      {
+        "id": "txn_987654322",
+        "type": "redeem",
+        "points": -50,
+        "reason": "Discount redemption",
+        "reference": "discount_789",
+        "balance_before": 250,
+        "balance_after": 200,
+        "created_at": "2024-12-27T16:00:00Z",
+        "expires_at": null,
+        "staff_member": "staff_001",
+        "metadata": {
+          "discount_amount": 10.00,
+          "currency": "USD"
+        }
+      },
+      {
+        "id": "txn_987654321",
+        "type": "award",
+        "points": 100,
+        "reason": "Purchase reward",
+        "reference": "order_12345",
+        "balance_before": 150,
+        "balance_after": 250,
+        "created_at": "2024-12-27T15:45:00Z",
+        "expires_at": "2025-12-27T15:45:00Z",
+        "staff_member": null,
+        "metadata": {
+          "order_total": 50.00,
+          "currency": "USD"
+        }
+      }
+    ],
+    "summary": {
+      "total_transactions": 25,
+      "points_awarded": 500,
+      "points_redeemed": 300,
+      "points_expired": 0,
+      "current_balance": 200
+    },
+    "pagination": {
+      "current_page": 1,
+      "per_page": 20,
+      "total": 25,
+      "total_pages": 2,
+      "has_next": true,
+      "has_prev": false
+    }
+  }
+}
+```
+</ResponseExample>
+
+### Query Parameters
+
+<ParamField query="type" type="string" default="all">
+  Filter by transaction type: `all`, `award`, `redeem`, `expire`, `adjust`
+</ParamField>
+
+<ParamField query="from_date" type="string">
+  Start date for transaction history (ISO 8601 format)
+</ParamField>
+
+<ParamField query="to_date" type="string">
+  End date for transaction history (ISO 8601 format)
+</ParamField>
+
+<ParamField query="reference" type="string">
+  Filter by external reference ID
+</ParamField>
+
+<ParamField query="staff_member" type="string">
+  Filter by staff member who processed the transaction
+</ParamField>
+
+<ParamField query="page" type="integer" default="1">
+  Page number for pagination
+</ParamField>
+
+<ParamField query="limit" type="integer" default="20">
+  Number of transactions per page (max 100)
+</ParamField>
+
+## Bulk Point Operations
+
+Process multiple point transactions in a single request for efficiency. Useful for batch imports or bulk operations.
+
+<RequestExample>
+```bash cURL
+curl -X POST 'https://staging-api.loyalty.lt/api/points/bulk' \
+  -H 'Content-Type: application/json' \
+  -H 'X-API-Key: your_api_key' \
+  -H 'X-API-Secret: your_api_secret' \
+  -d '{
+    "transactions": [
+      {
+        "card_id": "card_123456789",
+        "type": "award",
+        "points": 50,
+        "reason": "Birthday bonus",
+        "reference": "birthday_2024"
+      },
+      {
+        "card_id": "card_987654321",
+        "type": "award",
+        "points": 100,
+        "reason": "Referral bonus",
+        "reference": "referral_456"
+      },
+      {
+        "card_id": "card_555666777",
+        "type": "redeem",
+        "points": 25,
+        "reason": "Loyalty reward",
+        "reference": "reward_789"
+      }
+    ]
+  }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Success Response
+{
+  "success": true,
+  "data": {
+    "processed": 3,
+    "successful": 2,
+    "failed": 1,
+    "results": [
+      {
+        "card_id": "card_123456789",
+        "status": "success",
+        "transaction_id": "txn_111222333",
+        "new_balance": 275
+      },
+      {
+        "card_id": "card_987654321",
+        "status": "success",
+        "transaction_id": "txn_444555666",
+        "new_balance": 350
+      },
+      {
+        "card_id": "card_555666777",
+        "status": "failed",
+        "error": {
+          "code": "INSUFFICIENT_POINTS",
+          "message": "Not enough points for redemption"
+        }
+      }
+    ],
+    "processing_time": "0.245s"
+  }
+}
+```
+</ResponseExample>
+
+### Bulk Transaction Object
+
+<ParamField body="card_id" type="string" required>
+  The loyalty card ID for this transaction
+</ParamField>
+
+<ParamField body="type" type="string" required>
+  Transaction type: `award`, `redeem`, or `adjust`
+</ParamField>
+
+<ParamField body="points" type="integer" required>
+  Number of points (positive for award, positive for redeem amount)
+</ParamField>
+
+<ParamField body="reason" type="string" required>
+  Description of the transaction
+</ParamField>
+
+<ParamField body="reference" type="string">
+  External reference ID
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Additional transaction data
+</ParamField>
+
+## Point Expiration
+
+Manually expire points or check which points are due for expiration.
+
+<Tabs>
+  <Tab title="Expire Points">
+    <RequestExample>
+    ```bash cURL
+    curl -X POST 'https://staging-api.loyalty.lt/api/points/expire' \
+      -H 'Content-Type: application/json' \
+      -H 'X-API-Key: your_api_key' \
+      -H 'X-API-Secret: your_api_secret' \
+      -d '{
+        "card_id": "card_123456789",
+        "points": 25,
+        "reason": "Points expired after 12 months",
+        "expires_before": "2024-01-01T00:00:00Z"
+      }'
+    ```
+    </RequestExample>
+  </Tab>
+  
+  <Tab title="Check Expiring Points">
+    <RequestExample>
+    ```bash cURL
+    curl -X GET 'https://staging-api.loyalty.lt/api/points/expiring?days=30&card_id=card_123456789' \
+      -H 'X-API-Key: your_api_key' \
+      -H 'X-API-Secret: your_api_secret'
+    ```
+    </RequestExample>
+  </Tab>
+</Tabs>
+
+<ResponseExample>
+```json Expire Points Response
+{
+  "success": true,
+  "data": {
+    "transaction_id": "txn_expire_123",
+    "card_id": "card_123456789",
+    "points_expired": 25,
+    "previous_balance": 200,
+    "new_balance": 175,
+    "reason": "Points expired after 12 months",
+    "expired_at": "2024-12-27T16:30:00Z"
+  }
+}
+```
+</ResponseExample>
+
+## Points Adjustment
+
+Make manual adjustments to point balances for corrections, compensations, or administrative purposes.
+
+<RequestExample>
+```bash cURL
+curl -X POST 'https://staging-api.loyalty.lt/api/points/adjust' \
+  -H 'Content-Type: application/json' \
+  -H 'X-API-Key: your_api_key' \
+  -H 'X-API-Secret: your_api_secret' \
+  -d '{
+    "card_id": "card_123456789",
+    "points": -10,
+    "reason": "Correction for duplicate transaction",
+    "reference": "adjustment_001",
+    "staff_member": "admin_user",
+    "metadata": {
+      "original_transaction": "txn_987654321",
+      "correction_type": "duplicate_removal"
+    }
+  }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Success Response
+{
+  "success": true,
+  "data": {
+    "transaction_id": "txn_adjust_456",
+    "card_id": "card_123456789",
+    "type": "adjust",
+    "points": -10,
+    "reason": "Correction for duplicate transaction",
+    "reference": "adjustment_001",
+    "previous_balance": 175,
+    "new_balance": 165,
+    "created_at": "2024-12-27T16:45:00Z",
+    "staff_member": "admin_user",
+    "metadata": {
+      "original_transaction": "txn_987654321",
+      "correction_type": "duplicate_removal"
+    }
+  }
+}
+```
+</ResponseExample>
+
+## Error Handling
+
+<AccordionGroup>
+  <Accordion title="Insufficient Points">
+    **Status Code**: 400
+    
+    ```json
+    {
+      "success": false,
+      "error": {
+        "code": "INSUFFICIENT_POINTS",
+        "message": "Not enough points for redemption",
+        "current_balance": 25,
+        "requested_points": 50
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Card Blocked">
+    **Status Code**: 403
+    
+    ```json
+    {
+      "success": false,
+      "error": {
+        "code": "CARD_BLOCKED",
+        "message": "Cannot process points for blocked card",
+        "card_id": "card_123456789"
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Invalid Points Amount">
+    **Status Code**: 400
+    
+    ```json
+    {
+      "success": false,
+      "error": {
+        "code": "INVALID_POINTS",
+        "message": "Points amount must be positive",
+        "provided_value": -5
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Transaction Limit Exceeded">
+    **Status Code**: 429
+    
+    ```json
+    {
+      "success": false,
+      "error": {
+        "code": "TRANSACTION_LIMIT_EXCEEDED",
+        "message": "Too many point transactions in short period",
+        "retry_after": 60
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Transaction References" icon="link">
+    - Always use external reference IDs
+    - Link to order numbers, invoice IDs
+    - Enable easy reconciliation
+    - Support customer service inquiries
+  </Card>
+  
+  <Card title="Reason Descriptions" icon="message">
+    - Use customer-friendly language
+    - Be specific about the action
+    - Avoid technical jargon
+    - Support multiple languages if needed
+  </Card>
+  
+  <Card title="Metadata Usage" icon="database">
+    - Store relevant transaction context
+    - Include monetary amounts and currency
+    - Track staff members for auditing
+    - Add custom business data
+  </Card>
+  
+  <Card title="Error Handling" icon="exclamation-triangle">
+    - Check balances before redemption
+    - Validate card status first
+    - Implement retry logic for failures
+    - Log all transactions for auditing
+  </Card>
+</CardGroup>
+
+## Integration Patterns
+
+<AccordionGroup>
+  <Accordion title="E-commerce Purchase Flow">
+    **Scenario**: Award points after successful order completion
+    
+    1. Customer completes checkout
+    2. Payment is processed successfully
+    3. Calculate points based on order total
+    4. Award points with order reference
+    5. Send confirmation email with points earned
+    6. Update customer's loyalty dashboard
+  </Accordion>
+  
+  <Accordion title="Point-of-Sale Redemption">
+    **Scenario**: Customer redeems points for discount at checkout
+    
+    1. Scan customer loyalty card
+    2. Check current points balance
+    3. Customer selects reward to redeem
+    4. Validate sufficient points available
+    5. Process point redemption
+    6. Apply discount to transaction
+    7. Print receipt with new balance
+  </Accordion>
+  
+  <Accordion title="Bulk Point Award Campaign">
+    **Scenario**: Award bonus points to all customers
+    
+    1. Export list of active loyalty cards
+    2. Prepare bulk transaction data
+    3. Submit bulk award request
+    4. Process results and handle failures
+    5. Send notification emails to customers
+    6. Generate campaign performance report
+  </Accordion>
+</AccordionGroup>
+
+## Point Calculation Examples
+
+<Tabs>
+  <Tab title="Purchase-based Points">
+    ```javascript
+    // Award 1 point per $1 spent
+    const orderTotal = 25.50;
+    const pointsToAward = Math.floor(orderTotal);
+    
+    await awardPoints({
+      card_id: 'card_123',
+      points: pointsToAward, // 25 points
+      reason: `Purchase reward for $${orderTotal}`,
+      reference: order.id,
+      metadata: {
+        order_total: orderTotal,
+        currency: 'USD',
+        points_rate: '1 point per $1'
+      }
+    });
+    ```
+  </Tab>
+  
+  <Tab title="Tier-based Multipliers">
+    ```javascript
+    // Different point rates by customer tier
+    const tierMultipliers = {
+      bronze: 1.0,
+      silver: 1.5,
+      gold: 2.0,
+      platinum: 2.5
+    };
+    
+    const basePoints = Math.floor(orderTotal);
+    const multiplier = tierMultipliers[customer.tier];
+    const bonusPoints = Math.floor(basePoints * (multiplier - 1));
+    
+    // Award base points
+    await awardPoints({
+      card_id: customer.card_id,
+      points: basePoints,
+      reason: 'Purchase reward',
+      reference: order.id
+    });
+    
+    // Award tier bonus if applicable
+    if (bonusPoints > 0) {
+      await awardPoints({
+        card_id: customer.card_id,
+        points: bonusPoints,
+        reason: `${customer.tier} tier bonus`,
+        reference: order.id
+      });
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Redemption Values">
+    ```javascript
+    // Convert points to monetary value
+    const pointValue = 0.01; // $0.01 per point
+    const availablePoints = 500;
+    const maxDiscount = availablePoints * pointValue; // $5.00
+    
+    // Customer redeems $3.00 discount
+    const discountAmount = 3.00;
+    const pointsToRedeem = discountAmount / pointValue; // 300 points
+    
+    await redeemPoints({
+      card_id: customer.card_id,
+      points: pointsToRedeem,
+      reason: `$${discountAmount} discount`,
+      reference: order.id,
+      metadata: {
+        discount_amount: discountAmount,
+        point_value: pointValue,
+        currency: 'USD'
+      }
+    });
+    ```
+  </Tab>
+</Tabs>
+
+## Analytics and Reporting
+
+<Info>
+Use the transaction history and balance APIs to generate insights about your loyalty program performance.
+</Info>
+
+### Key Metrics to Track
+
+<CardGroup cols={2}>
+  <Card title="Point Velocity" icon="tachometer-alt">
+    - Average points earned per customer
+    - Time between earning and redemption
+    - Seasonal earning patterns
+    - Popular redemption categories
+  </Card>
+  
+  <Card title="Program Health" icon="heartbeat">
+    - Point liability (unredeemed points)
+    - Expiration rates and amounts
+    - Customer engagement levels
+    - Transaction frequency trends
+  </Card>
+  
+  <Card title="Customer Behavior" icon="users">
+    - Earning vs. redemption ratios
+    - Tier progression rates
+    - Preferred redemption amounts
+    - Inactive customer identification
+  </Card>
+  
+  <Card title="Financial Impact" icon="dollar-sign">
+    - Point redemption costs
+    - Customer lifetime value increase
+    - Program ROI calculation
+    - Revenue attribution to loyalty
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Offers API"
+    icon="ticket"
+    href="/api/shop/offers"
+  >
+    Create promotional offers that customers can redeem with points.
+  </Card>
+  <Card
+    title="Games API"
+    icon="gamepad"
+    href="/api/shop/games"
+  >
+    Add gamification features to make earning points more engaging.
+  </Card>
+  <Card
+    title="Loyalty Cards API"
+    icon="id-card"
+    href="/api/shop/loyalty-cards"
+  >
+    Learn how to create and manage customer loyalty cards.
+  </Card>
+  <Card
+    title="SDK Integration"
+    icon="code"
+    href="/sdk/javascript/installation"
+  >
+    Use our JavaScript SDK for easier points management integration.
+  </Card>
+</CardGroup> 

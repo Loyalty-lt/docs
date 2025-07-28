@@ -1,0 +1,646 @@
+---
+title: "Partners Portal Overview"
+description: "Complete partner management solution for multi-shop loyalty programs"
+---
+
+# Partners Portal Overview
+
+The Loyalty.lt Partners Portal is a comprehensive web application designed for businesses managing multiple shops, locations, or franchises. It provides centralized control over loyalty programs while allowing for individual shop customization and management.
+
+<Info>
+The Partners Portal is built on Remix.js with TypeScript and provides a modern, responsive interface for partner management across all devices.
+</Info>
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Multi-Shop Management" icon="store">
+    Manage multiple shops and locations from a single dashboard with unified branding and individual customization.
+  </Card>
+  
+  <Card title="Partner API Access" icon="key">
+    Full API credentials management with separate staging and production environments for safe development.
+  </Card>
+  
+  <Card title="Analytics Dashboard" icon="chart-bar">
+    Comprehensive analytics across all shops with detailed insights into loyalty program performance.
+  </Card>
+  
+  <Card title="Customer Management" icon="users">
+    Centralized customer database with cross-shop loyalty tracking and unified customer profiles.
+  </Card>
+</CardGroup>
+
+## Architecture
+
+### Technology Stack
+
+<Tabs>
+  <Tab title="Frontend">
+    - **Remix.js**: Server-side rendered React application
+    - **TypeScript**: Full type safety and developer experience
+    - **Tailwind CSS**: Utility-first CSS framework
+    - **shadcn/ui**: High-quality component library
+    - **i18next**: Internationalization (Lithuanian and English)
+  </Tab>
+  
+  <Tab title="Authentication">
+    - **JWT Tokens**: Secure authentication with refresh tokens
+    - **Environment Switching**: Seamless staging/production switching
+    - **Remember Me**: Persistent login sessions
+    - **Auto Logout**: Security-focused session management
+  </Tab>
+  
+  <Tab title="API Integration">
+    - **Laravel Backend**: staging-api.loyalty.lt and api.loyalty.lt
+    - **Environment Selector**: Dynamic API endpoint switching
+    - **Error Handling**: Comprehensive error handling with user feedback
+    - **Real-time Updates**: Live data synchronization
+  </Tab>
+</Tabs>
+
+### Application Structure
+
+<AccordionGroup>
+  <Accordion title="Layout System">
+    - **Responsive Design**: Mobile-first approach with desktop optimization
+    - **Sidebar Navigation**: Collapsible sidebar with intuitive navigation
+    - **Header Components**: Environment selector, language switcher, notifications
+    - **Footer Integration**: Comprehensive footer with company information and links
+  </Accordion>
+  
+  <Accordion title="Environment Management">
+    - **Dual Environment**: Staging and production environment support
+    - **Visual Indicators**: Clear environment identification in the interface
+    - **Easy Switching**: One-click environment switching with data isolation
+    - **Cookie Persistence**: Environment preference saved across sessions
+  </Accordion>
+  
+  <Accordion title="Internationalization">
+    - **Primary Language**: Lithuanian (lt) as the default language
+    - **Secondary Language**: English (en) support
+    - **Dynamic Loading**: Language resources loaded on demand
+    - **Persistent Settings**: Language preference saved in localStorage
+  </Accordion>
+</AccordionGroup>
+
+## Core Modules
+
+### Dashboard
+
+<Tabs>
+  <Tab title="Overview Metrics">
+    Key performance indicators across all partner shops:
+    
+    - **Total Customers**: Unified customer count across all locations
+    - **Active Loyalty Cards**: Currently active loyalty program participants
+    - **Points Issued**: Total points awarded across all shops
+    - **Redemption Rate**: Points redeemed vs. points earned percentage
+    - **Revenue Impact**: Direct revenue attribution to loyalty programs
+  </Tab>
+  
+  <Tab title="Recent Activity">
+    Real-time feed of important events:
+    
+    - New customer registrations
+    - Large point transactions
+    - Tier upgrades and achievements
+    - Unusual redemption patterns
+    - System alerts and notifications
+  </Tab>
+  
+  <Tab title="Quick Actions">
+    Common tasks accessible from the dashboard:
+    
+    - Add new shop location
+    - Create promotional campaign
+    - Generate analytics report
+    - Manage API credentials
+    - View customer support tickets
+  </Tab>
+</Tabs>
+
+### Shop Management
+
+<CardGroup cols={2}>
+  <Card title="Shop Creation" icon="plus-circle">
+    **Add New Locations**
+    - Shop information and branding
+    - Location and contact details
+    - API credential generation
+    - Initial configuration setup
+  </Card>
+  
+  <Card title="Shop Configuration" icon="settings">
+    **Customize Each Location**
+    - Point earning rates
+    - Redemption rules
+    - Promotional campaigns
+    - Staff permissions
+  </Card>
+  
+  <Card title="Performance Tracking" icon="trending-up">
+    **Monitor Shop Performance**
+    - Individual shop analytics
+    - Customer acquisition metrics
+    - Point transaction volumes
+    - Revenue performance
+  </Card>
+  
+  <Card title="Staff Management" icon="user-check">
+    **Manage Shop Staff**
+    - Staff account creation
+    - Role and permission assignment
+    - Access level configuration
+    - Activity monitoring
+  </Card>
+</CardGroup>
+
+### Customer Management
+
+<AccordionGroup>
+  <Accordion title="Unified Customer Database">
+    **Cross-Shop Customer Profiles**
+    
+    - Single customer view across all shops
+    - Consolidated loyalty card information
+    - Combined transaction history
+    - Unified communication preferences
+    - Cross-location activity tracking
+  </Accordion>
+  
+  <Accordion title="Customer Segmentation">
+    **Advanced Customer Insights**
+    
+    - Tier-based customer grouping
+    - Behavioral segmentation
+    - Purchase pattern analysis
+    - Engagement level classification
+    - Churn risk identification
+  </Accordion>
+  
+  <Accordion title="Communication Tools">
+    **Customer Engagement Features**
+    
+    - Bulk email campaigns
+    - Targeted promotional messages
+    - Loyalty program updates
+    - Tier achievement notifications
+    - Point expiration reminders
+  </Accordion>
+</AccordionGroup>
+
+### Analytics and Reporting
+
+<Tabs>
+  <Tab title="Loyalty Program Performance">
+    **Program Health Metrics**
+    
+    - Customer acquisition cost
+    - Retention rates by tier
+    - Average order value impact
+    - Point redemption patterns
+    - Program ROI calculation
+  </Tab>
+  
+  <Tab title="Shop Comparison">
+    **Multi-Location Analysis**
+    
+    - Performance ranking across shops
+    - Customer distribution analysis
+    - Revenue comparison charts
+    - Best practice identification
+    - Underperforming location insights
+  </Tab>
+  
+  <Tab title="Customer Insights">
+    **Behavioral Analytics**
+    
+    - Purchase frequency analysis
+    - Seasonal shopping patterns
+    - Product category preferences
+    - Tier progression tracking
+    - Customer lifetime value
+  </Tab>
+  
+  <Tab title="Financial Reporting">
+    **Revenue and Cost Analysis**
+    
+    - Loyalty program costs
+    - Revenue attribution
+    - Point liability tracking
+    - Redemption cost analysis
+    - Profit margin impact
+  </Tab>
+</Tabs>
+
+## API Management
+
+### Credential Management
+
+<Info>
+The Partners Portal provides complete API credential management with environment separation and security best practices.
+</Info>
+
+<CardGroup cols={2}>
+  <Card title="API Key Generation" icon="key">
+    - Automatic API key and secret generation
+    - Environment-specific credentials
+    - Key rotation and renewal
+    - Usage tracking and monitoring
+  </Card>
+  
+  <Card title="Access Control" icon="shield">
+    - Role-based API permissions
+    - Endpoint access restrictions
+    - Rate limiting configuration
+    - Security audit logging
+  </Card>
+  
+  <Card title="Documentation Access" icon="book">
+    - Integrated API documentation
+    - Code examples and tutorials
+    - SDK download links
+    - Testing environment access
+  </Card>
+  
+  <Card title="Usage Analytics" icon="chart-line">
+    - API call volume tracking
+    - Error rate monitoring
+    - Performance metrics
+    - Usage pattern analysis
+  </Card>
+</CardGroup>
+
+### Environment Management
+
+<Tabs>
+  <Tab title="Staging Environment">
+    **Development and Testing**
+    
+    - Safe testing environment
+    - Sample data for development
+    - Non-production API endpoints
+    - Isolated from live customer data
+    - Unlimited testing capabilities
+  </Tab>
+  
+  <Tab title="Production Environment">
+    **Live Operations**
+    
+    - Real customer data
+    - Production API endpoints
+    - Enhanced security measures
+    - Performance monitoring
+    - Backup and recovery systems
+  </Tab>
+  
+  <Tab title="Environment Switching">
+    **Seamless Transitions**
+    
+    - One-click environment switching
+    - Visual environment indicators
+    - Data isolation guarantees
+    - Configuration synchronization
+    - Testing workflow support
+  </Tab>
+</Tabs>
+
+## Partner Onboarding
+
+### Getting Started
+
+<Steps>
+  <Step title="Account Creation">
+    Partners create their account through the registration process with business verification.
+  </Step>
+  
+  <Step title="Business Verification">
+    Submit business documentation and complete identity verification process.
+  </Step>
+  
+  <Step title="Initial Setup">
+    Configure basic business information, branding, and contact details.
+  </Step>
+  
+  <Step title="First Shop Creation">
+    Set up the first shop location with loyalty program configuration.
+  </Step>
+  
+  <Step title="API Integration">
+    Generate API credentials and begin integration with existing systems.
+  </Step>
+  
+  <Step title="Testing Phase">
+    Complete testing in staging environment before going live.
+  </Step>
+  
+  <Step title="Production Launch">
+    Switch to production environment and launch loyalty program.
+  </Step>
+</Steps>
+
+### Support and Training
+
+<CardGroup cols={2}>
+  <Card title="Onboarding Assistance" icon="hand-holding-heart">
+    - Dedicated onboarding specialist
+    - Step-by-step setup guidance
+    - Best practices consultation
+    - Technical integration support
+  </Card>
+  
+  <Card title="Training Resources" icon="graduation-cap">
+    - Video tutorials and guides
+    - Webinar training sessions
+    - Documentation and manuals
+    - Community forum access
+  </Card>
+  
+  <Card title="Technical Support" icon="headset">
+    - 24/7 technical support
+    - Priority support tiers
+    - Direct developer assistance
+    - Emergency support channels
+  </Card>
+  
+  <Card title="Business Consultation" icon="lightbulb">
+    - Loyalty strategy consulting
+    - Program optimization advice
+    - Industry best practices
+    - Performance improvement guidance
+  </Card>
+</CardGroup>
+
+## Advanced Features
+
+### Multi-Tier Partner Support
+
+<AccordionGroup>
+  <Accordion title="Franchise Management">
+    **Large-Scale Franchise Operations**
+    
+    - Hierarchical shop management
+    - Centralized brand control
+    - Individual franchisee permissions
+    - Cross-franchise customer tracking
+    - Consolidated reporting and analytics
+  </Accordion>
+  
+  <Accordion title="White-Label Solutions">
+    **Custom Branding Options**
+    
+    - Complete interface customization
+    - Custom domain configuration
+    - Branded mobile applications
+    - Custom email templates
+    - Tailored user experience
+  </Accordion>
+  
+  <Accordion title="Enterprise Integration">
+    **Large Business Requirements**
+    
+    - ERP system integration
+    - Custom API development
+    - Advanced security features
+    - Compliance reporting
+    - Dedicated infrastructure
+  </Accordion>
+</AccordionGroup>
+
+### Automation and Workflows
+
+<Tabs>
+  <Tab title="Automated Campaigns">
+    **Marketing Automation**
+    
+    - Welcome series for new customers
+    - Birthday and anniversary campaigns
+    - Win-back campaigns for inactive customers
+    - Tier upgrade congratulations
+    - Point expiration reminders
+  </Tab>
+  
+  <Tab title="Business Rules Engine">
+    **Custom Logic Implementation**
+    
+    - Conditional point awarding
+    - Dynamic tier progression
+    - Automated reward distribution
+    - Fraud detection algorithms
+    - Custom validation rules
+  </Tab>
+  
+  <Tab title="Integration Workflows">
+    **System Synchronization**
+    
+    - Real-time data synchronization
+    - Batch processing capabilities
+    - Error handling and retry logic
+    - Data transformation tools
+    - Webhook event processing
+  </Tab>
+</Tabs>
+
+## Security and Compliance
+
+### Data Protection
+
+<Warning>
+The Partners Portal implements enterprise-grade security measures to protect partner and customer data.
+</Warning>
+
+<CardGroup cols={2}>
+  <Card title="Data Encryption" icon="lock">
+    - End-to-end encryption
+    - Database encryption at rest
+    - Secure transmission protocols
+    - Key management systems
+  </Card>
+  
+  <Card title="Access Control" icon="user-shield">
+    - Multi-factor authentication
+    - Role-based permissions
+    - Session management
+    - Audit trail logging
+  </Card>
+  
+  <Card title="Compliance" icon="certificate">
+    - GDPR compliance measures
+    - Data retention policies
+    - Privacy controls
+    - Regulatory reporting
+  </Card>
+  
+  <Card title="Monitoring" icon="eye">
+    - Real-time security monitoring
+    - Intrusion detection
+    - Anomaly detection
+    - Incident response procedures
+  </Card>
+</CardGroup>
+
+### Privacy Controls
+
+<AccordionGroup>
+  <Accordion title="Customer Privacy">
+    **Data Protection Measures**
+    
+    - Granular privacy settings
+    - Data anonymization options
+    - Customer consent management
+    - Right to be forgotten implementation
+    - Data portability features
+  </Accordion>
+  
+  <Accordion title="Partner Privacy">
+    **Business Data Protection**
+    
+    - Isolated partner environments
+    - Secure data sharing controls
+    - Business intelligence privacy
+    - Competitive information protection
+    - Custom data retention policies
+  </Accordion>
+</AccordionGroup>
+
+## Performance and Scalability
+
+### Technical Performance
+
+<Tabs>
+  <Tab title="Application Performance">
+    **Optimized User Experience**
+    
+    - Server-side rendering for fast initial loads
+    - Progressive enhancement for offline capability
+    - Optimized database queries
+    - CDN integration for global performance
+    - Real-time updates without page refreshes
+  </Tab>
+  
+  <Tab title="Scalability Features">
+    **Growing Business Support**
+    
+    - Horizontal scaling capabilities
+    - Load balancing and distribution
+    - Database optimization
+    - Caching strategies
+    - Performance monitoring and alerts
+  </Tab>
+  
+  <Tab title="Reliability Measures">
+    **High Availability Systems**
+    
+    - 99.9% uptime guarantee
+    - Redundant system architecture
+    - Automated failover systems
+    - Regular backup procedures
+    - Disaster recovery planning
+  </Tab>
+</Tabs>
+
+## Support and Resources
+
+### Getting Help
+
+<Note>
+The Partners Portal includes comprehensive support resources and multiple channels for assistance.
+</Note>
+
+<CardGroup cols={2}>
+  <Card title="In-App Help" icon="question-circle">
+    - Contextual help tooltips
+    - Interactive tutorials
+    - Feature documentation
+    - Video guides and walkthroughs
+  </Card>
+  
+  <Card title="Support Center" icon="life-ring">
+    - Knowledge base articles
+    - FAQ and troubleshooting
+    - Community forums
+    - Feature request portal
+  </Card>
+  
+  <Card title="Direct Support" icon="phone">
+    - Priority support channels
+    - Technical assistance
+    - Account management
+    - Emergency support hotline
+  </Card>
+  
+  <Card title="Training Programs" icon="users">
+    - Regular webinar sessions
+    - Certification programs
+    - Best practices workshops
+    - Industry-specific training
+  </Card>
+</CardGroup>
+
+### Success Resources
+
+<AccordionGroup>
+  <Accordion title="Business Growth">
+    **Maximize Loyalty Program ROI**
+    
+    - Success metrics and KPIs
+    - Optimization strategies
+    - Case studies and examples
+    - Industry benchmarking
+    - Growth planning tools
+  </Accordion>
+  
+  <Accordion title="Technical Excellence">
+    **Advanced Implementation**
+    
+    - Advanced API usage patterns
+    - Custom integration examples
+    - Performance optimization tips
+    - Security best practices
+    - Troubleshooting guides
+  </Accordion>
+  
+  <Accordion title="Community Engagement">
+    **Partner Network Benefits**
+    
+    - Partner community forums
+    - Networking opportunities
+    - Shared learning resources
+    - Collaboration initiatives
+    - Industry events and meetups
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Partner API Documentation"
+    icon="code"
+    href="/api/partners/overview"
+  >
+    Explore the complete Partner API for advanced integrations.
+  </Card>
+  <Card
+    title="Shop Management Guide"
+    icon="store"
+    href="/apps/partners/shop-management"
+  >
+    Learn how to manage multiple shop locations effectively.
+  </Card>
+  <Card
+    title="Analytics and Reporting"
+    icon="chart-bar"
+    href="/apps/partners/analytics"
+  >
+    Understand the analytics dashboard and reporting features.
+  </Card>
+  <Card
+    title="API Credentials Setup"
+    icon="key"
+    href="/api/authentication/partner-api"
+  >
+    Set up and manage your Partner API credentials.
+  </Card>
+</CardGroup> 

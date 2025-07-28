@@ -1,0 +1,799 @@
+---
+title: "JavaScript SDK Installation"
+description: "Install and configure the Loyalty.lt JavaScript SDK for web applications"
+---
+
+# JavaScript SDK Installation
+
+The Loyalty.lt JavaScript SDK provides a simple, powerful way to integrate loyalty features into your web applications. It supports both browser and Node.js environments with TypeScript definitions included.
+
+## Installation
+
+<Tabs>
+  <Tab title="npm">
+    ```bash
+    npm install @loyalty-lt/javascript-sdk
+    ```
+  </Tab>
+  
+  <Tab title="yarn">
+    ```bash
+    yarn add @loyalty-lt/javascript-sdk
+    ```
+  </Tab>
+  
+  <Tab title="pnpm">
+    ```bash
+    pnpm add @loyalty-lt/javascript-sdk
+    ```
+  </Tab>
+  
+  <Tab title="CDN">
+    ```html
+    <script src="https://unpkg.com/@loyalty-lt/javascript-sdk@latest/dist/loyalty-sdk.min.js"></script>
+    ```
+  </Tab>
+</Tabs>
+
+## Basic Setup
+
+### Initialize the SDK
+
+<CodeGroup>
+```javascript ES Modules
+import { LoyaltySDK } from '@loyalty-lt/javascript-sdk';
+
+const sdk = new LoyaltySDK({
+  apiKey: 'your_api_key',
+  apiSecret: 'your_api_secret',
+  environment: 'staging', // or 'production'
+  locale: 'en' // or 'lt'
+});
+```
+
+```javascript CommonJS
+const { LoyaltySDK } = require('@loyalty-lt/javascript-sdk');
+
+const sdk = new LoyaltySDK({
+  apiKey: process.env.LOYALTY_API_KEY,
+  apiSecret: process.env.LOYALTY_API_SECRET,
+  environment: 'staging'
+});
+```
+
+```typescript TypeScript
+import { LoyaltySDK, LoyaltyConfig } from '@loyalty-lt/javascript-sdk';
+
+const config: LoyaltyConfig = {
+  apiKey: process.env.LOYALTY_API_KEY!,
+  apiSecret: process.env.LOYALTY_API_SECRET!,
+  environment: 'staging',
+  locale: 'en',
+  timeout: 10000
+};
+
+const sdk = new LoyaltySDK(config);
+```
+
+```html Browser (CDN)
+<script>
+const sdk = new LoyaltySDK({
+  apiKey: 'your_api_key',
+  apiSecret: 'your_api_secret',
+  environment: 'staging'
+});
+</script>
+```
+</CodeGroup>
+
+### Configuration Options
+
+<ParamField path="apiKey" type="string" required>
+  Your Loyalty.lt API key from the Partners Portal
+</ParamField>
+
+<ParamField path="apiSecret" type="string" required>
+  Your Loyalty.lt API secret from the Partners Portal
+</ParamField>
+
+<ParamField path="environment" type="string" default="staging">
+  API environment: `staging` or `production`
+</ParamField>
+
+<ParamField path="locale" type="string" default="en">
+  Language for API responses: `en` (English) or `lt` (Lithuanian)
+</ParamField>
+
+<ParamField path="timeout" type="number" default="10000">
+  Request timeout in milliseconds
+</ParamField>
+
+<ParamField path="retryAttempts" type="number" default="3">
+  Number of retry attempts for failed requests
+</ParamField>
+
+<ParamField path="enableWebSocket" type="boolean" default="false">
+  Enable real-time WebSocket connections
+</ParamField>
+
+## Quick Start Example
+
+Here's a complete example showing how to create a loyalty card and award points:
+
+<CodeGroup>
+```javascript Basic Usage
+import { LoyaltySDK } from '@loyalty-lt/javascript-sdk';
+
+const sdk = new LoyaltySDK({
+  apiKey: 'your_api_key',
+  apiSecret: 'your_api_secret',
+  environment: 'staging'
+});
+
+async function createLoyaltyProgram() {
+  try {
+    // Create a new loyalty card
+    const card = await sdk.loyaltyCards.create({
+      customer_email: 'customer@example.com',
+      customer_name: 'John Doe',
+      initial_points: 100
+    });
+    
+    console.log('Created card:', card.id);
+    
+    // Award additional points
+    const transaction = await sdk.points.award({
+      card_id: card.id,
+      points: 50,
+      reason: 'Welcome bonus'
+    });
+    
+    console.log('Awarded points:', transaction.points_awarded);
+    
+    // Get updated card details
+    const updatedCard = await sdk.loyaltyCards.get(card.id);
+    console.log('New balance:', updatedCard.points_balance);
+    
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+createLoyaltyProgram();
+```
+
+```typescript TypeScript
+import { 
+  LoyaltySDK, 
+  LoyaltyCard, 
+  CreateCardRequest,
+  AwardPointsRequest 
+} from '@loyalty-lt/javascript-sdk';
+
+const sdk = new LoyaltySDK({
+  apiKey: process.env.LOYALTY_API_KEY!,
+  apiSecret: process.env.LOYALTY_API_SECRET!,
+  environment: 'staging'
+});
+
+async function createLoyaltyProgram(): Promise<void> {
+  try {
+    const cardRequest: CreateCardRequest = {
+      customer_email: 'customer@example.com',
+      customer_name: 'John Doe',
+      initial_points: 100
+    };
+    
+    const card: LoyaltyCard = await sdk.loyaltyCards.create(cardRequest);
+    console.log('Created card:', card.id);
+    
+    const pointsRequest: AwardPointsRequest = {
+      card_id: card.id,
+      points: 50,
+      reason: 'Welcome bonus'
+    };
+    
+    const transaction = await sdk.points.award(pointsRequest);
+    console.log('Awarded points:', transaction.points_awarded);
+    
+    const updatedCard = await sdk.loyaltyCards.get(card.id);
+    console.log('New balance:', updatedCard.points_balance);
+    
+  } catch (error) {
+    console.error('Error:', (error as Error).message);
+  }
+}
+```
+</CodeGroup>
+
+## API Reference
+
+### Loyalty Cards
+
+<AccordionGroup>
+  <Accordion title="Create Card">
+    ```javascript
+    const card = await sdk.loyaltyCards.create({
+      customer_email: 'customer@example.com',
+      customer_name: 'John Doe',
+      customer_phone: '+1234567890',
+      initial_points: 100
+    });
+    ```
+  </Accordion>
+  
+  <Accordion title="Get Card">
+    ```javascript
+    const card = await sdk.loyaltyCards.get('card_123456789');
+    ```
+  </Accordion>
+  
+  <Accordion title="List Cards">
+    ```javascript
+    const cards = await sdk.loyaltyCards.list({
+      status: 'active',
+      page: 1,
+      limit: 20
+    });
+    ```
+  </Accordion>
+  
+  <Accordion title="Update Card">
+    ```javascript
+    const card = await sdk.loyaltyCards.update('card_123456789', {
+      customer_name: 'John Smith',
+      metadata: { preferred_contact: 'email' }
+    });
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Points Management
+
+<AccordionGroup>
+  <Accordion title="Award Points">
+    ```javascript
+    const transaction = await sdk.points.award({
+      card_id: 'card_123456789',
+      points: 100,
+      reason: 'Purchase reward',
+      reference: 'order_123'
+    });
+    ```
+  </Accordion>
+  
+  <Accordion title="Redeem Points">
+    ```javascript
+    const transaction = await sdk.points.redeem({
+      card_id: 'card_123456789',
+      points: 50,
+      reason: 'Discount applied',
+      reference: 'discount_456'
+    });
+    ```
+  </Accordion>
+  
+  <Accordion title="Get Points History">
+    ```javascript
+    const history = await sdk.points.getHistory('card_123456789', {
+      type: 'all',
+      page: 1,
+      limit: 50
+    });
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Offers & Coupons
+
+<AccordionGroup>
+  <Accordion title="Create Offer">
+    ```javascript
+    const offer = await sdk.offers.create({
+      title: '20% Off Next Purchase',
+      description: 'Save 20% on your next order',
+      discount_type: 'percentage',
+      discount_value: 20,
+      points_required: 100,
+      expires_at: '2024-12-31T23:59:59Z'
+    });
+    ```
+  </Accordion>
+  
+  <Accordion title="List Available Offers">
+    ```javascript
+    const offers = await sdk.offers.list({
+      status: 'active',
+      customer_eligible: true
+    });
+    ```
+  </Accordion>
+  
+  <Accordion title="Redeem Offer">
+    ```javascript
+    const coupon = await sdk.offers.redeem('offer_123456789', {
+      card_id: 'card_123456789'
+    });
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Error Handling
+
+The SDK provides comprehensive error handling with typed error responses:
+
+<CodeGroup>
+```javascript Basic Error Handling
+try {
+  const card = await sdk.loyaltyCards.get('invalid_id');
+} catch (error) {
+  if (error.code === 'CARD_NOT_FOUND') {
+    console.log('Card not found');
+  } else if (error.code === 'UNAUTHORIZED') {
+    console.log('Check your API credentials');
+  } else {
+    console.log('Unexpected error:', error.message);
+  }
+}
+```
+
+```typescript TypeScript Error Handling
+import { LoyaltyError, ErrorCode } from '@loyalty-lt/javascript-sdk';
+
+try {
+  const card = await sdk.loyaltyCards.get('invalid_id');
+} catch (error) {
+  if (error instanceof LoyaltyError) {
+    switch (error.code) {
+      case ErrorCode.CARD_NOT_FOUND:
+        console.log('Card not found');
+        break;
+      case ErrorCode.UNAUTHORIZED:
+        console.log('Check your API credentials');
+        break;
+      case ErrorCode.RATE_LIMITED:
+        console.log('Rate limit exceeded, retry after:', error.retryAfter);
+        break;
+      default:
+        console.log('API error:', error.message);
+    }
+  } else {
+    console.log('Network error:', error.message);
+  }
+}
+```
+</CodeGroup>
+
+### Common Error Codes
+
+<AccordionGroup>
+  <Accordion title="UNAUTHORIZED">
+    **Cause**: Invalid API credentials
+    **Solution**: Check your API key and secret
+  </Accordion>
+  
+  <Accordion title="CARD_NOT_FOUND">
+    **Cause**: Loyalty card doesn't exist
+    **Solution**: Verify the card ID
+  </Accordion>
+  
+  <Accordion title="INSUFFICIENT_POINTS">
+    **Cause**: Not enough points for redemption
+    **Solution**: Check points balance before redemption
+  </Accordion>
+  
+  <Accordion title="RATE_LIMITED">
+    **Cause**: Too many requests
+    **Solution**: Implement retry logic with backoff
+  </Accordion>
+</AccordionGroup>
+
+## Real-time Features
+
+Enable WebSocket connections for real-time updates:
+
+<CodeGroup>
+```javascript WebSocket Setup
+const sdk = new LoyaltySDK({
+  apiKey: 'your_api_key',
+  apiSecret: 'your_api_secret',
+  environment: 'staging',
+  enableWebSocket: true
+});
+
+// Listen for real-time events
+sdk.on('points.awarded', (event) => {
+  console.log('Points awarded:', event.data.points);
+  updateUI(event.data.card_id, event.data.new_balance);
+});
+
+sdk.on('offer.claimed', (event) => {
+  console.log('Offer claimed:', event.data.offer_title);
+  showNotification('Offer redeemed successfully!');
+});
+
+// Connect to real-time events
+await sdk.connect();
+```
+
+```typescript TypeScript WebSocket
+import { LoyaltySDK, PointsAwardedEvent, OfferClaimedEvent } from '@loyalty-lt/javascript-sdk';
+
+const sdk = new LoyaltySDK({
+  apiKey: process.env.LOYALTY_API_KEY!,
+  apiSecret: process.env.LOYALTY_API_SECRET!,
+  environment: 'staging',
+  enableWebSocket: true
+});
+
+sdk.on('points.awarded', (event: PointsAwardedEvent) => {
+  console.log('Points awarded:', event.data.points);
+  updateUI(event.data.card_id, event.data.new_balance);
+});
+
+sdk.on('offer.claimed', (event: OfferClaimedEvent) => {
+  console.log('Offer claimed:', event.data.offer_title);
+  showNotification('Offer redeemed successfully!');
+});
+
+await sdk.connect();
+```
+</CodeGroup>
+
+### Available Events
+
+<CardGroup cols={2}>
+  <Card title="points.awarded" icon="coins">
+    Triggered when points are awarded to a card
+  </Card>
+  <Card title="points.redeemed" icon="minus-circle">
+    Triggered when points are redeemed from a card
+  </Card>
+  <Card title="offer.claimed" icon="ticket">
+    Triggered when an offer is claimed by a customer
+  </Card>
+  <Card title="card.created" icon="plus">
+    Triggered when a new loyalty card is created
+  </Card>
+</CardGroup>
+
+## Environment Variables
+
+For security, store API credentials in environment variables:
+
+<Tabs>
+  <Tab title=".env">
+    ```bash
+    LOYALTY_API_KEY=your_api_key_here
+    LOYALTY_API_SECRET=your_api_secret_here
+    LOYALTY_ENVIRONMENT=staging
+    ```
+  </Tab>
+  
+  <Tab title="Node.js">
+    ```javascript
+    require('dotenv').config();
+    
+    const sdk = new LoyaltySDK({
+      apiKey: process.env.LOYALTY_API_KEY,
+      apiSecret: process.env.LOYALTY_API_SECRET,
+      environment: process.env.LOYALTY_ENVIRONMENT || 'staging'
+    });
+    ```
+  </Tab>
+  
+  <Tab title="Vite">
+    ```javascript
+    const sdk = new LoyaltySDK({
+      apiKey: import.meta.env.VITE_LOYALTY_API_KEY,
+      apiSecret: import.meta.env.VITE_LOYALTY_API_SECRET,
+      environment: import.meta.env.VITE_LOYALTY_ENVIRONMENT || 'staging'
+    });
+    ```
+  </Tab>
+  
+  <Tab title="Next.js">
+    ```javascript
+    const sdk = new LoyaltySDK({
+      apiKey: process.env.NEXT_PUBLIC_LOYALTY_API_KEY,
+      apiSecret: process.env.LOYALTY_API_SECRET, // Server-side only
+      environment: process.env.NODE_ENV === 'production' ? 'production' : 'staging'
+    });
+    ```
+  </Tab>
+</Tabs>
+
+## Framework Integrations
+
+### React Integration
+
+For React applications, consider using our dedicated React hooks:
+
+```bash
+npm install @loyalty-lt/react-sdk
+```
+
+```jsx
+import { LoyaltyProvider, useLoyaltyCard } from '@loyalty-lt/react-sdk';
+
+function App() {
+  return (
+    <LoyaltyProvider apiKey="your_api_key">
+      <LoyaltyCard customerId="customer_123" />
+    </LoyaltyProvider>
+  );
+}
+
+function LoyaltyCard({ customerId }) {
+  const { card, loading, error, awardPoints } = useLoyaltyCard(customerId);
+  
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+  
+  return (
+    <div>
+      <h3>Points Balance: {card.points_balance}</h3>
+      <button onClick={() => awardPoints(10)}>
+        Award 10 Points
+      </button>
+    </div>
+  );
+}
+```
+
+### Vue.js Integration
+
+Use Vue composables for reactive loyalty features:
+
+```bash
+npm install @loyalty-lt/vue-sdk
+```
+
+```vue
+<template>
+  <div>
+    <h3>Points: {{ card.points_balance }}</h3>
+    <button @click="awardPoints(10)" :disabled="loading">
+      Award Points
+    </button>
+  </div>
+</template>
+
+<script setup>
+import { useLoyaltyCard } from '@loyalty-lt/vue-sdk';
+
+const { card, loading, awardPoints } = useLoyaltyCard('customer_123');
+</script>
+```
+
+## Testing
+
+Use the staging environment for development and testing:
+
+<CodeGroup>
+```javascript Jest Tests
+import { LoyaltySDK } from '@loyalty-lt/javascript-sdk';
+
+describe('Loyalty SDK', () => {
+  let sdk;
+  
+  beforeAll(() => {
+    sdk = new LoyaltySDK({
+      apiKey: 'test_api_key',
+      apiSecret: 'test_api_secret',
+      environment: 'staging'
+    });
+  });
+  
+  test('should create loyalty card', async () => {
+    const card = await sdk.loyaltyCards.create({
+      customer_email: 'test@example.com',
+      customer_name: 'Test User'
+    });
+    
+    expect(card.customer_email).toBe('test@example.com');
+    expect(card.points_balance).toBe(0);
+  });
+  
+  test('should award points', async () => {
+    const card = await sdk.loyaltyCards.create({
+      customer_email: 'test2@example.com',
+      customer_name: 'Test User 2'
+    });
+    
+    const transaction = await sdk.points.award({
+      card_id: card.id,
+      points: 100,
+      reason: 'Test points'
+    });
+    
+    expect(transaction.points_awarded).toBe(100);
+  });
+});
+```
+
+```javascript Mock SDK
+// For unit testing, create a mock SDK
+const mockSDK = {
+  loyaltyCards: {
+    create: jest.fn().mockResolvedValue({
+      id: 'card_123',
+      customer_email: 'test@example.com',
+      points_balance: 0
+    }),
+    get: jest.fn().mockResolvedValue({
+      id: 'card_123',
+      points_balance: 100
+    })
+  },
+  points: {
+    award: jest.fn().mockResolvedValue({
+      points_awarded: 50,
+      new_balance: 150
+    })
+  }
+};
+```
+</CodeGroup>
+
+## Performance Optimization
+
+<CardGroup cols={2}>
+  <Card title="Request Caching" icon="database">
+    ```javascript
+    // Enable automatic caching
+    const sdk = new LoyaltySDK({
+      apiKey: 'your_api_key',
+      apiSecret: 'your_api_secret',
+      cache: {
+        enabled: true,
+        ttl: 300000 // 5 minutes
+      }
+    });
+    ```
+  </Card>
+  
+  <Card title="Request Batching" icon="layer-group">
+    ```javascript
+    // Batch multiple operations
+    const results = await sdk.batch([
+      sdk.loyaltyCards.get('card_1'),
+      sdk.loyaltyCards.get('card_2'),
+      sdk.points.getHistory('card_1')
+    ]);
+    ```
+  </Card>
+  
+  <Card title="Connection Pooling" icon="network-wired">
+    ```javascript
+    // Optimize for high-traffic applications
+    const sdk = new LoyaltySDK({
+      apiKey: 'your_api_key',
+      apiSecret: 'your_api_secret',
+      pool: {
+        maxConnections: 10,
+        keepAlive: true
+      }
+    });
+    ```
+  </Card>
+  
+  <Card title="Retry Logic" icon="refresh">
+    ```javascript
+    // Custom retry configuration
+    const sdk = new LoyaltySDK({
+      apiKey: 'your_api_key',
+      apiSecret: 'your_api_secret',
+      retry: {
+        attempts: 3,
+        backoff: 'exponential',
+        maxDelay: 5000
+      }
+    });
+    ```
+  </Card>
+</CardGroup>
+
+## Migration Guide
+
+### From v1.x to v2.x
+
+<AccordionGroup>
+  <Accordion title="Breaking Changes">
+    - Constructor now requires `apiSecret` parameter
+    - `createCard()` method renamed to `loyaltyCards.create()`
+    - `awardPoints()` method moved to `points.award()`
+    - Error response format changed
+  </Accordion>
+  
+  <Accordion title="Migration Steps">
+    1. Update SDK version: `npm install @loyalty-lt/javascript-sdk@latest`
+    2. Add API secret to configuration
+    3. Update method calls to new namespace structure
+    4. Update error handling for new format
+    5. Test all integrations thoroughly
+  </Accordion>
+  
+  <Accordion title="Code Changes">
+    ```javascript
+    // v1.x (Old)
+    const sdk = new LoyaltySDK({ apiKey: 'key' });
+    const card = await sdk.createCard({ email: 'test@example.com' });
+    await sdk.awardPoints(card.id, 100);
+    
+    // v2.x (New)
+    const sdk = new LoyaltySDK({ 
+      apiKey: 'key', 
+      apiSecret: 'secret' 
+    });
+    const card = await sdk.loyaltyCards.create({ 
+      customer_email: 'test@example.com' 
+    });
+    await sdk.points.award({ card_id: card.id, points: 100 });
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="React SDK"
+    icon="react"
+    href="/sdk/react/installation"
+  >
+    Use React hooks and components for easier integration.
+  </Card>
+  <Card
+    title="API Reference"
+    icon="book"
+    href="/api/shop/loyalty-cards"
+  >
+    Explore all available API endpoints and parameters.
+  </Card>
+  <Card
+    title="Authentication"
+    icon="key"
+    href="/api/authentication/overview"
+  >
+    Learn about JWT tokens and advanced authentication.
+  </Card>
+  <Card
+    title="WebSocket Events"
+    icon="bolt"
+    href="/sdk/javascript/websockets"
+  >
+    Implement real-time features with WebSocket connections.
+  </Card>
+</CardGroup>
+
+## Support
+
+<Note>
+Need help with the JavaScript SDK? Check out these resources:
+</Note>
+
+- **Documentation**: [API Reference](https://staging-api.loyalty.lt/docs)
+- **GitHub**: [SDK Repository](https://github.com/loyalty-lt/javascript-sdk)
+- **Examples**: [Integration Examples](https://github.com/loyalty-lt/examples)
+- **Support**: [support@loyalty.lt](mailto:support@loyalty.lt)
+
+## Changelog
+
+<Update label="v2.1.0" description="Released December 2024">
+## New Features
+- WebSocket support for real-time events
+- Request batching for improved performance
+- TypeScript definitions for better developer experience
+- Automatic retry logic with exponential backoff
+
+## Breaking Changes
+- Required `apiSecret` parameter in constructor
+- Reorganized API methods into namespaces
+- Updated error response format
+
+## Bug Fixes
+- Fixed memory leak in WebSocket connections
+- Improved error handling for network timeouts
+- Better handling of rate limit responses
+</Update> 

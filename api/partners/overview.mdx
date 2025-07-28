@@ -1,0 +1,964 @@
+---
+title: "Partner API Overview"
+description: "Advanced API for partners managing multiple shops and complex loyalty programs"
+---
+
+# Partner API Overview
+
+The Partner API provides advanced functionality for businesses managing multiple shops, locations, or franchises. It offers comprehensive control over loyalty programs with multi-shop management, advanced analytics, and enterprise-grade features.
+
+<Info>
+The Partner API requires special credentials and is designed for businesses with multiple locations or complex loyalty program requirements.
+</Info>
+
+## API Characteristics
+
+<CardGroup cols={2}>
+  <Card title="Multi-Shop Support" icon="store">
+    Manage multiple shops and locations from a single API integration with unified customer tracking.
+  </Card>
+  
+  <Card title="Advanced Analytics" icon="chart-line">
+    Access detailed analytics and reporting across all shops with comparative performance metrics.
+  </Card>
+  
+  <Card title="Enterprise Features" icon="building">
+    Advanced features like bulk operations, custom rules, and white-label solutions for large businesses.
+  </Card>
+  
+  <Card title="Dedicated Support" icon="headset">
+    Priority support with dedicated account management and technical assistance.
+  </Card>
+</CardGroup>
+
+## Authentication
+
+Partner API uses enhanced authentication with additional security measures:
+
+<Tabs>
+  <Tab title="Partner JWT Authentication">
+    ```bash
+    curl -X POST 'https://staging-api.loyalty.lt/api/partners/auth/login' \
+      -H 'Content-Type: application/json' \
+      -d '{
+        "email": "partner@example.com",
+        "password": "your_password",
+        "remember": true
+      }'
+    ```
+    
+    **Response**:
+    ```json
+    {
+      "success": true,
+      "data": {
+        "access_token": "jwt_token_here",
+        "refresh_token": "refresh_token_here",
+        "partner": {
+          "id": 123,
+          "name": "ABC Retail Group",
+          "email": "partner@example.com",
+          "tier": "enterprise",
+          "shops_count": 15
+        }
+      }
+    }
+    ```
+  </Tab>
+  
+  <Tab title="API Credentials">
+    For server-to-server integrations, use API credentials:
+    
+    ```bash
+    curl -X GET 'https://staging-api.loyalty.lt/api/partners/shops' \
+      -H 'X-API-Key: your_partner_api_key' \
+      -H 'X-API-Secret: your_partner_api_secret'
+    ```
+  </Tab>
+  
+  <Tab title="Request Headers">
+    All Partner API requests require these headers:
+    
+    ```
+    Authorization: Bearer {jwt_token}
+    Content-Type: application/json
+    X-Partner-ID: {partner_id}
+    X-Shop-ID: {shop_id} (optional, for shop-specific operations)
+    ```
+  </Tab>
+</Tabs>
+
+## Base URLs
+
+<AccordionGroup>
+  <Accordion title="Staging Environment">
+    ```
+    https://staging-api.loyalty.lt/api/partners/
+    ```
+    
+    - Safe testing environment
+    - Sample data and test operations
+    - No real customer impact
+    - Unlimited API calls for testing
+  </Accordion>
+  
+  <Accordion title="Production Environment">
+    ```
+    https://api.loyalty.lt/api/partners/
+    ```
+    
+    - Live production data
+    - Real customer operations
+    - Rate limiting applied
+    - Performance monitoring
+  </Accordion>
+</AccordionGroup>
+
+## Core API Sections
+
+### Shop Management
+
+<CardGroup cols={2}>
+  <Card title="Shop Operations" icon="store">
+    **GET** `/shops`
+    
+    List all shops managed by the partner
+  </Card>
+  
+  <Card title="Shop Details" icon="info">
+    **GET** `/shops/{id}`
+    
+    Get detailed information about a specific shop
+  </Card>
+  
+  <Card title="Create Shop" icon="plus">
+    **POST** `/shops`
+    
+    Create a new shop location
+  </Card>
+  
+  <Card title="Update Shop" icon="edit">
+    **PUT** `/shops/{id}`
+    
+    Update shop information and settings
+  </Card>
+</CardGroup>
+
+### Customer Management
+
+<Tabs>
+  <Tab title="Customer Overview">
+    **Unified Customer Database**
+    
+    - Cross-shop customer profiles
+    - Consolidated loyalty data
+    - Multi-location transaction history
+    - Unified communication preferences
+  </Tab>
+  
+  <Tab title="Customer Endpoints">
+    ```bash
+    # List all customers across shops
+    GET /customers
+    
+    # Get customer details with cross-shop data
+    GET /customers/{id}
+    
+    # Update customer information
+    PUT /customers/{id}
+    
+    # Customer loyalty statistics
+    GET /customers/{id}/loyalty-stats
+    
+    # Customer transaction history across all shops
+    GET /customers/{id}/transactions
+    ```
+  </Tab>
+  
+  <Tab title="Customer Segmentation">
+    ```bash
+    # Get customer segments
+    GET /customers/segments
+    
+    # Create custom segment
+    POST /customers/segments
+    
+    # Get customers in segment
+    GET /customers/segments/{id}/customers
+    
+    # Bulk operations on segments
+    POST /customers/segments/{id}/bulk-operations
+    ```
+  </Tab>
+</Tabs>
+
+### Analytics and Reporting
+
+<AccordionGroup>
+  <Accordion title="Partner-Level Analytics">
+    **GET** `/analytics/overview`
+    
+    Comprehensive analytics across all partner shops:
+    
+    ```json
+    {
+      "total_customers": 25000,
+      "active_loyalty_cards": 18500,
+      "total_points_issued": 2500000,
+      "total_points_redeemed": 1200000,
+      "revenue_impact": {
+        "total_attributed": 850000,
+        "avg_order_increase": 23.5,
+        "customer_retention_rate": 67.2
+      },
+      "top_performing_shops": [...]
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Shop Performance Comparison">
+    **GET** `/analytics/shops/comparison`
+    
+    Compare performance metrics across all shops:
+    
+    - Customer acquisition rates
+    - Point redemption patterns
+    - Revenue per customer
+    - Engagement metrics
+    - Tier distribution
+  </Accordion>
+  
+  <Accordion title="Custom Reports">
+    **POST** `/analytics/reports`
+    
+    Generate custom reports with specific metrics and date ranges:
+    
+    ```json
+    {
+      "report_type": "customer_behavior",
+      "date_range": {
+        "start": "2024-01-01",
+        "end": "2024-12-31"
+      },
+      "shops": [1, 2, 3],
+      "metrics": [
+        "customer_acquisition",
+        "retention_rate",
+        "avg_transaction_value"
+      ],
+      "format": "json"
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Bulk Operations
+
+<Info>
+Partner API provides powerful bulk operation capabilities for managing large volumes of data efficiently.
+</Info>
+
+<Tabs>
+  <Tab title="Bulk Customer Operations">
+    ```bash
+    # Bulk import customers
+    POST /customers/bulk-import
+    
+    # Bulk update customer data
+    PUT /customers/bulk-update
+    
+    # Bulk point awards across customers
+    POST /points/bulk-award
+    
+    # Bulk tier adjustments
+    POST /customers/bulk-tier-update
+    ```
+  </Tab>
+  
+  <Tab title="Bulk Shop Operations">
+    ```bash
+    # Bulk shop configuration updates
+    PUT /shops/bulk-update
+    
+    # Bulk promotional campaigns
+    POST /campaigns/bulk-create
+    
+    # Bulk staff management
+    POST /staff/bulk-operations
+    ```
+  </Tab>
+  
+  <Tab title="Bulk Transaction Processing">
+    ```bash
+    # Process multiple transactions
+    POST /transactions/bulk-process
+    
+    # Bulk point adjustments
+    POST /points/bulk-adjust
+    
+    # Bulk redemption processing
+    POST /redemptions/bulk-process
+    ```
+  </Tab>
+</Tabs>
+
+## Advanced Features
+
+### Multi-Shop Point Management
+
+<RequestExample>
+```bash cURL
+curl -X POST 'https://staging-api.loyalty.lt/api/partners/points/cross-shop-award' \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer your_jwt_token' \
+  -H 'X-Partner-ID: 123' \
+  -d '{
+    "customer_id": "customer_456",
+    "points": 100,
+    "reason": "Cross-shop loyalty bonus",
+    "source_shop_id": 1,
+    "credited_to_shops": [1, 2, 3],
+    "reference": "campaign_2024_q1"
+  }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Success Response
+{
+  "success": true,
+  "data": {
+    "transaction_id": "txn_cross_789",
+    "customer_id": "customer_456",
+    "total_points_awarded": 100,
+    "cross_shop_distribution": [
+      {
+        "shop_id": 1,
+        "points": 40,
+        "new_balance": 540
+      },
+      {
+        "shop_id": 2,
+        "points": 30,
+        "new_balance": 230
+      },
+      {
+        "shop_id": 3,
+        "points": 30,
+        "new_balance": 330
+      }
+    ],
+    "created_at": "2024-12-27T17:00:00Z"
+  }
+}
+```
+</ResponseExample>
+
+### Campaign Management
+
+<CardGroup cols={2}>
+  <Card title="Multi-Shop Campaigns" icon="megaphone">
+    **POST** `/campaigns`
+    
+    Create promotional campaigns across multiple shops
+  </Card>
+  
+  <Card title="Campaign Analytics" icon="chart-pie">
+    **GET** `/campaigns/{id}/analytics`
+    
+    Track campaign performance and ROI
+  </Card>
+  
+  <Card title="A/B Testing" icon="flask">
+    **POST** `/campaigns/ab-test`
+    
+    Run split tests across different shop groups
+  </Card>
+  
+  <Card title="Automated Campaigns" icon="robot">
+    **POST** `/campaigns/automated`
+    
+    Set up rule-based automated campaigns
+  </Card>
+</CardGroup>
+
+### Staff and Permissions
+
+<Tabs>
+  <Tab title="Staff Management">
+    ```bash
+    # List all staff across shops
+    GET /staff
+    
+    # Add staff member to specific shop
+    POST /shops/{shop_id}/staff
+    
+    # Update staff permissions
+    PUT /staff/{staff_id}/permissions
+    
+    # Staff performance analytics
+    GET /staff/{staff_id}/analytics
+    ```
+  </Tab>
+  
+  <Tab title="Role Management">
+    ```bash
+    # Create custom roles
+    POST /roles
+    
+    # Assign roles to staff
+    POST /staff/{staff_id}/roles
+    
+    # Role-based access control
+    GET /roles/{role_id}/permissions
+    ```
+  </Tab>
+  
+  <Tab title="Activity Monitoring">
+    ```bash
+    # Staff activity logs
+    GET /staff/{staff_id}/activity
+    
+    # Audit trail for sensitive operations
+    GET /audit/staff-actions
+    
+    # Performance metrics
+    GET /staff/performance-metrics
+    ```
+  </Tab>
+</Tabs>
+
+## Partner-Specific Endpoints
+
+### Partner Information
+
+<RequestExample>
+```bash Get Partner Details
+curl -X GET 'https://staging-api.loyalty.lt/api/partners/profile' \
+  -H 'Authorization: Bearer your_jwt_token' \
+  -H 'X-Partner-ID: 123'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Partner Profile
+{
+  "success": true,
+  "data": {
+    "id": 123,
+    "name": "ABC Retail Group",
+    "email": "partner@example.com",
+    "phone": "+1234567890",
+    "tier": "enterprise",
+    "status": "active",
+    "created_at": "2023-01-15T10:00:00Z",
+    "billing_info": {
+      "plan": "Enterprise Plus",
+      "monthly_fee": 999.99,
+      "transaction_limit": 100000,
+      "api_rate_limit": 10000
+    },
+    "shops": {
+      "total": 15,
+      "active": 14,
+      "pending": 1
+    },
+    "features": [
+      "multi_shop_management",
+      "advanced_analytics",
+      "white_label_options",
+      "priority_support",
+      "custom_integrations"
+    ]
+  }
+}
+```
+</ResponseExample>
+
+### Partner Settings
+
+<AccordionGroup>
+  <Accordion title="Global Settings">
+    **PUT** `/settings/global`
+    
+    Update partner-wide settings that apply to all shops:
+    
+    ```json
+    {
+      "default_point_value": 0.01,
+      "default_expiration_months": 12,
+      "cross_shop_redemption": true,
+      "unified_customer_profiles": true,
+      "auto_tier_progression": true,
+      "notification_preferences": {
+        "email_alerts": true,
+        "sms_notifications": false,
+        "webhook_notifications": true
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Branding Configuration">
+    **PUT** `/settings/branding`
+    
+    Configure partner branding across all applications:
+    
+    ```json
+    {
+      "logo_url": "https://example.com/logo.png",
+      "primary_color": "#16A34A",
+      "secondary_color": "#07C983",
+      "font_family": "Inter",
+      "custom_css": ".loyalty-card { border-radius: 12px; }",
+      "email_templates": {
+        "welcome": "custom_welcome_template_id",
+        "points_earned": "custom_points_template_id"
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Integration Settings">
+    **PUT** `/settings/integrations`
+    
+    Configure third-party integrations and webhooks:
+    
+    ```json
+    {
+      "webhooks": [
+        {
+          "url": "https://your-system.com/webhook",
+          "events": ["points_awarded", "customer_tier_changed"],
+          "secret": "webhook_secret_key"
+        }
+      ],
+      "api_limits": {
+        "requests_per_minute": 1000,
+        "bulk_operation_size": 10000
+      },
+      "external_integrations": {
+        "crm_system": "salesforce",
+        "email_provider": "mailchimp",
+        "analytics_platform": "google_analytics"
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Advanced Analytics
+
+### Cross-Shop Customer Journey
+
+<RequestExample>
+```bash Customer Journey Analysis
+curl -X GET 'https://staging-api.loyalty.lt/api/partners/analytics/customer-journey?customer_id=456&date_range=6m' \
+  -H 'Authorization: Bearer your_jwt_token' \
+  -H 'X-Partner-ID: 123'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Customer Journey
+{
+  "success": true,
+  "data": {
+    "customer_id": 456,
+    "journey_summary": {
+      "first_visit": "2024-06-15T14:30:00Z",
+      "total_visits": 24,
+      "shops_visited": [1, 2, 5, 8],
+      "total_spent": 2400.50,
+      "points_earned": 2450,
+      "points_redeemed": 800,
+      "current_tier": "gold"
+    },
+    "journey_timeline": [
+      {
+        "date": "2024-06-15T14:30:00Z",
+        "shop_id": 1,
+        "event": "first_visit",
+        "transaction_amount": 45.99,
+        "points_earned": 46
+      },
+      {
+        "date": "2024-06-22T16:45:00Z",
+        "shop_id": 2,
+        "event": "cross_shop_visit",
+        "transaction_amount": 89.99,
+        "points_earned": 90
+      },
+      {
+        "date": "2024-07-01T12:00:00Z",
+        "shop_id": 1,
+        "event": "tier_upgrade",
+        "previous_tier": "bronze",
+        "new_tier": "silver"
+      }
+    ],
+    "predictive_insights": {
+      "churn_risk": "low",
+      "next_visit_probability": 0.82,
+      "recommended_offers": [
+        "10% off next purchase",
+        "Double points weekend"
+      ]
+    }
+  }
+}
+```
+</ResponseExample>
+
+### Business Intelligence
+
+<Tabs>
+  <Tab title="Revenue Analytics">
+    ```bash
+    # Revenue attribution analysis
+    GET /analytics/revenue-attribution?period=month&shops=all
+    
+    # Customer lifetime value by tier
+    GET /analytics/customer-ltv?group_by=tier
+    
+    # Profit impact of loyalty program
+    GET /analytics/profit-impact?include_costs=true
+    ```
+  </Tab>
+  
+  <Tab title="Performance Benchmarking">
+    ```bash
+    # Shop performance ranking
+    GET /analytics/shop-rankings?metric=revenue_per_customer
+    
+    # Industry benchmarking (anonymized)
+    GET /analytics/industry-benchmarks?industry=retail
+    
+    # Goal tracking and KPI monitoring
+    GET /analytics/kpi-dashboard?period=quarter
+    ```
+  </Tab>
+  
+  <Tab title="Predictive Analytics">
+    ```bash
+    # Customer churn prediction
+    GET /analytics/churn-prediction?threshold=0.7
+    
+    # Revenue forecasting
+    GET /analytics/revenue-forecast?horizon=12m
+    
+    # Optimal campaign timing
+    GET /analytics/campaign-optimization?campaign_type=points_bonus
+    ```
+  </Tab>
+</Tabs>
+
+## White-Label Solutions
+
+<Info>
+Enterprise partners can access white-label solutions for complete brand customization.
+</Info>
+
+### Custom Domain Configuration
+
+<RequestExample>
+```bash Configure Custom Domain
+curl -X POST 'https://staging-api.loyalty.lt/api/partners/white-label/domain' \
+  -H 'Authorization: Bearer your_jwt_token' \
+  -H 'X-Partner-ID: 123' \
+  -d '{
+    "domain": "loyalty.yourbrand.com",
+    "ssl_certificate": "-----BEGIN CERTIFICATE-----...",
+    "ssl_private_key": "-----BEGIN PRIVATE KEY-----...",
+    "subdomain_config": {
+      "portal": "partners.yourbrand.com",
+      "api": "api.yourbrand.com",
+      "mobile": "mobile.yourbrand.com"
+    }
+  }'
+```
+</RequestExample>
+
+### Mobile App Customization
+
+<AccordionGroup>
+  <Accordion title="App Configuration">
+    **POST** `/white-label/mobile-app`
+    
+    Configure custom mobile application:
+    
+    ```json
+    {
+      "app_name": "Your Brand Loyalty",
+      "bundle_id": "com.yourbrand.loyalty",
+      "app_icon": "base64_encoded_icon_data",
+      "splash_screen": "base64_encoded_splash_data",
+      "color_scheme": {
+        "primary": "#FF6B6B",
+        "secondary": "#4ECDC4",
+        "accent": "#45B7D1"
+      },
+      "features": {
+        "qr_scanning": true,
+        "push_notifications": true,
+        "social_sharing": true,
+        "offline_mode": true
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="App Store Deployment">
+    **POST** `/white-label/app-deployment`
+    
+    Deploy custom app to app stores:
+    
+    - Automated app store submission
+    - Review process management
+    - Update distribution
+    - Analytics and crash reporting
+  </Accordion>
+</AccordionGroup>
+
+## Enterprise Integration
+
+### ERP System Integration
+
+<Tabs>
+  <Tab title="SAP Integration">
+    ```bash
+    # Configure SAP connection
+    POST /integrations/sap/configure
+    
+    # Sync customer data with SAP
+    POST /integrations/sap/sync-customers
+    
+    # Real-time transaction sync
+    POST /integrations/sap/transaction-webhook
+    ```
+  </Tab>
+  
+  <Tab title="Oracle Integration">
+    ```bash
+    # Oracle ERP connectivity
+    POST /integrations/oracle/setup
+    
+    # Financial data synchronization
+    POST /integrations/oracle/financial-sync
+    
+    # Inventory level integration
+    GET /integrations/oracle/inventory-status
+    ```
+  </Tab>
+  
+  <Tab title="Custom ERP">
+    ```bash
+    # Generic ERP connector
+    POST /integrations/custom-erp/configure
+    
+    # Data mapping configuration
+    POST /integrations/custom-erp/field-mapping
+    
+    # Bidirectional sync setup
+    POST /integrations/custom-erp/sync-rules
+    ```
+  </Tab>
+</Tabs>
+
+### Data Export and Compliance
+
+<CardGroup cols={2}>
+  <Card title="GDPR Compliance" icon="shield-check">
+    **GET** `/compliance/gdpr/customer-data/{id}`
+    
+    Export all customer data for GDPR requests
+  </Card>
+  
+  <Card title="Data Anonymization" icon="user-slash">
+    **POST** `/compliance/anonymize-customer`
+    
+    Anonymize customer data while preserving analytics
+  </Card>
+  
+  <Card title="Audit Trail" icon="clipboard-list">
+    **GET** `/compliance/audit-trail`
+    
+    Complete audit trail of all partner operations
+  </Card>
+  
+  <Card title="Data Retention" icon="calendar-times">
+    **PUT** `/compliance/retention-policy`
+    
+    Configure automated data retention policies
+  </Card>
+</CardGroup>
+
+## Rate Limits and Quotas
+
+<Warning>
+Partner API endpoints have different rate limits based on your partner tier and plan.
+</Warning>
+
+### Rate Limit Information
+
+<Tabs>
+  <Tab title="Enterprise Tier">
+    - **API Calls**: 10,000 per hour
+    - **Bulk Operations**: 50,000 records per batch
+    - **Concurrent Requests**: 100
+    - **Data Export**: Unlimited
+    - **Real-time Webhooks**: Unlimited
+  </Tab>
+  
+  <Tab title="Professional Tier">
+    - **API Calls**: 5,000 per hour
+    - **Bulk Operations**: 25,000 records per batch
+    - **Concurrent Requests**: 50
+    - **Data Export**: 10GB per month
+    - **Real-time Webhooks**: 1,000 per hour
+  </Tab>
+  
+  <Tab title="Standard Tier">
+    - **API Calls**: 2,000 per hour
+    - **Bulk Operations**: 10,000 records per batch
+    - **Concurrent Requests**: 25
+    - **Data Export**: 5GB per month
+    - **Real-time Webhooks**: 500 per hour
+  </Tab>
+</Tabs>
+
+### Rate Limit Headers
+
+All API responses include rate limit information:
+
+```http
+X-RateLimit-Limit: 10000
+X-RateLimit-Remaining: 9847
+X-RateLimit-Reset: 1640995200
+X-RateLimit-Tier: enterprise
+```
+
+## Error Handling
+
+<AccordionGroup>
+  <Accordion title="Partner-Specific Errors">
+    **Status Code**: 403
+    
+    ```json
+    {
+      "success": false,
+      "error": {
+        "code": "PARTNER_TIER_REQUIRED",
+        "message": "This operation requires Enterprise partner tier",
+        "current_tier": "professional",
+        "required_tier": "enterprise",
+        "upgrade_url": "https://partners.loyalty.lt/upgrade"
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Shop Access Errors">
+    **Status Code**: 404
+    
+    ```json
+    {
+      "success": false,
+      "error": {
+        "code": "SHOP_NOT_FOUND",
+        "message": "Shop not found or not accessible",
+        "shop_id": 999,
+        "accessible_shops": [1, 2, 3, 5]
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Bulk Operation Errors">
+    **Status Code**: 422
+    
+    ```json
+    {
+      "success": false,
+      "error": {
+        "code": "BULK_OPERATION_TOO_LARGE",
+        "message": "Bulk operation exceeds maximum allowed size",
+        "provided_size": 75000,
+        "maximum_size": 50000,
+        "suggestion": "Split into smaller batches"
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Support and Resources
+
+### Partner Support Channels
+
+<CardGroup cols={2}>
+  <Card title="Priority Support" icon="star">
+    **Enterprise partners get priority support:**
+    - Dedicated account manager
+    - 2-hour response time SLA
+    - Direct developer access
+    - Emergency hotline available
+  </Card>
+  
+  <Card title="Technical Resources" icon="code">
+    **Advanced technical documentation:**
+    - Integration guides for enterprise systems
+    - Custom development examples
+    - Architecture consultation
+    - Performance optimization guidance
+  </Card>
+  
+  <Card title="Business Consultation" icon="chart-line">
+    **Strategic business support:**
+    - Loyalty program optimization
+    - Industry best practices
+    - ROI improvement strategies
+    - Competitive analysis insights
+  </Card>
+  
+  <Card title="Training and Certification" icon="graduation-cap">
+    **Partner education programs:**
+    - Advanced API training courses
+    - Loyalty program management certification
+    - Regular webinars and workshops
+    - Partner conference access
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Partners Portal"
+    icon="desktop"
+    href="/apps/partners/overview"
+  >
+    Learn about the web-based Partners Portal interface.
+  </Card>
+  <Card
+    title="Shop Management API"
+    icon="store"
+    href="/api/partners/shops"
+  >
+    Detailed documentation for shop management endpoints.
+  </Card>
+  <Card
+    title="Analytics API"
+    icon="chart-bar"
+    href="/api/partners/analytics"
+  >
+    Advanced analytics and reporting API endpoints.
+  </Card>
+  <Card
+    title="White-Label Solutions"
+    icon="palette"
+    href="/api/partners/white-label"
+  >
+    Custom branding and white-label integration options.
+  </Card>
+</CardGroup> 

@@ -1,0 +1,1199 @@
+---
+title: "SDK API Overview"
+description: "Developer-friendly API endpoints designed for SDK integration and custom applications"
+---
+
+# SDK API Overview
+
+The SDK API provides a comprehensive set of endpoints designed specifically for developers building custom integrations, mobile apps, and web applications. These endpoints are optimized for client-side use with built-in security, caching, and performance features.
+
+<Info>
+The SDK API is designed to be used through our official SDKs but can also be accessed directly for custom implementations.
+</Info>
+
+## API Design Principles
+
+<CardGroup cols={2}>
+  <Card title="Developer Experience" icon="code">
+    RESTful design with consistent patterns, comprehensive error handling, and detailed documentation for easy integration.
+  </Card>
+  
+  <Card title="Performance Optimized" icon="zap">
+    Optimized response times with smart caching, pagination, and efficient data structures for mobile and web apps.
+  </Card>
+  
+  <Card title="Security First" icon="shield">
+    Multiple authentication methods, rate limiting, and data validation to protect both developers and users.
+  </Card>
+  
+  <Card title="Real-time Updates" icon="refresh">
+    WebSocket support and webhook integration for real-time loyalty program updates and notifications.
+  </Card>
+</CardGroup>
+
+## Authentication Methods
+
+<Tabs>
+  <Tab title="API Credentials">
+    **Server-to-Server Integration**
+    
+    ```bash
+    curl -X GET 'https://staging-api.loyalty.lt/api/sdk/cards' \
+      -H 'X-API-Key: your_api_key' \
+      -H 'X-API-Secret: your_api_secret'
+    ```
+    
+    Best for:
+    - Backend applications
+    - Server-side integrations
+    - Secure environments
+    - Administrative operations
+  </Tab>
+  
+  <Tab title="Public API Keys">
+    **Client-Side Integration**
+    
+    ```bash
+    curl -X GET 'https://staging-api.loyalty.lt/api/sdk/public/shop-info' \
+      -H 'X-Public-API-Key: your_public_key'
+    ```
+    
+    Best for:
+    - Frontend applications
+    - Mobile apps
+    - Public data access
+    - Read-only operations
+  </Tab>
+  
+  <Tab title="User Tokens">
+    **Customer-Specific Operations**
+    
+    ```bash
+    curl -X GET 'https://staging-api.loyalty.lt/api/sdk/customer/profile' \
+      -H 'Authorization: Bearer customer_jwt_token'
+    ```
+    
+    Best for:
+    - Customer dashboards
+    - Personal data access
+    - Transaction history
+    - Account management
+  </Tab>
+  
+  <Tab title="Temporary Tokens">
+    **Session-Based Access**
+    
+    ```bash
+    curl -X POST 'https://staging-api.loyalty.lt/api/sdk/session/create' \
+      -H 'X-API-Key: your_api_key' \
+      -d '{"session_duration": 3600}'
+    ```
+    
+    Best for:
+    - Guest users
+    - Limited-time access
+    - QR code interactions
+    - Temporary integrations
+  </Tab>
+</Tabs>
+
+## Base URLs and Environments
+
+<AccordionGroup>
+  <Accordion title="Staging Environment">
+    **Base URL**: `https://staging-api.loyalty.lt/api/sdk/`
+    
+    Features:
+    - Test data and sandbox environment
+    - No rate limiting for development
+    - Mock payment processing
+    - Debug headers and detailed error messages
+    - Free SSL certificates for testing domains
+  </Accordion>
+  
+  <Accordion title="Production Environment">
+    **Base URL**: `https://api.loyalty.lt/api/sdk/`
+    
+    Features:
+    - Live customer data
+    - Production rate limiting
+    - Real payment processing
+    - Optimized performance
+    - Enterprise SLA guarantees
+  </Accordion>
+</AccordionGroup>
+
+## Core SDK Endpoints
+
+### Customer Management
+
+<CardGroup cols={2}>
+  <Card title="Customer Registration" icon="user-plus">
+    **POST** `/customers/register`
+    
+    Create new customer accounts with loyalty cards
+  </Card>
+  
+  <Card title="Customer Profile" icon="user">
+    **GET** `/customers/{id}`
+    
+    Retrieve customer information and loyalty status
+  </Card>
+  
+  <Card title="Customer Search" icon="search">
+    **GET** `/customers/search`
+    
+    Find customers by email, phone, or card number
+  </Card>
+  
+  <Card title="Profile Updates" icon="edit">
+    **PUT** `/customers/{id}`
+    
+    Update customer information and preferences
+  </Card>
+</CardGroup>
+
+### Loyalty Cards
+
+<Tabs>
+  <Tab title="Card Operations">
+    ```bash
+    # Create new loyalty card
+    POST /cards/create
+    
+    # Get card details
+    GET /cards/{card_id}
+    
+    # Link card to customer
+    POST /cards/{card_id}/link
+    
+    # Card status management
+    PUT /cards/{card_id}/status
+    ```
+  </Tab>
+  
+  <Tab title="Card Discovery">
+    ```bash
+    # Search cards by customer info
+    GET /cards/search?email=customer@example.com
+    
+    # QR code card lookup
+    GET /cards/qr/{qr_code}
+    
+    # Batch card verification
+    POST /cards/batch-verify
+    ```
+  </Tab>
+  
+  <Tab title="Card Analytics">
+    ```bash
+    # Card usage statistics
+    GET /cards/{card_id}/stats
+    
+    # Card activity timeline
+    GET /cards/{card_id}/activity
+    
+    # Card performance metrics
+    GET /cards/{card_id}/performance
+    ```
+  </Tab>
+</Tabs>
+
+### Points Management
+
+<AccordionGroup>
+  <Accordion title="Point Transactions">
+    **Core Point Operations**
+    
+    ```bash
+    # Award points to customer
+    POST /points/award
+    {
+      "card_id": "card_123",
+      "points": 100,
+      "reason": "Purchase reward",
+      "reference": "order_456"
+    }
+    
+    # Redeem points
+    POST /points/redeem
+    {
+      "card_id": "card_123",
+      "points": 50,
+      "reason": "Discount applied"
+    }
+    
+    # Get point balance
+    GET /points/balance/{card_id}
+    ```
+  </Accordion>
+  
+  <Accordion title="Point History">
+    **Transaction History and Analytics**
+    
+    ```bash
+    # Detailed transaction history
+    GET /points/history/{card_id}?limit=50&offset=0
+    
+    # Point earning patterns
+    GET /points/analytics/{card_id}/earning-patterns
+    
+    # Redemption behavior analysis
+    GET /points/analytics/{card_id}/redemption-patterns
+    ```
+  </Accordion>
+  
+  <Accordion title="Point Calculations">
+    **Point Rate and Value Calculations**
+    
+    ```bash
+    # Calculate points for amount
+    GET /points/calculate?amount=99.99&shop_id=123
+    
+    # Get point value in currency
+    GET /points/value?points=500&currency=USD
+    
+    # Tier-based point multipliers
+    GET /points/multipliers/{customer_tier}
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### Offers and Rewards
+
+<Tabs>
+  <Tab title="Available Offers">
+    ```bash
+    # Get customer-specific offers
+    GET /offers/customer/{customer_id}
+    
+    # Browse public offers
+    GET /offers/public?category=dining&location=city
+    
+    # Featured offers
+    GET /offers/featured?limit=10
+    
+    # Personalized recommendations
+    GET /offers/recommended/{customer_id}
+    ```
+  </Tab>
+  
+  <Tab title="Offer Redemption">
+    ```bash
+    # Redeem offer with points
+    POST /offers/{offer_id}/redeem
+    {
+      "customer_id": "customer_123",
+      "points_to_use": 500,
+      "payment_method": "points_only"
+    }
+    
+    # Generate offer coupon
+    POST /offers/{offer_id}/generate-coupon
+    
+    # Validate offer eligibility
+    GET /offers/{offer_id}/eligible?customer_id=123
+    ```
+  </Tab>
+  
+  <Tab title="Offer Analytics">
+    ```bash
+    # Offer performance metrics
+    GET /offers/{offer_id}/analytics
+    
+    # Customer offer interaction history
+    GET /offers/customer/{customer_id}/history
+    
+    # Offer conversion rates
+    GET /offers/analytics/conversion-rates
+    ```
+  </Tab>
+</Tabs>
+
+### Games and Gamification
+
+<CardGroup cols={2}>
+  <Card title="Available Games" icon="gamepad">
+    **GET** `/games/available`
+    
+    List games available to customers with eligibility info
+  </Card>
+  
+  <Card title="Start Game Session" icon="play">
+    **POST** `/games/{game_id}/start`
+    
+    Begin a new game session for a customer
+  </Card>
+  
+  <Card title="Game Progress" icon="chart-line">
+    **PUT** `/games/sessions/{session_id}/progress`
+    
+    Update game progress and record achievements
+  </Card>
+  
+  <Card title="Claim Rewards" icon="gift">
+    **POST** `/games/sessions/{session_id}/claim`
+    
+    Claim points and rewards from completed games
+  </Card>
+</CardGroup>
+
+## Advanced SDK Features
+
+### Real-time Updates
+
+<RequestExample>
+```javascript WebSocket Connection
+const ws = new WebSocket('wss://api.loyalty.lt/sdk/ws');
+
+ws.onopen = function() {
+  // Authenticate WebSocket connection
+  ws.send(JSON.stringify({
+    type: 'auth',
+    token: 'your_customer_token'
+  }));
+};
+
+ws.onmessage = function(event) {
+  const data = JSON.parse(event.data);
+  
+  switch(data.type) {
+    case 'points_awarded':
+      updatePointsBalance(data.points);
+      break;
+    case 'tier_upgraded':
+      showTierUpgradeNotification(data.new_tier);
+      break;
+    case 'offer_available':
+      displayNewOffer(data.offer);
+      break;
+  }
+};
+```
+</RequestExample>
+
+<ResponseExample>
+```json WebSocket Message Types
+{
+  "points_awarded": {
+    "type": "points_awarded",
+    "customer_id": "customer_123",
+    "points": 100,
+    "new_balance": 1500,
+    "reason": "Purchase reward",
+    "timestamp": "2024-12-27T18:00:00Z"
+  },
+  "tier_upgraded": {
+    "type": "tier_upgraded",
+    "customer_id": "customer_123",
+    "previous_tier": "silver",
+    "new_tier": "gold",
+    "benefits": ["20% bonus points", "Free shipping"],
+    "timestamp": "2024-12-27T18:00:00Z"
+  },
+  "offer_available": {
+    "type": "offer_available",
+    "customer_id": "customer_123",
+    "offer": {
+      "id": "offer_456",
+      "title": "Double Points Weekend",
+      "description": "Earn 2x points on all purchases",
+      "expires_at": "2024-12-29T23:59:59Z"
+    }
+  }
+}
+```
+</ResponseExample>
+
+### Batch Operations
+
+<Info>
+SDK API supports batch operations for improved performance when processing multiple requests.
+</Info>
+
+<Tabs>
+  <Tab title="Batch Point Awards">
+    ```bash
+    curl -X POST 'https://api.loyalty.lt/api/sdk/points/batch-award' \
+      -H 'Content-Type: application/json' \
+      -H 'X-API-Key: your_api_key' \
+      -d '{
+        "transactions": [
+          {
+            "card_id": "card_001",
+            "points": 100,
+            "reason": "Purchase reward",
+            "reference": "order_001"
+          },
+          {
+            "card_id": "card_002", 
+            "points": 150,
+            "reason": "Bonus points",
+            "reference": "order_002"
+          }
+        ]
+      }'
+    ```
+  </Tab>
+  
+  <Tab title="Batch Customer Updates">
+    ```bash
+    curl -X PUT 'https://api.loyalty.lt/api/sdk/customers/batch-update' \
+      -H 'Content-Type: application/json' \
+      -H 'X-API-Key: your_api_key' \
+      -d '{
+        "customers": [
+          {
+            "id": "customer_001",
+            "email": "new-email1@example.com",
+            "phone": "+1234567890"
+          },
+          {
+            "id": "customer_002",
+            "preferences": {
+              "email_notifications": false,
+              "sms_notifications": true
+            }
+          }
+        ]
+      }'
+    ```
+  </Tab>
+  
+  <Tab title="Batch Card Validation">
+    ```bash
+    curl -X POST 'https://api.loyalty.lt/api/sdk/cards/batch-validate' \
+      -H 'Content-Type: application/json' \
+      -H 'X-API-Key: your_api_key' \
+      -d '{
+        "cards": [
+          {"card_id": "card_001"},
+          {"card_id": "card_002"},
+          {"qr_code": "QR123456789"}
+        ]
+      }'
+    ```
+  </Tab>
+</Tabs>
+
+### Caching and Performance
+
+<AccordionGroup>
+  <Accordion title="Response Caching">
+    **Intelligent Caching Headers**
+    
+    SDK API includes smart caching headers to optimize performance:
+    
+    ```http
+    Cache-Control: public, max-age=300
+    ETag: "abc123def456"
+    Last-Modified: Wed, 27 Dec 2024 17:00:00 GMT
+    ```
+    
+    Use conditional requests to minimize bandwidth:
+    
+    ```bash
+    curl -X GET 'https://api.loyalty.lt/api/sdk/cards/card_123' \
+      -H 'If-None-Match: "abc123def456"' \
+      -H 'If-Modified-Since: Wed, 27 Dec 2024 17:00:00 GMT'
+    ```
+  </Accordion>
+  
+  <Accordion title="Compression">
+    **Automatic Response Compression**
+    
+    All responses support gzip compression:
+    
+    ```bash
+    curl -X GET 'https://api.loyalty.lt/api/sdk/offers/customer/123' \
+      -H 'Accept-Encoding: gzip, deflate' \
+      -H 'X-API-Key: your_api_key'
+    ```
+  </Accordion>
+  
+  <Accordion title="Pagination">
+    **Efficient Data Pagination**
+    
+    Large datasets include pagination metadata:
+    
+    ```json
+    {
+      "data": [...],
+      "pagination": {
+        "current_page": 1,
+        "per_page": 20,
+        "total": 150,
+        "total_pages": 8,
+        "has_next": true,
+        "has_prev": false,
+        "next_url": "/api/sdk/points/history/card_123?page=2",
+        "prev_url": null
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## SDK Integration Patterns
+
+### Mobile App Integration
+
+<Tabs>
+  <Tab title="Initial Setup">
+    ```javascript
+    // Initialize Loyalty SDK
+    import { LoyaltySDK } from '@loyalty-lt/sdk';
+    
+    const loyalty = new LoyaltySDK({
+      apiKey: 'your_public_api_key',
+      environment: 'production', // or 'staging'
+      enableCache: true,
+      enableWebSocket: true
+    });
+    
+    // Authentication
+    await loyalty.authenticate('customer_token');
+    ```
+  </Tab>
+  
+  <Tab title="Customer Profile">
+    ```javascript
+    // Get customer profile
+    const customer = await loyalty.customer.getProfile();
+    
+    // Update customer information
+    await loyalty.customer.updateProfile({
+      email: 'new-email@example.com',
+      preferences: {
+        notifications: true,
+        marketing_emails: false
+      }
+    });
+    
+    // Get loyalty card information
+    const card = await loyalty.customer.getLoyaltyCard();
+    ```
+  </Tab>
+  
+  <Tab title="Points Management">
+    ```javascript
+    // Get current points balance
+    const balance = await loyalty.points.getBalance();
+    console.log(`Current balance: ${balance.current_points} points`);
+    
+    // Get points history
+    const history = await loyalty.points.getHistory({
+      limit: 20,
+      type: 'all'
+    });
+    
+    // Real-time balance updates
+    loyalty.on('points_awarded', (data) => {
+      updateUI(data.new_balance);
+      showNotification(`You earned ${data.points} points!`);
+    });
+    ```
+  </Tab>
+  
+  <Tab title="Offers and Rewards">
+    ```javascript
+    // Get available offers
+    const offers = await loyalty.offers.getAvailable();
+    
+    // Get personalized recommendations
+    const recommended = await loyalty.offers.getRecommended();
+    
+    // Redeem an offer
+    const redemption = await loyalty.offers.redeem(offerId, {
+      points_to_use: 500
+    });
+    
+    if (redemption.success) {
+      showSuccessMessage('Offer redeemed successfully!');
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Web Application Integration
+
+<CodeGroup>
+```html Frontend Integration
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://cdn.loyalty.lt/sdk/v1/loyalty-sdk.min.js"></script>
+</head>
+<body>
+  <div id="loyalty-widget"></div>
+  
+  <script>
+    // Initialize SDK
+    const loyalty = new LoyaltySDK({
+      apiKey: 'your_public_api_key',
+      container: '#loyalty-widget'
+    });
+    
+    // Load customer data
+    loyalty.loadCustomer('customer_token');
+    
+    // Handle events
+    loyalty.on('ready', () => {
+      console.log('Loyalty widget loaded');
+    });
+    
+    loyalty.on('points_updated', (balance) => {
+      document.getElementById('points-display').textContent = balance;
+    });
+  </script>
+</body>
+</html>
+```
+
+```javascript React Integration
+import React, { useState, useEffect } from 'react';
+import { useLoyalty } from '@loyalty-lt/react-sdk';
+
+function LoyaltyDashboard() {
+  const { customer, points, offers, loading } = useLoyalty();
+  const [balance, setBalance] = useState(0);
+  
+  useEffect(() => {
+    if (points.balance) {
+      setBalance(points.balance.current_points);
+    }
+  }, [points.balance]);
+  
+  if (loading) {
+    return <div>Loading loyalty data...</div>;
+  }
+  
+  return (
+    <div className="loyalty-dashboard">
+      <h2>Your Loyalty Status</h2>
+      <div className="points-display">
+        <span className="points-value">{balance}</span>
+        <span className="points-label">Points Available</span>
+      </div>
+      
+      <div className="offers-section">
+        <h3>Available Offers</h3>
+        {offers.available.map(offer => (
+          <OfferCard key={offer.id} offer={offer} />
+        ))}
+      </div>
+    </div>
+  );
+}
+```
+
+```javascript Vue.js Integration
+<template>
+  <div class="loyalty-component">
+    <div v-if="loading">Loading...</div>
+    <div v-else>
+      <h2>{{ customer.name }}</h2>
+      <p>Points: {{ pointsBalance }}</p>
+      
+      <div class="offers">
+        <div v-for="offer in availableOffers" :key="offer.id">
+          <h3>{{ offer.title }}</h3>
+          <button @click="redeemOffer(offer.id)">
+            Redeem for {{ offer.points_required }} points
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { useLoyalty } from '@loyalty-lt/vue-sdk';
+
+export default {
+  name: 'LoyaltyComponent',
+  setup() {
+    const {
+      customer,
+      pointsBalance,
+      availableOffers,
+      loading,
+      redeemOffer
+    } = useLoyalty();
+    
+    return {
+      customer,
+      pointsBalance,
+      availableOffers,
+      loading,
+      redeemOffer
+    };
+  }
+};
+</script>
+```
+</CodeGroup>
+
+### Backend Integration
+
+<Tabs>
+  <Tab title="Node.js/Express">
+    ```javascript
+    const express = require('express');
+    const { LoyaltyAPI } = require('@loyalty-lt/node-sdk');
+    
+    const app = express();
+    const loyalty = new LoyaltyAPI({
+      apiKey: process.env.LOYALTY_API_KEY,
+      apiSecret: process.env.LOYALTY_API_SECRET,
+      environment: 'production'
+    });
+    
+    app.post('/order-completed', async (req, res) => {
+      const { orderId, customerId, orderTotal } = req.body;
+      
+      try {
+        // Calculate points based on order total
+        const pointsToAward = Math.floor(orderTotal);
+        
+        // Award points to customer
+        const result = await loyalty.points.award({
+          customer_id: customerId,
+          points: pointsToAward,
+          reason: 'Purchase reward',
+          reference: orderId,
+          metadata: {
+            order_total: orderTotal,
+            currency: 'USD'
+          }
+        });
+        
+        res.json({ 
+          success: true, 
+          points_awarded: pointsToAward,
+          new_balance: result.new_balance 
+        });
+      } catch (error) {
+        res.status(500).json({ 
+          success: false, 
+          error: error.message 
+        });
+      }
+    });
+    ```
+  </Tab>
+  
+  <Tab title="Python/Django">
+    ```python
+    from django.http import JsonResponse
+    from django.views.decorators.csrf import csrf_exempt
+    from loyalty_sdk import LoyaltyAPI
+    import json
+    
+    loyalty = LoyaltyAPI(
+        api_key=settings.LOYALTY_API_KEY,
+        api_secret=settings.LOYALTY_API_SECRET,
+        environment='production'
+    )
+    
+    @csrf_exempt
+    def order_completed(request):
+        if request.method == 'POST':
+            data = json.loads(request.body)
+            
+            try:
+                # Award points for purchase
+                result = loyalty.points.award(
+                    customer_id=data['customer_id'],
+                    points=int(data['order_total']),
+                    reason='Purchase reward',
+                    reference=data['order_id']
+                )
+                
+                return JsonResponse({
+                    'success': True,
+                    'points_awarded': result['points'],
+                    'new_balance': result['new_balance']
+                })
+                
+            except Exception as e:
+                return JsonResponse({
+                    'success': False,
+                    'error': str(e)
+                }, status=500)
+    ```
+  </Tab>
+  
+  <Tab title="PHP/Laravel">
+    ```php
+    <?php
+    
+    use Illuminate\Http\Request;
+    use LoyaltyLT\SDK\LoyaltyAPI;
+    
+    class OrderController extends Controller
+    {
+        private $loyalty;
+        
+        public function __construct()
+        {
+            $this->loyalty = new LoyaltyAPI([
+                'api_key' => env('LOYALTY_API_KEY'),
+                'api_secret' => env('LOYALTY_API_SECRET'),
+                'environment' => 'production'
+            ]);
+        }
+        
+        public function orderCompleted(Request $request)
+        {
+            try {
+                $pointsToAward = floor($request->order_total);
+                
+                $result = $this->loyalty->points->award([
+                    'customer_id' => $request->customer_id,
+                    'points' => $pointsToAward,
+                    'reason' => 'Purchase reward',
+                    'reference' => $request->order_id,
+                    'metadata' => [
+                        'order_total' => $request->order_total,
+                        'currency' => 'USD'
+                    ]
+                ]);
+                
+                return response()->json([
+                    'success' => true,
+                    'points_awarded' => $pointsToAward,
+                    'new_balance' => $result['new_balance']
+                ]);
+                
+            } catch (Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+        }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Error Handling and Debugging
+
+### Error Response Format
+
+<AccordionGroup>
+  <Accordion title="Standard Error Format">
+    All SDK API errors follow a consistent format:
+    
+    ```json
+    {
+      "success": false,
+      "error": {
+        "code": "INSUFFICIENT_POINTS",
+        "message": "Customer does not have enough points for this redemption",
+        "details": {
+          "required_points": 500,
+          "available_points": 250,
+          "shortfall": 250
+        },
+        "request_id": "req_123456789",
+        "timestamp": "2024-12-27T18:00:00Z"
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Common Error Codes">
+    **Authentication Errors**
+    - `INVALID_API_KEY`: API key is missing or invalid
+    - `EXPIRED_TOKEN`: Customer token has expired
+    - `INSUFFICIENT_PERMISSIONS`: Operation not allowed for current authentication level
+    
+    **Validation Errors**
+    - `INVALID_CUSTOMER_ID`: Customer ID format is invalid
+    - `INVALID_POINTS_AMOUNT`: Points amount must be positive
+    - `MISSING_REQUIRED_FIELD`: Required field is missing from request
+    
+    **Business Logic Errors**
+    - `INSUFFICIENT_POINTS`: Customer doesn't have enough points
+    - `CARD_BLOCKED`: Loyalty card is blocked or suspended
+    - `OFFER_EXPIRED`: Offer is no longer available
+    - `GAME_SESSION_EXPIRED`: Game session has expired
+  </Accordion>
+  
+  <Accordion title="Debug Headers">
+    SDK API includes debug headers in staging environment:
+    
+    ```http
+    X-Debug-Request-ID: req_123456789
+    X-Debug-Processing-Time: 0.145s
+    X-Debug-Cache-Status: HIT
+    X-Debug-Rate-Limit-Remaining: 998
+    ```
+  </Accordion>
+</AccordionGroup>
+
+### SDK Error Handling
+
+<CodeGroup>
+```javascript JavaScript Error Handling
+try {
+  const result = await loyalty.points.redeem({
+    customer_id: 'customer_123',
+    points: 500,
+    reason: 'Discount redemption'
+  });
+  
+  console.log('Points redeemed successfully:', result);
+  
+} catch (error) {
+  switch (error.code) {
+    case 'INSUFFICIENT_POINTS':
+      showError(`You need ${error.details.shortfall} more points`);
+      break;
+    case 'CARD_BLOCKED':
+      showError('Your loyalty card is temporarily blocked');
+      break;
+    default:
+      showError('An unexpected error occurred');
+      console.error('SDK Error:', error);
+  }
+}
+```
+
+```python Python Error Handling
+from loyalty_sdk.exceptions import (
+    InsufficientPointsError,
+    CardBlockedError,
+    LoyaltyAPIError
+)
+
+try:
+    result = loyalty.points.redeem(
+        customer_id='customer_123',
+        points=500,
+        reason='Discount redemption'
+    )
+    print(f"Points redeemed: {result['points']}")
+    
+except InsufficientPointsError as e:
+    print(f"Not enough points. Need {e.shortfall} more points.")
+    
+except CardBlockedError as e:
+    print("Loyalty card is blocked")
+    
+except LoyaltyAPIError as e:
+    print(f"API Error: {e.message}")
+    logger.error(f"Request ID: {e.request_id}")
+```
+
+```php PHP Error Handling
+<?php
+
+use LoyaltyLT\SDK\Exceptions\InsufficientPointsException;
+use LoyaltyLT\SDK\Exceptions\CardBlockedException;
+use LoyaltyLT\SDK\Exceptions\LoyaltyAPIException;
+
+try {
+    $result = $loyalty->points->redeem([
+        'customer_id' => 'customer_123',
+        'points' => 500,
+        'reason' => 'Discount redemption'
+    ]);
+    
+    echo "Points redeemed: " . $result['points'];
+    
+} catch (InsufficientPointsException $e) {
+    echo "Not enough points. Need " . $e->getShortfall() . " more points.";
+    
+} catch (CardBlockedException $e) {
+    echo "Loyalty card is blocked";
+    
+} catch (LoyaltyAPIException $e) {
+    echo "API Error: " . $e->getMessage();
+    error_log("Request ID: " . $e->getRequestId());
+}
+```
+</CodeGroup>
+
+## Rate Limiting and Best Practices
+
+### Rate Limits
+
+<Warning>
+SDK API endpoints have rate limits to ensure fair usage and system stability.
+</Warning>
+
+<Tabs>
+  <Tab title="Default Limits">
+    **Standard Rate Limits**
+    
+    - **Authenticated requests**: 1,000 per hour per API key
+    - **Public requests**: 100 per hour per IP address
+    - **WebSocket connections**: 10 concurrent per customer
+    - **Batch operations**: 1,000 items per batch, 10 batches per hour
+  </Tab>
+  
+  <Tab title="Rate Limit Headers">
+    **Response Headers**
+    
+    ```http
+    X-RateLimit-Limit: 1000
+    X-RateLimit-Remaining: 847
+    X-RateLimit-Reset: 1703707200
+    X-RateLimit-Retry-After: 3600
+    ```
+  </Tab>
+  
+  <Tab title="Handling Rate Limits">
+    **Best Practices**
+    
+    ```javascript
+    // Implement exponential backoff
+    async function makeAPIRequest(endpoint, data, retries = 3) {
+      try {
+        return await loyalty.api.request(endpoint, data);
+      } catch (error) {
+        if (error.status === 429 && retries > 0) {
+          const delay = Math.pow(2, 4 - retries) * 1000;
+          await new Promise(resolve => setTimeout(resolve, delay));
+          return makeAPIRequest(endpoint, data, retries - 1);
+        }
+        throw error;
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Performance Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Caching Strategy" icon="database">
+    - Cache customer profiles and loyalty card data
+    - Use ETags for conditional requests
+    - Implement client-side caching for static data
+    - Cache offer lists with appropriate TTL
+  </Card>
+  
+  <Card title="Batch Operations" icon="layer-group">
+    - Use batch endpoints for multiple operations
+    - Combine related API calls when possible
+    - Process operations in background when applicable
+    - Implement queue systems for high-volume operations
+  </Card>
+  
+  <Card title="Real-time Updates" icon="wifi">
+    - Use WebSocket for real-time data
+    - Implement connection pooling
+    - Handle connection failures gracefully
+    - Use heartbeat mechanisms for connection health
+  </Card>
+  
+  <Card title="Error Recovery" icon="shield">
+    - Implement retry logic with exponential backoff
+    - Use circuit breakers for external calls
+    - Fallback to cached data when possible
+    - Log errors with correlation IDs for debugging
+  </Card>
+</CardGroup>
+
+## Testing and Development
+
+### Testing Tools
+
+<Tabs>
+  <Tab title="API Testing">
+    **Postman Collection**
+    
+    Download our comprehensive Postman collection:
+    
+    ```bash
+    curl -o loyalty-sdk-api.postman_collection.json \
+      https://api.loyalty.lt/docs/postman/sdk-collection.json
+    ```
+    
+    **Environment Variables**:
+    - `api_key`: Your API key
+    - `base_url`: API base URL
+    - `customer_id`: Test customer ID
+  </Tab>
+  
+  <Tab title="Mock Server">
+    **Local Development**
+    
+    ```bash
+    # Install development server
+    npm install -g @loyalty-lt/mock-server
+    
+    # Start mock server
+    loyalty-mock-server --port 3001 --environment staging
+    
+    # Configure SDK to use mock server
+    const loyalty = new LoyaltySDK({
+      apiKey: 'test_key',
+      baseURL: 'http://localhost:3001'
+    });
+    ```
+  </Tab>
+  
+  <Tab title="Test Data">
+    **Staging Test Data**
+    
+    ```javascript
+    // Pre-configured test customers
+    const testCustomers = {
+      bronze: 'test_customer_bronze_001',
+      silver: 'test_customer_silver_002', 
+      gold: 'test_customer_gold_003'
+    };
+    
+    // Test scenarios
+    const testScenarios = {
+      newCustomer: async () => {
+        // Test new customer registration
+      },
+      pointsEarning: async () => {
+        // Test points earning flow
+      },
+      offerRedemption: async () => {
+        // Test offer redemption
+      }
+    };
+    ```
+  </Tab>
+</Tabs>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="JavaScript SDK"
+    icon="code"
+    href="/sdk/javascript/installation"
+  >
+    Get started with our JavaScript SDK for web applications.
+  </Card>
+  <Card
+    title="React Native SDK"
+    icon="mobile"
+    href="/sdk/mobile/react-native"
+  >
+    Build mobile loyalty features with our React Native SDK.
+  </Card>
+  <Card
+    title="Python SDK"
+    icon="python"
+    href="/sdk/server/python"
+  >
+    Server-side integration with our Python SDK.
+  </Card>
+  <Card
+    title="Shop API"
+    icon="store"
+    href="/api/shop/loyalty-cards"
+  >
+    Explore the Shop API for basic loyalty operations.
+  </Card>
+</CardGroup> 

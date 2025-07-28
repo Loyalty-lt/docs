@@ -1,0 +1,786 @@
+---
+title: "WooCommerce Integration"
+description: "Add loyalty features to your WooCommerce store with the Loyalty.lt plugin"
+---
+
+# WooCommerce Integration
+
+The Loyalty.lt WooCommerce plugin seamlessly integrates loyalty card functionality into your WordPress e-commerce store. Customers can earn points on purchases, redeem rewards, and track their loyalty status directly from your store.
+
+## Plugin Overview
+
+<Info>
+The WooCommerce plugin provides a complete loyalty solution with minimal setup required. It handles point calculation, card management, and customer interactions automatically.
+</Info>
+
+### Key Features
+
+<CardGroup cols={2}>
+  <Card title="Automatic Point Awards" icon="coins">
+    Points are automatically awarded when orders are completed, with configurable rates and rules.
+  </Card>
+  
+  <Card title="Checkout Integration" icon="shopping-cart">
+    Customers can apply point discounts directly during checkout with real-time balance updates.
+  </Card>
+  
+  <Card title="Customer Dashboard" icon="user">
+    Dedicated loyalty section in customer accounts showing points, history, and available rewards.
+  </Card>
+  
+  <Card title="Admin Management" icon="settings">
+    Complete admin interface for managing loyalty settings, viewing customer data, and generating reports.
+  </Card>
+</CardGroup>
+
+## Installation
+
+### Method 1: WordPress Plugin Directory
+
+<Steps>
+  <Step title="Access Plugin Directory">
+    In your WordPress admin, navigate to **Plugins** → **Add New**.
+  </Step>
+  
+  <Step title="Search for Plugin">
+    Search for "Loyalty.lt WooCommerce" in the plugin directory.
+  </Step>
+  
+  <Step title="Install and Activate">
+    Click **Install Now**, then **Activate** once installation completes.
+  </Step>
+  
+  <Step title="Configure Settings">
+    Go to **WooCommerce** → **Loyalty Settings** to configure your API credentials.
+  </Step>
+</Steps>
+
+### Method 2: Manual Installation
+
+<Steps>
+  <Step title="Download Plugin">
+    Download the latest plugin ZIP file from the [Partners Portal](https://partners.loyalty.lt).
+  </Step>
+  
+  <Step title="Upload Plugin">
+    In WordPress admin, go to **Plugins** → **Add New** → **Upload Plugin**.
+  </Step>
+  
+  <Step title="Install ZIP File">
+    Choose the downloaded ZIP file and click **Install Now**.
+  </Step>
+  
+  <Step title="Activate Plugin">
+    After installation, click **Activate Plugin** to enable the loyalty features.
+  </Step>
+</Steps>
+
+## Configuration
+
+### Basic Setup
+
+<Tabs>
+  <Tab title="API Credentials">
+    Configure your Loyalty.lt API credentials in **WooCommerce** → **Settings** → **Loyalty**:
+    
+    ```
+    API Key: your_api_key_here
+    API Secret: your_api_secret_here
+    Environment: Staging (for testing) or Production
+    ```
+    
+    <Warning>
+    Always test with the staging environment before switching to production.
+    </Warning>
+  </Tab>
+  
+  <Tab title="Point Settings">
+    Configure how points are earned and redeemed:
+    
+    - **Points per Dollar**: How many points customers earn per dollar spent
+    - **Point Value**: Monetary value of each point when redeemed
+    - **Minimum Order**: Minimum order amount to earn points
+    - **Maximum Discount**: Maximum percentage of order that can be paid with points
+  </Tab>
+  
+  <Tab title="Card Design">
+    Customize the appearance of loyalty cards:
+    
+    - **Card Template**: Choose from available designs
+    - **Welcome Points**: Initial points for new members
+    - **Expiration Policy**: How long points remain valid
+    - **Tier Thresholds**: Point levels for different customer tiers
+  </Tab>
+</Tabs>
+
+### Advanced Configuration
+
+<AccordionGroup>
+  <Accordion title="Product-Specific Rules">
+    Configure different point rates for specific products or categories:
+    
+    - **Category Multipliers**: Different rates for product categories
+    - **Product Exclusions**: Products that don't earn points
+    - **Bonus Point Products**: Products that earn extra points
+    - **Seasonal Campaigns**: Time-limited bonus point periods
+  </Accordion>
+  
+  <Accordion title="Customer Tiers">
+    Set up tier-based benefits and progression:
+    
+    - **Tier Levels**: Bronze, Silver, Gold, Platinum
+    - **Tier Benefits**: Point multipliers and exclusive offers
+    - **Progression Rules**: How customers advance tiers
+    - **Tier Rewards**: Special bonuses for tier achievements
+  </Accordion>
+  
+  <Accordion title="Email Integration">
+    Configure loyalty-related email notifications:
+    
+    - **Welcome Emails**: New loyalty member messages
+    - **Point Notifications**: Emails when points are earned/redeemed
+    - **Tier Updates**: Notifications for tier changes
+    - **Expiration Warnings**: Alerts for expiring points
+  </Accordion>
+</AccordionGroup>
+
+## Customer Experience
+
+### Registration Flow
+
+<Steps>
+  <Step title="Account Creation">
+    When customers create a WooCommerce account, a loyalty card is automatically created in the background.
+  </Step>
+  
+  <Step title="Welcome Points">
+    New members receive welcome bonus points as configured in settings.
+  </Step>
+  
+  <Step title="Email Confirmation">
+    Customers receive a welcome email with their loyalty card details and initial balance.
+  </Step>
+  
+  <Step title="Dashboard Access">
+    Loyalty information becomes available in the customer's "My Account" section.
+  </Step>
+</Steps>
+
+### Earning Points
+
+<Tabs>
+  <Tab title="Purchase Points">
+    Points are automatically calculated and awarded when orders are completed:
+    
+    ```php
+    // Example: $50 order with 1 point per $1 spent
+    Order Total: $50.00
+    Points Earned: 50 points
+    Bonus (if applicable): +10 points (Gold tier 20% bonus)
+    Total Awarded: 60 points
+    ```
+  </Tab>
+  
+  <Tab title="Product Reviews">
+    Customers can earn bonus points for writing product reviews:
+    
+    - Review submitted: +5 points
+    - Review with photo: +10 points
+    - Verified purchase review: +15 points
+  </Tab>
+  
+  <Tab title="Referral Program">
+    Points awarded for successful referrals:
+    
+    - Referrer: +100 points when referred friend makes first purchase
+    - Referred friend: +50 welcome bonus points
+  </Tab>
+  
+  <Tab title="Social Sharing">
+    Bonus points for social media engagement:
+    
+    - Share product: +2 points
+    - Follow social accounts: +10 points
+    - Share purchase: +5 points
+  </Tab>
+</Tabs>
+
+### Redeeming Points
+
+<Steps>
+  <Step title="Checkout Integration">
+    During checkout, customers see their available points balance and redemption options.
+  </Step>
+  
+  <Step title="Apply Discount">
+    Customers can choose how many points to redeem for instant discounts.
+  </Step>
+  
+  <Step title="Real-time Updates">
+    Point balance and discount amount update in real-time as customers adjust redemption.
+  </Step>
+  
+  <Step title="Order Completion">
+    Final point balance is updated after successful order completion.
+  </Step>
+</Steps>
+
+## Admin Features
+
+### Customer Management
+
+<Tabs>
+  <Tab title="Customer Overview">
+    View comprehensive loyalty information for each customer:
+    
+    - Current points balance
+    - Lifetime points earned and redeemed
+    - Tier status and progression
+    - Recent transaction history
+    - Customer activity timeline
+  </Tab>
+  
+  <Tab title="Manual Adjustments">
+    Make manual point adjustments when needed:
+    
+    - Award bonus points for special occasions
+    - Compensate for service issues
+    - Correct transaction errors
+    - Apply promotional bonuses
+  </Tab>
+  
+  <Tab title="Bulk Operations">
+    Process multiple customers at once:
+    
+    - Bulk point awards for campaigns
+    - Tier adjustments for groups
+    - Export customer loyalty data
+    - Import point adjustments from CSV
+  </Tab>
+</Tabs>
+
+### Reporting and Analytics
+
+<CardGroup cols={2}>
+  <Card title="Points Report" icon="chart-line">
+    Track point earning and redemption patterns:
+    - Daily/weekly/monthly summaries
+    - Point liability tracking
+    - Redemption rate analysis
+    - Revenue impact metrics
+  </Card>
+  
+  <Card title="Customer Insights" icon="users">
+    Understand customer loyalty behavior:
+    - Tier distribution analysis
+    - Engagement level metrics
+    - Churn risk identification
+    - Customer lifetime value
+  </Card>
+  
+  <Card title="Product Performance" icon="box">
+    See which products drive loyalty:
+    - Point-earning product rankings
+    - Category performance analysis
+    - Promotional campaign results
+    - Cross-sell opportunities
+  </Card>
+  
+  <Card title="Financial Impact" icon="dollar-sign">
+    Measure loyalty program ROI:
+    - Revenue attribution to loyalty
+    - Average order value impact
+    - Customer retention rates
+    - Program cost analysis
+  </Card>
+</CardGroup>
+
+## Customization
+
+### Hooks and Filters
+
+The plugin provides numerous WordPress hooks for customization:
+
+<CodeGroup>
+```php Point Calculation
+// Customize point calculation
+add_filter('loyalty_lt_calculate_points', function($points, $order, $customer) {
+    // Double points for VIP customers
+    if ($customer->has_role('vip')) {
+        $points *= 2;
+    }
+    
+    // Bonus points for large orders
+    if ($order->get_total() > 200) {
+        $points += 50;
+    }
+    
+    return $points;
+}, 10, 3);
+```
+
+```php Custom Rewards
+// Add custom redemption options
+add_action('loyalty_lt_checkout_rewards', function($customer_points) {
+    if ($customer_points >= 500) {
+        echo '<div class="custom-reward">';
+        echo '<input type="checkbox" id="free_shipping" name="loyalty_rewards[]" value="free_shipping">';
+        echo '<label for="free_shipping">Free Shipping (500 points)</label>';
+        echo '</div>';
+    }
+});
+```
+
+```php Email Customization
+// Customize loyalty emails
+add_filter('loyalty_lt_email_content', function($content, $type, $customer) {
+    if ($type === 'points_earned') {
+        $content .= "\n\nVisit our rewards catalog to see what you can redeem!";
+    }
+    return $content;
+}, 10, 3);
+```
+</CodeGroup>
+
+### Template Overrides
+
+Customize the appearance by copying templates to your theme:
+
+<Steps>
+  <Step title="Copy Templates">
+    Copy plugin templates from `/plugins/loyalty-lt/templates/` to `/your-theme/loyalty-lt/`.
+  </Step>
+  
+  <Step title="Modify Templates">
+    Edit the copied templates to match your theme's design and layout.
+  </Step>
+  
+  <Step title="Style with CSS">
+    Add custom CSS to your theme to style the loyalty components.
+  </Step>
+  
+  <Step title="Test Changes">
+    Verify that customizations work across different devices and browsers.
+  </Step>
+</Steps>
+
+### Available Templates
+
+<AccordionGroup>
+  <Accordion title="Customer Account Templates">
+    - `account/loyalty-dashboard.php` - Main loyalty dashboard
+    - `account/points-history.php` - Transaction history table
+    - `account/available-rewards.php` - Redemption options
+    - `account/tier-progress.php` - Tier status display
+  </Accordion>
+  
+  <Accordion title="Checkout Templates">
+    - `checkout/loyalty-points.php` - Points balance display
+    - `checkout/point-redemption.php` - Redemption controls
+    - `checkout/loyalty-rewards.php` - Available rewards
+  </Accordion>
+  
+  <Accordion title="Widget Templates">
+    - `widgets/loyalty-card.php` - Loyalty card widget
+    - `widgets/points-balance.php` - Points balance widget
+    - `widgets/tier-status.php` - Tier status widget
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+### Common Issues
+
+<AccordionGroup>
+  <Accordion title="Points Not Awarding">
+    **Symptoms**: Customers complete orders but don't receive points
+    
+    **Solutions**:
+    - Check API credentials in plugin settings
+    - Verify order status is set to "Completed"
+    - Ensure customer has a loyalty card
+    - Check product/category exclusion rules
+    - Review minimum order amount settings
+  </Accordion>
+  
+  <Accordion title="Checkout Integration Issues">
+    **Symptoms**: Point redemption not working during checkout
+    
+    **Solutions**:
+    - Clear cache if using caching plugins
+    - Check for JavaScript conflicts in browser console
+    - Verify AJAX requests are reaching the server
+    - Test with default theme to isolate theme conflicts
+    - Ensure WooCommerce is up to date
+  </Accordion>
+  
+  <Accordion title="API Connection Problems">
+    **Symptoms**: Plugin shows connection errors
+    
+    **Solutions**:
+    - Verify API credentials are correct
+    - Check if staging/production environment is correct
+    - Ensure server can make outbound HTTPS requests
+    - Check firewall settings on hosting provider
+    - Test API connection using staging environment
+  </Accordion>
+  
+  <Accordion title="Customer Data Sync Issues">
+    **Symptoms**: Customer loyalty data not matching between systems
+    
+    **Solutions**:
+    - Trigger manual sync from plugin settings
+    - Check for duplicate customer accounts
+    - Verify email addresses match exactly
+    - Review customer merge/deletion logs
+    - Contact support for data reconciliation
+  </Accordion>
+</AccordionGroup>
+
+### Debug Mode
+
+Enable debug logging for troubleshooting:
+
+<Tabs>
+  <Tab title="Enable Debug Logging">
+    Add to your `wp-config.php`:
+    
+    ```php
+    define('LOYALTY_LT_DEBUG', true);
+    define('WP_DEBUG_LOG', true);
+    ```
+  </Tab>
+  
+  <Tab title="View Debug Logs">
+    Logs are written to:
+    
+    ```
+    /wp-content/debug.log
+    /wp-content/uploads/wc-logs/loyalty-lt-*.log
+    ```
+  </Tab>
+  
+  <Tab title="Log Information">
+    Debug logs include:
+    
+    - API request/response details
+    - Point calculation steps
+    - Customer data synchronization
+    - Error messages and stack traces
+  </Tab>
+</Tabs>
+
+## Performance Optimization
+
+### Caching Considerations
+
+<CardGroup cols={2}>
+  <Card title="Object Caching" icon="database">
+    - Cache customer point balances
+    - Store tier information locally
+    - Cache redemption options
+    - Implement cache invalidation on updates
+  </Card>
+  
+  <Card title="Page Caching" icon="clock">
+    - Exclude checkout pages from full-page caching
+    - Use AJAX for dynamic loyalty content
+    - Cache static loyalty pages
+    - Implement cache warming for popular pages
+  </Card>
+</CardGroup>
+
+### Database Optimization
+
+```sql
+-- Add indexes for better performance
+ALTER TABLE wp_loyalty_transactions ADD INDEX idx_customer_date (customer_id, created_at);
+ALTER TABLE wp_loyalty_cards ADD INDEX idx_status_tier (status, tier);
+ALTER TABLE wp_loyalty_points ADD INDEX idx_card_expiry (card_id, expires_at);
+```
+
+### API Request Optimization
+
+<Tabs>
+  <Tab title="Batch Operations">
+    ```php
+    // Batch multiple point awards
+    $batch_transactions = [];
+    foreach ($orders as $order) {
+        $batch_transactions[] = [
+            'card_id' => $order->get_customer_loyalty_id(),
+            'points' => calculate_points($order),
+            'reference' => $order->get_id()
+        ];
+    }
+    
+    // Single API call for all transactions
+    $loyalty_api->bulk_award_points($batch_transactions);
+    ```
+  </Tab>
+  
+  <Tab title="Request Queuing">
+    ```php
+    // Queue API requests for background processing
+    wp_schedule_single_event(time() + 60, 'loyalty_process_queue', [
+        'action' => 'award_points',
+        'data' => $point_data
+    ]);
+    ```
+  </Tab>
+  
+  <Tab title="Error Handling">
+    ```php
+    // Implement retry logic for failed requests
+    function retry_api_request($callback, $max_attempts = 3) {
+        for ($i = 0; $i < $max_attempts; $i++) {
+            try {
+                return $callback();
+            } catch (Exception $e) {
+                if ($i === $max_attempts - 1) throw $e;
+                sleep(pow(2, $i)); // Exponential backoff
+            }
+        }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Security Best Practices
+
+<Warning>
+Always follow security best practices when handling customer loyalty data and API credentials.
+</Warning>
+
+### API Security
+
+<CardGroup cols={2}>
+  <Card title="Credential Storage" icon="key">
+    - Store API credentials in wp-config.php
+    - Use environment variables for sensitive data
+    - Never commit credentials to version control
+    - Rotate API keys regularly
+  </Card>
+  
+  <Card title="Request Validation" icon="shield">
+    - Validate all customer inputs
+    - Sanitize point amounts and references
+    - Check user permissions before API calls
+    - Implement rate limiting for API requests
+  </Card>
+  
+  <Card title="Data Protection" icon="lock">
+    - Encrypt sensitive customer data
+    - Use HTTPS for all API communications
+    - Implement proper session management
+    - Log security-related events
+  </Card>
+  
+  <Card title="Access Control" icon="user-shield">
+    - Restrict admin access to loyalty settings
+    - Implement role-based permissions
+    - Audit admin actions and changes
+    - Use strong authentication methods
+  </Card>
+</CardGroup>
+
+## Migration and Updates
+
+### Migrating from Other Loyalty Plugins
+
+<Steps>
+  <Step title="Export Existing Data">
+    Export customer points and transaction data from your current loyalty system.
+  </Step>
+  
+  <Step title="Data Transformation">
+    Transform exported data to match Loyalty.lt format requirements.
+  </Step>
+  
+  <Step title="Import to Loyalty.lt">
+    Use the bulk import API or admin tools to import customer data.
+  </Step>
+  
+  <Step title="Verify Data Integrity">
+    Compare imported data with original system to ensure accuracy.
+  </Step>
+  
+  <Step title="Customer Communication">
+    Notify customers about the migration and any changes to their accounts.
+  </Step>
+</Steps>
+
+### Plugin Updates
+
+<Info>
+The plugin includes automatic update notifications and can be updated through the WordPress admin interface.
+</Info>
+
+<Tabs>
+  <Tab title="Automatic Updates">
+    - Plugin checks for updates daily
+    - Notifications appear in WordPress admin
+    - One-click updates with backup recommendations
+    - Changelog displayed before updating
+  </Tab>
+  
+  <Tab title="Manual Updates">
+    - Download latest version from Partners Portal
+    - Deactivate current plugin
+    - Upload and activate new version
+    - Run database migrations if prompted
+  </Tab>
+  
+  <Tab title="Beta Testing">
+    - Enable beta updates in plugin settings
+    - Test new features before general release
+    - Provide feedback to development team
+    - Switch back to stable releases anytime
+  </Tab>
+</Tabs>
+
+## Advanced Features
+
+### Multi-Store Support
+
+For businesses with multiple WooCommerce stores:
+
+<AccordionGroup>
+  <Accordion title="Shared Loyalty Program">
+    - Customers earn and redeem points across all stores
+    - Unified customer profiles and point balances
+    - Centralized tier management and benefits
+    - Cross-store analytics and reporting
+  </Accordion>
+  
+  <Accordion title="Store-Specific Rules">
+    - Different point rates per store
+    - Store-exclusive offers and rewards
+    - Location-based tier benefits
+    - Individual store performance tracking
+  </Accordion>
+  
+  <Accordion title="Network Management">
+    - Central admin dashboard for all stores
+    - Bulk configuration updates
+    - Network-wide campaigns and promotions
+    - Consolidated reporting across stores
+  </Accordion>
+</AccordionGroup>
+
+### API Extensions
+
+<CodeGroup>
+```php Custom Endpoints
+// Add custom REST API endpoints
+add_action('rest_api_init', function() {
+    register_rest_route('loyalty/v1', '/custom-reward', [
+        'methods' => 'POST',
+        'callback' => 'handle_custom_reward',
+        'permission_callback' => 'check_loyalty_permissions'
+    ]);
+});
+```
+
+```php Webhook Integration
+// Handle Loyalty.lt webhooks
+add_action('loyalty_lt_webhook_points_awarded', function($data) {
+    // Send custom notification
+    wp_mail(
+        $data['customer_email'],
+        'Points Earned!',
+        "You earned {$data['points']} points on your recent purchase."
+    );
+});
+```
+
+```php Third-Party Integration
+// Integrate with other plugins
+add_action('loyalty_points_earned', function($customer_id, $points) {
+    // Update customer in CRM system
+    $crm = new CRM_Integration();
+    $crm->update_customer_points($customer_id, $points);
+}, 10, 2);
+```
+</CodeGroup>
+
+## Support and Resources
+
+<Note>
+Need help with the WooCommerce integration? Here are your support options:
+</Note>
+
+### Documentation and Guides
+
+- **Plugin Documentation**: Complete setup and configuration guide
+- **Video Tutorials**: Step-by-step installation and customization videos
+- **Code Examples**: Sample implementations and customizations
+- **Best Practices**: Optimization and security recommendations
+
+### Support Channels
+
+<CardGroup cols={2}>
+  <Card title="Technical Support" icon="headset">
+    **Email**: [woocommerce@loyalty.lt](mailto:woocommerce@loyalty.lt)
+    **Response Time**: 24 hours
+    **Coverage**: Setup, configuration, troubleshooting
+  </Card>
+  
+  <Card title="Developer Support" icon="code">
+    **Email**: [developers@loyalty.lt](mailto:developers@loyalty.lt)
+    **Response Time**: 48 hours
+    **Coverage**: Custom development, API integration
+  </Card>
+  
+  <Card title="Community Forum" icon="comments">
+    **URL**: [forum.loyalty.lt](https://forum.loyalty.lt)
+    **Type**: Community support and discussions
+    **Coverage**: General questions, tips, and tricks
+  </Card>
+  
+  <Card title="Partners Portal" icon="users">
+    **URL**: [partners.loyalty.lt](https://partners.loyalty.lt)
+    **Access**: Plugin downloads, documentation, settings
+    **Resources**: API credentials, analytics, billing
+  </Card>
+</CardGroup>
+
+### Professional Services
+
+- **Custom Development**: Tailored features and integrations
+- **Migration Services**: Data migration from other loyalty systems
+- **Performance Optimization**: Speed and scalability improvements
+- **Training and Consultation**: Team training and best practices
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Shopify Integration"
+    icon="shopping-bag"
+    href="/sdk/ecommerce/shopify"
+  >
+    Learn how to integrate Loyalty.lt with Shopify stores.
+  </Card>
+  <Card
+    title="PrestaShop Integration"
+    icon="store"
+    href="/sdk/ecommerce/prestashop"
+  >
+    Add loyalty features to your PrestaShop e-commerce site.
+  </Card>
+  <Card
+    title="API Reference"
+    icon="book"
+    href="/api/shop/loyalty-cards"
+  >
+    Explore the complete Shop API for custom integrations.
+  </Card>
+  <Card
+    title="JavaScript SDK"
+    icon="code"
+    href="/sdk/javascript/installation"
+  >
+    Use our SDK for custom loyalty implementations.
+  </Card>
+</CardGroup> 

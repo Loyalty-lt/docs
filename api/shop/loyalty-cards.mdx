@@ -1,0 +1,684 @@
+---
+title: "Loyalty Cards API"
+description: "Shop API endpoints for managing customer loyalty cards"
+---
+
+# Loyalty Cards API
+
+The Loyalty Cards API allows you to create, manage, and track customer loyalty cards. This is the foundation of the loyalty program system, providing basic card operations for shops and stores.
+
+<Info>
+All Shop API endpoints require API Key and Secret authentication. See [Authentication Overview](/api/authentication/overview) for details.
+</Info>
+
+## Base URL
+
+```
+https://staging-api.loyalty.lt/api/loyalty-cards
+```
+
+## Core Concepts
+
+<AccordionGroup>
+  <Accordion title="Loyalty Cards">
+    Digital loyalty cards that represent a customer's participation in your loyalty program. Each card has a unique ID and tracks the customer's points balance and activity.
+  </Accordion>
+  
+  <Accordion title="Card Numbers">
+    Human-readable card numbers (e.g., LC001234567890) that customers can reference. Generated automatically but can be customized.
+  </Accordion>
+  
+  <Accordion title="Customer Linking">
+    Cards can be linked to customers via email, phone, or custom ID. This enables cross-device access and better customer management.
+  </Accordion>
+  
+  <Accordion title="Status Management">
+    Cards have statuses: `active`, `inactive`, `blocked`, `expired`. Only active cards can earn or redeem points.
+  </Accordion>
+</AccordionGroup>
+
+## Endpoints Overview
+
+<CardGroup cols={2}>
+  <Card title="Create Card" icon="plus">
+    **POST** `/loyalty-cards`
+    
+    Create a new loyalty card for a customer
+  </Card>
+  
+  <Card title="Get Card" icon="eye">
+    **GET** `/loyalty-cards/{id}`
+    
+    Retrieve card details and current balance
+  </Card>
+  
+  <Card title="List Cards" icon="list">
+    **GET** `/loyalty-cards`
+    
+    List all loyalty cards with filtering options
+  </Card>
+  
+  <Card title="Update Card" icon="edit">
+    **PUT** `/loyalty-cards/{id}`
+    
+    Update card information and settings
+  </Card>
+  
+  <Card title="Block/Unblock" icon="shield">
+    **POST** `/loyalty-cards/{id}/block`
+    
+    Block or unblock a loyalty card
+  </Card>
+  
+  <Card title="Card History" icon="clock">
+    **GET** `/loyalty-cards/{id}/history`
+    
+    Get card transaction history
+  </Card>
+</CardGroup>
+
+## Create Loyalty Card
+
+Create a new loyalty card for a customer. This is typically done when a customer first joins your loyalty program.
+
+<RequestExample>
+```bash cURL
+curl -X POST 'https://staging-api.loyalty.lt/api/loyalty-cards' \
+  -H 'Content-Type: application/json' \
+  -H 'X-API-Key: your_api_key' \
+  -H 'X-API-Secret: your_api_secret' \
+  -d '{
+    "customer_email": "customer@example.com",
+    "customer_name": "John Doe",
+    "customer_phone": "+1234567890",
+    "initial_points": 100,
+    "card_design": "default",
+    "auto_activate": true
+  }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Success Response
+{
+  "success": true,
+  "data": {
+    "id": "card_123456789",
+    "card_number": "LC001234567890",
+    "customer_email": "customer@example.com",
+    "customer_name": "John Doe",
+    "customer_phone": "+1234567890",
+    "points_balance": 100,
+    "status": "active",
+    "card_design": "default",
+    "created_at": "2024-12-27T10:30:00Z",
+    "last_activity": "2024-12-27T10:30:00Z",
+    "qr_code_url": "https://staging-api.loyalty.lt/qr/card_123456789",
+    "metadata": {}
+  }
+}
+```
+</ResponseExample>
+
+### Request Parameters
+
+<ParamField body="customer_email" type="string" required>
+  Customer's email address. Used for card identification and communication.
+</ParamField>
+
+<ParamField body="customer_name" type="string" required>
+  Customer's full name as it should appear on the card.
+</ParamField>
+
+<ParamField body="customer_phone" type="string">
+  Customer's phone number in international format (e.g., +1234567890).
+</ParamField>
+
+<ParamField body="initial_points" type="integer" default="0">
+  Initial points to award to the card upon creation.
+</ParamField>
+
+<ParamField body="card_design" type="string" default="default">
+  Card design template: `default`, `premium`, `seasonal`, or custom design ID.
+</ParamField>
+
+<ParamField body="auto_activate" type="boolean" default="true">
+  Whether to automatically activate the card upon creation.
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Additional custom data to store with the card (max 1KB).
+</ParamField>
+
+## Get Loyalty Card
+
+Retrieve detailed information about a specific loyalty card, including current points balance and recent activity.
+
+<RequestExample>
+```bash cURL
+curl -X GET 'https://staging-api.loyalty.lt/api/loyalty-cards/card_123456789' \
+  -H 'X-API-Key: your_api_key' \
+  -H 'X-API-Secret: your_api_secret'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Success Response
+{
+  "success": true,
+  "data": {
+    "id": "card_123456789",
+    "card_number": "LC001234567890",
+    "customer_email": "customer@example.com",
+    "customer_name": "John Doe",
+    "customer_phone": "+1234567890",
+    "points_balance": 250,
+    "lifetime_points": 350,
+    "points_redeemed": 100,
+    "status": "active",
+    "card_design": "default",
+    "tier": "bronze",
+    "created_at": "2024-12-27T10:30:00Z",
+    "last_activity": "2024-12-27T15:45:00Z",
+    "qr_code_url": "https://staging-api.loyalty.lt/qr/card_123456789",
+    "recent_transactions": [
+      {
+        "id": "txn_987654321",
+        "type": "award",
+        "points": 50,
+        "reason": "Purchase reward",
+        "created_at": "2024-12-27T15:45:00Z"
+      }
+    ],
+    "metadata": {
+      "signup_source": "website",
+      "referral_code": "REF123"
+    }
+  }
+}
+```
+</ResponseExample>
+
+### Response Fields
+
+<ResponseField name="id" type="string">
+  Unique card identifier
+</ResponseField>
+
+<ResponseField name="card_number" type="string">
+  Human-readable card number
+</ResponseField>
+
+<ResponseField name="points_balance" type="integer">
+  Current available points balance
+</ResponseField>
+
+<ResponseField name="lifetime_points" type="integer">
+  Total points ever earned on this card
+</ResponseField>
+
+<ResponseField name="points_redeemed" type="integer">
+  Total points redeemed from this card
+</ResponseField>
+
+<ResponseField name="tier" type="string">
+  Customer tier: `bronze`, `silver`, `gold`, `platinum`
+</ResponseField>
+
+<ResponseField name="recent_transactions" type="array">
+  Last 5 point transactions (award/redeem)
+</ResponseField>
+
+## List Loyalty Cards
+
+Retrieve a paginated list of loyalty cards with optional filtering and sorting.
+
+<RequestExample>
+```bash cURL
+curl -X GET 'https://staging-api.loyalty.lt/api/loyalty-cards?status=active&page=1&limit=20&sort=created_at:desc' \
+  -H 'X-API-Key: your_api_key' \
+  -H 'X-API-Secret: your_api_secret'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Success Response
+{
+  "success": true,
+  "data": {
+    "cards": [
+      {
+        "id": "card_123456789",
+        "card_number": "LC001234567890",
+        "customer_email": "customer@example.com",
+        "customer_name": "John Doe",
+        "points_balance": 250,
+        "status": "active",
+        "created_at": "2024-12-27T10:30:00Z",
+        "last_activity": "2024-12-27T15:45:00Z"
+      }
+    ],
+    "pagination": {
+      "current_page": 1,
+      "per_page": 20,
+      "total": 150,
+      "total_pages": 8,
+      "has_next": true,
+      "has_prev": false
+    }
+  }
+}
+```
+</ResponseExample>
+
+### Query Parameters
+
+<ParamField query="status" type="string">
+  Filter by card status: `active`, `inactive`, `blocked`, `expired`
+</ParamField>
+
+<ParamField query="customer_email" type="string">
+  Filter by customer email (exact match)
+</ParamField>
+
+<ParamField query="tier" type="string">
+  Filter by customer tier: `bronze`, `silver`, `gold`, `platinum`
+</ParamField>
+
+<ParamField query="created_after" type="string">
+  Filter cards created after this date (ISO 8601 format)
+</ParamField>
+
+<ParamField query="created_before" type="string">
+  Filter cards created before this date (ISO 8601 format)
+</ParamField>
+
+<ParamField query="page" type="integer" default="1">
+  Page number for pagination
+</ParamField>
+
+<ParamField query="limit" type="integer" default="20">
+  Number of items per page (max 100)
+</ParamField>
+
+<ParamField query="sort" type="string" default="created_at:desc">
+  Sort order: `created_at:desc`, `created_at:asc`, `points_balance:desc`, `points_balance:asc`, `last_activity:desc`
+</ParamField>
+
+## Update Loyalty Card
+
+Update card information such as customer details, status, or metadata.
+
+<RequestExample>
+```bash cURL
+curl -X PUT 'https://staging-api.loyalty.lt/api/loyalty-cards/card_123456789' \
+  -H 'Content-Type: application/json' \
+  -H 'X-API-Key: your_api_key' \
+  -H 'X-API-Secret: your_api_secret' \
+  -d '{
+    "customer_name": "John Smith",
+    "customer_phone": "+1234567891",
+    "card_design": "premium",
+    "metadata": {
+      "preferred_contact": "email",
+      "birthday": "1990-01-15"
+    }
+  }'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Success Response
+{
+  "success": true,
+  "data": {
+    "id": "card_123456789",
+    "card_number": "LC001234567890",
+    "customer_email": "customer@example.com",
+    "customer_name": "John Smith",
+    "customer_phone": "+1234567891",
+    "points_balance": 250,
+    "status": "active",
+    "card_design": "premium",
+    "updated_at": "2024-12-27T16:00:00Z",
+    "metadata": {
+      "preferred_contact": "email",
+      "birthday": "1990-01-15"
+    }
+  }
+}
+```
+</ResponseExample>
+
+### Updatable Fields
+
+<ParamField body="customer_name" type="string">
+  Update customer's display name
+</ParamField>
+
+<ParamField body="customer_phone" type="string">
+  Update customer's phone number
+</ParamField>
+
+<ParamField body="card_design" type="string">
+  Change card design template
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Update custom metadata (replaces existing metadata)
+</ParamField>
+
+<Note>
+Customer email cannot be updated once set. Card status should be changed using the block/unblock endpoints.
+</Note>
+
+## Block/Unblock Card
+
+Block or unblock a loyalty card. Blocked cards cannot earn or redeem points.
+
+<Tabs>
+  <Tab title="Block Card">
+    <RequestExample>
+    ```bash cURL
+    curl -X POST 'https://staging-api.loyalty.lt/api/loyalty-cards/card_123456789/block' \
+      -H 'Content-Type: application/json' \
+      -H 'X-API-Key: your_api_key' \
+      -H 'X-API-Secret: your_api_secret' \
+      -d '{
+        "reason": "Suspicious activity detected",
+        "internal_note": "Customer reported unauthorized transactions"
+      }'
+    ```
+    </RequestExample>
+  </Tab>
+  
+  <Tab title="Unblock Card">
+    <RequestExample>
+    ```bash cURL
+    curl -X POST 'https://staging-api.loyalty.lt/api/loyalty-cards/card_123456789/unblock' \
+      -H 'Content-Type: application/json' \
+      -H 'X-API-Key: your_api_key' \
+      -H 'X-API-Secret: your_api_secret' \
+      -d '{
+        "reason": "Issue resolved",
+        "internal_note": "Customer identity verified"
+      }'
+    ```
+    </RequestExample>
+  </Tab>
+</Tabs>
+
+<ResponseExample>
+```json Success Response
+{
+  "success": true,
+  "data": {
+    "id": "card_123456789",
+    "status": "blocked",
+    "reason": "Suspicious activity detected",
+    "blocked_at": "2024-12-27T16:15:00Z",
+    "can_earn_points": false,
+    "can_redeem_points": false
+  }
+}
+```
+</ResponseExample>
+
+### Request Parameters
+
+<ParamField body="reason" type="string" required>
+  Reason for blocking/unblocking the card (shown to customer)
+</ParamField>
+
+<ParamField body="internal_note" type="string">
+  Internal note for staff reference (not shown to customer)
+</ParamField>
+
+## Card Transaction History
+
+Retrieve detailed transaction history for a loyalty card, including points awarded, redeemed, and expired.
+
+<RequestExample>
+```bash cURL
+curl -X GET 'https://staging-api.loyalty.lt/api/loyalty-cards/card_123456789/history?type=all&page=1&limit=50' \
+  -H 'X-API-Key: your_api_key' \
+  -H 'X-API-Secret: your_api_secret'
+```
+</RequestExample>
+
+<ResponseExample>
+```json Success Response
+{
+  "success": true,
+  "data": {
+    "transactions": [
+      {
+        "id": "txn_987654321",
+        "type": "award",
+        "points": 50,
+        "reason": "Purchase reward",
+        "reference": "order_123456",
+        "created_at": "2024-12-27T15:45:00Z",
+        "staff_member": null,
+        "metadata": {
+          "order_total": 25.00,
+          "currency": "USD"
+        }
+      },
+      {
+        "id": "txn_987654320",
+        "type": "redeem",
+        "points": -25,
+        "reason": "Discount redemption",
+        "reference": "discount_789",
+        "created_at": "2024-12-27T14:30:00Z",
+        "staff_member": "staff_001",
+        "metadata": {
+          "discount_amount": 5.00,
+          "currency": "USD"
+        }
+      }
+    ],
+    "summary": {
+      "total_awarded": 350,
+      "total_redeemed": 100,
+      "current_balance": 250,
+      "transaction_count": 25
+    },
+    "pagination": {
+      "current_page": 1,
+      "per_page": 50,
+      "total": 25,
+      "total_pages": 1,
+      "has_next": false,
+      "has_prev": false
+    }
+  }
+}
+```
+</ResponseExample>
+
+### Query Parameters
+
+<ParamField query="type" type="string" default="all">
+  Filter by transaction type: `all`, `award`, `redeem`, `expire`, `adjust`
+</ParamField>
+
+<ParamField query="from_date" type="string">
+  Start date for transaction history (ISO 8601 format)
+</ParamField>
+
+<ParamField query="to_date" type="string">
+  End date for transaction history (ISO 8601 format)
+</ParamField>
+
+<ParamField query="page" type="integer" default="1">
+  Page number for pagination
+</ParamField>
+
+<ParamField query="limit" type="integer" default="50">
+  Number of transactions per page (max 100)
+</ParamField>
+
+## Error Handling
+
+<AccordionGroup>
+  <Accordion title="Card Not Found">
+    **Status Code**: 404
+    
+    ```json
+    {
+      "success": false,
+      "error": {
+        "code": "CARD_NOT_FOUND",
+        "message": "Loyalty card not found",
+        "card_id": "card_123456789"
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Invalid Customer Email">
+    **Status Code**: 400
+    
+    ```json
+    {
+      "success": false,
+      "error": {
+        "code": "INVALID_EMAIL",
+        "message": "Customer email is invalid",
+        "field": "customer_email"
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Duplicate Customer">
+    **Status Code**: 409
+    
+    ```json
+    {
+      "success": false,
+      "error": {
+        "code": "DUPLICATE_CUSTOMER",
+        "message": "A loyalty card already exists for this customer",
+        "existing_card_id": "card_987654321"
+      }
+    }
+    ```
+  </Accordion>
+  
+  <Accordion title="Card Blocked">
+    **Status Code**: 403
+    
+    ```json
+    {
+      "success": false,
+      "error": {
+        "code": "CARD_BLOCKED",
+        "message": "This loyalty card is blocked",
+        "blocked_reason": "Suspicious activity detected"
+      }
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Customer Identification" icon="id-card">
+    - Use email as primary identifier
+    - Store phone numbers for backup identification
+    - Implement duplicate detection logic
+    - Validate customer data before card creation
+  </Card>
+  
+  <Card title="Card Management" icon="settings">
+    - Set appropriate initial points for new signups
+    - Use meaningful card designs for branding
+    - Implement card blocking for security
+    - Regularly audit inactive cards
+  </Card>
+  
+  <Card title="Data Management" icon="database">
+    - Use metadata for custom tracking
+    - Implement proper pagination for large lists
+    - Filter by relevant criteria for performance
+    - Cache frequently accessed card data
+  </Card>
+  
+  <Card title="Security" icon="shield">
+    - Validate all input parameters
+    - Implement rate limiting for card creation
+    - Log all card status changes
+    - Monitor for suspicious patterns
+  </Card>
+</CardGroup>
+
+## Integration Examples
+
+<AccordionGroup>
+  <Accordion title="E-commerce Integration">
+    **Scenario**: Create loyalty card when customer creates account
+    
+    1. Customer completes account registration
+    2. Create loyalty card with customer details
+    3. Award welcome bonus points
+    4. Send confirmation email with card details
+    5. Display card information in customer account
+  </Accordion>
+  
+  <Accordion title="Point-of-Sale Integration">
+    **Scenario**: Look up customer card at checkout
+    
+    1. Cashier asks for customer phone/email
+    2. Search for existing loyalty card
+    3. Display current points balance
+    4. Process point earning/redemption
+    5. Print receipt with updated balance
+  </Accordion>
+  
+  <Accordion title="Mobile App Integration">
+    **Scenario**: Display loyalty card in mobile app
+    
+    1. Customer logs into mobile app
+    2. Retrieve card details via API
+    3. Display QR code for scanning
+    4. Show points balance and recent activity
+    5. Enable push notifications for updates
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card
+    title="Points Management"
+    icon="coins"
+    href="/api/shop/points"
+  >
+    Learn how to award and redeem points on loyalty cards.
+  </Card>
+  <Card
+    title="Offers API"
+    icon="ticket"
+    href="/api/shop/offers"
+  >
+    Create and manage promotional offers for loyalty card holders.
+  </Card>
+  <Card
+    title="Games API"
+    icon="gamepad"
+    href="/api/shop/games"
+  >
+    Add gamification features to your loyalty program.
+  </Card>
+  <Card
+    title="SDK Integration"
+    icon="code"
+    href="/sdk/javascript/installation"
+  >
+    Use our SDKs for easier integration with built-in utilities.
+  </Card>
+</CardGroup> 
