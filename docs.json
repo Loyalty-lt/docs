@@ -1,0 +1,271 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Loyalty.lt Documentation",
+  "colors": {
+    "primary": "#16A34A",
+    "light": "#07C983",
+    "dark": "#15803D"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Overview",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "index",
+              "overview/quick-start",
+              "overview/architecture",
+              "overview/components"
+            ]
+          },
+          {
+            "group": "System Architecture",
+            "pages": [
+              "architecture/overview",
+              "architecture/backend",
+              "architecture/frontend",
+              "architecture/database",
+              "architecture/authentication"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Authentication",
+            "pages": [
+              "api/authentication/overview",
+              "api/authentication/jwt-tokens",
+              "api/authentication/api-credentials"
+            ]
+          },
+          {
+            "group": "Shop APIs",
+            "pages": [
+              "api/shop/loyalty-cards",
+              "api/shop/points",
+              "api/shop/offers",
+              "api/shop/games",
+              "api/shop/customers"
+            ]
+          },
+          {
+            "group": "SDK APIs",
+            "pages": [
+              "api/sdk/authentication",
+              "api/sdk/loyalty-cards",
+              "api/sdk/points",
+              "api/sdk/offers",
+              "api/sdk/games"
+            ]
+          },
+          {
+            "group": "Partner APIs",
+            "pages": [
+              "api/partners/authentication",
+              "api/partners/shops",
+              "api/partners/analytics",
+              "api/partners/settings",
+              "api/partners/onboarding"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Applications",
+        "groups": [
+          {
+            "group": "Partners Portal",
+            "pages": [
+              "apps/partners/overview",
+              "apps/partners/setup",
+              "apps/partners/features",
+              "apps/partners/deployment"
+            ]
+          },
+          {
+            "group": "Website",
+            "pages": [
+              "apps/website/overview",
+              "apps/website/setup",
+              "apps/website/deployment"
+            ]
+          },
+          {
+            "group": "Email Marketing",
+            "pages": [
+              "apps/email/mautic-setup",
+              "apps/email/campaigns",
+              "apps/email/integration"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "SDK Libraries",
+        "groups": [
+          {
+            "group": "JavaScript/TypeScript",
+            "pages": [
+              "sdk/javascript/installation",
+              "sdk/javascript/authentication",
+              "sdk/javascript/loyalty-cards",
+              "sdk/javascript/points",
+              "sdk/javascript/websockets"
+            ]
+          },
+          {
+            "group": "React",
+            "pages": [
+              "sdk/react/installation",
+              "sdk/react/hooks",
+              "sdk/react/components",
+              "sdk/react/examples"
+            ]
+          },
+          {
+            "group": "React Native",
+            "pages": [
+              "sdk/react-native/installation",
+              "sdk/react-native/setup",
+              "sdk/react-native/components"
+            ]
+          },
+          {
+            "group": "Other Languages",
+            "pages": [
+              "sdk/php/overview",
+              "sdk/python/overview",
+              "sdk/vue/overview"
+            ]
+          },
+          {
+            "group": "E-commerce Integrations",
+            "pages": [
+              "sdk/ecommerce/woocommerce",
+              "sdk/ecommerce/prestashop",
+              "sdk/ecommerce/shopify"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Deployment",
+        "groups": [
+          {
+            "group": "Environment Setup",
+            "pages": [
+              "deployment/environments",
+              "deployment/staging",
+              "deployment/production"
+            ]
+          },
+          {
+            "group": "Backend Deployment",
+            "pages": [
+              "deployment/backend/laravel-setup",
+              "deployment/backend/database",
+              "deployment/backend/configuration"
+            ]
+          },
+          {
+            "group": "Frontend Deployment",
+            "pages": [
+              "deployment/frontend/partners-portal",
+              "deployment/frontend/website"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Developer Guides",
+            "pages": [
+              "guides/development/getting-started",
+              "guides/development/local-setup",
+              "guides/development/contributing",
+              "guides/development/testing"
+            ]
+          },
+          {
+            "group": "Partner Guides",
+            "pages": [
+              "guides/partners/onboarding",
+              "guides/partners/shop-setup",
+              "guides/partners/integration",
+              "guides/partners/troubleshooting"
+            ]
+          },
+          {
+            "group": "Integration Guides",
+            "pages": [
+              "guides/integration/third-party",
+              "guides/integration/webhooks",
+              "guides/integration/custom-implementations"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "API Documentation",
+          "href": "https://staging-api.loyalty.lt/docs",
+          "icon": "code"
+        },
+        {
+          "anchor": "Partners Portal",
+          "href": "https://partners.loyalty.lt",
+          "icon": "users"
+        },
+        {
+          "anchor": "GitHub",
+          "href": "https://github.com/loyalty-lt",
+          "icon": "github"
+        },
+        {
+          "anchor": "Support",
+          "href": "mailto:support@loyalty.lt",
+          "icon": "envelope"
+        }
+      ]
+    }
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Staging API",
+        "href": "https://staging-api.loyalty.lt"
+      },
+      {
+        "label": "Partners Portal",
+        "href": "https://partners.loyalty.lt"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Partners Dashboard",
+      "href": "https://partners.loyalty.lt"
+    }
+  },
+  "footer": {
+    "socials": {
+      "website": "https://loyalty.lt",
+      "github": "https://github.com/loyalty-lt",
+      "linkedin": "https://linkedin.com/company/loyalty-lt"
+    }
+  }
+}
