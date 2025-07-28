@@ -1,0 +1,324 @@
+---
+title: "List Loyalty Cards"
+api: "GET /{locale}/shop/loyalty-cards"
+description: "Get a paginated list of user's loyalty cards"
+---
+
+# List Loyalty Cards
+
+Retrieve a paginated list of the authenticated user's loyalty cards, including both personal cards and third-party integrated cards.
+
+<Info>
+This endpoint requires JWT authentication. Cards are returned with their current status, balance information, and associated shop details.
+</Info>
+
+## Path Parameters
+
+<ParamField path="locale" type="string" required>
+  Language code for localized content (e.g., "en", "lt")
+</ParamField>
+
+## Query Parameters
+
+<ParamField query="page" type="integer">
+  Page number for pagination (default: 1)
+</ParamField>
+
+<ParamField query="per_page" type="integer">
+  Number of items per page (default: 15, max: 50)
+</ParamField>
+
+<ParamField query="status" type="string">
+  Filter cards by status
+  - `active` - Active cards only
+  - `inactive` - Inactive cards only
+  - `all` - All cards (default)
+</ParamField>
+
+<ParamField query="type" type="string">
+  Filter cards by type
+  - `personal` - User-created cards
+  - `third_party` - Integrated external cards
+  - `all` - All types (default)
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  <Expandable title="data">
+    <ResponseField name="data" type="array">
+      <Expandable title="Loyalty Card Object">
+        <ResponseField name="id" type="integer">
+          Unique card identifier
+        </ResponseField>
+        
+        <ResponseField name="card_number" type="string">
+          Formatted card number (partially masked)
+        </ResponseField>
+        
+        <ResponseField name="card_type" type="string">
+          Type of card (`personal`, `third_party`)
+        </ResponseField>
+        
+        <ResponseField name="status" type="string">
+          Current card status (`active`, `inactive`, `suspended`)
+        </ResponseField>
+        
+        <ResponseField name="shop" type="object">
+          <Expandable title="shop">
+            <ResponseField name="id" type="integer">
+              Shop identifier
+            </ResponseField>
+            
+            <ResponseField name="name" type="string">
+              Shop display name
+            </ResponseField>
+            
+            <ResponseField name="logo_url" type="string">
+              Shop logo image URL
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+        
+        <ResponseField name="balance" type="object">
+          <Expandable title="balance">
+            <ResponseField name="points" type="integer">
+              Current points balance
+            </ResponseField>
+            
+            <ResponseField name="tier" type="string">
+              Customer tier level
+            </ResponseField>
+            
+            <ResponseField name="tier_progress" type="integer">
+              Progress to next tier (percentage)
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+        
+        <ResponseField name="created_at" type="string">
+          ISO 8601 timestamp when card was created
+        </ResponseField>
+        
+        <ResponseField name="last_used_at" type="string">
+          ISO 8601 timestamp when card was last used
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="current_page" type="integer">
+      Current page number
+    </ResponseField>
+    
+    <ResponseField name="per_page" type="integer">
+      Items per page
+    </ResponseField>
+    
+    <ResponseField name="total" type="integer">
+      Total number of cards
+    </ResponseField>
+    
+    <ResponseField name="last_page" type="integer">
+      Last page number
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X GET "https://staging-api.loyalty.lt/en/shop/loyalty-cards?page=1&per_page=15&status=active" \
+  -H "Authorization: Bearer your_jwt_token" \
+  -H "Content-Type: application/json"
+```
+
+```javascript JavaScript
+const response = await fetch('/en/shop/loyalty-cards?status=active&per_page=10', {
+  method: 'GET',
+  headers: {
+    'Authorization': `Bearer ${accessToken}`,
+    'Content-Type': 'application/json'
+  }
+});
+
+const data = await response.json();
+if (data.success) {
+  const cards = data.data.data;
+  console.log(`Found ${data.data.total} loyalty cards`);
+  
+  cards.forEach(card => {
+    console.log(`${card.shop.name}: ${card.balance.points} points`);
+  });
+}
+```
+
+```python Python
+import requests
+
+headers = {
+    'Authorization': f'Bearer {access_token}',
+    'Content-Type': 'application/json'
+}
+
+params = {
+    'status': 'active',
+    'per_page': 10,
+    'page': 1
+}
+
+response = requests.get(
+    'https://staging-api.loyalty.lt/en/shop/loyalty-cards',
+    headers=headers,
+    params=params
+)
+
+data = response.json()
+if data['success']:
+    cards = data['data']['data']
+    print(f"Found {data['data']['total']} loyalty cards")
+    
+    for card in cards:
+        print(f"{card['shop']['name']}: {card['balance']['points']} points")
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Success Response
+{
+  "success": true,
+  "data": {
+    "data": [
+      {
+        "id": 123,
+        "card_number": "LC****4567",
+        "card_type": "personal",
+        "status": "active",
+        "shop": {
+          "id": 45,
+          "name": "Coffee Paradise",
+          "logo_url": "https://api.loyalty.lt/storage/logos/coffee-paradise.png"
+        },
+        "balance": {
+          "points": 1250,
+          "tier": "Gold",
+          "tier_progress": 75
+        },
+        "created_at": "2024-01-01T10:00:00Z",
+        "last_used_at": "2024-01-15T14:30:00Z"
+      },
+      {
+        "id": 124,
+        "card_number": "TP****8901",
+        "card_type": "third_party",
+        "status": "active",
+        "shop": {
+          "id": 67,
+          "name": "Fashion Store",
+          "logo_url": "https://api.loyalty.lt/storage/logos/fashion-store.png"
+        },
+        "balance": {
+          "points": 890,
+          "tier": "Silver",
+          "tier_progress": 45
+        },
+        "created_at": "2024-01-10T09:15:00Z",
+        "last_used_at": "2024-01-14T16:20:00Z"
+      }
+    ],
+    "current_page": 1,
+    "per_page": 15,
+    "total": 5,
+    "last_page": 1
+  }
+}
+```
+
+```json Empty Response
+{
+  "success": true,
+  "data": {
+    "data": [],
+    "current_page": 1,
+    "per_page": 15,
+    "total": 0,
+    "last_page": 1
+  }
+}
+```
+
+```json Authentication Error
+{
+  "success": false,
+  "message": "Unauthenticated",
+  "code": "TOKEN_EXPIRED",
+  "errors": {
+    "authentication": ["JWT token has expired"]
+  }
+}
+```
+
+</ResponseExample>
+
+## Usage Examples
+
+### Basic Card Listing
+```javascript
+// Get all active cards
+const activeCards = await fetch('/en/shop/loyalty-cards?status=active');
+
+// Get personal cards only
+const personalCards = await fetch('/en/shop/loyalty-cards?type=personal');
+
+// Paginate through large collections
+const page2 = await fetch('/en/shop/loyalty-cards?page=2&per_page=20');
+```
+
+### Card Management Dashboard
+```javascript
+// Build a card overview dashboard
+async function loadUserDashboard() {
+  const response = await fetch('/en/shop/loyalty-cards');
+  const data = await response.json();
+  
+  if (data.success) {
+    const totalPoints = data.data.data.reduce((sum, card) => 
+      sum + card.balance.points, 0);
+    
+    const goldCards = data.data.data.filter(card => 
+      card.balance.tier === 'Gold').length;
+    
+    console.log(`Total Points: ${totalPoints}`);
+    console.log(`Gold Status Cards: ${goldCards}`);
+  }
+}
+```
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+<Card title="Create Card" icon="plus" href="/api-reference/endpoints/shop/loyalty-cards/create">
+  Create a new personal loyalty card
+</Card>
+
+<Card title="Card Details" icon="eye" href="/api-reference/endpoints/shop/loyalty-cards/get">
+  Get detailed information about a specific card
+</Card>
+
+<Card title="Points History" icon="history" href="/api-reference/endpoints/shop/points/transactions">
+  View points transaction history for cards
+</Card>
+
+<Card title="Available Offers" icon="tag" href="/api-reference/endpoints/shop/offers/list">
+  See offers available for loyalty cards
+</Card>
+</CardGroup>
+
+<Note>
+Card balances are updated in real-time. The `tier_progress` indicates how close the user is to reaching the next loyalty tier (0-100%).
+</Note> 

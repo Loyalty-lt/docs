@@ -47,10 +47,42 @@
             ]
           },
           {
-            "group": "Endpoints",
+            "group": "Authentication",
             "pages": [
-              "api-reference/endpoint/authentication",
-              "api-reference/endpoint/shop-apis",
+              "api-reference/endpoints/shop/auth/request-otp",
+              "api-reference/endpoints/shop/auth/login",
+              "api-reference/endpoint/authentication"
+            ]
+          },
+          {
+            "group": "Loyalty Cards",
+            "pages": [
+              "api-reference/endpoints/shop/loyalty-cards/list",
+              "api-reference/endpoints/shop/loyalty-cards/create",
+              "api-reference/endpoints/shop/loyalty-cards/get",
+              "api-reference/endpoints/shop/loyalty-cards/update"
+            ]
+          },
+          {
+            "group": "Points & Transactions",
+            "pages": [
+              "api-reference/endpoints/shop/points/award",
+              "api-reference/endpoints/shop/points/redeem",
+              "api-reference/endpoints/shop/points/balance",
+              "api-reference/endpoints/shop/points/transactions"
+            ]
+          },
+          {
+            "group": "Offers & Coupons",
+            "pages": [
+              "api-reference/endpoints/shop/offers/list",
+              "api-reference/endpoints/shop/offers/claim",
+              "api-reference/endpoints/shop/coupons/redeem"
+            ]
+          },
+          {
+            "group": "Partner APIs",
+            "pages": [
               "api-reference/endpoint/partner-apis"
             ]
           }

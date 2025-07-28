@@ -1,0 +1,185 @@
+---
+title: "Update Loyalty Card"
+api: "PUT /{locale}/shop/loyalty-cards/{id}"
+description: "Update loyalty card preferences and settings"
+---
+
+# Update Loyalty Card
+
+Update loyalty card preferences, display name, and communication settings. This endpoint allows users to customize their loyalty card experience.
+
+## Path Parameters
+
+<ParamField path="locale" type="string" required>
+  Language code for localized content (e.g., "en", "lt")
+</ParamField>
+
+<ParamField path="id" type="integer" required>
+  Unique identifier of the loyalty card to update
+</ParamField>
+
+## Request Body
+
+<ParamField body="preferred_name" type="string">
+  Display name on the card
+</ParamField>
+
+<ParamField body="card_design" type="string">
+  Card design theme (`classic`, `modern`, `seasonal`)
+</ParamField>
+
+<ParamField body="communication_preferences" type="object">
+  Notification and communication settings
+  <Expandable title="communication_preferences">
+    <ParamField body="email_notifications" type="boolean">
+      Enable email notifications for points and offers
+    </ParamField>
+    
+    <ParamField body="sms_notifications" type="boolean">
+      Enable SMS notifications for important updates
+    </ParamField>
+    
+    <ParamField body="push_notifications" type="boolean">
+      Enable mobile push notifications
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="privacy_settings" type="object">
+  Privacy and data sharing preferences
+  <Expandable title="privacy_settings">
+    <ParamField body="allow_analytics" type="boolean">
+      Allow usage analytics for improving service
+    </ParamField>
+    
+    <ParamField body="allow_marketing" type="boolean">
+      Allow marketing communications
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the card was successfully updated
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  <Expandable title="data">
+    <ResponseField name="card" type="object">
+      <Expandable title="card">
+        <ResponseField name="id" type="integer">
+          Card identifier
+        </ResponseField>
+        
+        <ResponseField name="card_number" type="string">
+          Card number (unchanged)
+        </ResponseField>
+        
+        <ResponseField name="preferred_name" type="string">
+          Updated display name
+        </ResponseField>
+        
+        <ResponseField name="card_design" type="string">
+          Updated card design
+        </ResponseField>
+        
+        <ResponseField name="updated_at" type="string">
+          ISO 8601 timestamp when card was last updated
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X PUT "https://staging-api.loyalty.lt/en/shop/loyalty-cards/123" \
+  -H "Authorization: Bearer your_jwt_token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "preferred_name": "Jonas K.",
+    "card_design": "seasonal",
+    "communication_preferences": {
+      "email_notifications": true,
+      "sms_notifications": false,
+      "push_notifications": true
+    },
+    "privacy_settings": {
+      "allow_analytics": true,
+      "allow_marketing": false
+    }
+  }'
+```
+
+```javascript JavaScript
+const cardId = 123;
+const response = await fetch(`/en/shop/loyalty-cards/${cardId}`, {
+  method: 'PUT',
+  headers: {
+    'Authorization': `Bearer ${accessToken}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    preferred_name: 'Jonas K.',
+    card_design: 'seasonal',
+    communication_preferences: {
+      email_notifications: true,
+      sms_notifications: false,
+      push_notifications: true
+    }
+  })
+});
+
+const data = await response.json();
+if (data.success) {
+  console.log('✅ Card updated successfully');
+  console.log(`New design: ${data.data.card.card_design}`);
+}
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Success
+{
+  "success": true,
+  "message": "Loyalty card updated successfully",
+  "data": {
+    "card": {
+      "id": 123,
+      "card_number": "LC****4567",
+      "preferred_name": "Jonas K.",
+      "card_design": "seasonal",
+      "updated_at": "2024-01-15T18:30:00Z"
+    }
+  }
+}
+```
+
+```json Card Not Found
+{
+  "success": false,
+  "message": "Loyalty card not found",
+  "code": "CARD_NOT_FOUND",
+  "errors": {
+    "card_id": ["Card with ID 999 does not exist or belongs to another user"]
+  }
+}
+```
+
+</ResponseExample>
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+<Card title="Card Details" icon="eye" href="/api-reference/endpoints/shop/loyalty-cards/get">
+  View current card settings
+</Card>
+
+<Card title="List Cards" icon="credit-card" href="/api-reference/endpoints/shop/loyalty-cards/list">
+  View all your loyalty cards
+</Card>
+</CardGroup> 

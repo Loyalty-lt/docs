@@ -1,0 +1,237 @@
+---
+title: "Login with OTP"
+api: "POST /{locale}/shop/auth/login"
+description: "Authenticate user with phone number and OTP code"
+---
+
+# Login with OTP
+
+Authenticate a user using their phone number and the OTP code received via SMS. This endpoint returns a JWT token for subsequent API calls.
+
+<Info>
+OTP codes must be verified within 5 minutes of generation. After 3 failed attempts, a new OTP must be requested.
+</Info>
+
+## Request Body
+
+<ParamField body="phone" type="string" required>
+  User's phone number in international format (same as used for OTP request)
+</ParamField>
+
+<ParamField body="otp" type="string" required>
+  6-digit OTP code received via SMS
+</ParamField>
+
+<ParamField body="device_name" type="string">
+  Optional device identifier for session tracking
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the login was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable message about the operation
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  <Expandable title="data">
+    <ResponseField name="user" type="object">
+      <Expandable title="user">
+        <ResponseField name="id" type="integer">
+          Unique user identifier
+        </ResponseField>
+        
+        <ResponseField name="phone" type="string">
+          User's verified phone number
+        </ResponseField>
+        
+        <ResponseField name="email" type="string">
+          User's email address (if provided)
+        </ResponseField>
+        
+        <ResponseField name="name" type="string">
+          User's display name
+        </ResponseField>
+        
+        <ResponseField name="phone_verified_at" type="string">
+          ISO 8601 timestamp when phone was verified
+        </ResponseField>
+        
+        <ResponseField name="created_at" type="string">
+          ISO 8601 timestamp when account was created
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="token" type="string">
+      JWT access token for API authentication
+    </ResponseField>
+    
+    <ResponseField name="refresh_token" type="string">
+      Refresh token for extending session
+    </ResponseField>
+    
+    <ResponseField name="expires_in" type="integer">
+      Token lifetime in seconds (3600 = 1 hour)
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X POST "https://staging-api.loyalty.lt/en/shop/auth/login" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "phone": "+37060000000",
+    "otp": "123456",
+    "device_name": "iPhone 13"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('/en/shop/auth/login', {
+  method: 'POST',
+  headers: {
+    'X-API-Key': 'your_api_key',
+    'X-API-Secret': 'your_api_secret',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    phone: '+37060000000',
+    otp: '123456',
+    device_name: 'Web Browser'
+  })
+});
+
+const data = await response.json();
+if (data.success) {
+  // Store tokens securely
+  localStorage.setItem('access_token', data.data.token);
+  localStorage.setItem('refresh_token', data.data.refresh_token);
+}
+```
+
+```python Python
+import requests
+
+response = requests.post(
+  'https://staging-api.loyalty.lt/en/shop/auth/login',
+  headers={
+    'X-API-Key': 'your_api_key',
+    'X-API-Secret': 'your_api_secret',
+    'Content-Type': 'application/json'
+  },
+  json={
+    'phone': '+37060000000',
+    'otp': '123456',
+    'device_name': 'Python Client'
+  }
+)
+
+data = response.json()
+if data['success']:
+    # Store tokens securely
+    access_token = data['data']['token']
+    refresh_token = data['data']['refresh_token']
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Success Response
+{
+  "success": true,
+  "message": "Login successful",
+  "data": {
+    "user": {
+      "id": 123,
+      "phone": "+37060000000",
+      "email": "user@example.com",
+      "name": "Jonas Jonaitis",
+      "phone_verified_at": "2024-01-15T10:30:00Z",
+      "created_at": "2024-01-01T00:00:00Z"
+    },
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+    "refresh_token": "refresh_token_string_here",
+    "expires_in": 3600
+  }
+}
+```
+
+```json Invalid OTP
+{
+  "success": false,
+  "message": "Invalid OTP code",
+  "code": "OTP_INVALID",
+  "errors": {
+    "otp": ["The provided OTP code is invalid or has expired"]
+  }
+}
+```
+
+```json OTP Expired
+{
+  "success": false,
+  "message": "OTP code has expired",
+  "code": "OTP_EXPIRED",
+  "errors": {
+    "otp": ["OTP code has expired. Please request a new one"]
+  }
+}
+```
+
+</ResponseExample>
+
+## Token Usage
+
+After successful login, use the JWT token for authenticated requests:
+
+```bash
+curl -X GET "https://staging-api.loyalty.lt/en/shop/auth/me" \
+  -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..." \
+  -H "Content-Type: application/json"
+```
+
+## Security Best Practices
+
+<Tip>
+**Token Storage**: Store tokens securely using platform-specific secure storage:
+- **Web**: HttpOnly cookies or secure localStorage
+- **Mobile**: Keychain (iOS) or Keystore (Android)
+- **Server**: Environment variables or secure configuration
+</Tip>
+
+<Warning>
+**Never expose tokens** in:
+- URL parameters
+- Browser console logs
+- Version control systems
+- Client-side JavaScript source
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+<Card title="Get User Profile" icon="user" href="/api-reference/endpoints/shop/auth/me">
+  Retrieve current user information and preferences
+</Card>
+
+<Card title="Refresh Token" icon="refresh" href="/api-reference/endpoints/shop/auth/refresh">
+  Extend session when access token expires
+</Card>
+
+<Card title="Loyalty Cards" icon="credit-card" href="/api-reference/endpoints/shop/loyalty-cards/list">
+  Access user's loyalty cards after authentication
+</Card>
+
+<Card title="User Statistics" icon="chart-bar" href="/api-reference/endpoints/shop/auth/statistics">
+  View user's loyalty program statistics
+</Card>
+</CardGroup> 

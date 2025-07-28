@@ -1,0 +1,569 @@
+---
+title: "Claim Offer"
+api: "POST /{locale}/shop/offers/{id}/claim"
+description: "Claim an available offer using loyalty points"
+---
+
+# Claim Offer
+
+Claim an available offer by spending the required loyalty points. This endpoint validates eligibility, deducts points, and generates the appropriate benefit (discount code, voucher, etc.).
+
+<Info>
+Offers can only be claimed once per user (unless specified otherwise) and require sufficient points balance and tier status. Claimed offers are immediately activated.
+</Info>
+
+## Path Parameters
+
+<ParamField path="locale" type="string" required>
+  Language code for localized content (e.g., "en", "lt")
+</ParamField>
+
+<ParamField path="id" type="integer" required>
+  Unique identifier of the offer to claim
+</ParamField>
+
+## Request Body
+
+<ParamField body="card_id" type="integer" required>
+  Loyalty card ID to use for claiming the offer
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Additional claim context and preferences
+  <Expandable title="metadata">
+    <ParamField body="preferred_redemption_date" type="string">
+      ISO 8601 date when user plans to use the offer
+    </ParamField>
+    
+    <ParamField body="notes" type="string">
+      Optional user notes about the claim
+    </ParamField>
+    
+    <ParamField body="source" type="string">
+      How user discovered the offer (`app`, `email`, `notification`, `browse`)
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the offer was successfully claimed
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable message about the operation
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  <Expandable title="data">
+    <ResponseField name="claim" type="object">
+      <Expandable title="claim">
+        <ResponseField name="id" type="integer">
+          Unique claim identifier
+        </ResponseField>
+        
+        <ResponseField name="claim_code" type="string">
+          Unique code for redeeming the claimed offer
+        </ResponseField>
+        
+        <ResponseField name="status" type="string">
+          Claim status (`active`, `used`, `expired`)
+        </ResponseField>
+        
+        <ResponseField name="claimed_at" type="string">
+          ISO 8601 timestamp when offer was claimed
+        </ResponseField>
+        
+        <ResponseField name="expires_at" type="string">
+          ISO 8601 timestamp when claim expires
+        </ResponseField>
+        
+        <ResponseField name="redemption_instructions" type="string">
+          Instructions for using the claimed offer
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="offer" type="object">
+      <Expandable title="offer">
+        <ResponseField name="id" type="integer">
+          Offer identifier
+        </ResponseField>
+        
+        <ResponseField name="title" type="string">
+          Offer title
+        </ResponseField>
+        
+        <ResponseField name="description" type="string">
+          Offer description
+        </ResponseField>
+        
+        <ResponseField name="value" type="number">
+          Offer value (discount amount, etc.)
+        </ResponseField>
+        
+        <ResponseField name="offer_type" type="string">
+          Type of offer claimed
+        </ResponseField>
+        
+        <ResponseField name="terms_conditions" type="string">
+          Offer terms and conditions
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="points_transaction" type="object">
+      <Expandable title="points_transaction">
+        <ResponseField name="id" type="integer">
+          Transaction identifier
+        </ResponseField>
+        
+        <ResponseField name="points_deducted" type="integer">
+          Number of points deducted for this claim
+        </ResponseField>
+        
+        <ResponseField name="balance_before" type="integer">
+          Points balance before claim
+        </ResponseField>
+        
+        <ResponseField name="balance_after" type="integer">
+          Points balance after claim
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="benefit" type="object">
+      <Expandable title="benefit">
+        <ResponseField name="type" type="string">
+          Type of benefit (`discount_code`, `voucher`, `cashback`, `access_token`)
+        </ResponseField>
+        
+        <ResponseField name="value" type="string">
+          Benefit value (code, voucher number, etc.)
+        </ResponseField>
+        
+        <ResponseField name="amount" type="number">
+          Monetary value of the benefit
+        </ResponseField>
+        
+        <ResponseField name="usage_instructions" type="string">
+          How to use this benefit
+        </ResponseField>
+        
+        <ResponseField name="valid_until" type="string">
+          ISO 8601 timestamp when benefit expires
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X POST "https://staging-api.loyalty.lt/en/shop/offers/101/claim" \
+  -H "Authorization: Bearer your_jwt_token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "card_id": 123,
+    "metadata": {
+      "preferred_redemption_date": "2024-01-20",
+      "source": "app",
+      "notes": "Planning to use this weekend"
+    }
+  }'
+```
+
+```javascript JavaScript
+const offerId = 101;
+const response = await fetch(`/en/shop/offers/${offerId}/claim`, {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${accessToken}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    card_id: 123,
+    metadata: {
+      preferred_redemption_date: '2024-01-20',
+      source: 'app'
+    }
+  })
+});
+
+const data = await response.json();
+if (data.success) {
+  const claim = data.data.claim;
+  const benefit = data.data.benefit;
+  
+  console.log(`✅ Offer claimed successfully!`);
+  console.log(`Claim Code: ${claim.claim_code}`);
+  console.log(`Expires: ${claim.expires_at}`);
+  
+  if (benefit.type === 'discount_code') {
+    console.log(`💰 Discount Code: ${benefit.value}`);
+    console.log(`💡 Instructions: ${benefit.usage_instructions}`);
+  }
+  
+  // Store claim code for later use
+  localStorage.setItem(`claim_${claim.id}`, claim.claim_code);
+}
+```
+
+```python Python
+import requests
+
+offer_id = 101
+headers = {
+    'Authorization': f'Bearer {access_token}',
+    'Content-Type': 'application/json'
+}
+
+payload = {
+    'card_id': 123,
+    'metadata': {
+        'preferred_redemption_date': '2024-01-20',
+        'source': 'app',
+        'notes': 'Planning to use this weekend'
+    }
+}
+
+response = requests.post(
+    f'https://staging-api.loyalty.lt/en/shop/offers/{offer_id}/claim',
+    headers=headers,
+    json=payload
+)
+
+data = response.json()
+if data['success']:
+    claim = data['data']['claim']
+    benefit = data['data']['benefit']
+    points = data['data']['points_transaction']
+    
+    print(f"✅ Offer claimed successfully!")
+    print(f"Claim Code: {claim['claim_code']}")
+    print(f"Points Used: {points['points_deducted']}")
+    print(f"Remaining Balance: {points['balance_after']}")
+    
+    if benefit['type'] == 'voucher':
+        print(f"🎫 Voucher: {benefit['value']}")
+        print(f"Value: €{benefit['amount']}")
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Discount Code Success
+{
+  "success": true,
+  "message": "Offer claimed successfully",
+  "data": {
+    "claim": {
+      "id": 5001,
+      "claim_code": "DISCOUNT-ABC123-XYZ789",
+      "status": "active",
+      "claimed_at": "2024-01-15T16:30:00Z",
+      "expires_at": "2024-03-15T23:59:59Z",
+      "redemption_instructions": "Present this code at checkout to receive your 20% discount on purchases of €25 or more."
+    },
+    "offer": {
+      "id": 101,
+      "title": "20% Off Your Next Purchase",
+      "description": "Get 20% discount on your next purchase of €25 or more",
+      "value": 20,
+      "offer_type": "percentage_discount",
+      "terms_conditions": "Valid on purchases of €25 or more. Cannot be combined with other offers."
+    },
+    "points_transaction": {
+      "id": 12350,
+      "points_deducted": 200,
+      "balance_before": 1250,
+      "balance_after": 1050
+    },
+    "benefit": {
+      "type": "discount_code",
+      "value": "DISCOUNT20-CAFE123",
+      "amount": 5.00,
+      "usage_instructions": "Enter code 'DISCOUNT20-CAFE123' at checkout or show to cashier",
+      "valid_until": "2024-03-15T23:59:59Z"
+    }
+  }
+}
+```
+
+```json Free Product Voucher Success
+{
+  "success": true,
+  "message": "Free pastry voucher claimed successfully",
+  "data": {
+    "claim": {
+      "id": 5002,
+      "claim_code": "FREEPASTRY-DEF456-UVW012",
+      "status": "active",
+      "claimed_at": "2024-01-15T17:00:00Z",
+      "expires_at": "2024-02-15T23:59:59Z",
+      "redemption_instructions": "Show this voucher when purchasing a large coffee to receive your free pastry."
+    },
+    "offer": {
+      "id": 102,
+      "title": "Free Pastry with Coffee",
+      "description": "Get a free pastry when you buy any large coffee",
+      "value": 3.50,
+      "offer_type": "free_product",
+      "terms_conditions": "Valid with purchase of large coffee. One free pastry per visit."
+    },
+    "points_transaction": {
+      "id": 12351,
+      "points_deducted": 150,
+      "balance_before": 1050,
+      "balance_after": 900
+    },
+    "benefit": {
+      "type": "voucher",
+      "value": "VOUCHER-PASTRY-789",
+      "amount": 3.50,
+      "usage_instructions": "Present voucher code when ordering. Valid with large coffee purchase only.",
+      "valid_until": "2024-02-15T23:59:59Z"
+    }
+  }
+}
+```
+
+```json Insufficient Points
+{
+  "success": false,
+  "message": "Insufficient points to claim this offer",
+  "code": "INSUFFICIENT_POINTS",
+  "errors": {
+    "points": ["Required 200 points but only 150 available in balance"]
+  }
+}
+```
+
+```json Already Claimed
+{
+  "success": false,
+  "message": "Offer already claimed",
+  "code": "OFFER_ALREADY_CLAIMED",
+  "errors": {
+    "offer": ["You have already claimed this offer. Check your claimed offers list."]
+  }
+}
+```
+
+```json Offer Expired
+{
+  "success": false,
+  "message": "Offer is no longer available",
+  "code": "OFFER_EXPIRED",
+  "errors": {
+    "offer": ["This offer expired on 2024-01-10T23:59:59Z"]
+  }
+}
+```
+
+```json Tier Requirement Not Met
+{
+  "success": false,
+  "message": "Tier requirement not met",
+  "code": "TIER_REQUIREMENT_NOT_MET",
+  "errors": {
+    "tier": ["This offer requires Gold tier status or higher. Current tier: Silver"]
+  }
+}
+```
+
+</ResponseExample>
+
+## Claim Process Flow
+
+The offer claiming process follows these steps:
+
+<Steps>
+<Step title="Eligibility Validation">
+  System checks user tier, points balance, usage limits, and offer availability
+</Step>
+
+<Step title="Points Reservation">
+  Required points are temporarily reserved to prevent double-spending
+</Step>
+
+<Step title="Benefit Generation">
+  Unique codes, vouchers, or access tokens are generated for the user
+</Step>
+
+<Step title="Points Deduction">
+  Points are officially deducted and transaction is recorded
+</Step>
+
+<Step title="Claim Activation">
+  Claim becomes active and benefit details are returned to user
+</Step>
+
+<Step title="Notification">
+  User receives confirmation and redemption instructions
+</Step>
+</Steps>
+
+## Benefit Types
+
+Different offer types generate different benefits when claimed:
+
+<AccordionGroup>
+<Accordion title="Discount Codes">
+  **Generated**: Unique alphanumeric codes
+  
+  **Usage**: Enter at checkout or show to cashier
+  
+  **Validation**: Single-use, time-limited
+  
+  **Format**: `DISCOUNT20-SHOP123`
+</Accordion>
+
+<Accordion title="Product Vouchers">
+  **Generated**: Redeemable voucher codes
+  
+  **Usage**: Present when purchasing qualifying items
+  
+  **Validation**: Product-specific, time-limited
+  
+  **Format**: `VOUCHER-PASTRY-789`
+</Accordion>
+
+<Accordion title="Cashback Credits">
+  **Generated**: Credit applied to loyalty account
+  
+  **Usage**: Automatic application on next purchase
+  
+  **Validation**: Minimum purchase thresholds may apply
+  
+  **Processing**: 5-7 business days
+</Accordion>
+
+<Accordion title="Access Tokens">
+  **Generated**: Temporary access credentials
+  
+  **Usage**: VIP area access, exclusive events
+  
+  **Validation**: Time and location specific
+  
+  **Format**: `ACCESS-VIP-2024-456`
+</Accordion>
+</AccordionGroup>
+
+## Claim Management
+
+### Tracking Claims
+```javascript
+// Store claim for later reference
+const storeClaimLocally = (claim) => {
+  const claims = JSON.parse(localStorage.getItem('my_claims') || '[]');
+  claims.push({
+    id: claim.id,
+    code: claim.claim_code,
+    expires: claim.expires_at,
+    offer_title: offer.title
+  });
+  localStorage.setItem('my_claims', JSON.stringify(claims));
+};
+
+// Check expiring claims
+const checkExpiringClaims = () => {
+  const claims = JSON.parse(localStorage.getItem('my_claims') || '[]');
+  const soon = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+  
+  return claims.filter(claim => 
+    new Date(claim.expires) < soon && 
+    new Date(claim.expires) > new Date()
+  );
+};
+```
+
+### Usage Validation
+```javascript
+// Validate claim before use
+const validateClaim = async (claimCode) => {
+  const response = await fetch(`/en/shop/claims/${claimCode}/validate`);
+  const data = await response.json();
+  
+  return {
+    isValid: data.success,
+    status: data.data?.status,
+    expiresAt: data.data?.expires_at
+  };
+};
+```
+
+## Error Handling
+
+Common claim failures and recommended handling:
+
+### Insufficient Points
+```javascript
+if (error.code === 'INSUFFICIENT_POINTS') {
+  // Show points needed vs. available
+  const needed = offer.points_required;
+  const available = user.points_balance;
+  const shortfall = needed - available;
+  
+  showMessage(`You need ${shortfall} more points to claim this offer.`);
+  showEarnPointsOptions();
+}
+```
+
+### Tier Requirements
+```javascript
+if (error.code === 'TIER_REQUIREMENT_NOT_MET') {
+  const requiredTier = offer.minimum_tier;
+  const currentTier = user.tier;
+  
+  showUpgradePath(currentTier, requiredTier);
+}
+```
+
+### Already Claimed
+```javascript
+if (error.code === 'OFFER_ALREADY_CLAIMED') {
+  // Redirect to claimed offers list
+  navigateToClaimedOffers();
+  showMessage('You\'ve already claimed this offer. Check your claimed offers.');
+}
+```
+
+## Security Considerations
+
+<Warning>
+**Code Security**: Claim codes should be treated as sensitive information. Never log them in analytics or store them in plain text logs.
+</Warning>
+
+### Best Practices
+- **Secure Storage**: Store claim codes securely on client side
+- **Expiration Handling**: Implement client-side expiration warnings
+- **Usage Tracking**: Track when users actually redeem claims
+- **Fraud Prevention**: Monitor for unusual claiming patterns
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+<Card title="List Offers" icon="list" href="/api-reference/endpoints/shop/offers/list">
+  Browse available offers to claim
+</Card>
+
+<Card title="Claimed Offers" icon="ticket" href="/api-reference/endpoints/shop/offers/claimed">
+  View previously claimed offers
+</Card>
+
+<Card title="Points Balance" icon="wallet" href="/api-reference/endpoints/shop/points/balance">
+  Check available points for claiming
+</Card>
+
+<Card title="Offer Details" icon="eye" href="/api-reference/endpoints/shop/offers/get">
+  Get detailed offer information before claiming
+</Card>
+</CardGroup>
+
+<Note>
+**Claim Persistence**: Claimed offers remain accessible through user's account even after the original offer expires, ensuring users can always access their benefits.
+</Note> 

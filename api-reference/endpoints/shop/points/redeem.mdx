@@ -1,0 +1,390 @@
+---
+title: "Redeem Points"
+api: "POST /{locale}/shop/points"
+description: "Redeem loyalty points for purchases or rewards"
+---
+
+# Redeem Points
+
+Redeem loyalty points from a user's account for purchases, discounts, or rewards. This endpoint deducts points from the user's balance and creates a redemption transaction.
+
+<Info>
+Points are deducted immediately upon successful redemption. The transaction is reversible only through admin actions within 24 hours.
+</Info>
+
+## Path Parameters
+
+<ParamField path="locale" type="string" required>
+  Language code for localized content (e.g., "en", "lt")
+</ParamField>
+
+## Request Body
+
+<ParamField body="card_id" type="integer" required>
+  Unique identifier of the loyalty card to redeem points from
+</ParamField>
+
+<ParamField body="points" type="integer" required>
+  Number of points to redeem (must be positive and ≤ available balance)
+</ParamField>
+
+<ParamField body="transaction_type" type="string" required>
+  Must be set to `"redeem"` for redemption transactions
+</ParamField>
+
+<ParamField body="redemption_type" type="string" required>
+  Type of redemption
+  - `purchase_discount` - Discount on current purchase
+  - `free_product` - Free product redemption
+  - `voucher` - Gift voucher generation
+  - `cashback` - Cash equivalent redemption
+</ParamField>
+
+<ParamField body="purchase_amount" type="number">
+  Original purchase amount in euros (required for purchase_discount)
+</ParamField>
+
+<ParamField body="discount_amount" type="number">
+  Discount amount to apply in euros (calculated from points)
+</ParamField>
+
+<ParamField body="description" type="string">
+  Description of what was redeemed (max 255 characters)
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Additional redemption data
+  <Expandable title="metadata">
+    <ParamField body="shop_id" type="integer">
+      Shop where the redemption occurred
+    </ParamField>
+    
+    <ParamField body="product_id" type="string">
+      Product identifier for free product redemptions
+    </ParamField>
+    
+    <ParamField body="voucher_code" type="string">
+      Generated voucher code (for voucher redemptions)
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if points were successfully redeemed
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable message about the operation
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  <Expandable title="data">
+    <ResponseField name="transaction" type="object">
+      <Expandable title="transaction">
+        <ResponseField name="id" type="integer">
+          Unique transaction identifier
+        </ResponseField>
+        
+        <ResponseField name="points_redeemed" type="integer">
+          Number of points redeemed
+        </ResponseField>
+        
+        <ResponseField name="redemption_type" type="string">
+          Type of redemption performed
+        </ResponseField>
+        
+        <ResponseField name="discount_amount" type="number">
+          Discount amount applied (if applicable)
+        </ResponseField>
+        
+        <ResponseField name="voucher_code" type="string">
+          Generated voucher code (if applicable)
+        </ResponseField>
+        
+        <ResponseField name="expires_at" type="string">
+          ISO 8601 timestamp when voucher expires (if applicable)
+        </ResponseField>
+        
+        <ResponseField name="created_at" type="string">
+          ISO 8601 timestamp when points were redeemed
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="balance" type="object">
+      <Expandable title="balance">
+        <ResponseField name="current_points" type="integer">
+          Current points balance after redemption
+        </ResponseField>
+        
+        <ResponseField name="previous_points" type="integer">
+          Points balance before redemption
+        </ResponseField>
+        
+        <ResponseField name="points_redeemed" type="integer">
+          Number of points redeemed in this transaction
+        </ResponseField>
+        
+        <ResponseField name="tier" type="string">
+          Current customer tier (unchanged by redemption)
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X POST "https://staging-api.loyalty.lt/en/shop/points" \
+  -H "Authorization: Bearer your_jwt_token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "card_id": 123,
+    "points": 100,
+    "transaction_type": "redeem",
+    "redemption_type": "purchase_discount",
+    "purchase_amount": 50.00,
+    "discount_amount": 5.00,
+    "description": "€5 discount on coffee purchase",
+    "metadata": {
+      "shop_id": 45,
+      "order_id": "ORD-2024-002"
+    }
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('/en/shop/points', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${accessToken}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    card_id: 123,
+    points: 500,
+    transaction_type: 'redeem',
+    redemption_type: 'voucher',
+    description: '€25 gift voucher',
+    metadata: {
+      shop_id: 45,
+      voucher_code: 'GIFT25-ABC123'
+    }
+  })
+});
+
+const data = await response.json();
+if (data.success) {
+  console.log(`Redeemed ${data.data.transaction.points_redeemed} points`);
+  console.log(`New balance: ${data.data.balance.current_points} points`);
+  
+  if (data.data.transaction.voucher_code) {
+    console.log(`Voucher code: ${data.data.transaction.voucher_code}`);
+  }
+}
+```
+
+```python Python
+import requests
+
+headers = {
+    'Authorization': f'Bearer {access_token}',
+    'Content-Type': 'application/json'
+}
+
+payload = {
+    'card_id': 123,
+    'points': 200,
+    'transaction_type': 'redeem',
+    'redemption_type': 'free_product',
+    'description': 'Free coffee redemption',
+    'metadata': {
+        'shop_id': 45,
+        'product_id': 'COFFEE_MEDIUM'
+    }
+}
+
+response = requests.post(
+    'https://staging-api.loyalty.lt/en/shop/points',
+    headers=headers,
+    json=payload
+)
+
+data = response.json()
+if data['success']:
+    transaction = data['data']['transaction']
+    balance = data['data']['balance']
+    
+    print(f"Redeemed {transaction['points_redeemed']} points")
+    print(f"New balance: {balance['current_points']} points")
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Purchase Discount Success
+{
+  "success": true,
+  "message": "Points redeemed successfully",
+  "data": {
+    "transaction": {
+      "id": 12347,
+      "points_redeemed": 100,
+      "redemption_type": "purchase_discount",
+      "discount_amount": 5.00,
+      "voucher_code": null,
+      "expires_at": null,
+      "created_at": "2024-01-15T15:30:00Z"
+    },
+    "balance": {
+      "current_points": 1200,
+      "previous_points": 1300,
+      "points_redeemed": 100,
+      "tier": "Gold"
+    }
+  }
+}
+```
+
+```json Voucher Generation Success
+{
+  "success": true,
+  "message": "Voucher generated successfully",
+  "data": {
+    "transaction": {
+      "id": 12348,
+      "points_redeemed": 500,
+      "redemption_type": "voucher",
+      "discount_amount": 25.00,
+      "voucher_code": "GIFT25-ABC123",
+      "expires_at": "2024-07-15T23:59:59Z",
+      "created_at": "2024-01-15T16:00:00Z"
+    },
+    "balance": {
+      "current_points": 700,
+      "previous_points": 1200,
+      "points_redeemed": 500,
+      "tier": "Gold"
+    }
+  }
+}
+```
+
+```json Insufficient Points
+{
+  "success": false,
+  "message": "Insufficient points balance",
+  "code": "INSUFFICIENT_POINTS",
+  "errors": {
+    "points": ["Requested 500 points but only 300 available"]
+  }
+}
+```
+
+```json Invalid Redemption
+{
+  "success": false,
+  "message": "Invalid redemption request",
+  "code": "VALIDATION_ERROR",
+  "errors": {
+    "redemption_type": ["Selected redemption type is not available for this card"],
+    "purchase_amount": ["Purchase amount is required for discount redemptions"]
+  }
+}
+```
+
+</ResponseExample>
+
+## Redemption Rules
+
+Different redemption types have specific requirements and conversion rates:
+
+<AccordionGroup>
+<Accordion title="Purchase Discount">
+  **Conversion Rate**: 20 points = €1 discount
+  
+  - Minimum redemption: 20 points (€1)
+  - Maximum discount: 50% of purchase amount
+  - Can be combined with other offers
+  - Instant application at checkout
+</Accordion>
+
+<Accordion title="Free Product">
+  **Fixed Point Values**: Varies by product
+  
+  - Coffee: 200 points
+  - Pastry: 150 points  
+  - Sandwich: 300 points
+  - Limited to available inventory
+</Accordion>
+
+<Accordion title="Gift Voucher">
+  **Conversion Rate**: 20 points = €1 voucher value
+  
+  - Minimum: 100 points (€5 voucher)
+  - Maximum: 2000 points (€100 voucher)
+  - Valid for 6 months
+  - Transferable to other users
+</Accordion>
+
+<Accordion title="Cashback">
+  **Conversion Rate**: 25 points = €1 cashback
+  
+  - Minimum: 250 points (€10)
+  - Processed within 5 business days
+  - Subject to monthly limits
+  - May incur processing fees
+</Accordion>
+</AccordionGroup>
+
+## Business Logic Validation
+
+<Steps>
+<Step title="Balance Check">
+  Verify user has sufficient points for redemption
+</Step>
+
+<Step title="Eligibility Validation">
+  Check card status, tier requirements, and redemption limits
+</Step>
+
+<Step title="Rate Calculation">
+  Apply conversion rates and tier-specific bonuses
+</Step>
+
+<Step title="Points Deduction">
+  Deduct points and create redemption transaction
+</Step>
+
+<Step title="Benefit Generation">
+  Generate voucher codes, apply discounts, or process rewards
+</Step>
+</Steps>
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+<Card title="Award Points" icon="plus" href="/api-reference/endpoints/shop/points/award">
+  Add points to user's account
+</Card>
+
+<Card title="Points Balance" icon="wallet" href="/api-reference/endpoints/shop/points/balance">
+  Check current points balance and tier status
+</Card>
+
+<Card title="Transaction History" icon="list" href="/api-reference/endpoints/shop/points/transactions">
+  View all points transactions
+</Card>
+
+<Card title="Available Offers" icon="tag" href="/api-reference/endpoints/shop/offers/list">
+  See what users can redeem points for
+</Card>
+</CardGroup>
+
+<Warning>
+**Irreversible Action**: Point redemptions cannot be automatically reversed. Contact support within 24 hours for disputes or errors.
+</Warning> 

@@ -1,0 +1,133 @@
+---
+title: "Request OTP"
+api: "POST /{locale}/shop/auth/request-otp"
+description: "Send OTP code to user's phone for authentication"
+---
+
+# Request OTP
+
+Send an OTP (One-Time Password) code to a user's phone number for authentication. This is the first step in the phone-based authentication flow.
+
+<Info>
+OTP codes are valid for 5 minutes and can be requested up to 5 times per minute per phone number.
+</Info>
+
+## Request Body
+
+<ParamField body="phone" type="string" required>
+  User's phone number in international format (e.g., "+37060000000")
+</ParamField>
+
+<ParamField body="type" type="string" required>
+  Type of OTP request
+  - `login` - For existing users
+  - `register` - For new user registration
+  - `verify` - For phone verification
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable message about the operation
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  <Expandable title="data">
+    <ResponseField name="phone" type="string">
+      The phone number the OTP was sent to (partially masked)
+    </ResponseField>
+    
+    <ResponseField name="expires_at" type="string">
+      ISO 8601 timestamp when the OTP expires
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X POST "https://staging-api.loyalty.lt/en/shop/auth/request-otp" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "phone": "+37060000000",
+    "type": "login"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('/en/shop/auth/request-otp', {
+  method: 'POST',
+  headers: {
+    'X-API-Key': 'your_api_key',
+    'X-API-Secret': 'your_api_secret',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    phone: '+37060000000',
+    type: 'login'
+  })
+});
+```
+
+```python Python
+import requests
+
+response = requests.post(
+  'https://staging-api.loyalty.lt/en/shop/auth/request-otp',
+  headers={
+    'X-API-Key': 'your_api_key',
+    'X-API-Secret': 'your_api_secret',
+    'Content-Type': 'application/json'
+  },
+  json={
+    'phone': '+37060000000',
+    'type': 'login'
+  }
+)
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Success Response
+{
+  "success": true,
+  "message": "OTP sent successfully",
+  "data": {
+    "phone": "+37060****000",
+    "expires_at": "2024-01-15T10:35:00Z"
+  }
+}
+```
+
+```json Error Response
+{
+  "success": false,
+  "message": "Validation failed",
+  "code": "VALIDATION_ERROR",
+  "errors": {
+    "phone": ["Phone number is required and must be in international format"]
+  }
+}
+```
+
+</ResponseExample>
+
+## Next Steps
+
+After successfully requesting an OTP:
+
+1. **Verify OTP**: Use the [Login endpoint](/api-reference/endpoints/shop/auth/login) with the phone number and OTP code
+2. **Handle Errors**: Implement proper error handling for rate limits and validation errors
+3. **User Experience**: Show appropriate loading states and countdown timers
+
+<Card title="Login with OTP" icon="sign-in" href="/api-reference/endpoints/shop/auth/login">
+  Complete the authentication flow by logging in with the OTP code
+</Card> 

@@ -1,0 +1,618 @@
+---
+title: "List Available Offers"
+api: "GET /{locale}/shop/offers"
+description: "Get a paginated list of available offers and promotions"
+---
+
+# List Available Offers
+
+Retrieve a comprehensive list of available offers, promotions, and deals that users can claim or redeem with their loyalty points. This endpoint provides detailed offer information with filtering and pagination options.
+
+<Info>
+Offers are returned based on user eligibility, tier status, and availability. Only active offers within their validity period are included.
+</Info>
+
+## Path Parameters
+
+<ParamField path="locale" type="string" required>
+  Language code for localized content (e.g., "en", "lt")
+</ParamField>
+
+## Query Parameters
+
+<ParamField query="page" type="integer">
+  Page number for pagination (default: 1)
+</ParamField>
+
+<ParamField query="per_page" type="integer">
+  Number of items per page (default: 15, max: 50)
+</ParamField>
+
+<ParamField query="category" type="string">
+  Filter by offer category
+  - `discount` - Percentage or fixed amount discounts
+  - `freebie` - Free products or services
+  - `cashback` - Cash back offers
+  - `exclusive` - Tier-exclusive offers
+  - `seasonal` - Limited-time seasonal offers
+</ParamField>
+
+<ParamField query="tier" type="string">
+  Filter by minimum tier requirement
+  - `bronze` - Available for Bronze tier and above
+  - `silver` - Available for Silver tier and above
+  - `gold` - Available for Gold tier and above
+  - `platinum` - Platinum tier exclusive
+</ParamField>
+
+<ParamField query="points_min" type="integer">
+  Minimum points required to claim offer
+</ParamField>
+
+<ParamField query="points_max" type="integer">
+  Maximum points required to claim offer
+</ParamField>
+
+<ParamField query="shop_id" type="integer">
+  Filter offers for a specific shop
+</ParamField>
+
+<ParamField query="featured" type="boolean">
+  Show only featured offers (true/false)
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable message about the operation
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  <Expandable title="data">
+    <ResponseField name="data" type="array">
+      <Expandable title="Offer Object">
+        <ResponseField name="id" type="integer">
+          Unique offer identifier
+        </ResponseField>
+        
+        <ResponseField name="title" type="string">
+          Offer title (localized)
+        </ResponseField>
+        
+        <ResponseField name="description" type="string">
+          Detailed offer description
+        </ResponseField>
+        
+        <ResponseField name="category" type="string">
+          Offer category (`discount`, `freebie`, `cashback`, `exclusive`, `seasonal`)
+        </ResponseField>
+        
+        <ResponseField name="offer_type" type="string">
+          Specific offer type (`percentage_discount`, `fixed_discount`, `free_product`, `cashback`, `points_multiplier`)
+        </ResponseField>
+        
+        <ResponseField name="value" type="number">
+          Offer value (percentage for discounts, amount for fixed values)
+        </ResponseField>
+        
+        <ResponseField name="points_required" type="integer">
+          Points needed to claim this offer
+        </ResponseField>
+        
+        <ResponseField name="minimum_tier" type="string">
+          Minimum tier required (`bronze`, `silver`, `gold`, `platinum`)
+        </ResponseField>
+        
+        <ResponseField name="shop" type="object">
+          <Expandable title="shop">
+            <ResponseField name="id" type="integer">
+              Shop identifier
+            </ResponseField>
+            
+            <ResponseField name="name" type="string">
+              Shop display name
+            </ResponseField>
+            
+            <ResponseField name="logo_url" type="string">
+              Shop logo image URL
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+        
+        <ResponseField name="usage_limits" type="object">
+          <Expandable title="usage_limits">
+            <ResponseField name="max_uses_per_user" type="integer">
+              Maximum times a user can claim this offer
+            </ResponseField>
+            
+            <ResponseField name="max_uses_total" type="integer">
+              Total maximum uses across all users
+            </ResponseField>
+            
+            <ResponseField name="uses_remaining" type="integer">
+              Remaining uses available
+            </ResponseField>
+            
+            <ResponseField name="user_uses_count" type="integer">
+              How many times current user has used this offer
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+        
+        <ResponseField name="validity" type="object">
+          <Expandable title="validity">
+            <ResponseField name="starts_at" type="string">
+              ISO 8601 timestamp when offer becomes available
+            </ResponseField>
+            
+            <ResponseField name="expires_at" type="string">
+              ISO 8601 timestamp when offer expires
+            </ResponseField>
+            
+            <ResponseField name="days_remaining" type="integer">
+              Days remaining until expiration
+            </ResponseField>
+            
+            <ResponseField name="is_active" type="boolean">
+              Whether offer is currently active
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+        
+        <ResponseField name="terms_conditions" type="string">
+          Offer terms and conditions
+        </ResponseField>
+        
+        <ResponseField name="image_url" type="string">
+          Offer promotional image URL
+        </ResponseField>
+        
+        <ResponseField name="is_featured" type="boolean">
+          Whether offer is featured/highlighted
+        </ResponseField>
+        
+        <ResponseField name="is_claimable" type="boolean">
+          Whether current user can claim this offer
+        </ResponseField>
+        
+        <ResponseField name="claim_reason" type="string">
+          Reason why user cannot claim (if is_claimable is false)
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="current_page" type="integer">
+      Current page number
+    </ResponseField>
+    
+    <ResponseField name="per_page" type="integer">
+      Items per page
+    </ResponseField>
+    
+    <ResponseField name="total" type="integer">
+      Total number of offers
+    </ResponseField>
+    
+    <ResponseField name="last_page" type="integer">
+      Last page number
+    </ResponseField>
+    
+    <ResponseField name="categories" type="array">
+      Available offer categories with counts
+      <Expandable title="Category Object">
+        <ResponseField name="category" type="string">
+          Category name
+        </ResponseField>
+        
+        <ResponseField name="count" type="integer">
+          Number of offers in this category
+        </ResponseField>
+        
+        <ResponseField name="display_name" type="string">
+          Localized category display name
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X GET "https://staging-api.loyalty.lt/en/shop/offers?category=discount&tier=gold&page=1&per_page=10" \
+  -H "Authorization: Bearer your_jwt_token" \
+  -H "Content-Type: application/json"
+```
+
+```javascript JavaScript
+const params = new URLSearchParams({
+  category: 'discount',
+  tier: 'silver',
+  points_max: '500',
+  featured: 'true',
+  per_page: '20'
+});
+
+const response = await fetch(`/en/shop/offers?${params}`, {
+  method: 'GET',
+  headers: {
+    'Authorization': `Bearer ${accessToken}`,
+    'Content-Type': 'application/json'
+  }
+});
+
+const data = await response.json();
+if (data.success) {
+  const offers = data.data.data;
+  const categories = data.data.categories;
+  
+  console.log(`Found ${data.data.total} offers`);
+  console.log(`Available categories:`, categories.map(c => c.display_name));
+  
+  offers.forEach(offer => {
+    const claimStatus = offer.is_claimable ? '✅ Claimable' : `❌ ${offer.claim_reason}`;
+    console.log(`${offer.title}: ${offer.points_required} points - ${claimStatus}`);
+  });
+}
+```
+
+```python Python
+import requests
+
+headers = {
+    'Authorization': f'Bearer {access_token}',
+    'Content-Type': 'application/json'
+}
+
+params = {
+    'category': 'freebie',
+    'points_min': 100,
+    'points_max': 1000,
+    'per_page': 25,
+    'page': 1
+}
+
+response = requests.get(
+    'https://staging-api.loyalty.lt/en/shop/offers',
+    headers=headers,
+    params=params
+)
+
+data = response.json()
+if data['success']:
+    offers = data['data']['data']
+    
+    print(f"Found {data['data']['total']} offers")
+    
+    claimable_offers = [offer for offer in offers if offer['is_claimable']]
+    print(f"You can claim {len(claimable_offers)} offers")
+    
+    for offer in claimable_offers:
+        print(f"🎁 {offer['title']}: {offer['points_required']} points")
+        print(f"   {offer['description']}")
+        print(f"   Expires: {offer['validity']['expires_at']}")
+        print()
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Offers List Success
+{
+  "success": true,
+  "message": "Offers retrieved successfully",
+  "data": {
+    "data": [
+      {
+        "id": 101,
+        "title": "20% Off Your Next Purchase",
+        "description": "Get 20% discount on your next purchase of €25 or more",
+        "category": "discount",
+        "offer_type": "percentage_discount",
+        "value": 20,
+        "points_required": 200,
+        "minimum_tier": "silver",
+        "shop": {
+          "id": 45,
+          "name": "Coffee Paradise",
+          "logo_url": "https://api.loyalty.lt/storage/logos/coffee-paradise.png"
+        },
+        "usage_limits": {
+          "max_uses_per_user": 1,
+          "max_uses_total": 1000,
+          "uses_remaining": 847,
+          "user_uses_count": 0
+        },
+        "validity": {
+          "starts_at": "2024-01-01T00:00:00Z",
+          "expires_at": "2024-03-31T23:59:59Z",
+          "days_remaining": 75,
+          "is_active": true
+        },
+        "terms_conditions": "Valid on purchases of €25 or more. Cannot be combined with other offers.",
+        "image_url": "https://api.loyalty.lt/storage/offers/discount-20.jpg",
+        "is_featured": true,
+        "is_claimable": true,
+        "claim_reason": null
+      },
+      {
+        "id": 102,
+        "title": "Free Pastry with Coffee",
+        "description": "Get a free pastry when you buy any large coffee",
+        "category": "freebie",
+        "offer_type": "free_product",
+        "value": 3.50,
+        "points_required": 150,
+        "minimum_tier": "bronze",
+        "shop": {
+          "id": 45,
+          "name": "Coffee Paradise",
+          "logo_url": "https://api.loyalty.lt/storage/logos/coffee-paradise.png"
+        },
+        "usage_limits": {
+          "max_uses_per_user": 3,
+          "max_uses_total": 500,
+          "uses_remaining": 312,
+          "user_uses_count": 1
+        },
+        "validity": {
+          "starts_at": "2024-01-15T00:00:00Z",
+          "expires_at": "2024-02-15T23:59:59Z",
+          "days_remaining": 31,
+          "is_active": true
+        },
+        "terms_conditions": "Valid with purchase of large coffee. One free pastry per visit.",
+        "image_url": "https://api.loyalty.lt/storage/offers/free-pastry.jpg",
+        "is_featured": false,
+        "is_claimable": true,
+        "claim_reason": null
+      },
+      {
+        "id": 103,
+        "title": "Platinum VIP Access",
+        "description": "Exclusive access to premium coffee blends and private tasting events",
+        "category": "exclusive",
+        "offer_type": "vip_access",
+        "value": 0,
+        "points_required": 0,
+        "minimum_tier": "platinum",
+        "shop": {
+          "id": 45,
+          "name": "Coffee Paradise",
+          "logo_url": "https://api.loyalty.lt/storage/logos/coffee-paradise.png"
+        },
+        "usage_limits": {
+          "max_uses_per_user": null,
+          "max_uses_total": null,
+          "uses_remaining": null,
+          "user_uses_count": 0
+        },
+        "validity": {
+          "starts_at": "2024-01-01T00:00:00Z",
+          "expires_at": null,
+          "days_remaining": null,
+          "is_active": true
+        },
+        "terms_conditions": "Available exclusively for Platinum tier members.",
+        "image_url": "https://api.loyalty.lt/storage/offers/vip-access.jpg",
+        "is_featured": true,
+        "is_claimable": false,
+        "claim_reason": "Requires Platinum tier status"
+      }
+    ],
+    "current_page": 1,
+    "per_page": 15,
+    "total": 23,
+    "last_page": 2,
+    "categories": [
+      {
+        "category": "discount",
+        "count": 8,
+        "display_name": "Discounts"
+      },
+      {
+        "category": "freebie",
+        "count": 12,
+        "display_name": "Free Items"
+      },
+      {
+        "category": "exclusive",
+        "count": 3,
+        "display_name": "Exclusive Offers"
+      }
+    ]
+  }
+}
+```
+
+```json No Offers Available
+{
+  "success": true,
+  "message": "No offers available for the specified criteria",
+  "data": {
+    "data": [],
+    "current_page": 1,
+    "per_page": 15,
+    "total": 0,
+    "last_page": 1,
+    "categories": []
+  }
+}
+```
+
+```json Unauthorized Access
+{
+  "success": false,
+  "message": "Authentication required",
+  "code": "UNAUTHORIZED",
+  "errors": {
+    "authentication": ["Please log in to view available offers"]
+  }
+}
+```
+
+</ResponseExample>
+
+## Offer Categories
+
+Different types of offers provide various benefits to loyalty program members:
+
+<Tabs>
+<Tab title="Discounts">
+  **Percentage & Fixed Discounts**
+  
+  - Percentage off total purchase (5%-50%)
+  - Fixed amount discounts (€1-€20)
+  - Category-specific discounts
+  - Minimum purchase requirements
+  
+  **Common Points Range**: 50-500 points
+</Tab>
+
+<Tab title="Free Items">
+  **Complimentary Products & Services**
+  
+  - Free food items with purchase
+  - Complimentary beverages
+  - Free delivery or services
+  - Buy-one-get-one offers
+  
+  **Common Points Range**: 100-300 points
+</Tab>
+
+<Tab title="Cashback">
+  **Money Back Offers**
+  
+  - Percentage cashback (2%-10%)
+  - Fixed cashback amounts
+  - Delayed processing (5-7 days)
+  - Minimum spending thresholds
+  
+  **Common Points Range**: 200-800 points
+</Tab>
+
+<Tab title="Exclusive">
+  **Tier-Based Premium Offers**
+  
+  - Early access to sales
+  - VIP event invitations
+  - Premium product access
+  - Dedicated customer service
+  
+  **Common Requirements**: Gold/Platinum tier
+</Tab>
+</Tabs>
+
+## Claiming Eligibility
+
+Several factors determine whether a user can claim an offer:
+
+<AccordionGroup>
+<Accordion title="Tier Requirements">
+  **Minimum Tier Status**
+  
+  - Bronze: Basic offers available
+  - Silver: Enhanced offers + Bronze
+  - Gold: Premium offers + Silver + Bronze  
+  - Platinum: All offers including exclusives
+</Accordion>
+
+<Accordion title="Points Balance">
+  **Sufficient Points**
+  
+  - User must have required points available
+  - Points are reserved during claim process
+  - Failed claims release reserved points
+</Accordion>
+
+<Accordion title="Usage Limits">
+  **Personal & Global Limits**
+  
+  - Per-user maximum uses
+  - Total offer availability
+  - Cooldown periods between uses
+  - One-time only offers
+</Accordion>
+
+<Accordion title="Validity Period">
+  **Time-Based Availability**
+  
+  - Offer must be within validity dates
+  - Some offers have time-of-day restrictions
+  - Seasonal or event-based availability
+</Accordion>
+</AccordionGroup>
+
+## Advanced Filtering
+
+### Smart Filtering Examples
+```javascript
+// Get affordable offers for current points balance
+const userBalance = 350;
+const affordableOffers = await fetch(`/en/shop/offers?points_max=${userBalance}`);
+
+// Find tier-appropriate offers
+const userTier = 'gold';
+const tierOffers = await fetch(`/en/shop/offers?tier=${userTier}`);
+
+// Discover featured freebies
+const featuredFreebies = await fetch('/en/shop/offers?category=freebie&featured=true');
+```
+
+### Dynamic Category Discovery
+```javascript
+// Get category distribution
+const response = await fetch('/en/shop/offers');
+const categories = response.data.categories;
+
+// Display category options with counts
+categories.forEach(cat => {
+  console.log(`${cat.display_name}: ${cat.count} offers`);
+});
+```
+
+## User Experience Tips
+
+<Tip>
+**Personalization**: The `is_claimable` field and `claim_reason` provide clear feedback about offer eligibility, enabling personalized user experiences.
+</Tip>
+
+### Recommended UI Patterns
+- **Badge System**: Show tier requirements with colored badges
+- **Countdown Timers**: Display `days_remaining` for expiring offers
+- **Progress Indicators**: Show points needed vs. user balance
+- **Category Filters**: Use the categories array for filter options
+
+### Accessibility Considerations
+- Clear eligibility messaging in `claim_reason`
+- Visual indicators for claimable vs. non-claimable offers
+- Expiration warnings for time-sensitive offers
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+<Card title="Claim Offer" icon="hand-sparkles" href="/api-reference/endpoints/shop/offers/claim">
+  Claim an available offer
+</Card>
+
+<Card title="Featured Offers" icon="star" href="/api-reference/endpoints/shop/offers/featured">
+  Get highlighted promotional offers
+</Card>
+
+<Card title="Points Balance" icon="wallet" href="/api-reference/endpoints/shop/points/balance">
+  Check available points for claiming
+</Card>
+
+<Card title="User Profile" icon="user" href="/api-reference/endpoints/shop/auth/me">
+  View tier status and eligibility
+</Card>
+</CardGroup>
+
+<Note>
+**Real-time Updates**: Offer availability and claimability status are calculated in real-time based on current user status, points balance, and usage history.
+</Note> 

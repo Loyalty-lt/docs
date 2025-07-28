@@ -1,0 +1,205 @@
+---
+title: "Redeem Coupon"
+api: "POST /{locale}/shop/coupons/{id}/redeem"
+description: "Redeem a claimed coupon for discounts or benefits"
+---
+
+# Redeem Coupon
+
+Redeem a previously claimed coupon to apply its benefits during a purchase. This endpoint validates the coupon and applies the discount or benefit.
+
+<Info>
+Coupons can only be redeemed once and must be used before their expiration date. Some coupons have minimum purchase requirements.
+</Info>
+
+## Path Parameters
+
+<ParamField path="locale" type="string" required>
+  Language code for localized content (e.g., "en", "lt")
+</ParamField>
+
+<ParamField path="id" type="integer" required>
+  Unique identifier of the coupon to redeem
+</ParamField>
+
+## Request Body
+
+<ParamField body="purchase_amount" type="number" required>
+  Total purchase amount in euros
+</ParamField>
+
+<ParamField body="items" type="array">
+  Items being purchased (for validation)
+  <Expandable title="Item Object">
+    <ParamField body="product_id" type="string">
+      Product identifier
+    </ParamField>
+    
+    <ParamField body="quantity" type="integer">
+      Quantity purchased
+    </ParamField>
+    
+    <ParamField body="price" type="number">
+      Item price
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the coupon was successfully redeemed
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  <Expandable title="data">
+    <ResponseField name="redemption" type="object">
+      <Expandable title="redemption">
+        <ResponseField name="coupon_id" type="integer">
+          Redeemed coupon identifier
+        </ResponseField>
+        
+        <ResponseField name="discount_applied" type="number">
+          Discount amount applied in euros
+        </ResponseField>
+        
+        <ResponseField name="final_amount" type="number">
+          Final amount after discount
+        </ResponseField>
+        
+        <ResponseField name="redemption_code" type="string">
+          Unique redemption confirmation code
+        </ResponseField>
+        
+        <ResponseField name="redeemed_at" type="string">
+          ISO 8601 timestamp when coupon was redeemed
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X POST "https://staging-api.loyalty.lt/en/shop/coupons/501/redeem" \
+  -H "Authorization: Bearer your_jwt_token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "purchase_amount": 25.99,
+    "items": [
+      {
+        "product_id": "COFFEE_LARGE",
+        "quantity": 2,
+        "price": 4.50
+      },
+      {
+        "product_id": "PASTRY_CROISSANT",
+        "quantity": 1,
+        "price": 2.99
+      }
+    ]
+  }'
+```
+
+```javascript JavaScript
+const couponId = 501;
+const response = await fetch(`/en/shop/coupons/${couponId}/redeem`, {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${accessToken}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    purchase_amount: 25.99,
+    items: [
+      { product_id: 'COFFEE_LARGE', quantity: 2, price: 4.50 },
+      { product_id: 'PASTRY_CROISSANT', quantity: 1, price: 2.99 }
+    ]
+  })
+});
+
+const data = await response.json();
+if (data.success) {
+  const redemption = data.data.redemption;
+  console.log(`💰 Discount applied: €${redemption.discount_applied}`);
+  console.log(`✅ Final amount: €${redemption.final_amount}`);
+  console.log(`📋 Confirmation code: ${redemption.redemption_code}`);
+}
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Successful Redemption
+{
+  "success": true,
+  "message": "Coupon redeemed successfully",
+  "data": {
+    "redemption": {
+      "coupon_id": 501,
+      "discount_applied": 5.20,
+      "final_amount": 20.79,
+      "redemption_code": "REDEEM-ABC123-2024",
+      "redeemed_at": "2024-01-15T16:45:00Z"
+    }
+  }
+}
+```
+
+```json Coupon Expired
+{
+  "success": false,
+  "message": "Coupon has expired",
+  "code": "COUPON_EXPIRED",
+  "errors": {
+    "coupon": ["This coupon expired on 2024-01-10T23:59:59Z"]
+  }
+}
+```
+
+```json Minimum Purchase Not Met
+{
+  "success": false,
+  "message": "Minimum purchase requirement not met",
+  "code": "MINIMUM_PURCHASE_NOT_MET",
+  "errors": {
+    "purchase_amount": ["Minimum purchase of €30.00 required. Current: €25.99"]
+  }
+}
+```
+
+</ResponseExample>
+
+## Redemption Process
+
+<Steps>
+<Step title="Validation">
+  System validates coupon status, expiration, and purchase requirements
+</Step>
+
+<Step title="Discount Calculation">
+  Discount amount is calculated based on coupon type and purchase
+</Step>
+
+<Step title="Application">
+  Discount is applied and final amount is calculated
+</Step>
+
+<Step title="Confirmation">
+  Redemption is recorded and confirmation code is generated
+</Step>
+</Steps>
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+<Card title="List Coupons" icon="ticket" href="/api-reference/endpoints/shop/coupons/list">
+  View available coupons
+</Card>
+
+<Card title="Claim Offer" icon="hand-sparkles" href="/api-reference/endpoints/shop/offers/claim">
+  Claim offers to get coupons
+</Card>
+</CardGroup> 

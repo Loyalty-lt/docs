@@ -1,0 +1,435 @@
+---
+title: "Get Points Balance"
+api: "GET /{locale}/shop/points/card/{card_id}/balance"
+description: "Get current points balance and tier information for a loyalty card"
+---
+
+# Get Points Balance
+
+Retrieve the current points balance, tier status, and related information for a specific loyalty card. This endpoint provides real-time balance data including tier progress and available benefits.
+
+<Info>
+Balance information is updated in real-time and includes pending transactions that may affect the final balance.
+</Info>
+
+## Path Parameters
+
+<ParamField path="locale" type="string" required>
+  Language code for localized content (e.g., "en", "lt")
+</ParamField>
+
+<ParamField path="card_id" type="integer" required>
+  Unique identifier of the loyalty card to check balance for
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable message about the operation
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  <Expandable title="data">
+    <ResponseField name="card" type="object">
+      <Expandable title="card">
+        <ResponseField name="id" type="integer">
+          Loyalty card identifier
+        </ResponseField>
+        
+        <ResponseField name="card_number" type="string">
+          Formatted card number (partially masked)
+        </ResponseField>
+        
+        <ResponseField name="status" type="string">
+          Current card status (`active`, `inactive`, `suspended`)
+        </ResponseField>
+        
+        <ResponseField name="shop" type="object">
+          <Expandable title="shop">
+            <ResponseField name="id" type="integer">
+              Shop identifier
+            </ResponseField>
+            
+            <ResponseField name="name" type="string">
+              Shop display name
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="balance" type="object">
+      <Expandable title="balance">
+        <ResponseField name="current_points" type="integer">
+          Current available points balance
+        </ResponseField>
+        
+        <ResponseField name="pending_points" type="integer">
+          Points from pending transactions (not yet available)
+        </ResponseField>
+        
+        <ResponseField name="lifetime_earned" type="integer">
+          Total points earned since card creation
+        </ResponseField>
+        
+        <ResponseField name="lifetime_redeemed" type="integer">
+          Total points redeemed since card creation
+        </ResponseField>
+        
+        <ResponseField name="expires_soon" type="integer">
+          Points that will expire within 30 days
+        </ResponseField>
+        
+        <ResponseField name="next_expiry_date" type="string">
+          ISO 8601 timestamp of next point expiration (if applicable)
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="tier" type="object">
+      <Expandable title="tier">
+        <ResponseField name="current_tier" type="string">
+          Current tier name (`Bronze`, `Silver`, `Gold`, `Platinum`)
+        </ResponseField>
+        
+        <ResponseField name="tier_level" type="integer">
+          Numeric tier level (1-4)
+        </ResponseField>
+        
+        <ResponseField name="progress_percentage" type="integer">
+          Progress to next tier (0-100%)
+        </ResponseField>
+        
+        <ResponseField name="points_to_next_tier" type="integer">
+          Points needed to reach next tier (null if max tier)
+        </ResponseField>
+        
+        <ResponseField name="next_tier" type="string">
+          Name of next tier (null if max tier)
+        </ResponseField>
+        
+        <ResponseField name="tier_benefits" type="array">
+          <Expandable title="Current tier benefits">
+            <ResponseField name="benefit_type" type="string">
+              Type of benefit (`points_multiplier`, `discount`, `free_shipping`)
+            </ResponseField>
+            
+            <ResponseField name="value" type="number">
+              Benefit value (e.g., 1.5 for 50% bonus points)
+            </ResponseField>
+            
+            <ResponseField name="description" type="string">
+              Human-readable benefit description
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="statistics" type="object">
+      <Expandable title="statistics">
+        <ResponseField name="transactions_count" type="integer">
+          Total number of point transactions
+        </ResponseField>
+        
+        <ResponseField name="avg_monthly_activity" type="number">
+          Average monthly point activity
+        </ResponseField>
+        
+        <ResponseField name="last_activity" type="string">
+          ISO 8601 timestamp of last point transaction
+        </ResponseField>
+        
+        <ResponseField name="member_since" type="string">
+          ISO 8601 timestamp when card was created
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X GET "https://staging-api.loyalty.lt/en/shop/points/card/123/balance" \
+  -H "Authorization: Bearer your_jwt_token" \
+  -H "Content-Type: application/json"
+```
+
+```javascript JavaScript
+const cardId = 123;
+const response = await fetch(`/en/shop/points/card/${cardId}/balance`, {
+  method: 'GET',
+  headers: {
+    'Authorization': `Bearer ${accessToken}`,
+    'Content-Type': 'application/json'
+  }
+});
+
+const data = await response.json();
+if (data.success) {
+  const balance = data.data.balance;
+  const tier = data.data.tier;
+  
+  console.log(`Available Points: ${balance.current_points}`);
+  console.log(`Current Tier: ${tier.current_tier}`);
+  console.log(`Progress to ${tier.next_tier}: ${tier.progress_percentage}%`);
+  
+  if (balance.expires_soon > 0) {
+    console.log(`⚠️ ${balance.expires_soon} points expire soon!`);
+  }
+}
+```
+
+```python Python
+import requests
+
+card_id = 123
+headers = {
+    'Authorization': f'Bearer {access_token}',
+    'Content-Type': 'application/json'
+}
+
+response = requests.get(
+    f'https://staging-api.loyalty.lt/en/shop/points/card/{card_id}/balance',
+    headers=headers
+)
+
+data = response.json()
+if data['success']:
+    balance = data['data']['balance']
+    tier = data['data']['tier']
+    
+    print(f"Available Points: {balance['current_points']}")
+    print(f"Current Tier: {tier['current_tier']}")
+    
+    if tier['next_tier']:
+        print(f"Progress to {tier['next_tier']}: {tier['progress_percentage']}%")
+        print(f"Points needed: {tier['points_to_next_tier']}")
+    
+    if balance['expires_soon'] > 0:
+        print(f"⚠️ {balance['expires_soon']} points expire soon!")
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Active Card - Gold Tier
+{
+  "success": true,
+  "message": "Balance retrieved successfully",
+  "data": {
+    "card": {
+      "id": 123,
+      "card_number": "LC****4567",
+      "status": "active",
+      "shop": {
+        "id": 45,
+        "name": "Coffee Paradise"
+      }
+    },
+    "balance": {
+      "current_points": 1250,
+      "pending_points": 50,
+      "lifetime_earned": 5670,
+      "lifetime_redeemed": 4420,
+      "expires_soon": 100,
+      "next_expiry_date": "2024-02-15T23:59:59Z"
+    },
+    "tier": {
+      "current_tier": "Gold",
+      "tier_level": 3,
+      "progress_percentage": 75,
+      "points_to_next_tier": 250,
+      "next_tier": "Platinum",
+      "tier_benefits": [
+        {
+          "benefit_type": "points_multiplier",
+          "value": 1.5,
+          "description": "50% bonus points on all purchases"
+        },
+        {
+          "benefit_type": "discount",
+          "value": 10,
+          "description": "10% discount on special items"
+        }
+      ]
+    },
+    "statistics": {
+      "transactions_count": 87,
+      "avg_monthly_activity": 245.5,
+      "last_activity": "2024-01-15T14:30:00Z",
+      "member_since": "2023-06-01T10:00:00Z"
+    }
+  }
+}
+```
+
+```json New Card - Bronze Tier
+{
+  "success": true,
+  "message": "Balance retrieved successfully",
+  "data": {
+    "card": {
+      "id": 456,
+      "card_number": "LC****8901",
+      "status": "active",
+      "shop": {
+        "id": 67,
+        "name": "Fashion Store"
+      }
+    },
+    "balance": {
+      "current_points": 150,
+      "pending_points": 0,
+      "lifetime_earned": 150,
+      "lifetime_redeemed": 0,
+      "expires_soon": 0,
+      "next_expiry_date": null
+    },
+    "tier": {
+      "current_tier": "Bronze",
+      "tier_level": 1,
+      "progress_percentage": 30,
+      "points_to_next_tier": 350,
+      "next_tier": "Silver",
+      "tier_benefits": [
+        {
+          "benefit_type": "points_multiplier",
+          "value": 1.0,
+          "description": "Standard point earning rate"
+        }
+      ]
+    },
+    "statistics": {
+      "transactions_count": 3,
+      "avg_monthly_activity": 75.0,
+      "last_activity": "2024-01-14T16:20:00Z",
+      "member_since": "2024-01-01T12:00:00Z"
+    }
+  }
+}
+```
+
+```json Card Not Found
+{
+  "success": false,
+  "message": "Loyalty card not found",
+  "code": "CARD_NOT_FOUND",
+  "errors": {
+    "card_id": ["Loyalty card with ID 999 does not exist or belongs to another user"]
+  }
+}
+```
+
+```json Inactive Card
+{
+  "success": false,
+  "message": "Card is inactive",
+  "code": "CARD_INACTIVE",
+  "errors": {
+    "card_status": ["This loyalty card has been deactivated and cannot be used"]
+  }
+}
+```
+
+</ResponseExample>
+
+## Tier System Overview
+
+The loyalty program uses a 4-tier system with increasing benefits:
+
+<Tabs>
+<Tab title="Bronze (Level 1)">
+  **Requirements**: 0-499 points lifetime earned
+  
+  **Benefits**:
+  - Standard point earning rate (1x)
+  - Basic customer support
+  - Monthly newsletter
+  
+  **Next Tier**: 500 points needed for Silver
+</Tab>
+
+<Tab title="Silver (Level 2)">
+  **Requirements**: 500-1,499 points lifetime earned
+  
+  **Benefits**:
+  - 25% bonus points (1.25x multiplier)
+  - Priority customer support
+  - Exclusive Silver offers
+  - Early access to sales
+  
+  **Next Tier**: 1,000 more points needed for Gold
+</Tab>
+
+<Tab title="Gold (Level 3)">
+  **Requirements**: 1,500-4,999 points lifetime earned
+  
+  **Benefits**:
+  - 50% bonus points (1.5x multiplier)
+  - VIP customer support
+  - 10% discount on special items
+  - Free birthday rewards
+  - Exclusive Gold events
+  
+  **Next Tier**: 3,500 more points needed for Platinum
+</Tab>
+
+<Tab title="Platinum (Level 4)">
+  **Requirements**: 5,000+ points lifetime earned
+  
+  **Benefits**:
+  - 100% bonus points (2x multiplier)
+  - Dedicated account manager
+  - 15% discount on all items
+  - Free shipping always
+  - Exclusive Platinum experiences
+  - Annual loyalty gifts
+  
+  **Status**: Maximum tier level
+</Tab>
+</Tabs>
+
+## Balance Management
+
+<Note>
+**Point Expiration**: Points typically expire 12 months after earning. The `expires_soon` field shows points expiring within 30 days, allowing users to plan redemptions accordingly.
+</Note>
+
+### Balance Calculation Priority
+1. **Current Points**: Immediately available for redemption
+2. **Pending Points**: From recent transactions (processing)
+3. **Expiring Points**: Highlighted for user attention
+
+### Real-time Updates
+Balance information reflects:
+- ✅ Completed point awards and redemptions
+- ⏳ Pending transactions (shown separately)
+- 📅 Upcoming expirations
+- 📊 Tier progress calculations
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+<Card title="Award Points" icon="plus" href="/api-reference/endpoints/shop/points/award">
+  Add points to increase balance
+</Card>
+
+<Card title="Redeem Points" icon="money-bill" href="/api-reference/endpoints/shop/points/redeem">
+  Use points to decrease balance
+</Card>
+
+<Card title="Transaction History" icon="list" href="/api-reference/endpoints/shop/points/transactions">
+  View detailed transaction history
+</Card>
+
+<Card title="Loyalty Cards" icon="credit-card" href="/api-reference/endpoints/shop/loyalty-cards/list">
+  Manage user's loyalty cards
+</Card>
+</CardGroup> 

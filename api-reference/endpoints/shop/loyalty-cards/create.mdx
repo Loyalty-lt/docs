@@ -1,0 +1,251 @@
+---
+title: "Create Loyalty Card"
+api: "POST /{locale}/shop/loyalty-cards"
+description: "Create a new personal loyalty card for a shop"
+---
+
+# Create Loyalty Card
+
+Create a new personal loyalty card that allows users to earn and redeem points at a specific shop. This endpoint generates a unique card number and initializes the user's loyalty account.
+
+<Info>
+Users can create one personal loyalty card per shop. Additional cards require third-party integration through separate endpoints.
+</Info>
+
+## Path Parameters
+
+<ParamField path="locale" type="string" required>
+  Language code for localized content (e.g., "en", "lt")
+</ParamField>
+
+## Request Body
+
+<ParamField body="shop_id" type="integer" required>
+  Unique identifier of the shop to create loyalty card for
+</ParamField>
+
+<ParamField body="card_design" type="string">
+  Preferred card design theme (`classic`, `modern`, `seasonal`)
+</ParamField>
+
+<ParamField body="initial_data" type="object">
+  Optional initial card data and preferences
+  <Expandable title="initial_data">
+    <ParamField body="preferred_name" type="string">
+      Name to display on the card
+    </ParamField>
+    
+    <ParamField body="communication_preferences" type="object">
+      <Expandable title="communication_preferences">
+        <ParamField body="email_notifications" type="boolean">
+          Receive email notifications for points and offers
+        </ParamField>
+        
+        <ParamField body="sms_notifications" type="boolean">
+          Receive SMS notifications for important updates
+        </ParamField>
+      </Expandable>
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the card was successfully created
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable message about the operation
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  <Expandable title="data">
+    <ResponseField name="card" type="object">
+      <Expandable title="card">
+        <ResponseField name="id" type="integer">
+          Unique card identifier
+        </ResponseField>
+        
+        <ResponseField name="card_number" type="string">
+          Generated card number
+        </ResponseField>
+        
+        <ResponseField name="status" type="string">
+          Card status (`active`)
+        </ResponseField>
+        
+        <ResponseField name="card_type" type="string">
+          Type of card (`personal`)
+        </ResponseField>
+        
+        <ResponseField name="design" type="string">
+          Selected card design theme
+        </ResponseField>
+        
+        <ResponseField name="qr_code_url" type="string">
+          URL to card's QR code for easy scanning
+        </ResponseField>
+        
+        <ResponseField name="created_at" type="string">
+          ISO 8601 timestamp when card was created
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="shop" type="object">
+      <Expandable title="shop">
+        <ResponseField name="id" type="integer">
+          Shop identifier
+        </ResponseField>
+        
+        <ResponseField name="name" type="string">
+          Shop display name
+        </ResponseField>
+        
+        <ResponseField name="logo_url" type="string">
+          Shop logo image URL
+        </ResponseField>
+        
+        <ResponseField name="loyalty_program" type="object">
+          <Expandable title="loyalty_program">
+            <ResponseField name="points_per_euro" type="number">
+              Points earned per euro spent
+            </ResponseField>
+            
+            <ResponseField name="tier_system" type="array">
+              Available tier levels and requirements
+            </ResponseField>
+          </Expandable>
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="initial_balance" type="object">
+      <Expandable title="initial_balance">
+        <ResponseField name="points" type="integer">
+          Starting points balance (usually 0)
+        </ResponseField>
+        
+        <ResponseField name="tier" type="string">
+          Starting tier level (`Bronze`)
+        </ResponseField>
+        
+        <ResponseField name="welcome_bonus" type="integer">
+          Welcome bonus points awarded (if applicable)
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X POST "https://staging-api.loyalty.lt/en/shop/loyalty-cards" \
+  -H "Authorization: Bearer your_jwt_token" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "shop_id": 45,
+    "card_design": "modern",
+    "initial_data": {
+      "preferred_name": "Jonas J.",
+      "communication_preferences": {
+        "email_notifications": true,
+        "sms_notifications": false
+      }
+    }
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('/en/shop/loyalty-cards', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${accessToken}`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    shop_id: 45,
+    card_design: 'modern',
+    initial_data: {
+      preferred_name: 'Jonas J.',
+      communication_preferences: {
+        email_notifications: true,
+        sms_notifications: false
+      }
+    }
+  })
+});
+
+const data = await response.json();
+if (data.success) {
+  const card = data.data.card;
+  console.log(`🎉 Card created: ${card.card_number}`);
+  console.log(`Welcome bonus: ${data.data.initial_balance.welcome_bonus} points`);
+  
+  // Save card details locally
+  localStorage.setItem(`card_${card.id}`, JSON.stringify(card));
+}
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Success Response
+{
+  "success": true,
+  "message": "Loyalty card created successfully",
+  "data": {
+    "card": {
+      "id": 124,
+      "card_number": "LC2024001234",
+      "status": "active",
+      "card_type": "personal",
+      "design": "modern",
+      "qr_code_url": "https://api.loyalty.lt/qr/LC2024001234",
+      "created_at": "2024-01-15T18:00:00Z"
+    },
+    "shop": {
+      "id": 45,
+      "name": "Coffee Paradise",
+      "logo_url": "https://api.loyalty.lt/storage/logos/coffee-paradise.png",
+      "loyalty_program": {
+        "points_per_euro": 2,
+        "tier_system": ["Bronze", "Silver", "Gold", "Platinum"]
+      }
+    },
+    "initial_balance": {
+      "points": 25,
+      "tier": "Bronze",
+      "welcome_bonus": 25
+    }
+  }
+}
+```
+
+```json Shop Already Has Card
+{
+  "success": false,
+  "message": "Card already exists for this shop",
+  "code": "CARD_ALREADY_EXISTS",
+  "errors": {
+    "shop_id": ["You already have a loyalty card for this shop"]
+  }
+}
+```
+
+</ResponseExample>
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+<Card title="List Cards" icon="credit-card" href="/api-reference/endpoints/shop/loyalty-cards/list">
+  View all your loyalty cards
+</Card>
+
+<Card title="Card Details" icon="eye" href="/api-reference/endpoints/shop/loyalty-cards/get">
+  Get detailed card information
+</Card>
+</CardGroup> 
