@@ -1,261 +1,270 @@
 ---
 title: "API Reference"
-description: "Complete API documentation for the Loyalty.lt platform"
+description: "Complete reference for the Loyalty.lt API with authentication, shop integration, and partner management endpoints"
 ---
 
 # Loyalty.lt API Reference
 
-Welcome to the comprehensive API documentation for the Loyalty.lt loyalty platform. This documentation covers all available endpoints, authentication methods, and integration patterns.
+Welcome to the comprehensive Loyalty.lt API documentation. Our REST API enables you to integrate loyalty programs, manage customer relationships, and build powerful e-commerce experiences.
 
 <Info>
-This documentation is automatically generated from our OpenAPI specification and is always up-to-date with the latest API changes.
+**Interactive Documentation**: All API endpoints below are automatically generated from our OpenAPI specification. You can test endpoints directly in your browser with real API responses.
 </Info>
 
 ## API Overview
 
-The Loyalty.lt API provides three main service layers:
+The Loyalty.lt API is organized into three main service layers, each designed for specific use cases and integration patterns:
 
-### Shop APIs
-Core functionality for managing loyalty programs, customer interactions, and business operations:
-- **Customer Management**: Register, update, and manage customer profiles
-- **Loyalty Cards**: Digital and physical loyalty card management
-- **Points System**: Award, redeem, and track loyalty points
-- **Offers & Coupons**: Create and manage promotional offers
-- **Games & Engagement**: Interactive loyalty games and challenges
+### Shop Integration APIs
+Direct integration endpoints for e-commerce platforms, POS systems, and customer-facing applications.
 
-### SDK APIs  
-Developer-focused endpoints for building custom integrations and applications:
-- **Authentication**: Secure API access and session management
-- **Real-time Data**: WebSocket connections and live updates
-- **Bulk Operations**: Efficient batch processing for large datasets
-- **Webhooks**: Event-driven integrations and notifications
+**Primary Use Cases:**
+- E-commerce platform integration (WooCommerce, Shopify, custom stores)
+- POS system connectivity
+- Mobile app backends
+- Customer loyalty portals
+
+**Key Features:**
+- Phone + OTP authentication flow
+- Loyalty card management
+- Points earning and redemption
+- Offers and coupons system
+- Interactive games and gamification
+- Transaction history and analytics
+- XML import for data migration
+
+**Base Path:** `/{locale}/shop/`
 
 ### Partner APIs
-Business management tools for partners and administrators:
-- **Shop Management**: Multi-location business operations
-- **Analytics & Reporting**: Detailed performance insights
-- **Staff Management**: Role-based access and permissions
-- **White-label Solutions**: Customizable partner experiences
+Management endpoints for loyalty program partners, agencies, and multi-store operations.
+
+**Primary Use Cases:**
+- Partner dashboard management
+- Multi-store loyalty programs
+- White-label solutions
+- Agency client management
+- Enterprise analytics and reporting
+
+**Key Features:**
+- Partner authentication and management
+- Store and location management
+- Staff and permissions system
+- Advanced analytics and reporting
+- White-label customization
+- Bulk operations and data export
+
+**Base Path:** `/{locale}/partners/`
 
 ## Base URLs
 
-<Tabs>
-<Tab title="Staging">
-```
-https://staging-api.loyalty.lt
-```
-<Note>
-Use the staging environment for development and testing. All data is safe to modify.
-</Note>
-</Tab>
+| Environment | URL | Description |
+|-------------|-----|-------------|
+| **Staging** | `https://staging-api.loyalty.lt` | Development and testing |
+| **Production** | `https://api.loyalty.lt` | Live production environment |
 
-<Tab title="Production">
-```
-https://api.loyalty.lt
-```
-<Warning>
-Production environment contains live customer data. Use with caution.
-</Warning>
-</Tab>
-</Tabs>
+All endpoints require a locale parameter (e.g., `en`, `lt`) in the URL path.
 
 ## Authentication Methods
 
-The API supports multiple authentication methods depending on your use case:
-
-### API Credentials
-For server-to-server integrations and trusted applications:
+<Tabs>
+<Tab title="API Credentials">
+**Server-side authentication** for backend integrations:
 
 ```bash
-curl -X GET "https://staging-api.loyalty.lt/api/customers" \
+curl -X GET "https://staging-api.loyalty.lt/en/shop/loyalty-cards" \
   -H "X-API-Key: your_api_key" \
   -H "X-API-Secret: your_api_secret"
 ```
 
-### JWT Tokens  
-For user sessions and frontend applications:
+Use for:
+- E-commerce platform integrations
+- Server-to-server communication
+- Automated systems and cron jobs
+</Tab>
+
+<Tab title="JWT Tokens">
+**User session authentication** for customer-facing features:
 
 ```bash
-curl -X GET "https://staging-api.loyalty.lt/api/customer/profile" \
-  -H "Authorization: Bearer your_jwt_token"
+curl -X GET "https://staging-api.loyalty.lt/en/shop/auth/me" \
+  -H "Authorization: Bearer jwt_token_here"
 ```
 
-<Check>
-All API endpoints use HTTPS encryption and support CORS for browser-based applications.
-</Check>
+Use for:
+- Mobile apps
+- Customer portals
+- User-specific operations
+</Tab>
+</Tabs>
 
 ## Rate Limits
 
-To ensure fair usage and optimal performance, the API implements rate limiting:
-
-| Authentication Method | Requests per Minute | Burst Limit |
-|-----------------------|-------------------|-------------|
-| API Credentials       | 1000              | 1500        |
-| JWT Tokens           | 300               | 500         |
-| Unauthenticated      | 60                | 100         |
+| Authentication Type | Requests/Hour | Burst Limit | Notes |
+|-------------------|---------------|-------------|-------|
+| API Credentials | 2,000 | 100/min | Higher limits for enterprise |
+| JWT Tokens | 1,000 | 60/min | Per user session |
+| Partner APIs | 5,000 | 200/min | Advanced partner features |
 
 <Tip>
-Include the `X-RateLimit-*` headers in your responses to monitor your current usage and avoid hitting limits.
+Rate limits are automatically managed. Use bulk endpoints for high-volume operations to optimize performance.
 </Tip>
 
 ## Response Format
 
-All API responses follow a consistent JSON structure:
+All API endpoints return consistent JSON responses:
 
-### Success Response
 ```json
 {
   "success": true,
-  "code": 200,
-  "request_id": "550e8400-e29b-41d4-a716-446655440000",
   "message": "Operation completed successfully",
   "data": {
-    // Response data here
+    // Response data object
   }
 }
 ```
 
-### Error Response
+**Error Response:**
 ```json
 {
   "success": false,
-  "code": 400,
-  "request_id": "550e8400-e29b-41d4-a716-446655440000",
   "message": "Validation failed",
-  "errors": [
-    {
-      "field": "email",
-      "message": "Email address is required"
-    }
-  ]
-}
-```
-
-## Status Codes
-
-The API uses standard HTTP status codes:
-
-| Code | Meaning |
-|------|---------|
-| 200  | Success |
-| 201  | Created |
-| 400  | Bad Request |
-| 401  | Unauthorized |
-| 403  | Forbidden |
-| 404  | Not Found |
-| 422  | Validation Error |
-| 429  | Rate Limited |
-| 500  | Server Error |
-
-## Pagination
-
-List endpoints support cursor-based pagination for optimal performance:
-
-```json
-{
-  "data": [...],
-  "pagination": {
-    "current_page": 1,
-    "per_page": 20,
-    "total": 150,
-    "next_page_url": "https://api.loyalty.lt/customers?page=2",
-    "prev_page_url": null
+  "code": "VALIDATION_ERROR",
+  "errors": {
+    "field_name": ["Error message"]
   }
 }
 ```
+
+## HTTP Status Codes
+
+| Code | Meaning | Usage |
+|------|---------|-------|
+| **200** | OK | Successful GET, PUT, PATCH |
+| **201** | Created | Successful POST (resource created) |
+| **400** | Bad Request | Validation errors, malformed requests |
+| **401** | Unauthorized | Missing or invalid authentication |
+| **403** | Forbidden | Insufficient permissions |
+| **404** | Not Found | Resource doesn't exist |
+| **422** | Unprocessable Entity | Business logic validation failed |
+| **429** | Too Many Requests | Rate limit exceeded |
+| **500** | Internal Server Error | Server-side errors (rare) |
+
+## Pagination
+
+List endpoints use consistent pagination:
+
+```json
+{
+  "success": true,
+  "data": {
+    "data": [...],
+    "current_page": 1,
+    "per_page": 15,
+    "total": 150,
+    "last_page": 10
+  }
+}
+```
+
+**Query Parameters:**
+- `page` - Page number (default: 1)
+- `per_page` - Items per page (default: 15, max: 50)
 
 ## Filtering and Sorting
 
 Most list endpoints support filtering and sorting:
 
 ```bash
-# Filter by status and sort by creation date
-GET /api/customers?status=active&sort=created_at&order=desc
-
-# Date range filtering
-GET /api/transactions?date_from=2024-01-01&date_to=2024-01-31
-
-# Search by multiple fields
-GET /api/customers?search=john@example.com&fields=email,name
+# Filter and sort examples
+GET /en/shop/transactions?type=points&status=completed&sort=-created_at
+GET /en/shop/offers?category=food&featured=true&page=2
 ```
 
 ## Webhooks
 
-The API supports webhooks for real-time event notifications:
+Real-time event notifications for critical activities:
 
-```json
-{
-  "event": "customer.points.awarded",
-  "data": {
-    "customer_id": "customer_123",
-    "points": 100,
-    "reason": "purchase",
-    "timestamp": "2024-01-15T10:30:00Z"
-  },
-  "signature": "sha256=..."
-}
-```
+**Available Events:**
+- `customer.registered` - New customer registration
+- `points.awarded` - Points added to account
+- `coupon.redeemed` - Coupon usage
+- `game.completed` - Game session finished
+- `card.created` - New loyalty card
 
-<Info>
-Webhook signatures are generated using HMAC-SHA256 with your webhook secret for security verification.
-</Info>
+**Webhook Configuration:**
+Configure webhooks through the Partner Dashboard or API.
 
-## SDKs and Libraries
+## Available SDKs
 
-Official SDKs are available for popular programming languages:
-
-<CardGroup cols={2}>
-<Card title="JavaScript/TypeScript" icon="js" href="/sdk/javascript/installation">
-  Browser and Node.js applications
+<CardGroup cols={3}>
+<Card title="JavaScript/TypeScript" icon="js">
+  ```bash
+  npm install @loyalty-lt/sdk
+  ```
 </Card>
 
-<Card title="Python" icon="python" href="/sdk/python/installation">
-  Django, Flask, and FastAPI integrations
+<Card title="Python" icon="python">
+  ```bash
+  pip install loyalty-lt
+  ```
 </Card>
 
-<Card title="PHP" icon="php" href="/sdk/php/installation">
-  Laravel, Symfony, and WordPress plugins
-</Card>
-
-<Card title="Vue.js" icon="vue" href="/sdk/vue/installation">
-  Vue 3, Nuxt.js, and composition API
+<Card title="PHP" icon="php">
+  ```bash
+  composer require loyalty-lt/sdk
+  ```
 </Card>
 </CardGroup>
 
 ## Getting Started
 
-Ready to start building? Check out these quick start guides:
-
 <Steps>
 <Step title="Get API Credentials">
-  Visit the [Partners Portal](https://partners.loyalty.lt) to generate your API keys.
+  1. Sign up for a Partner account at [partners.loyalty.lt](https://partners.loyalty.lt)
+  2. Navigate to API Settings
+  3. Generate your API credentials
 </Step>
 
 <Step title="Choose Your Integration">
-  Select between Shop APIs (core functionality), SDK APIs (custom apps), or Partner APIs (business management).
+  - **Shop APIs**: For direct e-commerce integration
+  - **Partner APIs**: For multi-store management
 </Step>
 
-<Step title="Make Your First Request">
-  Test your integration with our interactive API explorer below.
+<Step title="Test Authentication">
+  ```bash
+  curl -X GET "https://staging-api.loyalty.lt/shop/health" \
+    -H "X-API-Key: your_api_key" \
+    -H "X-API-Secret: your_api_secret"
+  ```
 </Step>
 
-<Step title="Implement Webhooks">
-  Set up real-time notifications for important events in your application.
+<Step title="Explore Endpoints">
+  Use the interactive documentation below to test API endpoints and understand responses.
 </Step>
 </Steps>
 
+## Support Resources
+
+<CardGroup cols={2}>
+<Card title="Help Center" icon="question-circle" href="https://help.loyalty.lt">
+  Comprehensive guides and tutorials
+</Card>
+
+<Card title="Partner Dashboard" icon="chart-line" href="https://partners.loyalty.lt">
+  Manage your integration and view analytics
+</Card>
+
+<Card title="Status Page" icon="heartbeat" href="https://status.loyalty.lt">
+  Real-time API status and incident reports
+</Card>
+
+<Card title="Contact Support" icon="envelope" href="mailto:support@loyalty.lt">
+  Get help from our technical team
+</Card>
+</CardGroup>
+
 ---
 
-## Support
-
-Need help? We're here to assist:
-
-- **Documentation**: Complete guides and tutorials
-- **API Explorer**: Interactive endpoint testing
-- **Email Support**: [support@loyalty.lt](mailto:support@loyalty.lt)
-- **Partners Portal**: Account management and configuration
-- **GitHub**: Open source SDKs and examples
-
 <Note>
-The API documentation below is automatically generated from our OpenAPI specification and includes interactive examples you can test directly in your browser.
+**Interactive API Explorer**: The sections below provide automatically generated, interactive documentation for all available endpoints. You can test requests directly and see real responses.
 </Note>

@@ -1,38 +1,231 @@
 ---
 title: "Authentication Endpoints"
-description: "API endpoints for user authentication and session management"
+description: "Complete overview of authentication and user management endpoints"
 ---
 
 # Authentication Endpoints
 
-These endpoints handle user authentication, token management, and session control across the Loyalty.lt platform.
+The authentication endpoints provide comprehensive user management, session handling, and security features for the Shop API. All authentication flows are designed for modern mobile and web applications.
 
 <Info>
-The endpoints below are automatically generated from our OpenAPI specification. All examples include real request/response data and are interactive.
+All authentication endpoints are automatically documented below from the OpenAPI specification. This overview categorizes endpoints by functionality and provides usage context.
 </Info>
 
 ## Endpoint Categories
 
-### Customer Authentication
-- **Login**: Authenticate customers with email/password
-- **Register**: Create new customer accounts  
-- **Password Reset**: Handle password recovery flow
-- **Email Verification**: Verify customer email addresses
+### Phone + OTP Authentication
+Core authentication flow using phone number and SMS verification:
 
-### Partner Authentication  
-- **Partner Login**: Authenticate business partners
-- **Staff Login**: Authenticate partner staff members
-- **Role Management**: Handle partner role assignments
+- `POST /{locale}/shop/auth/request-otp` - Request OTP code via SMS
+- `POST /{locale}/shop/auth/verify-otp` - Verify OTP code (standalone)
+- `POST /{locale}/shop/auth/login` - Login with phone + OTP
+- `POST /{locale}/shop/auth/register` - Register new user with phone + OTP
 
-### Token Management
-- **Token Refresh**: Refresh expired JWT tokens
-- **Token Validation**: Validate token authenticity
-- **Logout**: Invalidate user sessions
+**Flow Example:**
+1. Request OTP → 2. Verify OTP → 3. Login/Register → 4. Receive JWT token
 
-### Admin Authentication
-- **Admin Login**: Authenticate system administrators
-- **Permission Checks**: Validate admin permissions
+### QR Code Authentication
+Desktop-to-mobile authentication flow for seamless login:
+
+- `POST /{locale}/shop/auth/qr-login/generate` - Generate QR session
+- `GET /{locale}/shop/auth/qr-login/poll/{sessionId}` - Poll session status
+- `POST /{locale}/shop/auth/qr-login/scan/{qrCode}` - Scan QR (mobile)
+- `POST /{locale}/shop/auth/qr-login/confirm/{sessionId}` - Confirm login
+
+**Use Case:** Desktop applications where users want to login using their mobile device.
+
+### Session Management
+JWT token lifecycle and session handling:
+
+- `POST /{locale}/shop/auth/refresh` - Refresh expired access token
+- `POST /{locale}/shop/auth/logout` - End user session
+- `GET /{locale}/shop/auth/me` - Get current user information
+
+**Token Details:**
+- Access tokens expire after 1 hour
+- Refresh tokens are valid for 30 days
+- Automatic token rotation on refresh
+
+### User Profile Management
+Comprehensive user data and preferences management:
+
+- `GET /{locale}/shop/auth/me` - Get complete user profile
+- `PUT /{locale}/shop/auth/profile` - Update user details (name, email)
+- `GET /{locale}/shop/auth/preferences` - Get user preferences
+- `PUT /{locale}/shop/auth/preferences` - Update notification/privacy settings
+
+### User Statistics & Analytics
+User engagement and loyalty metrics:
+
+- `GET /{locale}/shop/auth/statistics` - Get user loyalty statistics
+- Includes: total cards, points balance, coupons, achievements
+
+### Account Management
+Advanced account operations:
+
+- `DELETE /{locale}/shop/auth/account` - Delete/deactivate user account
+
+<Warning>
+Account deletion is irreversible and removes all user data including loyalty cards, points, and transaction history.
+</Warning>
+
+## Authentication Methods Required
+
+| Endpoint Group | Authentication | Notes |
+|---------------|----------------|-------|
+| **OTP Requests** | API Credentials | Server-side only |
+| **Login/Register** | API Credentials | Public endpoints |
+| **QR Generation** | API Credentials | Public endpoints |
+| **Session Management** | JWT Token | User context required |
+| **Profile Management** | JWT Token | User context required |
+| **Statistics** | JWT Token | User context required |
+
+## Common Use Cases
+
+### E-commerce Integration
+**Scenario:** Customer checkout with loyalty benefits
+
+```bash
+# 1. Request OTP for customer
+POST /{locale}/shop/auth/request-otp
+{"phone": "+37060000000", "type": "login"}
+
+# 2. Login customer
+POST /{locale}/shop/auth/login  
+{"phone": "+37060000000", "otp": "123456"}
+
+# 3. Get customer profile and loyalty status
+GET /{locale}/shop/auth/me
+Authorization: Bearer jwt_token
+
+# 4. Check available points/coupons for checkout
+GET /{locale}/shop/auth/statistics
+Authorization: Bearer jwt_token
+```
+
+### Mobile App Authentication  
+**Scenario:** Mobile app login with persistent session
+
+```bash
+# 1. Phone registration/login flow
+POST /{locale}/shop/auth/request-otp
+POST /{locale}/shop/auth/login
+
+# 2. Store JWT and refresh tokens securely
+# 3. Use access token for API calls
+# 4. Refresh token when needed
+
+POST /{locale}/shop/auth/refresh
+{"refresh_token": "stored_refresh_token"}
+```
+
+### Desktop QR Login
+**Scenario:** Desktop application login via mobile
+
+```bash
+# 1. Desktop generates QR session
+POST /{locale}/shop/auth/qr-login/generate
+
+# 2. Desktop polls for completion
+GET /{locale}/shop/auth/qr-login/poll/{sessionId}
+
+# 3. Mobile scans and confirms
+POST /{locale}/shop/auth/qr-login/scan/{qrCode}
+POST /{locale}/shop/auth/qr-login/confirm/{sessionId}
+
+# 4. Desktop receives authentication tokens
+```
+
+## Response Examples
+
+### Successful Login Response
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "data": {
+    "user": {
+      "id": 123,
+      "phone": "+37060000000", 
+      "email": "user@example.com",
+      "name": "Jonas Jonaitis",
+      "phone_verified_at": "2024-01-15T10:30:00Z",
+      "created_at": "2024-01-01T00:00:00Z"
+    },
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+    "refresh_token": "refresh_token_string",
+    "expires_in": 3600
+  }
+}
+```
+
+### User Statistics Response
+```json
+{
+  "success": true,
+  "data": {
+    "total_cards": 5,
+    "total_points": 2450,
+    "total_coupons": 12,
+    "active_coupons": 8,
+    "completed_games": 15,
+    "level": "Gold Member"
+  }
+}
+```
+
+## Security Features
+
+### Rate Limiting
+- **OTP Requests**: 5 per minute per phone number
+- **Login Attempts**: 10 per hour per phone number  
+- **API Calls**: 1000 per hour per JWT token
+
+### Anti-Fraud Protection
+- **OTP Validation**: Maximum 3 attempts per OTP code
+- **Device Tracking**: Suspicious device detection
+- **IP Monitoring**: Unusual location alerts
+- **Session Security**: Automatic logout on suspicious activity
+
+### Data Protection
+- **GDPR Compliant**: Right to deletion and data export
+- **Phone Verification**: Required for all registrations
+- **Secure Storage**: Encrypted sensitive data
+- **Audit Logging**: Complete authentication activity logs
+
+## Error Handling
+
+Common authentication errors and their resolutions:
+
+| Error Code | Description | Solution |
+|------------|-------------|----------|
+| `OTP_EXPIRED` | OTP code has expired | Request new OTP |
+| `OTP_INVALID` | Wrong OTP code entered | Verify code or request new |
+| `TOKEN_EXPIRED` | JWT token expired | Use refresh token endpoint |
+| `USER_NOT_FOUND` | Phone number not registered | Use register endpoint |
+| `USER_EXISTS` | Phone already registered | Use login endpoint |
+| `QR_SESSION_EXPIRED` | QR login session expired | Generate new QR session |
+
+## Next Steps
+
+<CardGroup cols={2}>
+<Card title="Loyalty Cards API" icon="credit-card" href="/api-reference/endpoint/shop-apis#loyalty-cards-management">
+  Manage customer loyalty cards after authentication
+</Card>
+
+<Card title="Points System API" icon="star" href="/api-reference/endpoint/shop-apis#points-system">
+  Award and redeem loyalty points for authenticated users
+</Card>
+
+<Card title="User Preferences" icon="cog" href="/api-reference/endpoint/shop-apis#user-profile-management">
+  Customize user experience and notification settings
+</Card>
+
+<Card title="Error Handling Guide" icon="exclamation-triangle" href="/api-reference/error-handling">
+  Implement robust error handling for auth flows
+</Card>
+</CardGroup>
 
 <Note>
-All authentication endpoints are automatically documented below based on our OpenAPI specification. Click on any endpoint to see detailed request/response examples.
+**Interactive Testing**: All authentication endpoints can be tested directly below using the auto-generated API reference. Use the staging environment for safe testing.
 </Note> 

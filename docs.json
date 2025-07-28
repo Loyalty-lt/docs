@@ -51,7 +51,6 @@
             "pages": [
               "api-reference/endpoint/authentication",
               "api-reference/endpoint/shop-apis",
-              "api-reference/endpoint/sdk-apis",
               "api-reference/endpoint/partner-apis"
             ]
           }

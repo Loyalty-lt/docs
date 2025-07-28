@@ -1,141 +1,226 @@
 ---
 title: "Shop API Endpoints"
-description: "Core business functionality endpoints for loyalty program management"
+description: "E-commerce integration endpoints for shops, POS systems, and online stores"
 ---
 
 # Shop API Endpoints
 
-The Shop APIs provide the core functionality for managing loyalty programs, customer interactions, and business operations. These endpoints are designed for direct integration with e-commerce platforms, POS systems, and business applications.
+The Shop APIs provide comprehensive endpoints for integrating loyalty programs with e-commerce platforms, POS systems, and online stores. These endpoints offer direct shop integration capabilities for customer-facing applications.
 
 <Info>
-All endpoints are automatically documented from our OpenAPI specification with interactive examples and real-time testing capabilities.
+All Shop API endpoints are automatically documented from the OpenAPI specification. The following provides an overview of available endpoint categories and their primary use cases.
 </Info>
 
-## Endpoint Categories
+## Base URL
 
-### Customer Management
-- **Customer Registration**: Create and onboard new customers
-- **Customer Profiles**: Update and manage customer information  
-- **Customer Search**: Find customers by various criteria
-- **Customer Analytics**: Track customer behavior and engagement
+- **Staging:** `https://staging-api.loyalty.lt/{locale}/shop/`
+- **Production:** `https://api.loyalty.lt/{locale}/shop/`
 
-### Loyalty Cards
-- **Card Creation**: Generate digital and physical loyalty cards
-- **Card Management**: Update card details and status
-- **QR Code Generation**: Create scannable QR codes for cards
-- **Card Lookup**: Find cards by customer or card ID
+Where `{locale}` is the language code (e.g., `en`, `lt`).
+
+## Authentication Categories
+
+### Customer Authentication
+- **Phone + OTP Login**: Modern phone-based authentication flow
+- **User Registration**: New customer onboarding with phone verification
+- **QR Code Login**: Seamless mobile-to-desktop authentication
+- **Token Management**: JWT refresh and session management
+- **Profile Management**: User profile and preferences
+
+**Key Endpoints:**
+- `POST /{locale}/shop/auth/request-otp` - Request OTP code
+- `POST /{locale}/shop/auth/login` - Login with phone + OTP
+- `POST /{locale}/shop/auth/register` - Register new user
+- `GET /{locale}/shop/auth/me` - Get current user details
+- `PUT /{locale}/shop/auth/profile` - Update user profile
+
+## Core Shop Features
+
+### Loyalty Cards Management
+Complete loyalty card system for customer engagement and retention.
+
+**Core Features:**
+- Personal loyalty card creation and management
+- Third-party card integration (existing store cards)
+- Card balance tracking and history
+- Digital card scanning and validation
+
+**Key Endpoints:**
+- `GET /{locale}/shop/loyalty-cards` - List user's loyalty cards
+- `POST /{locale}/shop/loyalty-cards` - Create new loyalty card
+- `GET /{locale}/shop/loyalty-cards/{id}` - Get card details
+- `POST /{locale}/shop/loyalty-cards/third-party` - Add existing store card
 
 ### Points System
-- **Award Points**: Grant points for purchases and activities
-- **Redeem Points**: Process point redemptions for rewards
-- **Points History**: Track all point transactions
-- **Balance Inquiries**: Check current point balances
-- **Bulk Operations**: Process multiple point transactions
+Flexible points management system for rewards and gamification.
 
-### Offers & Coupons
-- **Offer Management**: Create and manage promotional offers
-- **Coupon Generation**: Generate redeemable coupons
-- **Redemption Processing**: Handle offer and coupon redemptions
-- **Offer Analytics**: Track offer performance and usage
+**Core Features:**
+- Points earning through purchases and activities
+- Points redemption for rewards
+- Bulk operations for high-volume scenarios
+- Transaction history and balance tracking
+- Points expiration management
 
-### Games & Engagement
-- **Game Sessions**: Manage interactive loyalty games
-- **Score Tracking**: Record and validate game results
-- **Leaderboards**: Display top performers and achievements
-- **Reward Distribution**: Distribute game-based rewards
+**Key Endpoints:**
+- `GET /{locale}/shop/points` - List point transactions
+- `POST /{locale}/shop/points` - Award or deduct points
+- `GET /{locale}/shop/points/summary` - Points balance summary
+- `POST /{locale}/shop/points/bulk` - Bulk points operations
+- `GET /{locale}/shop/points/card/{card_id}/balance` - Get card balance
 
-### Transactions & History
-- **Transaction Logging**: Record all loyalty interactions
-- **History Retrieval**: Access customer transaction history
-- **Reporting Data**: Generate business intelligence reports
-- **Audit Trails**: Maintain compliance and tracking logs
+### Offers & Coupons System
+Dynamic offer management with automated coupon generation.
 
-## Authentication
+**Offers Management:**
+- Browse available offers by category
+- Featured offers promotion
+- Personalized offer recommendations
+- Offer claiming and validation
 
-Shop API endpoints support multiple authentication methods:
+**Coupon Management:**
+- Active coupon tracking
+- Expiration notifications
+- Redemption processing
+- Usage statistics and analytics
 
-<Tabs>
-<Tab title="API Credentials">
-Recommended for server-to-server integrations:
+**Key Endpoints:**
+- `GET /{locale}/shop/offers` - List available offers
+- `GET /{locale}/shop/offers/featured` - Get featured offers
+- `POST /{locale}/shop/offers/{id}/claim` - Claim offer
+- `GET /{locale}/shop/coupons` - List user coupons
+- `POST /{locale}/shop/coupons/{id}/redeem` - Redeem coupon
 
-```bash
-curl -X GET "https://staging-api.loyalty.lt/api/customers" \
-  -H "X-API-Key: your_api_key" \
-  -H "X-API-Secret: your_api_secret"
-```
-</Tab>
+### Games & Gamification
+Interactive games system for customer engagement and point earning.
 
-<Tab title="JWT Tokens">
-For user-authenticated requests:
+**Game Types Supported:**
+- **Memory Games**: Card matching and memory challenges
+- **Quiz Games**: Knowledge-based point earning
+- **Spin Wheel**: Random reward games
+- **Scratch Cards**: Digital scratch-to-win games
+- **Stamp Collection**: Visit-based loyalty games
 
-```bash
-curl -X GET "https://staging-api.loyalty.lt/api/customer/profile" \
-  -H "Authorization: Bearer your_jwt_token"
-```
-</Tab>
-</Tabs>
+**Game Features:**
+- Real-time game sessions with WebSocket support
+- Progress tracking and validation
+- Reward claiming and distribution
+- Game history and statistics
+- Anti-cheat validation
 
-## Rate Limits
+**Key Endpoints:**
+- `GET /{locale}/shop/games` - List available games
+- `POST /{locale}/shop/games/{id}/start` - Start game session
+- `POST /{locale}/shop/games/sessions/{sessionKey}/progress` - Update progress
+- `POST /{locale}/shop/games/sessions/{sessionKey}/claim-reward` - Claim rewards
+- `GET /{locale}/shop/user/games/history` - Game history
 
-- **API Credentials**: 1000 requests per minute
-- **JWT Tokens**: 300 requests per minute
-- **Bulk Operations**: 100 requests per minute
+### Transaction History
+Unified transaction tracking across all loyalty activities.
 
-<Warning>
-Bulk operations have separate, lower rate limits to ensure system stability. Use batch endpoints for high-volume operations.
-</Warning>
+**Transaction Types:**
+- Point transactions (earned/redeemed)
+- Coupon activities (claimed/redeemed)
+- Game rewards and achievements
+- Offer interactions
+- Card activities
 
-## Common Use Cases
+**Features:**
+- Comprehensive transaction history
+- Export capabilities (CSV/JSON)
+- Statistical summaries
+- Advanced filtering and search
 
-### E-commerce Integration
-```bash
-# Award points after purchase
-POST /api/points/award
+**Key Endpoints:**
+- `GET /{locale}/shop/transactions` - Get transaction history
+- `GET /{locale}/shop/transactions/summary` - Transaction summary
+- `POST /{locale}/shop/transactions/export` - Export data
+
+### Shop Management
+Tools for managing multiple store locations and analytics.
+
+**Management Features:**
+- Multi-store support
+- Location-based services
+- Store analytics and reporting
+- Import/export capabilities
+- Performance metrics
+
+**Key Endpoints:**
+- `GET /{locale}/shop/shops` - List shops
+- `GET /{locale}/shop/shops/nearby` - Find nearby shops
+- `GET /{locale}/shop/shops/{id}/analytics` - Shop analytics
+- `POST /{locale}/shop/shops/import` - Bulk import
+- `POST /{locale}/shop/shops/export` - Data export
+
+## Integration Features
+
+### XML Import System
+Bulk data import system for migrating existing customer and transaction data.
+
+**Import Capabilities:**
+- Customer data migration
+- Transaction history import
+- Points balance initialization
+- Loyalty card bulk creation
+- Data validation and mapping
+
+**Key Endpoints:**
+- `POST /{locale}/shop/xml-import/from-url` - Import from URL
+- `POST /{locale}/shop/xml-import/from-file` - Upload and import
+- `GET /{locale}/shop/xml-import/history` - Import history
+- `POST /{locale}/shop/xml-import/validate` - Validate XML structure
+
+## Common Features
+
+### Authentication Methods
+- **API Credentials**: Server-side authentication using X-API-Key and X-API-Secret headers
+- **JWT Tokens**: User session authentication for customer-facing operations
+- **Partner Authentication**: Integrated with partner API auth middleware
+
+### Rate Limits
+- **Standard Rate**: 1000 requests per hour per API key
+- **Burst Allowance**: Up to 100 requests per minute
+- **Premium Limits**: Higher limits available for enterprise customers
+
+### Response Format
+All endpoints return consistent JSON responses:
+
+```json
 {
-  "customer_id": "cust_123",
-  "points": 100,
-  "reason": "purchase",
-  "order_id": "order_456"
-}
-
-# Check available offers
-GET /api/offers/available?customer_id=cust_123
-```
-
-### POS System Integration  
-```bash
-# Scan loyalty card
-POST /api/loyalty-cards/scan
-{
-  "qr_data": "loyalty_card_qr_code"
-}
-
-# Apply discount with points
-POST /api/points/redeem
-{
-  "customer_id": "cust_123", 
-  "points": 200,
-  "reason": "discount"
+  "success": true|false,
+  "message": "Operation result message",
+  "data": {...},
+  "code": "ERROR_CODE" // Only on errors
 }
 ```
 
-### Mobile App Integration
-```bash
-# Get customer dashboard data  
-GET /api/customer/dashboard
+### Error Handling
+- **400**: Validation errors with detailed field information
+- **401**: Authentication required or invalid credentials
+- **403**: Insufficient permissions for operation
+- **404**: Resource not found
+- **429**: Rate limit exceeded
+- **500**: Server errors with error tracking
 
-# Redeem coupon
-POST /api/coupons/redeem
-{
-  "coupon_code": "SAVE20",
-  "customer_id": "cust_123"
-}
-```
+## Health Check
 
-<Check>
-All endpoints include comprehensive validation, error handling, and detailed response codes for robust integration.
-</Check>
+Monitor API availability:
+- `GET /shop/health` - Service health status
+
+Returns operational status for all Shop API services including authentication, points system, loyalty cards, offers/coupons, games, and XML import functionality.
+
+## Next Steps
+
+<CardGroup cols={2}>
+<Card title="Authentication Guide" icon="key" href="/api-reference/authentication">
+  Learn how to authenticate requests using API credentials or JWT tokens
+</Card>
+
+<Card title="Error Handling" icon="exclamation-triangle" href="/api-reference/error-handling">
+  Understand error responses and implement proper error handling
+</Card>
+</CardGroup>
 
 <Note>
-The complete API documentation with interactive examples is automatically generated below from our OpenAPI specification. You can test all endpoints directly in your browser.
+All endpoint details, request/response schemas, and examples are automatically generated from the OpenAPI specification. Use the interactive API reference to test endpoints and view complete documentation.
 </Note> 
