@@ -48,9 +48,33 @@ Partner transaction oversight and analytics:
 Partner game management and customization:
 
 - `GET /{locale}/partners/games` - Partner-specific games
+- `POST /{locale}/partners/games` - Create new games
+- `PUT /{locale}/partners/games/{id}` - Update game settings
 - Game performance analytics
 - Custom game configurations
+- Coupon generation settings (multiple coupons, validity periods)
 - Partner branding and themes
+
+<Card title="Games API Reference" href="/api-reference/endpoints/partners/games">
+  Complete documentation for creating and managing partner games, including coupon generation settings.
+</Card>
+
+### Partner Cards Management
+Loyalty card configuration and management:
+
+- `GET /{locale}/partners/cards` - List partner loyalty cards
+- `POST /{locale}/partners/cards` - Create new loyalty card
+- `GET /{locale}/partners/cards/{id}` - Get card details
+- `PUT /{locale}/partners/cards/{id}` - Update card configuration
+- `DELETE /{locale}/partners/cards/{id}` - Delete loyalty card
+- Custom point systems and redemption rules
+- **Coupon validity settings** - Configure default coupon expiration periods
+- Card design customization and branding
+- Multi-shop card assignment
+
+<Info>
+Partner Cards include **coupon validity management** - set default expiration periods for game-generated coupons, or allow unlimited validity. See [Partner Cards API](/api-reference/endpoints/partners/cards) for detailed documentation.
+</Info>
 
 ## Admin Partner Management
 

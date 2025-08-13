@@ -1,0 +1,1007 @@
+---
+title: "Partner Staff Flutter aplikacija"
+description: "Loyalty.lt personalo aplikacija sukurta Flutter technologija - išsami dokumentacija ir naudojimo vadovas"
+---
+
+# Partner Staff Flutter aplikacija
+
+Loyalty.lt Partner Staff Flutter aplikacija yra cross-platform sprendimas, skirtas partnerių personalo darbui su lojalumo sistema. Aplikacija veikia Android, iOS, Windows, macOS ir Linux platformose.
+
+## Aplikacijos apžvalga
+
+### Pagrindinės funkcijos
+
+<CardGroup cols={2}>
+<Card title="Autentifikacija 🔐" icon="lock">
+**Saugus prisijungimas:**
+- QR kodo skanavimas
+- Brūkšninio kodo atpažinimas
+- NFC kortelių skaitymas
+- Aplinkos pasirinkimas (Production/Staging)
+</Card>
+
+<Card title="POS sistema 💳" icon="credit-card">
+**Pilnavertė kasa:**
+- Kortelių skanavimas
+- Taškų apskaičiavimas
+- Pirkimų registravimas
+- Real-time sinchronizacija
+</Card>
+
+<Card title="Klientų valdymas 👥" icon="users">
+**Kliento informacija:**
+- Profilio peržiūra
+- Taškų balansas
+- Pirkimų istorija
+- Kuponų valdymas
+</Card>
+
+<Card title="Analitika 📊" icon="chart-line">
+**Veiklos statistikos:**
+- Dashboard su KPI
+- Pardavimų tendencijos
+- Performance grafikai
+- Real-time duomenys
+</Card>
+
+<Card title="Žaidimai 🎮" icon="gamepad-2">
+**Lojalumo žaidimai:**
+- Laimės ratas
+- Instant win žaidimai
+- Prizų išdavimas
+- Žaidimų statistikos
+</Card>
+
+<Card title="Nustatymai ⚙️" icon="settings">
+**Aplikacijos konfigūracija:**
+- Kalbos pasirinkimas
+- Aplinkos keitimas
+- Profilio valdymas
+- Atsijungimo funkcija
+</Card>
+</CardGroup>
+
+### Techninės specifikacijos
+
+**Framework:** Flutter 3.10.0+  
+**Dart SDK:** >=3.0.0 <4.0.0  
+**Versija:** 1.0.4+10  
+**Palaikomos platformos:** Android, iOS, Windows, macOS, Linux, Web
+
+**Pagrindinės bibliotekos:**
+- **UI/UX:** Material Design, Cupertino widgets, Google Fonts
+- **State Management:** Provider pattern
+- **Navigacija:** GoRouter
+- **Saugojimas:** Flutter Secure Storage, Shared Preferences
+- **Network:** Dio HTTP client
+- **Real-time:** Ably Flutter SDK
+- **Skanavimas:** Mobile Scanner, Camera plugins
+- **Lokalizacija:** Easy Localization
+
+---
+
+## Diegimo instrukcijos
+
+### Sistemos reikalavimai
+
+<Tabs>
+<Tab title="Android">
+**Minimum reikalavimai:**
+- Android 5.0 (API level 21)
+- RAM: 2GB
+- Storage: 100MB
+- Camera prieiga (QR skanavimui)
+- Internet ryšys
+
+**Rekomenduojama:**
+- Android 8.0+ (API level 26+)
+- RAM: 4GB+
+- NFC palaikymas
+</Tab>
+
+<Tab title="iOS">
+**Minimum reikalavimai:**
+- iOS 11.0+
+- iPhone 6 ar naujesnis
+- Storage: 100MB
+- Camera prieiga
+- Internet ryšys
+
+**Rekomenduojama:**
+- iOS 14.0+
+- iPhone 8 ar naujesnis
+- NFC palaikymas (iPhone 7+)
+</Tab>
+
+<Tab title="Windows">
+**Minimum reikalavimai:**
+- Windows 10 versija 1903+
+- x64 architektūra
+- RAM: 4GB
+- Storage: 200MB
+- Webcam (QR skanavimui)
+
+**Rekomenduojama:**
+- Windows 11
+- RAM: 8GB+
+- Dedicated GPU
+</Tab>
+
+<Tab title="macOS">
+**Minimum reikalavimai:**
+- macOS 10.14+
+- Intel arba Apple Silicon
+- RAM: 4GB
+- Storage: 200MB
+
+**Rekomenduojama:**
+- macOS 12.0+
+- Apple Silicon (M1/M2)
+- RAM: 8GB+
+</Tab>
+</Tabs>
+
+### Programėlės įdiegimas
+
+<Steps>
+<Step title="Android įdiegimas">
+  **Google Play Store (rekomenduojama):**
+  1. Atidarykite Google Play Store
+  2. Ieškokite "Loyalty.lt Staff"
+  3. Spauskite "Install"
+  4. Leiskite reikiamas teises
+
+  **APK įdiegimas:**
+  1. Atsisiųskite APK failą iš [releases](https://github.com/loyalty-lt/partner-staff-flutter/releases)
+  2. Įjunkite "Unknown sources" Android nustatymuose
+  3. Atidarykite APK failą ir sekite instrukcijas
+</Step>
+
+<Step title="iOS įdiegimas">
+  **App Store (rekomenduojama):**
+  1. Atidarykite App Store
+  2. Ieškokite "Loyalty.lt Staff"
+  3. Spauskite "Get"
+  4. Autentifikuokitės su Face ID/Touch ID
+
+  **TestFlight (beta versijos):**
+  1. Įdiekite TestFlight iš App Store
+  2. Gaukite kvietimo nuorodą iš administratoriaus
+  3. Sekite TestFlight instrukcijas
+</Step>
+
+<Step title="Windows įdiegimas">
+  **MSIX installer:**
+  1. Atsisiųskite MSIX failą iš [releases](https://github.com/loyalty-lt/partner-staff-flutter/releases)
+  2. Dvigubai spauskite MSIX failą
+  3. Spauskite "Install" Windows installer lange
+  4. Aplikacija atsiras Start meniu
+
+  **Saugumo pastaba:**
+  - Windows gali rodyti SmartScreen įspėjimą
+  - Spauskite "More info" → "Run anyway"
+  - MSIX failas yra unsigned, bet saugus
+</Step>
+
+<Step title="macOS įdiegimas">
+  **DMG installer:**
+  1. Atsisiųskite DMG failą iš [releases](https://github.com/loyalty-lt/partner-staff-flutter/releases)
+  2. Atidarykite DMG failą
+  3. Nuvilkite aplikaciją į Applications aplanką
+  4. Pirmą kartą atidarydami, Control+click → "Open"
+
+  **Saugumo pastaba:**
+  - macOS gali reikalauti leisti aplikaciją Security & Privacy nustatymuose
+</Step>
+</Steps>
+
+---
+
+## Naudojimo vadovas
+
+### Pirmas prisijungimas
+
+<Steps>
+<Step title="Aplikacijos paleidimas">
+  <Frame>
+  <img src="/images/staff-app/launch-screen.png" alt="Aplikacijos paleidimo ekranas" />
+  </Frame>
+  
+  Paleidę aplikaciją pamatysite:
+  - Loyalty.lt logotipą
+  - Aplinkos indikatorių (Production/Staging)
+  - Kalbos pasirinkimo mygtuką
+  - Aplinkos keitimo mygtuką (development mode)
+</Step>
+
+<Step title="Aplinkos pasirinkimas">
+  <Frame>
+  <img src="/images/staff-app/environment-selection.png" alt="Aplinkos pasirinkimas" />
+  </Frame>
+  
+  **Production aplinka (rekomenduojama):**
+  - Naudokite realių duomenų darbui
+  - Stabiliausia versija
+  - Pilnas funkcionalumas
+  
+  **Staging aplinka (testavimui):**
+  - Test duomenys
+  - Naujos funkcijos
+  - Development tikslams
+</Step>
+
+<Step title="Autentifikacijos metodas">
+  Pasirinkite prisijungimo būdą:
+  
+  <Tabs>
+  <Tab title="QR kodo skanavimas 📱">
+  1. Spauskite QR skanavimo mygtuką
+  2. Nukreipkite kamerą į QR kodą
+  3. Palaukite automatinio atpažinimo
+  4. Sistema automatiškai prisijungs
+  </Tab>
+  
+  <Tab title="Brūkšninio kodo skanavimas 📊">
+  1. Spauskite barcode skanavimo mygtuką  
+  2. Nuskaitykite kortelės brūkšninį kodą
+  3. Sistema nuskaitytos duomenis
+  4. Prisijungimas įvyks automatiškai
+  </Tab>
+  
+  <Tab title="NFC kortelės 📡">
+  1. Įsitikinkite, kad NFC įjungtas
+  2. Pridėkite NFC kortelę prie įrenginio
+  3. Palaukite duomenų nuskaitymo
+  4. Automatinis prisijungimas
+  </Tab>
+  
+  <Tab title="Manual login 🔢">
+  1. Spauskite "Manual login" (development)
+  2. Įveskite username ir password
+  3. Spauskite "Login"
+  4. Pasirinkite parduotuvę
+  </Tab>
+  </Tabs>
+</Step>
+
+<Step title="Parduotuvės pasirinkimas">
+  <Frame>
+  <img src="/images/staff-app/shop-selection.png" alt="Parduotuvės pasirinkimas" />
+  </Frame>
+  
+  Jei darbuotojas priskirtas kelioms parduotuvėms:
+  1. Pasirinkite parduotuvę iš sąrašo
+  2. Spauskite "Pasirinkti parduotuvę"
+  3. Sistema nukreips į pagrindinį ekraną
+  
+  **Parduotuvės informacija:**
+  - Pavadinimas ir adresas
+  - Darbo laikas
+  - Kontaktinė informacija
+  - Statusas (aktyvi/neaktyvi)
+</Step>
+</Steps>
+
+### Pagrindinis dashboard
+
+<Frame>
+<img src="/images/staff-app/main-dashboard.png" alt="Pagrindinis dashboard" />
+</Frame>
+
+**Dashboard elementai:**
+
+**KPI kortelės:**
+- 💰 **Šiandienos pajamos** - dienų pardavimų suma
+- 🛒 **Transakcijų skaičius** - šiandien įvykdytų pirkimų
+- 👥 **Klientų skaičius** - unikalūs pirkėjai šiandien
+- 📊 **Vidutinis čekis** - average pirkimo suma
+
+**Performance grafikai:**
+- 📈 **Pardavimų dinamika** - valandinė pardavimų statistika
+- 👥 **Klientų srautai** - kada daugiausia klientų
+- 💳 **Mokėjimo metodai** - kaip klientai moka
+
+**Paskutinė veikla:**
+- Naujausi pirkimai
+- Kliento registracijos
+- Taškų operacijos
+- System events
+
+### POS sistema
+
+#### Kortelės skanavimas
+
+<Steps>
+<Step title="Skanavimo režimo įjungimas">
+  <Frame>
+  <img src="/images/staff-app/scan-mode.png" alt="Skanavimo režimas" />
+  </Frame>
+  
+  Dashboard'e spauskite **"Scan kortelę"** mygtuką arba naudokite floating action button.
+</Step>
+
+<Step title="Kortelės atpažinimas">
+  **Automatinis atpažinimas:**
+  - QR kodai atpažįstami per 1-2 sekundes
+  - Brūkšniniai kodai skaitomi iš karto
+  - NFC kortelės turi būti palaikytos 2-3 sekundes
+  
+  **Manual input (backup):**
+  - Įveskite kortelės numerį rankiniu būdu
+  - Naudokite tik ekstremaliomis situacijomis
+</Step>
+
+<Step title="Kliento informacijos rodymas">
+  <Frame>
+  <img src="/images/staff-app/customer-info.png" alt="Kliento informacija" />
+  </Frame>
+  
+  Po sėkmingo skanavimo pamatysite:
+  - **Kliento vardą** ir kontaktus
+  - **Taškų balansą** ir istoriją
+  - **VIP statusą** (jei taikoma)
+  - **Galimus kuponus** ir akcijas
+  - **Paskutinius pirkimus**
+</Step>
+</Steps>
+
+#### POS sąsaja
+
+<Frame>
+<img src="/images/staff-app/pos-interface.png" alt="POS sąsaja" />
+</Frame>
+
+**POS funkcionalumas:**
+
+**Sumų įvedimas:**
+- 🔢 **Number pad** - didelės, aiškios klavišų
+- 💰 **Suma eurais** - automatinis formatavimas
+- ➕ **Quick amounts** - greiti mygtukai (5€, 10€, 20€, 50€)
+- 🗑️ **Clear** - išvalyti įvestą sumą
+
+**Taškų skaičiavimas:**
+- **Automatinis** - pagal partnerio nustatymus
+- **Real-time** - matote taškus iš karto
+- **Preview** - kiek taškai bus gauti
+- **Bonus akcijos** - papildomi taškai jei taikoma
+
+**Mokėjimo registravimas:**
+- 💳 **Kortelė** - banko kortelės mokėjimas
+- 💰 **Grynieji** - cash mokėjimas
+- 🎯 **Taškai** - mokėjimas lojalumo taškais
+- 🔄 **Kombinuotas** - dalinai taškais, dalinai pinigais
+
+#### Taškų panaudojimas
+
+<Steps>
+<Step title="Taškų panaudojimo aktyvavimas">
+  POS ekrane spauskite **"Panaudoti taškus"** mygtuką.
+</Step>
+
+<Step title="Sumos pasirinkimas">
+  <Frame>
+  <img src="/images/staff-app/points-redemption.png" alt="Taškų panaudojimas" />
+  </Frame>
+  
+  **Panaudojimo būdai:**
+  - **Visa suma taškais** - pilnas apmokėjimas taškais
+  - **Dalinai taškais** - įveskite taškų kiekį
+  - **Maksimalūs taškai** - panaudoti visus galimus
+  - **Procentinė nuolaida** - pvz., 10% nuo sumos
+</Step>
+
+<Step title="Patvirtinimas">
+  Sistema parodys:
+  - Panaudojamų taškų kiekis
+  - Nuolaidos suma eurais
+  - Likučių suma mokėjimui
+  - Naujas taškų balansas
+  
+  Spauskite **"Patvirtinti"** finalizuoti operaciją.
+</Step>
+</Steps>
+
+### Žaidimų valdymas
+
+<Frame>
+<img src="/images/staff-app/games-interface.png" alt="Žaidimų sąsaja" />
+</Frame>
+
+#### Žaidimų tipai
+
+<Tabs>
+<Tab title="Laimės ratas 🎡">
+**Funkcionalumas:**
+- Interaktyvus sukamasis ratas
+- Konfigūruojami prizai
+- Animacijos ir garsai
+- Real-time rezultatų registravimas
+
+**Naudojimas:**
+1. Klientas nuperka už minimum sumą
+2. Staff suteikia žaidimo galimybę
+3. Klientas sukamą ratą
+4. Sistem automatically registruoja laimėjimus
+</Tab>
+
+<Tab title="Instant Win 🎰">
+**Funkcionalumas:**
+- Greitas loterijos žaidimas
+- Iškart žinomas rezultatas
+- Įvairūs prizių tipai
+- Detailed logging
+
+**Naudojimas:**
+1. Staff aktyvuoja žaidimus klientui
+2. Sistema random generuoja rezultatą
+3. Prizo išdavimas automatiškai
+4. Printing čekių su prizą informacija
+</Tab>
+
+<Tab title="Scratch & Win 🃏">
+**Funkcionalumas:**
+- Virtualūs scratch cards
+- Touch interakcijos
+- Progressyvūs prizai
+- Engagement tracking
+
+**Naudojimas:**
+1. Klientas gauna scratch card
+2. "Braižo" screen su pirštu
+3. Atsiskleidžia prizas
+4. Staff išduoda fizinį apdovanojimas
+</Tab>
+</Tabs>
+
+#### Žaidimo proceso valdymas
+
+<Steps>
+<Step title="Žaidimo iniciavimas">
+  **Po pirkimo registravimo:**
+  1. Sistema automatically patikrina žaidimo tinkamumas
+  2. Jei klientas qualifies - rodomas žaidimo siūlymas
+  3. Staff paaiškina žaidimo taisykles
+  4. Aktyvuoja žaidimo sesiją
+</Step>
+
+<Step title="Žaidimo vykdymas">
+  **Žaidimo process:**
+  1. Klientas žaidžia interactive elementus
+  2. Real-time progress tracking
+  3. Animacijos ir visual feedback
+  4. Rezultato automatic recognition
+</Step>
+
+<Step title="Prizo išdavimas">
+  **Prize fulfillment:**
+  1. Sistema generuoja prizo voucher
+  2. QR kodo spausdinimas (jei reikia)
+  3. Staff koordinuoja fizinio prizo išdavimas
+  4. Completion logging ir analytics
+</Step>
+</Steps>
+
+### Klientų profilio valdymas
+
+<Frame>
+<img src="/images/staff-app/customer-profile.png" alt="Kliento profilis" />
+</Frame>
+
+#### Profilio informacija
+
+**Pagrindiniai duomenys:**
+- 👤 **Vardas ir pavardė** - kliento identifikavimas
+- 📧 **El. paštas** - kontaktinis adresas
+- 📞 **Telefonas** - kontaktinis numeris
+- 🎂 **Gimimo data** - gimtadienio akcijoms
+- 📍 **Adresas** - gyvenamoji vieta
+
+**Lojalumo duomenys:**
+- 💳 **Kortelės numeris** - unikalus ID
+- 💰 **Taškų balansas** - šiuo metu turimi taškai
+- 📊 **Lojalumo lygis** - VIP statusas
+- 📅 **Registracijos data** - kada prisijungė
+- 🛒 **Pirkimų skaičius** - total transakcijų
+
+#### Profilio funkcijos
+
+<Tabs>
+<Tab title="Taškų istorija 📊">
+**Detalus taškų tracking:**
+- Visi taškų gavimo records
+- Panaudojimo istorija
+- Expiruojančių taškų alerts
+- Bonus taškų detalization
+
+**Filtravimo galimybės:**
+- Pagal datą (šiandien/savaitė/mėnuo)
+- Pagal operacijos tipą (gavimas/panaudojimas)
+- Pagal sumą (minimum/maksimum)
+- Pagal parduotuvę
+</Tab>
+
+<Tab title="Pirkimų istorija 🛒">
+**Complete purchase records:**
+- Visų transakcijų sąrašas
+- Detailed purchase items
+- Payment method information
+- Return/refund status
+
+**Transaction details:**
+- Date ir time stamps
+- Individual product information
+- Applied discounts ir promotions
+- Staff member processing
+</Tab>
+
+<Tab title="Kuponai ir akcijos 🎁">
+**Active promotions:**
+- Available coupons sąrašas
+- Expiration dates
+- Naudojimo restrictions
+- Special offers eligibility
+
+**Coupon management:**
+- Manual coupon application
+- Promotional code validation
+- Custom discount creation
+- Bulk promotion aplikavimas
+</Tab>
+</Tabs>
+
+### Nustatymų valdymas
+
+<Frame>
+<img src="/images/staff-app/settings-screen.png" alt="Nustatymų ekranas" />
+</Frame>
+
+#### Profilio nustatymai
+
+**Vartotojo informacija:**
+- 👤 **Vardas** - staff member name
+- 📧 **El. paštas** - contact email
+- 🏢 **Pozicija** - job title
+- 🏪 **Priskiros parduotuvės** - assigned locations
+
+**Darbo nustatymai:**
+- ⏰ **Shift information** - current work schedule
+- 🔔 **Notification preferences** - alert settings
+- 📱 **Device registration** - current device info
+- 🔐 **Security settings** - password/biometric
+
+#### Aplikacijos nustatymai
+
+**Kalbos pasirinkimas:**
+- 🇱🇹 **Lietuvių** - pagrindinė kalba
+- 🇬🇧 **English** - international staff
+- Automatic system language detection
+- Regional format preferences
+
+**Aplinkos konfigūracija:**
+- 🟢 **Production** - live operations
+- 🟡 **Staging** - testing environment
+- 🔄 **Auto-switch** - automatic environment detection
+- 🛡️ **Security certificates** - SSL validation
+
+**Prieigos teisės:**
+- 📷 **Camera permissions** - QR scanning
+- 📡 **NFC access** - card reading
+- 🔔 **Notifications** - push messages
+- 📍 **Location services** - GPS tracking
+
+---
+
+## Troubleshooting
+
+### Dažnos problemos
+
+<AccordionGroup>
+<Accordion title="Aplikacija negali nuskaityti QR kodo">
+**Galimos priežastys:**
+- Camera permissions neleisti
+- Insufficient lighting conditions
+- Damaged arba blur QR code
+- Incorrect QR format
+
+**Sprendimai:**
+1. **Patikrinkite camera permissions:**
+   - Android: Settings → Apps → Loyalty Staff → Permissions → Camera → Allow
+   - iOS: Settings → Privacy → Camera → Loyalty Staff → Enable
+
+2. **Improve lighting conditions:**
+   - Use adequate lighting
+   - Clean camera lens
+   - Hold steady prie scanning
+
+3. **Alternative scanning methods:**
+   - Try barcode scanner instead
+   - Use manual input backup
+   - NFC scanning jei available
+
+4. **QR code validation:**
+   - Ensure QR contains proper Loyalty.lt data
+   - Check if QR is not expired
+   - Verify format compatibility
+</Accordion>
+
+<Accordion title="Real-time duomenys nesinchronizuoja">
+**Galimos priežastys:**
+- Network connectivity issues
+- Ably service disconnection
+- Server maintenance
+- Configuration problems
+
+**Sprendimai:**
+1. **Check internet connection:**
+   - Verify Wi-Fi arba mobile data
+   - Test network speed
+   - Try different network
+
+2. **Restart real-time connection:**
+   - Log out ir log back in
+   - Force close ir reopen app
+   - Clear app cache
+
+3. **Server status verification:**
+   - Check system status at status.loyalty.lt
+   - Contact support jei widespread issue
+   - Switch to backup server
+
+4. **Configuration reset:**
+   - Clear app data (as last resort)
+   - Re-authenticate
+   - Reconfigure environment settings
+</Accordion>
+
+<Accordion title="Taškų apskaičiavimas neteisingas">
+**Galimos priežastys:**
+- Outdated loyalty rules
+- Promotion conflicts
+- Calculation errors
+- Category mismatches
+
+**Sprendimai:**
+1. **Verify loyalty rules:**
+   - Check current points koeficientas
+   - Confirm minimum purchase amounts
+   - Validate category settings
+
+2. **Review aktyvios promocijos:**
+   - Check overlapping promotions
+   - Verify promotion dates
+   - Confirm customer eligibility
+
+3. **Manual recalculation:**
+   - Use calculator validate expected points
+   - Compare su partner dashboard rules
+   - Document discrepancies su support
+
+4. **System refresh:**
+   - Sync latest rules su server
+   - Clear calculation cache
+   - Restart transaction process
+</Accordion>
+
+<Accordion title="Staff login authentication fails">
+**Galimos priežastys:**
+- Expired staff credentials
+- Invalid QR/barcode data
+- Account suspension
+- Environment mismatch
+
+**Sprendimai:**
+1. **Verify staff status:**
+   - Check su admin dėl account status
+   - Confirm employment status
+   - Verify assigned shops
+
+2. **Validate authentication media:**
+   - Check QR/barcode expiration
+   - Ensure proper encoding
+   - Test su different device
+
+3. **Environment verification:**
+   - Confirm correct environment (prod/staging)
+   - Check API endpoint configuration
+   - Verify SSL certificates
+
+4. **Alternative login methods:**
+   - Try manual login (jei available)
+   - Use backup authentication
+   - Contact administrator dėl reset
+</Accordion>
+
+<Accordion title="Performance issues ir lag">
+**Galimos priežastys:**
+- Device hardware limitations
+- Memory constraints
+- Background app interference
+- Network latency
+
+**Sprendimai:**
+1. **Device optimization:**
+   - Close background apps
+   - Restart device
+   - Clear RAM memory
+   - Free up storage space
+
+2. **App optimization:**
+   - Clear app cache
+   - Update to latest version
+   - Reset app preferences
+   - Reinstall application
+
+3. **Network optimization:**
+   - Use Wi-Fi instead of mobile data
+   - Check internet speed
+   - Reduce concurrent connections
+
+4. **Hardware considerations:**
+   - Verify minimum system requirements
+   - Consider device upgrade
+   - Close power-hungry applications
+   - Use battery saver mode sparingly
+</Accordion>
+</AccordionGroup>
+
+### Diagnostikos įrankiai
+
+**Built-in diagnostics:**
+- 🔍 **Connection status** - real-time connectivity monitoring
+- 📊 **Performance metrics** - app performance indicators
+- 🔄 **Sync status** - data synchronization tracking
+- 🗂️ **Error logs** - detailed error reporting
+
+**Debug information access:**
+1. Settings → Advanced → Diagnostics
+2. Long press app logo 10 kartus (hidden debug mode)
+3. Export logs via email su support team
+4. Network speed test function
+
+---
+
+## API ir integracijos
+
+### Backend integracija
+
+**API endpoints:**
+- **Authentication:** `POST /api/auth/staff-login`
+- **Loyalty operations:** `POST /api/loyalty/award-points`
+- **Transaction recording:** `POST /api/transactions/create`
+- **Customer lookup:** `GET /api/customers/:id`
+- **Games management:** `POST /api/games/play`
+
+**Real-time features (Ably):**
+- 📡 **Live transaction updates** - instant POS synchronization
+- 🔔 **Push notifications** - immediate alerts
+- 🎮 **Game state management** - real-time žaidimų progress
+- 👥 **Multi-device synchronization** - consistent experience
+
+### Duomenų sinchronizacija
+
+**Automatic sync:**
+- Customer profile updates
+- Loyalty points balance
+- Transaction histories
+- Promotion validations
+- Game participations
+
+**Manual sync triggers:**
+- Pull-to-refresh gesture
+- App foreground activation
+- Manual "Refresh" button
+- Scheduled background sync
+
+---
+
+## Saugumo funkcijos
+
+### Duomenų apsauga
+
+**Encryption:**
+- 🔐 **AES-256 encryption** - all local data storage
+- 🛡️ **TLS 1.3** - network communications
+- 🔑 **Certificate pinning** - prevent man-in-the-middle
+- 🎫 **JWT tokens** - secure authentication
+
+**Prieigos kontrolė:**
+- 👤 **Role-based permissions** - staff role restrictions
+- 🏪 **Shop-based access** - location-specific data
+- ⏰ **Session timeouts** - automatic logout
+- 🔒 **Device binding** - registered device authentication
+
+### Privatumo apsauga
+
+**Customer data protection:**
+- Minimal data collection
+- GDPR compliance
+- Automatic data retention limits
+- Secure data disposal
+
+**Staff privacy:**
+- Limited personal data storage
+- Encrypted credential storage
+- Audit trail maintaining
+- Right to be forgotten support
+
+---
+
+## Plėtojimo gairės
+
+### Kodo struktūra
+
+```
+lib/
+├── core/              # Core functionality
+│   ├── constants/     # App constants
+│   ├── models/        # Data models
+│   ├── providers/     # State management
+│   ├── services/      # Business logic
+│   ├── theme/         # UI theming
+│   └── utils/         # Utility functions
+├── features/          # Feature modules
+│   ├── auth/          # Authentication
+│   ├── dashboard/     # Main dashboard
+│   ├── loyalty/       # Loyalty operations
+│   ├── pos/           # Point of Sale
+│   ├── scanner/       # QR/Barcode scanning
+│   └── settings/      # App settings
+└── shared/            # Shared components
+    ├── models/        # Shared data models
+    └── widgets/       # Reusable UI components
+```
+
+### Architektūros principai
+
+**Design patterns:**
+- 🏗️ **MVVM architecture** - clear separation of concerns
+- 🔄 **Provider pattern** - reactive state management
+- 🧩 **Repository pattern** - data access abstraction
+- 🎯 **Dependency injection** - loose coupling
+
+**Code quality:**
+- 📝 **Comprehensive documentation** - inline comments
+- 🧪 **Unit testing** - automated test coverage
+- 🔍 **Static analysis** - Dart/Flutter lints
+- 🚀 **CI/CD pipelines** - automated builds
+
+---
+
+## Deployment instrukcijos
+
+### Build konfigūracija
+
+<Tabs>
+<Tab title="Android Release">
+```bash
+# Generate signed APK
+flutter build apk --release
+
+# Generate AAB for Play Store
+flutter build appbundle --release
+
+# Install on device
+flutter install --release
+```
+
+**Signing configuration:**
+- Keystore: `android/upload-keystore.jks`
+- Alias: `upload`
+- Passwords: stored in `android/key.properties`
+</Tab>
+
+<Tab title="iOS Release">
+```bash
+# Build for iOS
+flutter build ios --release
+
+# Generate IPA
+flutter build ipa --release
+
+# Archive for App Store
+cd ios && xcodebuild archive
+```
+
+**Certificate requirements:**
+- Apple Developer Account
+- Distribution certificates
+- Provisioning profiles
+- App Store Connect access
+</Tab>
+
+<Tab title="Windows Package">
+```bash
+# Build Windows MSIX
+flutter build windows --release
+dart run msix:create
+
+# Or use PowerShell script
+.\scripts\build_msix.bat
+```
+
+**Windows specifics:**
+- MSIX installer generation
+- Code signing (optional)
+- Windows Store compatibility
+</Tab>
+
+<Tab title="Web Deployment">
+```bash
+# Build for web
+flutter build web --release
+
+# Deploy to hosting
+# Copy build/web/ contents to web server
+```
+
+**Web considerations:**
+- PWA capabilities
+- Browser compatibility
+- CORS configuration
+- HTTPS requirements
+</Tab>
+</Tabs>
+
+### Environment management
+
+**Configuration files:**
+- `.env` - environment variables
+- `pubspec.yaml` - dependencies ir app config
+- Platform-specific configs in respective directories
+
+**Environment variables:**
+```bash
+# Production
+API_BASE_URL=https://api.loyalty.lt
+ABLY_API_KEY=production_key
+APP_ENV=production
+
+# Staging  
+API_BASE_URL=https://staging-api.loyalty.lt
+ABLY_API_KEY=staging_key
+APP_ENV=staging
+```
+
+---
+
+## Palaikymas ir pagalba
+
+### Kontaktinė informacija
+
+<Card title="Techninis palaikymas" icon="headphones">
+**Skubiam palaikymui:**
+- 📞 **24/7 hotline**: +370 123 45678
+- 💬 **Live chat**: app.loyalty.lt/support
+- 📧 **Email**: tech-support@loyalty.lt
+
+**Dokumentacija:**
+- 📚 **Technical docs**: docs.loyalty.lt
+- 🎥 **Video tutorials**: YouTube.com/LoyaltyLT
+- 💬 **Community forum**: community.loyalty.lt
+
+**Reportavimo problemos:**
+1. In-app "Report Bug" feature
+2. Automatic crash reporting
+3. Email su detailed logs
+4. Screenshot ir video evidence
+</Card>
+
+### Naudotojų mokymai
+
+**Onboarding programos:**
+- 🎓 **New staff training** - 2 valandų sesija
+- 📱 **App functionality workshop** - hands-on practice
+- 🎯 **Advanced features training** - specialized functions
+- 🔄 **Regular refresher sessions** - quarterly updates
+
+**Self-service resources:**
+- 📖 **User manual** - comprehensive guide
+- 🎬 **Interactive tutorials** - step-by-step guidance
+- ❓ **FAQ section** - common questions
+- 🎮 **Practice mode** - risk-free training environment
+
+---
+
+<Note>
+Partner Staff Flutter aplikacija nuolat plėtojama ir atnaujinama. Naujausi features ir bug fixes available automatiškai through app store updates.
+</Note>

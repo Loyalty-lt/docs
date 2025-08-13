@@ -1,0 +1,330 @@
+---
+title: 'Partner Games API'
+description: 'Create and manage gamification experiences for customer engagement'
+---
+
+# Partner Games API
+
+The Partner Games API allows partners to create, configure, and manage interactive games that engage customers and drive loyalty. Games can generate coupons as rewards when completed.
+
+## Game Types
+
+Partners can create various types of games:
+
+- **Stamps**: Collection-based games where customers collect stamps to earn rewards
+- **Wheel**: Spin-the-wheel games with random rewards
+- **Collection**: Item collection games
+- **Quiz**: Question and answer challenges
+- **Memory**: Memory matching games
+- **Scratch**: Digital scratch cards
+
+## Coupon Generation Settings
+
+Each game can be configured with specific coupon generation settings:
+
+### `allow_multiple_active_coupons`
+- **Type**: `boolean`
+- **Default**: `true`
+- **Description**: Controls whether customers can have multiple unused coupons from the same game simultaneously
+- **Values**:
+  - `true`: Customers can accumulate multiple active coupons from this game
+  - `false`: Only one active coupon per customer per game is allowed
+
+### `coupon_validity_days`
+- **Type**: `integer` or `null`
+- **Default**: `null` (unlimited)
+- **Range**: 1-3650 days (up to 10 years)
+- **Description**: Sets how many days coupons generated from this game remain valid
+- **Values**:
+  - `null`: Coupons never expire
+  - `30`: Coupons expire after 30 days
+  - `365`: Coupons expire after 1 year
+
+## API Endpoints
+
+### Create Game
+
+```http
+POST /{locale}/partners/games
+```
+
+Create a new game for your business.
+
+#### Request Body
+
+```json
+{
+  "name": "Coffee Loyalty Stamps",
+  "description": "Collect 10 coffee stamps to get a free coffee",
+  "game_type": "stamps",
+  "reward_description": "Free coffee of your choice",
+  "is_active": true,
+  "allow_multiple_active_coupons": true,
+  "coupon_validity_days": 30,
+  "product_ids": [1, 2, 3],
+  "start_date": "2024-01-01",
+  "end_date": "2024-12-31"
+}
+```
+
+#### Response
+
+```json
+{
+  "success": true,
+  "code": 201,
+  "message": "Game created successfully",
+  "data": {
+    "id": 15,
+    "name": "Coffee Loyalty Stamps",
+    "description": "Collect 10 coffee stamps to get a free coffee",
+    "game_type": "stamps",
+    "reward_description": "Free coffee of your choice",
+    "is_active": true,
+    "allow_multiple_active_coupons": true,
+    "coupon_validity_days": 30,
+    "product_ids": [1, 2, 3],
+    "start_date": "2024-01-01T00:00:00.000000Z",
+    "end_date": "2024-12-31T23:59:59.000000Z",
+    "created_at": "2024-08-08T12:00:00.000000Z",
+    "updated_at": "2024-08-08T12:00:00.000000Z"
+  }
+}
+```
+
+### Update Game
+
+```http
+PUT /{locale}/partners/games/{id}
+```
+
+Update an existing game's configuration.
+
+#### Request Body
+
+```json
+{
+  "name": "Updated Coffee Stamps",
+  "allow_multiple_active_coupons": false,
+  "coupon_validity_days": 60,
+  "is_active": true
+}
+```
+
+### Get Game Details
+
+```http
+GET /{locale}/partners/games/{id}
+```
+
+Retrieve detailed information about a specific game.
+
+#### Response
+
+```json
+{
+  "success": true,
+  "code": 200,
+  "data": {
+    "id": 15,
+    "name": "Coffee Loyalty Stamps",
+    "description": "Collect 10 coffee stamps to get a free coffee",
+    "game_type": "stamps",
+    "reward_description": "Free coffee of your choice",
+    "is_active": true,
+    "allow_multiple_active_coupons": true,
+    "coupon_validity_days": 30,
+    "product_ids": [1, 2, 3],
+    "start_date": "2024-01-01T00:00:00.000000Z",
+    "end_date": "2024-12-31T23:59:59.000000Z",
+    "total_players": 125,
+    "active_sessions": 15,
+    "completed_sessions": 89,
+    "created_at": "2024-08-08T12:00:00.000000Z",
+    "updated_at": "2024-08-08T12:00:00.000000Z"
+  }
+}
+```
+
+### List Games
+
+```http
+GET /{locale}/partners/games
+```
+
+Get a paginated list of all games for your business.
+
+#### Query Parameters
+
+- `page` (integer): Page number for pagination
+- `per_page` (integer): Items per page (max 100)
+- `active` (boolean): Filter by active status
+- `game_type` (string): Filter by game type
+
+#### Response
+
+```json
+{
+  "success": true,
+  "code": 200,
+  "data": {
+    "games": [
+      {
+        "id": 15,
+        "name": "Coffee Loyalty Stamps",
+        "game_type": "stamps",
+        "is_active": true,
+        "allow_multiple_active_coupons": true,
+        "coupon_validity_days": 30,
+        "total_players": 125,
+        "created_at": "2024-08-08T12:00:00.000000Z"
+      }
+    ],
+    "pagination": {
+      "current_page": 1,
+      "per_page": 20,
+      "total": 1,
+      "last_page": 1
+    }
+  }
+}
+```
+
+## Coupon Generation Logic
+
+When customers complete games, coupons are automatically generated based on the game's settings:
+
+### Multiple Coupons Setting
+
+```javascript
+// If allow_multiple_active_coupons = true
+// Customer can have multiple active coupons from the same game
+{
+  "customer_id": 123,
+  "active_coupons_from_game": [
+    { "id": 1, "code": "GAME123-001", "expires_at": "2024-09-08" },
+    { "id": 2, "code": "GAME123-002", "expires_at": "2024-09-15" },
+    { "id": 3, "code": "GAME123-003", "expires_at": "2024-09-22" }
+  ]
+}
+
+// If allow_multiple_active_coupons = false
+// Only one active coupon per customer per game
+{
+  "customer_id": 123,
+  "active_coupons_from_game": [
+    { "id": 1, "code": "GAME123-001", "expires_at": "2024-09-08" }
+  ]
+}
+```
+
+### Validity Period Setting
+
+```javascript
+// coupon_validity_days = null (unlimited)
+{
+  "coupon": {
+    "expires_at": null,
+    "is_unlimited": true
+  }
+}
+
+// coupon_validity_days = 30
+{
+  "coupon": {
+    "expires_at": "2024-09-08T12:00:00.000000Z",
+    "days_until_expiry": 30
+  }
+}
+```
+
+## Validation Rules
+
+### Game Creation/Update
+
+- `name`: Required, 3-255 characters
+- `description`: Required, 10-10000 characters
+- `game_type`: Required, one of: `stamps`, `wheel`, `collection`, `quiz`, `memory`, `scratch`
+- `reward_description`: Required, 3-1000 characters
+- `is_active`: Boolean, default `true`
+- `allow_multiple_active_coupons`: Boolean, default `true`
+- `coupon_validity_days`: Integer 1-3650 or `null`, default `null`
+- `product_ids`: Array of valid product IDs (optional)
+- `start_date`: Valid date (optional)
+- `end_date`: Valid date, must be after start_date (optional)
+
+## Business Logic Examples
+
+### Scenario 1: Limited Coupons, Short Validity
+```json
+{
+  "allow_multiple_active_coupons": false,
+  "coupon_validity_days": 7
+}
+```
+- Customer gets only one active coupon at a time
+- Each coupon expires in 7 days
+- Encourages quick redemption
+
+### Scenario 2: Unlimited Coupons, Long Validity
+```json
+{
+  "allow_multiple_active_coupons": true,
+  "coupon_validity_days": 365
+}
+```
+- Customer can accumulate multiple coupons
+- Each coupon lasts for 1 year
+- Maximizes customer engagement
+
+### Scenario 3: Collectible, Never Expiring
+```json
+{
+  "allow_multiple_active_coupons": true,
+  "coupon_validity_days": null
+}
+```
+- Customer can collect unlimited coupons
+- Coupons never expire
+- Creates a savings/collection mentality
+
+## Error Handling
+
+### Common Error Responses
+
+```json
+{
+  "success": false,
+  "code": 422,
+  "message": "Validation failed",
+  "errors": {
+    "coupon_validity_days": ["Must be between 1 and 3650 days"],
+    "game_type": ["Invalid game type provided"]
+  }
+}
+```
+
+### Business Logic Errors
+
+```json
+{
+  "success": false,
+  "code": 400,
+  "message": "Cannot disable multiple coupons when customers have active coupons",
+  "details": {
+    "active_coupons_count": 25,
+    "affected_customers": 8
+  }
+}
+```
+
+---
+
+## Related APIs
+
+- [Partner Cards API](/api-reference/endpoints/partners/cards) - Configure partner loyalty cards
+- [Partner Staff Coupons API](/api-reference/endpoints/partner-staff/coupons) - Verify and manage coupons
+- [Shop Games API](/api-reference/endpoints/shop/games) - Customer-facing game functionality
+
+
+

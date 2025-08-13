@@ -1,0 +1,392 @@
+---
+title: "Partner Cards API"
+description: "Manage loyalty cards, points settings, and coupon validity for partners"
+---
+
+# Partner Cards API
+
+Partner Cards API endpoints allow partners to create, manage, and configure their loyalty cards with custom point systems and coupon validity settings.
+
+<Info>
+Partner Cards API requires partner-level authentication with proper JWT tokens.
+</Info>
+
+## Base URL
+- **Staging:** `https://staging-api.loyalty.lt/{locale}/partners/cards`
+- **Production:** `https://api.loyalty.lt/{locale}/partners/cards`
+
+Where `{locale}` is the language code (e.g., `en`, `lt`).
+
+---
+
+## Create Partner Card
+
+<api-endpoint method="post" url="/{locale}/partners/cards">
+  Creates a new loyalty card configuration for the partner
+</api-endpoint>
+
+### Request Body
+
+```json
+{
+  "title": {
+    "en": "VIP Loyalty Card",
+    "lt": "VIP lojalumo kortelė"
+  },
+  "description": {
+    "en": "Premium loyalty card with exclusive benefits",
+    "lt": "Premium lojalumo kortelė su išskirtinėmis privilegijomis"
+  },
+  "terms_conditions": {
+    "en": "Terms and conditions apply...",
+    "lt": "Taikomos nuostatų ir sąlygų nuostatos..."
+  },
+  "card_design": {
+    "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+    "text_color": "#000000",
+    "text_color_labels": "#555555",
+    "qr_background_color": "#FFFFFF",
+    "qr_color": "#000000",
+    "background_color": "#FFFFFF",
+    "background_color_opacity": 0.8,
+    "background_image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."
+  },
+  "is_active": true,
+  "shop_ids": [1, 2, 3],
+  "auto_assign": true,
+  "points_enabled": true,
+  "initial_bonus_points": 100,
+  "points_expiration_days": 365,
+  "points_per_currency": 1.0,
+  "currency_amount": 1.0,
+  "round_points_up": false,
+  "min_points_per_purchase": 0,
+  "max_points_per_purchase": 1000,
+  "points_per_visit": 5,
+  "points_redemption_enabled": true,
+  "points_per_currency_redemption": 10.0,
+  "currency_amount_redemption": 1.0,
+  "min_points_for_redemption": 100,
+  "max_points_per_redemption": 5000,
+  "default_coupon_validity_days": 30
+}
+```
+
+### Field Descriptions
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `title` | object | Yes | Card title in multiple languages |
+| `title.en` | string | Yes | English title |
+| `title.lt` | string | Yes | Lithuanian title |
+| `description` | object | Yes | Card description in multiple languages |
+| `terms_conditions` | object | Yes | Terms and conditions in multiple languages |
+| `card_design` | object | Yes | Visual design settings for the card |
+| `is_active` | boolean | No | Whether the card is active (default: true) |
+| `shop_ids` | array | No | Array of shop IDs where card applies |
+| `auto_assign` | boolean | No | Auto-assign to new customers (default: true) |
+| `points_enabled` | boolean | No | Enable points system (default: true) |
+| `initial_bonus_points` | integer | No | Initial bonus points for new cards |
+| `points_expiration_days` | integer\|null | No | Points expiration in days (null = never expire) |
+| `points_per_currency` | number | No | Points earned per currency unit |
+| `currency_amount` | number | No | Currency amount for point calculation |
+| `round_points_up` | boolean | No | Round points up to nearest integer |
+| `min_points_per_purchase` | integer | No | Minimum points per purchase |
+| `max_points_per_purchase` | integer\|null | No | Maximum points per purchase |
+| `points_per_visit` | integer | No | Points awarded per visit |
+| `points_redemption_enabled` | boolean | No | Enable point redemption |
+| `points_per_currency_redemption` | number | No | Points required per currency unit for redemption |
+| `currency_amount_redemption` | number | No | Currency value for redemption calculation |
+| `min_points_for_redemption` | integer | No | Minimum points required for redemption |
+| `max_points_per_redemption` | integer\|null | No | Maximum points per redemption transaction |
+| **`default_coupon_validity_days`** | **integer\|null** | **No** | **Default validity period for game-generated coupons (null = never expire)** |
+
+### Validation Rules
+
+- `default_coupon_validity_days`: Must be between 1-3650 days, or null for unlimited validity
+- `title.en` and `title.lt`: Required, max 255 characters each
+- `points_per_currency` and `currency_amount`: Must be positive numbers
+- `shop_ids`: Must contain valid shop IDs owned by the partner
+
+### Response
+
+```json
+{
+  "success": true,
+  "code": 201,
+  "message": "Partner card created successfully",
+  "data": {
+    "id": 123,
+    "title": {
+      "en": "VIP Loyalty Card",
+      "lt": "VIP lojalumo kortelė"
+    },
+    "description": {
+      "en": "Premium loyalty card with exclusive benefits",
+      "lt": "Premium lojalumo kortelė su išskirtinėmis privilegijomis"
+    },
+    "is_active": true,
+    "default_coupon_validity_days": 30,
+    "created_at": "2025-01-08T10:30:00Z",
+    "updated_at": "2025-01-08T10:30:00Z"
+  }
+}
+```
+
+---
+
+## Update Partner Card
+
+<api-endpoint method="put" url="/{locale}/partners/cards/{id}">
+  Updates an existing partner card configuration
+</api-endpoint>
+
+### Path Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `id` | integer | Yes | Partner card ID |
+
+### Request Body
+
+Same as create endpoint. All fields are optional for updates.
+
+### Response
+
+```json
+{
+  "success": true,
+  "code": 200,
+  "message": "Partner card updated successfully",
+  "data": {
+    "id": 123,
+    "title": {
+      "en": "Updated VIP Loyalty Card",
+      "lt": "Atnaujinta VIP lojalumo kortelė"
+    },
+    "default_coupon_validity_days": 60,
+    "updated_at": "2025-01-08T11:45:00Z"
+  }
+}
+```
+
+---
+
+## Get Partner Card
+
+<api-endpoint method="get" url="/{locale}/partners/cards/{id}">
+  Retrieves details of a specific partner card
+</api-endpoint>
+
+### Path Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `id` | integer | Yes | Partner card ID |
+
+### Response
+
+```json
+{
+  "success": true,
+  "code": 200,
+  "message": "Partner card retrieved successfully",
+  "data": {
+    "id": 123,
+    "title": {
+      "en": "VIP Loyalty Card", 
+      "lt": "VIP lojalumo kortelė"
+    },
+    "description": {
+      "en": "Premium loyalty card with exclusive benefits",
+      "lt": "Premium lojalumo kortelė su išskirtinėmis privilegijomis"
+    },
+    "terms_conditions": {
+      "en": "Terms and conditions apply...",
+      "lt": "Taikomos nuostatų ir sąlygų nuostatos..."
+    },
+    "card_design": {
+      "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
+      "text_color": "#000000",
+      "text_color_labels": "#555555",
+      "qr_background_color": "#FFFFFF",
+      "qr_color": "#000000",
+      "background_color": "#FFFFFF",
+      "background_color_opacity": 0.8,
+      "background_image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA..."
+    },
+    "is_active": true,
+    "shop_ids": [1, 2, 3],
+    "auto_assign": true,
+    "points_enabled": true,
+    "initial_bonus_points": 100,
+    "points_expiration_days": 365,
+    "points_per_currency": 1.0,
+    "currency_amount": 1.0,
+    "round_points_up": false,
+    "min_points_per_purchase": 0,
+    "max_points_per_purchase": 1000,
+    "points_per_visit": 5,
+    "points_redemption_enabled": true,
+    "points_per_currency_redemption": 10.0,
+    "currency_amount_redemption": 1.0,
+    "min_points_for_redemption": 100,
+    "max_points_per_redemption": 5000,
+    "default_coupon_validity_days": 30,
+    "created_at": "2025-01-08T10:30:00Z",
+    "updated_at": "2025-01-08T11:45:00Z"
+  }
+}
+```
+
+---
+
+## List Partner Cards
+
+<api-endpoint method="get" url="/{locale}/partners/cards">
+  Lists all partner cards with optional filtering
+</api-endpoint>
+
+### Query Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `is_active` | boolean | No | Filter by active status |
+| `shop_id` | integer | No | Filter by shop ID |
+| `page` | integer | No | Page number (default: 1) |
+| `per_page` | integer | No | Items per page (default: 20, max: 100) |
+
+### Response
+
+```json
+{
+  "success": true,
+  "code": 200,
+  "message": "Partner cards retrieved successfully",
+  "data": [
+    {
+      "id": 123,
+      "title": {
+        "en": "VIP Loyalty Card",
+        "lt": "VIP lojalumo kortelė"
+      },
+      "is_active": true,
+      "default_coupon_validity_days": 30,
+      "created_at": "2025-01-08T10:30:00Z",
+      "updated_at": "2025-01-08T11:45:00Z"
+    }
+  ],
+  "pagination": {
+    "current_page": 1,
+    "per_page": 20,
+    "total": 1,
+    "last_page": 1
+  }
+}
+```
+
+---
+
+## Delete Partner Card
+
+<api-endpoint method="delete" url="/{locale}/partners/cards/{id}">
+  Deletes a partner card (soft delete)
+</api-endpoint>
+
+### Path Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `id` | integer | Yes | Partner card ID |
+
+### Response
+
+```json
+{
+  "success": true,
+  "code": 200,
+  "message": "Partner card deleted successfully"
+}
+```
+
+---
+
+## Coupon Validity Feature
+
+The `default_coupon_validity_days` field controls how long coupons generated from games remain valid:
+
+### Behavior
+
+- **`null` value**: Coupons never expire (unlimited validity)
+- **Integer value (1-3650)**: Coupons expire after specified number of days
+- **Used by**: Game completion coupons, reward coupons from partner games
+- **Calculation**: `coupon.expires_at = now() + default_coupon_validity_days`
+
+### Examples
+
+```json
+// Coupons never expire
+{
+  "default_coupon_validity_days": null
+}
+
+// Coupons expire after 30 days
+{
+  "default_coupon_validity_days": 30
+}
+
+// Coupons expire after 1 year
+{
+  "default_coupon_validity_days": 365
+}
+```
+
+### Migration Notice
+
+**⚠️ Deprecated**: The `default_coupon_validity_days` field has been moved to individual game settings for better control.
+
+<Card title="Games API Reference" href="/api-reference/endpoints/partners/games">
+  Coupon settings are now configured per-game. See the Games API for details.
+</Card>
+
+---
+
+## Error Responses
+
+### Validation Errors
+
+```json
+{
+  "success": false,
+  "code": 422,
+  "message": "Validation failed",
+  "errors": {
+    "default_coupon_validity_days": [
+      "The default coupon validity days field must be between 1 and 3650."
+    ],
+    "title.en": [
+      "The title.en field is required."
+    ]
+  }
+}
+```
+
+### Not Found
+
+```json
+{
+  "success": false,
+  "code": 404,
+  "message": "Partner card not found"
+}
+```
+
+### Unauthorized
+
+```json
+{
+  "success": false,
+  "code": 401,
+  "message": "Unauthorized. Valid JWT token required."
+}
+```

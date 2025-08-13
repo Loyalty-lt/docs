@@ -102,6 +102,12 @@
             ]
           },
           {
+            "group": "Mobile Applications",
+            "pages": [
+              "apps/partner-staff-flutter"
+            ]
+          },
+          {
             "group": "Website",
             "pages": [
               "apps/website/overview",
@@ -214,6 +220,18 @@
               "guides/partners/shop-setup",
               "guides/partners/integration",
               "guides/partners/troubleshooting"
+            ]
+          },
+          {
+            "group": "Partnerių instrukcijos (LT)",
+            "pages": [
+              "partners/naudojimosi-instrukcijos",
+              "partners/pradinis-nustatymas",
+              "partners/parduotuviu-valdymas",
+              "partners/lojalumo-korteles",
+              "partners/klientu-valdymas",
+              "partners/ataskaitos-ir-analitika",
+              "partners/duk-ir-problemu-sprendimas"
             ]
           },
           {
