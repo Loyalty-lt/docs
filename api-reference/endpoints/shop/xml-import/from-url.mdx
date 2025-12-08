@@ -85,7 +85,7 @@ This endpoint requires **Partner API authentication** using `X-API-Key` and `X-A
 <RequestExample>
 
 ```bash cURL - Import
-curl -X POST "https://api.loyalty.lt/lt/shop/xml-import/from-url" \
+curl -X POST "https://staging-api.loyalty.lt/lt/shop/xml-import/from-url" \
   -H "Content-Type: application/json" \
   -H "X-API-Key: your_api_key" \
   -H "X-API-Secret: your_api_secret" \
@@ -95,7 +95,7 @@ curl -X POST "https://api.loyalty.lt/lt/shop/xml-import/from-url" \
 ```
 
 ```bash cURL - Validate Only
-curl -X POST "https://api.loyalty.lt/lt/shop/xml-import/from-url" \
+curl -X POST "https://staging-api.loyalty.lt/lt/shop/xml-import/from-url" \
   -H "Content-Type: application/json" \
   -H "X-API-Key: your_api_key" \
   -H "X-API-Secret: your_api_secret" \
@@ -106,7 +106,7 @@ curl -X POST "https://api.loyalty.lt/lt/shop/xml-import/from-url" \
 ```
 
 ```javascript JavaScript
-const response = await fetch('https://api.loyalty.lt/lt/shop/xml-import/from-url', {
+const response = await fetch('https://staging-api.loyalty.lt/lt/shop/xml-import/from-url', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ console.log(`Updated: ${data.data.products_updated} products`);
 
 ```php PHP
 <?php
-$response = file_get_contents('https://api.loyalty.lt/lt/shop/xml-import/from-url', false, stream_context_create([
+$response = file_get_contents('https://staging-api.loyalty.lt/lt/shop/xml-import/from-url', false, stream_context_create([
     'http' => [
         'method' => 'POST',
         'header' => [

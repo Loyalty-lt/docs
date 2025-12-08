@@ -1,0 +1,404 @@
+---
+title: "List Partner Transactions"
+description: "Get transaction history for partner's customers"
+api: "GET /{locale}/shop/transactions"
+---
+
+# List Partner Transactions
+
+Get paginated transaction history for all customers of the authenticated partner. Filter by user, date range, or transaction type.
+
+<Info>
+This endpoint requires **Partner API authentication** using `X-API-Key` and `X-API-Secret` headers.
+</Info>
+
+## Path Parameters
+
+<ParamField path="locale" type="string" required>
+  Language code (e.g., `en`, `lt`)
+</ParamField>
+
+## Authentication
+
+<ParamField header="X-API-Key" type="string" required>
+  Partner API key from Partners Portal
+</ParamField>
+
+<ParamField header="X-API-Secret" type="string" required>
+  Partner API secret from Partners Portal
+</ParamField>
+
+## Query Parameters
+
+<ParamField query="user_id" type="integer">
+  Filter by user ID
+</ParamField>
+
+<ParamField query="user_email" type="string">
+  Filter by user email address
+</ParamField>
+
+<ParamField query="loyalty_card_id" type="integer">
+  Filter by specific loyalty card ID
+</ParamField>
+
+<ParamField query="shop_id" type="integer">
+  Filter by shop/location ID
+</ParamField>
+
+<ParamField query="staff_id" type="integer">
+  Filter by staff member ID who created the transaction
+</ParamField>
+
+<ParamField query="category_id" type="integer">
+  Filter by transaction category ID
+</ParamField>
+
+<ParamField query="reference_number" type="string">
+  Filter by exact order/reference number (e.g., `WC-12345`)
+</ParamField>
+
+<ParamField query="type" type="string">
+  Filter by transaction type
+  
+  **Values:** `purchase`, `refund`, `bonus`
+</ParamField>
+
+<ParamField query="date_from" type="string">
+  Filter transactions from this date (YYYY-MM-DD)
+</ParamField>
+
+<ParamField query="date_to" type="string">
+  Filter transactions until this date (YYYY-MM-DD)
+</ParamField>
+
+<ParamField query="per_page" type="integer" default="15">
+  Number of items per page (max: 100)
+</ParamField>
+
+<ParamField query="page" type="integer" default="1">
+  Page number
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if request was successful
+</ResponseField>
+
+<ResponseField name="code" type="integer">
+  HTTP status code
+</ResponseField>
+
+<ResponseField name="request_id" type="string">
+  Unique request identifier (UUID)
+</ResponseField>
+
+<ResponseField name="meta" type="object">
+  <Expandable title="meta">
+    <ResponseField name="current_page" type="integer">
+      Current page number
+    </ResponseField>
+    
+    <ResponseField name="last_page" type="integer">
+      Total number of pages
+    </ResponseField>
+    
+    <ResponseField name="per_page" type="integer">
+      Items per page
+    </ResponseField>
+    
+    <ResponseField name="total" type="integer">
+      Total number of transactions
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  <Expandable title="Transaction Object">
+    <ResponseField name="id" type="integer">
+      Transaction ID
+    </ResponseField>
+    
+    <ResponseField name="type" type="string">
+      Transaction type: `purchase`, `refund`, `bonus`
+    </ResponseField>
+    
+    <ResponseField name="points" type="integer">
+      Points earned (positive) or deducted (negative)
+    </ResponseField>
+    
+    <ResponseField name="amount" type="number">
+      Transaction amount
+    </ResponseField>
+    
+    <ResponseField name="currency" type="string">
+      Currency code (e.g., `EUR`)
+    </ResponseField>
+    
+    <ResponseField name="description" type="string">
+      Transaction description
+    </ResponseField>
+    
+    <ResponseField name="reference_number" type="string">
+      Order/reference number
+    </ResponseField>
+    
+    <ResponseField name="status" type="string">
+      Transaction status: `completed`, `pending`, `cancelled`
+    </ResponseField>
+    
+    <ResponseField name="user" type="object">
+      Customer details (id, name, email, phone)
+    </ResponseField>
+    
+    <ResponseField name="loyalty_card" type="object">
+      Loyalty card details
+    </ResponseField>
+    
+    <ResponseField name="shop" type="object">
+      Shop details (if applicable)
+    </ResponseField>
+    
+    <ResponseField name="transaction_date" type="string">
+      ISO 8601 timestamp
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL - All Transactions
+curl -X GET "https://staging-api.loyalty.lt/lt/shop/transactions?per_page=20" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"
+```
+
+```bash cURL - Filter by User
+curl -X GET "https://staging-api.loyalty.lt/lt/shop/transactions?user_email=customer@example.com" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"
+```
+
+```bash cURL - Filter by Date Range
+curl -X GET "https://staging-api.loyalty.lt/lt/shop/transactions?date_from=2024-12-01&date_to=2024-12-31&type=purchase" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"
+```
+
+```bash cURL - Filter by Shop
+curl -X GET "https://staging-api.loyalty.lt/lt/shop/transactions?shop_id=12" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"
+```
+
+```javascript JavaScript
+const response = await fetch(
+  'https://staging-api.loyalty.lt/lt/shop/transactions?per_page=20',
+  {
+    method: 'GET',
+    headers: {
+      'X-API-Key': 'your_api_key',
+      'X-API-Secret': 'your_api_secret'
+    }
+  }
+);
+
+const data = await response.json();
+console.log(`Total transactions: ${data.meta.total}`);
+
+data.data.forEach(tx => {
+  console.log(`${tx.user?.email}: ${tx.points} points - ${tx.reference_number}`);
+});
+```
+
+```php PHP
+<?php
+$ch = curl_init();
+
+curl_setopt_array($ch, [
+    CURLOPT_URL => 'https://staging-api.loyalty.lt/lt/shop/transactions?per_page=20',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HTTPHEADER => [
+        'X-API-Key: your_api_key',
+        'X-API-Secret: your_api_secret'
+    ]
+]);
+
+$response = curl_exec($ch);
+curl_close($ch);
+
+$result = json_decode($response, true);
+
+foreach ($result['data'] as $tx) {
+    echo $tx['user']['email'] . ': ' . $tx['points'] . " points\n";
+}
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Success Response (200)
+{
+  "success": true,
+  "code": 200,
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  "meta": {
+    "current_page": 1,
+    "last_page": 10,
+    "per_page": 20,
+    "total": 195
+  },
+  "data": [
+    {
+      "id": 1234,
+      "type": "purchase",
+      "points": 150,
+      "amount": 49.99,
+      "currency": "EUR",
+      "description": "Pirkimas #WC-12345",
+      "reference_number": "WC-12345",
+      "status": "completed",
+      "user": {
+        "id": 123,
+        "name": "Jonas Jonaitis",
+        "email": "jonas@example.com",
+        "phone": "+37060000000"
+      },
+      "loyalty_card": {
+        "id": 567,
+        "name": "Coffee Paradise kortelė",
+        "number": "LC00000567"
+      },
+      "shop": {
+        "id": 12,
+        "name": "Coffee Paradise - Vilnius"
+      },
+      "metadata": {
+        "source": "woocommerce",
+        "points_awarded": 150,
+        "items_count": 3
+      },
+      "transaction_date": "2024-12-08T14:30:00.000Z",
+      "created_at": "2024-12-08T14:30:00.000Z"
+    },
+    {
+      "id": 1235,
+      "type": "refund",
+      "points": -50,
+      "amount": 0,
+      "currency": "EUR",
+      "description": "Grąžinimas - prekė grąžinta",
+      "reference_number": "REFUND-ABC123",
+      "status": "completed",
+      "user": {
+        "id": 124,
+        "name": "Petras Petraitis",
+        "email": "petras@example.com",
+        "phone": "+37060000001"
+      },
+      "loyalty_card": {
+        "id": 568,
+        "name": "Coffee Paradise kortelė",
+        "number": "LC00000568"
+      },
+      "shop": null,
+      "metadata": {
+        "source": "woocommerce_refund",
+        "points_deducted": 50,
+        "reason": "Prekė grąžinta"
+      },
+      "transaction_date": "2024-12-08T10:15:00.000Z",
+      "created_at": "2024-12-08T10:15:00.000Z"
+    }
+  ]
+}
+```
+
+```json Unauthorized (401)
+{
+  "success": false,
+  "code": 1004,
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  "message": "Partner not authenticated"
+}
+```
+
+</ResponseExample>
+
+## Transaction Types
+
+| Type | Description |
+|------|-------------|
+| `purchase` | Points earned from a purchase |
+| `refund` | Points deducted due to refund |
+| `bonus` | Bonus points (signup, promotion) |
+
+## Use Cases
+
+### WooCommerce Integration
+Track all orders processed through your WooCommerce plugin:
+
+```bash
+GET /lt/shop/transactions?type=purchase&date_from=2024-12-01
+```
+
+### Customer Lookup
+View transaction history for a specific customer:
+
+```bash
+GET /lt/shop/transactions?user_email=customer@example.com
+```
+
+### Refund Tracking
+Monitor all refunds and point deductions:
+
+```bash
+GET /lt/shop/transactions?type=refund
+```
+
+### Shop/Location Transactions
+View transactions for specific shop location:
+
+```bash
+GET /lt/shop/transactions?shop_id=12
+```
+
+### Combined Filters
+Filter by shop, card and date:
+
+```bash
+GET /lt/shop/transactions?shop_id=12&loyalty_card_id=567&date_from=2024-12-01
+```
+
+### Find by Order Number
+Find specific transaction by reference number:
+
+```bash
+GET /lt/shop/transactions?reference_number=WC-12345
+```
+
+### Staff Performance
+View transactions by specific staff member:
+
+```bash
+GET /lt/shop/transactions?staff_id=10&date_from=2024-12-01
+```
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+  <Card title="Create Transaction" icon="plus" href="/api-reference/endpoints/shop/transactions/create">
+    Create purchase and award points
+  </Card>
+  
+  <Card title="Deduct Points" icon="minus" href="/api-reference/endpoints/shop/transactions/deduct">
+    Deduct points for refunds
+  </Card>
+  
+  <Card title="Get Card Info" icon="id-card" href="/api-reference/endpoints/shop/loyalty-cards/info">
+    Check customer's card and balance
+  </Card>
+</CardGroup>
+

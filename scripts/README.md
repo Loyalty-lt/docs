@@ -116,7 +116,7 @@ openapi: "/api-reference/openapi.json POST /{locale}/shop/auth/qr-login/generate
       "description": "Staging API Server"
     },
     {
-      "url": "https://api.loyalty.lt", 
+      "url": "https://staging-api.loyalty.lt", 
       "description": "Production API Server"
     }
   ]

@@ -44,16 +44,10 @@
           {
             "group": "Transactions",
             "pages": [
-              "api-reference/endpoints/shop/transactions/create"
-            ]
-          },
-          {
-            "group": "Points",
-            "pages": [
-              "api-reference/endpoints/shop/points/award",
-              "api-reference/endpoints/shop/points/balance",
-              "api-reference/endpoints/shop/points/redeem",
-              "api-reference/endpoints/shop/points/transactions"
+              "api-reference/endpoints/shop/transactions/create",
+              "api-reference/endpoints/shop/transactions/partner-list",
+              "api-reference/endpoints/shop/transactions/list",
+              "api-reference/endpoints/shop/points/balance"
             ]
           },
           {
@@ -101,7 +95,7 @@
       },
       {
         "label": "Production API",
-        "href": "https://api.loyalty.lt"
+        "href": "https://staging-api.loyalty.lt"
       }
     ],
     "primary": {

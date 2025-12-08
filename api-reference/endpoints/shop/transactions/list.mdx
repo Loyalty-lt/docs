@@ -1,0 +1,275 @@
+---
+title: "List Transactions"
+description: "Get transaction history for authenticated user"
+api: "GET /{locale}/shop/transactions"
+---
+
+# List Transactions
+
+Get paginated transaction history for the authenticated user across all their loyalty cards.
+
+<Info>
+This endpoint requires **User JWT authentication** (Bearer token).
+</Info>
+
+## Path Parameters
+
+<ParamField path="locale" type="string" required>
+  Language code (e.g., `en`, `lt`)
+</ParamField>
+
+## Authentication
+
+<ParamField header="Authorization" type="string" required>
+  Bearer token from user login
+  
+  **Example:** `Bearer eyJ0eXAiOiJKV1Q...`
+</ParamField>
+
+## Query Parameters
+
+<ParamField query="type" type="string">
+  Filter by transaction type
+  
+  **Values:** `purchase`, `refund`, `bonus`
+</ParamField>
+
+<ParamField query="loyalty_card_id" type="integer">
+  Filter by specific loyalty card ID
+</ParamField>
+
+<ParamField query="date_from" type="string">
+  Filter transactions from this date (YYYY-MM-DD)
+</ParamField>
+
+<ParamField query="date_to" type="string">
+  Filter transactions until this date (YYYY-MM-DD)
+</ParamField>
+
+<ParamField query="per_page" type="integer" default="15">
+  Number of items per page (max: 100)
+</ParamField>
+
+<ParamField query="page" type="integer" default="1">
+  Page number
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if request was successful
+</ResponseField>
+
+<ResponseField name="code" type="integer">
+  HTTP status code
+</ResponseField>
+
+<ResponseField name="request_id" type="string">
+  Unique request identifier (UUID)
+</ResponseField>
+
+<ResponseField name="meta" type="object">
+  <Expandable title="meta">
+    <ResponseField name="current_page" type="integer">
+      Current page number
+    </ResponseField>
+    
+    <ResponseField name="last_page" type="integer">
+      Total number of pages
+    </ResponseField>
+    
+    <ResponseField name="per_page" type="integer">
+      Items per page
+    </ResponseField>
+    
+    <ResponseField name="total" type="integer">
+      Total number of transactions
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  <Expandable title="Transaction Object">
+    <ResponseField name="id" type="integer">
+      Transaction ID
+    </ResponseField>
+    
+    <ResponseField name="type" type="string">
+      Transaction type: `purchase`, `refund`, `bonus`
+    </ResponseField>
+    
+    <ResponseField name="points" type="integer">
+      Points earned (positive) or deducted (negative)
+    </ResponseField>
+    
+    <ResponseField name="amount" type="number">
+      Transaction amount
+    </ResponseField>
+    
+    <ResponseField name="currency" type="string">
+      Currency code (e.g., `EUR`)
+    </ResponseField>
+    
+    <ResponseField name="description" type="string">
+      Transaction description
+    </ResponseField>
+    
+    <ResponseField name="reference_number" type="string">
+      Order/reference number
+    </ResponseField>
+    
+    <ResponseField name="status" type="string">
+      Transaction status: `completed`, `pending`, `cancelled`
+    </ResponseField>
+    
+    <ResponseField name="loyalty_card" type="object">
+      Loyalty card details
+    </ResponseField>
+    
+    <ResponseField name="shop" type="object">
+      Shop details (if applicable)
+    </ResponseField>
+    
+    <ResponseField name="transaction_date" type="string">
+      ISO 8601 timestamp
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X GET "https://staging-api.loyalty.lt/lt/shop/transactions?per_page=10" \
+  -H "Authorization: Bearer your_jwt_token"
+```
+
+```bash cURL - With Filters
+curl -X GET "https://staging-api.loyalty.lt/lt/shop/transactions?type=purchase&date_from=2024-01-01&per_page=20" \
+  -H "Authorization: Bearer your_jwt_token"
+```
+
+```javascript JavaScript
+const response = await fetch('https://staging-api.loyalty.lt/lt/shop/transactions?per_page=10', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer your_jwt_token'
+  }
+});
+
+const data = await response.json();
+console.log(`Total transactions: ${data.meta.total}`);
+data.data.forEach(tx => {
+  console.log(`${tx.transaction_date}: ${tx.points} points - ${tx.description}`);
+});
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Success Response (200)
+{
+  "success": true,
+  "code": 200,
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  "meta": {
+    "current_page": 1,
+    "last_page": 5,
+    "per_page": 15,
+    "total": 67
+  },
+  "data": [
+    {
+      "id": 1234,
+      "type": "purchase",
+      "points": 150,
+      "amount": 49.99,
+      "currency": "EUR",
+      "description": "Pirkimas #WC-12345",
+      "reference_number": "WC-12345",
+      "status": "completed",
+      "loyalty_card": {
+        "id": 567,
+        "name": "Coffee Paradise kortelė",
+        "number": "LC00000567",
+        "partner": {
+          "id": 45,
+          "name": "Coffee Paradise",
+          "logo": "https://cdn.loyalty.lt/partners/45/logo.png"
+        }
+      },
+      "shop": {
+        "id": 12,
+        "name": "Coffee Paradise - Vilnius"
+      },
+      "metadata": {
+        "source": "woocommerce",
+        "points_awarded": 150,
+        "items_count": 3
+      },
+      "transaction_date": "2024-12-08T14:30:00.000Z",
+      "created_at": "2024-12-08T14:30:00.000Z"
+    },
+    {
+      "id": 1233,
+      "type": "refund",
+      "points": -50,
+      "amount": 0,
+      "currency": "EUR",
+      "description": "Grąžinimas - užsakymas atšauktas",
+      "reference_number": "REFUND-ABC123",
+      "status": "completed",
+      "loyalty_card": {
+        "id": 567,
+        "name": "Coffee Paradise kortelė",
+        "number": "LC00000567",
+        "partner": {
+          "id": 45,
+          "name": "Coffee Paradise",
+          "logo": "https://cdn.loyalty.lt/partners/45/logo.png"
+        }
+      },
+      "shop": null,
+      "metadata": {
+        "source": "woocommerce_refund",
+        "points_deducted": 50,
+        "reason": "Užsakymas atšauktas"
+      },
+      "transaction_date": "2024-12-07T10:15:00.000Z",
+      "created_at": "2024-12-07T10:15:00.000Z"
+    }
+  ]
+}
+```
+
+```json Unauthorized (401)
+{
+  "success": false,
+  "code": 1004,
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  "message": "Unauthorized"
+}
+```
+
+</ResponseExample>
+
+## Transaction Types
+
+| Type | Description |
+|------|-------------|
+| `purchase` | Points earned from a purchase |
+| `refund` | Points deducted due to refund |
+| `bonus` | Bonus points (signup, promotion) |
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+  <Card title="Create Transaction" icon="plus" href="/api-reference/endpoints/shop/transactions/create">
+    Create purchase and award points (Partner API)
+  </Card>
+  
+  <Card title="Get Balance" icon="wallet" href="/api-reference/endpoints/shop/points/balance">
+    Check points balance
+  </Card>
+</CardGroup>
+

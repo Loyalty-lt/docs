@@ -11,7 +11,7 @@ The Shop API enables e-commerce platforms and POS systems to integrate with the 
 
 **Production:**
 ```
-https://api.loyalty.lt/{locale}/shop/
+https://staging-api.loyalty.lt/{locale}/shop/
 ```
 
 **Staging:**
@@ -30,7 +30,7 @@ The Shop API uses two authentication methods depending on the endpoint:
 For backend integrations (WooCommerce, Shopify, POS systems):
 
 ```bash
-curl -X POST "https://api.loyalty.lt/en/shop/transactions/create" \
+curl -X POST "https://staging-api.loyalty.lt/en/shop/transactions/create" \
   -H "X-API-Key: your_api_key" \
   -H "X-API-Secret: your_api_secret" \
   -H "Content-Type: application/json"
@@ -50,7 +50,7 @@ Get your API credentials from the Partners Portal - Settings - API Access
 For user-facing applications:
 
 ```bash
-curl -X GET "https://api.loyalty.lt/en/shop/auth/me" \
+curl -X GET "https://staging-api.loyalty.lt/en/shop/auth/me" \
   -H "Authorization: Bearer eyJ0eXAiOiJKV1..."
 ```
 
