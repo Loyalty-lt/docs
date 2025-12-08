@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Loyalty.lt Documentation",
+  "name": "Loyalty.lt API Documentation",
   "colors": {
     "primary": "#29594B",
     "light": "#CFFF45",
@@ -12,23 +12,10 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Overview",
-        "groups": [
-          {
-            "group": "Getting Started",
-            "pages": [
-              "index",
-              "overview/quick-start",
-              "overview/architecture"
-            ]
-          }
-        ]
-      },
-      {
         "tab": "API Reference",
         "groups": [
           {
-            "group": "Introduction",
+            "group": "Getting Started",
             "pages": [
               "api-reference/introduction"
             ]
@@ -70,88 +57,13 @@
             ]
           }
         ]
-      },
-      {
-        "tab": "Applications",
-        "groups": [
-          {
-            "group": "Partners Portal",
-            "pages": [
-              "apps/partners/overview"
-            ]
-          },
-          {
-            "group": "Mobile Applications",
-            "pages": [
-              "apps/partner-staff-flutter"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "SDK Libraries",
-        "groups": [
-          {
-            "group": "JavaScript/TypeScript",
-            "pages": [
-              "sdk/javascript/installation"
-            ]
-          },
-          {
-            "group": "Other Languages",
-            "pages": [
-              "sdk/php/installation",
-              "sdk/python/installation",
-              "sdk/vue/installation"
-            ]
-          },
-          {
-            "group": "E-commerce Integrations",
-            "pages": [
-              "sdk/ecommerce/woocommerce",
-              "sdk/ecommerce/prestashop",
-              "sdk/ecommerce/shopify"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Guides",
-        "groups": [
-          {
-            "group": "Partnerių instrukcijos (LT)",
-            "pages": [
-              "partners/naudojimosi-instrukcijos",
-              "partners/detali-sistemos-instrukcija",
-              "partners/pradinis-nustatymas",
-              "partners/parduotuviu-valdymas",
-              "partners/lojalumo-korteles",
-              "partners/klientu-valdymas",
-              "partners/ataskaitos-ir-analitika",
-              "partners/duk-ir-problemu-sprendimas"
-            ]
-          },
-          {
-            "group": "Detalios puslapių instrukcijos",
-            "pages": [
-              "partners/puslapiai/pagrindinis-dashboard",
-              "partners/puslapiai/api-raktai-sarasas",
-              "partners/puslapiai/api-rakto-redagavimas",
-              "partners/puslapiai/naujas-api-raktas",
-              "partners/puslapiai/korteles-redagavimas",
-              "partners/puslapiai/nauja-kortele",
-              "partners/puslapiai/verslo-informacija",
-              "partners/puslapiai/korteles-sarasas"
-            ]
-          }
-        ]
       }
     ],
     "global": {
       "anchors": [
         {
-          "anchor": "API Documentation",
-          "href": "https://staging-api.loyalty.lt/docs",
+          "anchor": "Swagger API Docs",
+          "href": "https://staging-api.loyalty.lt/api/documentation",
           "icon": "code"
         },
         {
@@ -160,13 +72,8 @@
           "icon": "users"
         },
         {
-          "anchor": "GitHub",
-          "href": "https://github.com/loyalty-lt",
-          "icon": "github"
-        },
-        {
           "anchor": "Support",
-          "href": "mailto:support@loyalty.lt",
+          "href": "mailto:info@loyalty.lt",
           "icon": "envelope"
         }
       ]
@@ -183,20 +90,19 @@
         "href": "https://staging-api.loyalty.lt"
       },
       {
-        "label": "Partners Portal",
-        "href": "https://partners.loyalty.lt"
+        "label": "Production API",
+        "href": "https://api.loyalty.lt"
       }
     ],
     "primary": {
       "type": "button",
-      "label": "Partners Dashboard",
+      "label": "Partners Portal",
       "href": "https://partners.loyalty.lt"
     }
   },
   "footer": {
     "socials": {
       "website": "https://loyalty.lt",
-      "github": "https://github.com/loyalty-lt",
       "linkedin": "https://linkedin.com/company/loyalty-lt"
     }
   }
