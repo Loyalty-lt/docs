@@ -123,7 +123,7 @@
       },
       {
         "label": "Production API",
-        "href": "https://staging-api.loyalty.lt"
+        "href": "https://api.loyalty.lt"
       }
     ],
     "primary": {
