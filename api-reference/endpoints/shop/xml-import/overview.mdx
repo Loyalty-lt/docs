@@ -1,0 +1,81 @@
+---
+title: "XML Import"
+description: "Import products and offers from XML feeds into your Loyalty.lt shop"
+---
+
+# XML Import API
+
+Import products and offers from external XML feeds. This is useful for syncing your product catalog from e-commerce platforms or ERP systems.
+
+<Info>
+XML Import requires **Partner API authentication** using `X-API-Key` and `X-API-Secret` headers.
+</Info>
+
+## Overview
+
+The XML Import API allows you to:
+- Import products from a URL or uploaded file
+- Validate XML structure before importing
+- Track import statistics
+- View supported field mappings
+
+## Supported XML Formats
+
+The API automatically detects common XML structures:
+
+| Path Pattern | Example |
+|--------------|---------|
+| `product` | `<product>...</product>` |
+| `item` | `<item>...</item>` |
+| `products/product` | `<products><product>...</product></products>` |
+| `items/item` | `<items><item>...</item></items>` |
+| `offer` | `<offer>...</offer>` |
+| `offers/offer` | `<offers><offer>...</offer></offers>` |
+
+## Field Mappings
+
+### Product Fields
+
+| Our Field | Accepted XML Tags |
+|-----------|-------------------|
+| `name` | `name`, `title`, `product_name` |
+| `description` | `description`, `desc` |
+| `brand` | `brand`, `manufacturer` |
+| `model` | `model` |
+| `ean` | `ean`, `ean13`, `barcode` |
+| `sku` | `sku`, `code`, `id` |
+| `image_url` | `image`, `image_url`, `picture` |
+| `external_url` | `url`, `link`, `product_url` |
+
+### Offer/Price Fields
+
+| Our Field | Accepted XML Tags |
+|-----------|-------------------|
+| `price` | `price`, `regular_price` |
+| `discounted_price` | `discounted_price`, `sale_price`, `loyalty_program_item_price` |
+| `currency` | `currency` |
+| `availability` | `availability`, `in_stock` |
+| `stock_quantity` | `stock`, `quantity` |
+
+---
+
+## Endpoints
+
+<CardGroup cols={2}>
+<Card title="Import from URL" icon="link" href="/api-reference/endpoints/shop/xml-import/from-url">
+  POST `/shop/xml-import/from-url`
+</Card>
+
+<Card title="Import from File" icon="file-arrow-up" href="/api-reference/endpoints/shop/xml-import/from-file">
+  POST `/shop/xml-import/from-file`
+</Card>
+
+<Card title="Validate XML" icon="check" href="/api-reference/endpoints/shop/xml-import/validate">
+  POST `/shop/xml-import/validate`
+</Card>
+
+<Card title="Field Mappings" icon="table" href="/api-reference/endpoints/shop/xml-import/field-mappings">
+  GET `/shop/xml-import/field-mappings`
+</Card>
+</CardGroup>
+

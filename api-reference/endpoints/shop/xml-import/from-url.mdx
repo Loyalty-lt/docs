@@ -1,0 +1,132 @@
+---
+title: "Import from URL"
+description: "Import products from an external XML URL"
+api: "POST /{locale}/shop/xml-import/from-url"
+---
+
+# Import Products from URL
+
+Import products and offers from an external XML feed URL.
+
+## Authentication
+
+<Note>
+Requires **Partner API credentials**: `X-API-Key` and `X-API-Secret` headers.
+</Note>
+
+## Request
+
+### Headers
+
+| Header | Type | Required | Description |
+|--------|------|----------|-------------|
+| `X-API-Key` | string | ✅ | Your Partner API key |
+| `X-API-Secret` | string | ✅ | Your Partner API secret |
+| `Content-Type` | string | ✅ | `application/json` |
+
+### Path Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `locale` | string | ✅ | Language code: `lt` or `en` |
+
+### Body Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `xml_url` | string | ✅ | URL to the XML feed |
+| `validate_only` | boolean | ❌ | If `true`, only validate without importing (default: `false`) |
+
+## Example Request
+
+```bash
+curl -X POST "https://api.loyalty.lt/lt/shop/xml-import/from-url" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "xml_url": "https://example.com/products.xml",
+    "validate_only": false
+  }'
+```
+
+## Success Response
+
+```json
+{
+  "success": true,
+  "code": 200,
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  "message": "XML import completed successfully",
+  "data": {
+    "products_created": 150,
+    "products_updated": 45,
+    "offers_created": 150,
+    "offers_updated": 45,
+    "errors": []
+  }
+}
+```
+
+## Validation Only Response
+
+When `validate_only: true`:
+
+```json
+{
+  "success": true,
+  "code": 200,
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  "message": "XML validation completed",
+  "data": {
+    "is_valid": true,
+    "product_count": 195,
+    "structure": {
+      "detected_path": "products/product",
+      "sample_fields": [
+        { "name": "name", "value": "Product Name Example", "has_children": false },
+        { "name": "price", "value": "29.99", "has_children": false },
+        { "name": "categories", "value": "Complex element", "has_children": true }
+      ]
+    },
+    "errors": []
+  }
+}
+```
+
+## Error Responses
+
+### Invalid URL
+
+```json
+{
+  "success": false,
+  "code": 1100,
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  "message": "Validation failed",
+  "errors": {
+    "xml_url": ["The xml url field is required."]
+  }
+}
+```
+
+### Import Failed
+
+```json
+{
+  "success": false,
+  "code": 1700,
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  "message": "XML import failed: Could not load XML content"
+}
+```
+
+## Security
+
+<Warning>
+The API includes SSRF protection. The following URLs are blocked:
+- `localhost`, `127.0.0.1`, `0.0.0.0`
+- Private IP ranges (10.x.x.x, 192.168.x.x, 172.16-31.x.x)
+- Cloud metadata endpoints (169.254.x.x)
+</Warning>
+

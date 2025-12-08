@@ -1,0 +1,144 @@
+---
+title: "Validate XML"
+description: "Validate XML structure without importing"
+api: "POST /{locale}/shop/xml-import/validate"
+---
+
+# Validate XML Structure
+
+Validate an XML feed structure without actually importing the data. Useful for testing your XML format before running a full import.
+
+## Authentication
+
+<Note>
+Requires **Partner API credentials**: `X-API-Key` and `X-API-Secret` headers.
+</Note>
+
+## Request
+
+### Headers
+
+| Header | Type | Required | Description |
+|--------|------|----------|-------------|
+| `X-API-Key` | string | ✅ | Your Partner API key |
+| `X-API-Secret` | string | ✅ | Your Partner API secret |
+| `Content-Type` | string | ✅ | `application/json` |
+
+### Path Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `locale` | string | ✅ | Language code: `lt` or `en` |
+
+### Body Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `xml_url` | string | ✅ | URL to the XML feed to validate |
+
+## Example Request
+
+```bash
+curl -X POST "https://api.loyalty.lt/lt/shop/xml-import/validate" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "xml_url": "https://example.com/products.xml"
+  }'
+```
+
+## Success Response
+
+### Valid XML
+
+```json
+{
+  "success": true,
+  "code": 200,
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  "message": "XML validation completed",
+  "data": {
+    "is_valid": true,
+    "product_count": 250,
+    "structure": {
+      "detected_path": "products/product",
+      "sample_fields": [
+        {
+          "name": "id",
+          "value": "12345",
+          "has_children": false
+        },
+        {
+          "name": "name",
+          "value": "Samsung Galaxy S24",
+          "has_children": false
+        },
+        {
+          "name": "price",
+          "value": "899.00",
+          "has_children": false
+        },
+        {
+          "name": "categories",
+          "value": "Complex element",
+          "has_children": true
+        }
+      ]
+    },
+    "errors": []
+  }
+}
+```
+
+### Invalid XML (No Products Found)
+
+```json
+{
+  "success": true,
+  "code": 200,
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  "message": "XML validation completed",
+  "data": {
+    "is_valid": false,
+    "product_count": 0,
+    "structure": {},
+    "errors": ["No products found in XML"]
+  }
+}
+```
+
+## Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `is_valid` | boolean | `true` if products were found |
+| `product_count` | integer | Number of products detected |
+| `structure.detected_path` | string | XML path pattern that matched |
+| `structure.sample_fields` | array | Sample of fields from first product |
+| `errors` | array | List of validation errors |
+
+## Detected Paths
+
+The validator checks for these common XML structures:
+
+```xml
+<!-- Direct elements -->
+<product>...</product>
+<item>...</item>
+<offer>...</offer>
+
+<!-- Nested elements -->
+<products>
+  <product>...</product>
+</products>
+
+<items>
+  <item>...</item>
+</items>
+
+<offers>
+  <offer>...</offer>
+</offers>
+```
+

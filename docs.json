@@ -55,6 +55,16 @@
               "api-reference/endpoints/shop/points/redeem",
               "api-reference/endpoints/shop/points/transactions"
             ]
+          },
+          {
+            "group": "XML Import",
+            "pages": [
+              "api-reference/endpoints/shop/xml-import/overview",
+              "api-reference/endpoints/shop/xml-import/from-url",
+              "api-reference/endpoints/shop/xml-import/from-file",
+              "api-reference/endpoints/shop/xml-import/validate",
+              "api-reference/endpoints/shop/xml-import/field-mappings"
+            ]
           }
         ]
       }

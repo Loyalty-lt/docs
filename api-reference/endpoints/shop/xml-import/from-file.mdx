@@ -1,0 +1,104 @@
+---
+title: "Import from File"
+description: "Import products from an uploaded XML file"
+api: "POST /{locale}/shop/xml-import/from-file"
+---
+
+# Import Products from File
+
+Upload and import products from an XML file.
+
+## Authentication
+
+<Note>
+Requires **Partner API credentials**: `X-API-Key` and `X-API-Secret` headers.
+</Note>
+
+## Request
+
+### Headers
+
+| Header | Type | Required | Description |
+|--------|------|----------|-------------|
+| `X-API-Key` | string | ✅ | Your Partner API key |
+| `X-API-Secret` | string | ✅ | Your Partner API secret |
+| `Content-Type` | string | ✅ | `multipart/form-data` |
+
+### Path Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `locale` | string | ✅ | Language code: `lt` or `en` |
+
+### Form Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `xml_file` | file | ✅ | XML file to import (max 10MB) |
+| `validate_only` | boolean | ❌ | If `true`, only validate without importing |
+
+## Example Request
+
+```bash
+curl -X POST "https://api.loyalty.lt/lt/shop/xml-import/from-file" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -F "xml_file=@products.xml" \
+  -F "validate_only=false"
+```
+
+## Success Response
+
+```json
+{
+  "success": true,
+  "code": 200,
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  "message": "XML import completed successfully",
+  "data": {
+    "products_created": 150,
+    "products_updated": 45,
+    "offers_created": 150,
+    "offers_updated": 45,
+    "errors": []
+  }
+}
+```
+
+## Error Responses
+
+### Invalid File
+
+```json
+{
+  "success": false,
+  "code": 1100,
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  "message": "Validation failed",
+  "errors": {
+    "xml_file": ["The xml file must be a file of type: xml."]
+  }
+}
+```
+
+### File Too Large
+
+```json
+{
+  "success": false,
+  "code": 1100,
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  "message": "Validation failed",
+  "errors": {
+    "xml_file": ["The xml file must not be greater than 10240 kilobytes."]
+  }
+}
+```
+
+## Limits
+
+| Limit | Value |
+|-------|-------|
+| Maximum file size | 10 MB |
+| Allowed MIME types | `application/xml`, `text/xml` |
+

@@ -1,0 +1,130 @@
+---
+title: "Field Mappings"
+description: "Get supported XML field mappings"
+api: "GET /{locale}/shop/xml-import/field-mappings"
+---
+
+# Get Field Mappings
+
+Retrieve the list of supported XML field mappings. This helps you understand which XML tags the import system recognizes.
+
+## Authentication
+
+<Note>
+Requires **Partner API credentials**: `X-API-Key` and `X-API-Secret` headers.
+</Note>
+
+## Request
+
+### Headers
+
+| Header | Type | Required | Description |
+|--------|------|----------|-------------|
+| `X-API-Key` | string | ✅ | Your Partner API key |
+| `X-API-Secret` | string | ✅ | Your Partner API secret |
+
+### Path Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `locale` | string | ✅ | Language code: `lt` or `en` |
+
+## Example Request
+
+```bash
+curl -X GET "https://api.loyalty.lt/lt/shop/xml-import/field-mappings" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"
+```
+
+## Response
+
+```json
+{
+  "success": true,
+  "code": 200,
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  "message": "Field mappings retrieved",
+  "data": {
+    "product_fields": {
+      "name": ["name", "title", "product_name"],
+      "description": ["description", "desc"],
+      "brand": ["brand", "manufacturer"],
+      "model": ["model"],
+      "ean": ["ean", "ean13", "barcode"],
+      "sku": ["sku", "code", "id"],
+      "xml_id": ["id", "xml_id", "external_id"],
+      "image_url": ["image", "image_url", "picture"],
+      "external_url": ["url", "link", "product_url"],
+      "weight": ["weight"],
+      "color": ["color"],
+      "size": ["size"]
+    },
+    "offer_fields": {
+      "price": ["price", "regular_price"],
+      "discounted_price": ["discounted_price", "sale_price", "loyalty_program_item_price"],
+      "currency": ["currency"],
+      "availability": ["availability", "in_stock"],
+      "stock_quantity": ["stock", "quantity"],
+      "delivery_info": ["delivery", "shipping"],
+      "warranty_info": ["warranty"],
+      "external_url": ["url", "link", "product_url"],
+      "external_id": ["id", "external_id"],
+      "featured": ["featured"]
+    },
+    "category_fields": {
+      "categories": ["categories/category", "category"]
+    }
+  }
+}
+```
+
+## Understanding Mappings
+
+Each key in the response represents a field in our system. The array values are the XML tag names we look for.
+
+### Example XML Mapping
+
+Your XML:
+```xml
+<product>
+  <title>iPhone 15 Pro</title>
+  <manufacturer>Apple</manufacturer>
+  <regular_price>1199.00</regular_price>
+  <sale_price>1099.00</sale_price>
+  <barcode>0194253401353</barcode>
+</product>
+```
+
+Maps to:
+| Your XML Tag | Our Field |
+|--------------|-----------|
+| `title` | `name` |
+| `manufacturer` | `brand` |
+| `regular_price` | `price` |
+| `sale_price` | `discounted_price` |
+| `barcode` | `ean` |
+
+## Product Fields Reference
+
+| Our Field | Description | Accepted Tags |
+|-----------|-------------|---------------|
+| `name` | Product name | `name`, `title`, `product_name` |
+| `description` | Product description | `description`, `desc` |
+| `brand` | Manufacturer/brand | `brand`, `manufacturer` |
+| `model` | Model number | `model` |
+| `ean` | EAN/barcode | `ean`, `ean13`, `barcode` |
+| `sku` | Stock keeping unit | `sku`, `code`, `id` |
+| `image_url` | Main product image | `image`, `image_url`, `picture` |
+| `external_url` | Link to product page | `url`, `link`, `product_url` |
+
+## Offer/Price Fields Reference
+
+| Our Field | Description | Accepted Tags |
+|-----------|-------------|---------------|
+| `price` | Regular price | `price`, `regular_price` |
+| `discounted_price` | Sale/loyalty price | `discounted_price`, `sale_price`, `loyalty_program_item_price` |
+| `currency` | Price currency | `currency` |
+| `availability` | In stock status | `availability`, `in_stock` |
+| `stock_quantity` | Available quantity | `stock`, `quantity` |
+
