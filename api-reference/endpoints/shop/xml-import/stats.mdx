@@ -1,0 +1,101 @@
+---
+title: "Import Statistics"
+api: "GET /{locale}/shop/xml-import/stats"
+description: "Get XML import statistics and product counts"
+---
+
+# Import Statistics
+
+Get statistics about imported products and offers from XML feeds.
+
+## Endpoint
+
+```
+GET /{locale}/shop/xml-import/stats
+```
+
+## Authentication
+
+<ParamField header="X-API-Key" type="string" required>
+  Partner API key
+</ParamField>
+
+<ParamField header="X-API-Secret" type="string" required>
+  Partner API secret
+</ParamField>
+
+## Response
+
+<ResponseField name="data" type="object">
+  <Expandable title="import statistics">
+    <ResponseField name="total_products" type="integer">
+      Total unique products imported
+    </ResponseField>
+    
+    <ResponseField name="total_offers" type="integer">
+      Total product offers (variations)
+    </ResponseField>
+    
+    <ResponseField name="products_with_images" type="integer">
+      Products that have images
+    </ResponseField>
+    
+    <ResponseField name="products_with_discount" type="integer">
+      Products with discounted prices
+    </ResponseField>
+    
+    <ResponseField name="products_in_stock" type="integer">
+      Products currently in stock
+    </ResponseField>
+    
+    <ResponseField name="categories_used" type="integer">
+      Number of categories with products
+    </ResponseField>
+    
+    <ResponseField name="last_import" type="string">
+      Last import timestamp (ISO 8601)
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X GET "https://staging-api.loyalty.lt/en/shop/xml-import/stats" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Success Response (200)
+{
+  "success": true,
+  "data": {
+    "total_products": 1250,
+    "total_offers": 1450,
+    "products_with_images": 1100,
+    "products_with_discount": 320,
+    "products_in_stock": 980,
+    "categories_used": 45,
+    "last_import": "2024-12-08T10:15:00Z"
+  }
+}
+```
+
+</ResponseExample>
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Dashboard Display" icon="chart-bar">
+    Show import statistics on partner dashboard
+  </Card>
+  
+  <Card title="Import Monitoring" icon="eye">
+    Monitor import health and completeness
+  </Card>
+</CardGroup>
+

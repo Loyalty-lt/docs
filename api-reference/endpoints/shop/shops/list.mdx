@@ -1,0 +1,135 @@
+---
+title: "List Shops"
+api: "GET /{locale}/shop/shops"
+description: "Get a list of partner's shops/locations"
+---
+
+# List Shops
+
+Get a paginated list of shops (physical locations) belonging to the authenticated partner.
+
+## Endpoint
+
+```
+GET /{locale}/shop/shops
+```
+
+## Authentication
+
+<ParamField header="X-API-Key" type="string" required>
+  Partner API key
+</ParamField>
+
+<ParamField header="X-API-Secret" type="string" required>
+  Partner API secret
+</ParamField>
+
+## Query Parameters
+
+<ParamField query="page" type="integer">
+  Page number for pagination
+  
+  **Default:** `1`
+</ParamField>
+
+<ParamField query="per_page" type="integer">
+  Items per page (max 50)
+  
+  **Default:** `15`
+</ParamField>
+
+<ParamField query="search" type="string">
+  Search by shop name or address
+</ParamField>
+
+<ParamField query="is_active" type="boolean">
+  Filter by active status
+  
+  **Default:** `true`
+</ParamField>
+
+## Response
+
+<ResponseField name="data" type="array">
+  Array of shop objects
+  
+  <Expandable title="shop object">
+    <ResponseField name="id" type="integer">
+      Shop unique identifier
+    </ResponseField>
+    
+    <ResponseField name="name" type="string">
+      Shop name
+    </ResponseField>
+    
+    <ResponseField name="address" type="string">
+      Full address
+    </ResponseField>
+    
+    <ResponseField name="city" type="string">
+      City name
+    </ResponseField>
+    
+    <ResponseField name="phone" type="string">
+      Contact phone number
+    </ResponseField>
+    
+    <ResponseField name="working_hours" type="object">
+      Working hours by day
+    </ResponseField>
+    
+    <ResponseField name="is_active" type="boolean">
+      Whether shop is active
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="meta" type="object">
+  Pagination metadata
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X GET "https://staging-api.loyalty.lt/en/shop/shops?per_page=10" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Success Response (200)
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "Coffee Paradise - Vilnius",
+      "address": "Gedimino pr. 1",
+      "city": "Vilnius",
+      "phone": "+37060000001",
+      "working_hours": {
+        "monday": "08:00-20:00",
+        "tuesday": "08:00-20:00",
+        "wednesday": "08:00-20:00",
+        "thursday": "08:00-20:00",
+        "friday": "08:00-21:00",
+        "saturday": "09:00-21:00",
+        "sunday": "10:00-18:00"
+      },
+      "is_active": true
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "last_page": 1,
+    "per_page": 10,
+    "total": 1
+  }
+}
+```
+
+</ResponseExample>
+

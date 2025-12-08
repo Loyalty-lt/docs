@@ -1,0 +1,153 @@
+---
+title: "Send App Link"
+api: "POST /{locale}/shop/auth/send-app-link"
+description: "Send SMS with mobile app download link to customer"
+---
+
+# Send App Download Link
+
+Send an SMS to a customer with a link to download the Loyalty.lt mobile app. Useful for onboarding new customers at point of sale.
+
+## Endpoint
+
+```
+POST /{locale}/shop/auth/send-app-link
+```
+
+## Authentication
+
+<ParamField header="X-API-Key" type="string" required>
+  Partner API key from Partners Portal
+</ParamField>
+
+<ParamField header="X-API-Secret" type="string" required>
+  Partner API secret from Partners Portal
+</ParamField>
+
+## Path Parameters
+
+<ParamField path="locale" type="string" required>
+  Language code for localized SMS message (e.g., `en`, `lt`)
+</ParamField>
+
+## Request Body
+
+<ParamField body="phone" type="string" required>
+  Customer's phone number in international format
+  
+  **Format:** `+[country_code][number]` (E.164)
+  
+  **Example:** `+37060000000`
+</ParamField>
+
+<ParamField body="shop_id" type="integer">
+  Optional shop ID for tracking which location sent the invite
+</ParamField>
+
+<ParamField body="customer_name" type="string">
+  Optional customer name for personalized message
+  
+  **Max length:** 255 characters
+</ParamField>
+
+<ParamField body="language" type="string">
+  Language for SMS message (`lt` or `en`)
+  
+  **Default:** Uses locale from URL path
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  `true` if SMS was sent successfully
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Confirmation message
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X POST "https://staging-api.loyalty.lt/lt/shop/auth/send-app-link" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -d '{
+    "phone": "+37060000000",
+    "customer_name": "Jonas",
+    "shop_id": 123
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://staging-api.loyalty.lt/lt/shop/auth/send-app-link', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'your_api_key',
+    'X-API-Secret': 'your_api_secret'
+  },
+  body: JSON.stringify({
+    phone: '+37060000000',
+    customer_name: 'Jonas',
+    shop_id: 123
+  })
+});
+
+const data = await response.json();
+console.log(data.message);
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Success Response (200)
+{
+  "success": true,
+  "message": "App download link sent successfully"
+}
+```
+
+```json Validation Error (422)
+{
+  "success": false,
+  "code": 1100,
+  "message": "Validation failed",
+  "errors": {
+    "phone": ["The phone field is required."]
+  }
+}
+```
+
+</ResponseExample>
+
+## Error Codes
+
+| Code | Description |
+|------|-------------|
+| `1100` | Validation failed (invalid phone format) |
+| `1005` | Partner not authenticated |
+| `1607` | SMS service failed |
+
+## SMS Content
+
+The SMS contains:
+- Personalized greeting (if customer_name provided)
+- Partner/shop name
+- App Store and Google Play download links
+- Brief description of loyalty benefits
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="POS Onboarding" icon="cash-register">
+    Invite customers to join loyalty program during checkout
+  </Card>
+  
+  <Card title="New Customer Welcome" icon="user-plus">
+    Send app link after creating loyalty card for new customer
+  </Card>
+</CardGroup>
+

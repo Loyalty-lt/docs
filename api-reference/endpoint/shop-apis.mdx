@@ -23,16 +23,12 @@ Where `{locale}` is the language code (e.g., `en`, `lt`).
 ## Authentication Categories
 
 ### Customer Authentication
-- **Phone + OTP Login**: Modern phone-based authentication flow
-- **User Registration**: New customer onboarding with phone verification
 - **QR Code Login**: Seamless mobile-to-desktop authentication
 - **Token Management**: JWT refresh and session management
 - **Profile Management**: User profile and preferences
 
 **Key Endpoints:**
-- `POST /{locale}/shop/auth/request-otp` - Request OTP code
-- `POST /{locale}/shop/auth/login` - Login with phone + OTP
-- `POST /{locale}/shop/auth/register` - Register new user
+- `POST /{locale}/shop/auth/qr-login/generate` - Generate QR login session
 - `GET /{locale}/shop/auth/me` - Get current user details
 - `PUT /{locale}/shop/auth/profile` - Update user profile
 

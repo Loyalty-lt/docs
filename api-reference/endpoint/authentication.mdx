@@ -13,17 +13,6 @@ All authentication endpoints are automatically documented below from the OpenAPI
 
 ## Endpoint Categories
 
-### Phone + OTP Authentication
-Core authentication flow using phone number and SMS verification:
-
-- `POST /{locale}/shop/auth/request-otp` - Request OTP code via SMS
-- `POST /{locale}/shop/auth/verify-otp` - Verify OTP code (standalone)
-- `POST /{locale}/shop/auth/login` - Login with phone + OTP
-- `POST /{locale}/shop/auth/register` - Register new user with phone + OTP
-
-**Flow Example:**
-1. Request OTP → 2. Verify OTP → 3. Login/Register → 4. Receive JWT token
-
 ### QR Code Authentication
 Desktop-to-mobile authentication flow for seamless login:
 
@@ -73,51 +62,12 @@ Account deletion is irreversible and removes all user data including loyalty car
 
 | Endpoint Group | Authentication | Notes |
 |---------------|----------------|-------|
-| **OTP Requests** | API Credentials | Server-side only |
-| **Login/Register** | API Credentials | Public endpoints |
 | **QR Generation** | API Credentials | Public endpoints |
 | **Session Management** | JWT Token | User context required |
 | **Profile Management** | JWT Token | User context required |
 | **Statistics** | JWT Token | User context required |
 
 ## Common Use Cases
-
-### E-commerce Integration
-**Scenario:** Customer checkout with loyalty benefits
-
-```bash
-# 1. Request OTP for customer
-POST /{locale}/shop/auth/request-otp
-{"phone": "+37060000000", "type": "login"}
-
-# 2. Login customer
-POST /{locale}/shop/auth/login  
-{"phone": "+37060000000", "otp": "123456"}
-
-# 3. Get customer profile and loyalty status
-GET /{locale}/shop/auth/me
-Authorization: Bearer jwt_token
-
-# 4. Check available points/coupons for checkout
-GET /{locale}/shop/auth/statistics
-Authorization: Bearer jwt_token
-```
-
-### Mobile App Authentication  
-**Scenario:** Mobile app login with persistent session
-
-```bash
-# 1. Phone registration/login flow
-POST /{locale}/shop/auth/request-otp
-POST /{locale}/shop/auth/login
-
-# 2. Store JWT and refresh tokens securely
-# 3. Use access token for API calls
-# 4. Refresh token when needed
-
-POST /{locale}/shop/auth/refresh
-{"refresh_token": "stored_refresh_token"}
-```
 
 ### Desktop QR Login
 **Scenario:** Desktop application login via mobile
@@ -177,12 +127,10 @@ POST /{locale}/shop/auth/qr-login/confirm/{sessionId}
 ## Security Features
 
 ### Rate Limiting
-- **OTP Requests**: 5 per minute per phone number
-- **Login Attempts**: 10 per hour per phone number  
+- **QR Login**: 10 per hour per session
 - **API Calls**: 1000 per hour per JWT token
 
 ### Anti-Fraud Protection
-- **OTP Validation**: Maximum 3 attempts per OTP code
 - **Device Tracking**: Suspicious device detection
 - **IP Monitoring**: Unusual location alerts
 - **Session Security**: Automatic logout on suspicious activity
@@ -199,11 +147,7 @@ Common authentication errors and their resolutions:
 
 | Error Code | Description | Solution |
 |------------|-------------|----------|
-| `OTP_EXPIRED` | OTP code has expired | Request new OTP |
-| `OTP_INVALID` | Wrong OTP code entered | Verify code or request new |
 | `TOKEN_EXPIRED` | JWT token expired | Use refresh token endpoint |
-| `USER_NOT_FOUND` | Phone number not registered | Use register endpoint |
-| `USER_EXISTS` | Phone already registered | Use login endpoint |
 | `QR_SESSION_EXPIRED` | QR login session expired | Generate new QR session |
 
 ## Next Steps

@@ -19,8 +19,7 @@ All authentication methods use HTTPS encryption and include rate limiting for se
 
 | Method | Use Case | Security Level | Rate Limit |
 |--------|----------|----------------|------------|
-| **🔥 QR Code Auth** | **Primary: Desktop/Mobile** | **High** | **1,000/hour** |
-| **Phone + OTP** | Mobile app login | High | 500/hour |
+| **QR Code Auth** | Primary: Desktop/Mobile | High | 1,000/hour |
 | **API Credentials** | Server integrations | High | 2,000/hour |
 | **JWT Tokens** | User sessions | Medium | 1,000/hour |
 | **Partner Authentication** | Partner management | High | 5,000/hour |
@@ -95,57 +94,6 @@ displayQRCode(qr_code);
 <Note>
 For complete QR authentication documentation with all endpoints, examples, and implementation guides, see the [QR Code Authentication](/api-reference/endpoints/shop/auth/qr-login) section.
 </Note>
-
----
-
-## Phone + OTP Authentication
-
-**Best for:** Mobile applications, direct phone number verification
-
-Alternative authentication method using phone number and one-time password (OTP) verification.
-
-### Basic Flow
-
-<Steps>
-<Step title="Request OTP">
-  Send OTP code to user's phone number for authentication.
-</Step>
-
-<Step title="User Enters OTP">
-  User receives and enters the 6-digit verification code.
-</Step>
-
-<Step title="Verify & Login">
-  API verifies OTP and returns JWT tokens for session management.
-</Step>
-</Steps>
-
-### Quick Example
-
-```javascript
-// 1. Request OTP
-await fetch('/en/shop/auth/request-otp', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    phone: '+37060000000',
-    type: 'login'
-  })
-});
-
-// 2. Login with OTP
-const loginResponse = await fetch('/en/shop/auth/login', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    phone: '+37060000000',
-    otp: '123456',
-    device_name: 'Mobile App'
-  })
-});
-
-const { token, refresh_token } = loginResponse.data;
-```
 
 ---
 
@@ -233,71 +181,7 @@ Separate credentials for staging and production environments.
 
 **Best for:** Mobile apps, customer portals, user-specific operations
 
-JWT tokens provide session-based authentication for customer-facing features where users log in with their phone number and OTP.
-
-### Phone + OTP Authentication Flow
-
-The primary method for customer authentication:
-
-<Steps>
-<Step title="Request OTP">
-  Send OTP code to customer's phone:
-
-  ```bash
-  curl -X POST "https://staging-api.loyalty.lt/en/shop/auth/request-otp" \
-    -H "X-API-Key: your_api_key" \
-    -H "X-API-Secret: your_api_secret" \
-    -H "Content-Type: application/json" \
-    -d '{
-      "phone": "+37060000000",
-      "type": "login"
-    }'
-  ```
-</Step>
-
-<Step title="Verify OTP & Login">
-  Verify the OTP code and receive JWT token:
-
-  ```bash
-  curl -X POST "https://staging-api.loyalty.lt/en/shop/auth/login" \
-    -H "X-API-Key: your_api_key" \
-    -H "X-API-Secret: your_api_secret" \
-    -H "Content-Type: application/json" \
-    -d '{
-      "phone": "+37060000000",
-      "otp": "123456"
-    }'
-  ```
-
-  **Response:**
-  ```json
-  {
-    "success": true,
-    "message": "Login successful",
-    "data": {
-      "user": {
-        "id": 123,
-        "phone": "+37060000000",
-        "name": "Jonas Jonaitis"
-      },
-      "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
-      "refresh_token": "refresh_token_here",
-      "expires_in": 3600
-    }
-  }
-  ```
-</Step>
-
-<Step title="Use JWT Token">
-  Include the JWT token in subsequent requests:
-
-  ```bash
-  curl -X GET "https://staging-api.loyalty.lt/en/shop/auth/me" \
-    -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..." \
-    -H "Content-Type: application/json"
-  ```
-</Step>
-</Steps>
+JWT tokens provide session-based authentication for customer-facing features.
 
 ### QR Code Authentication
 

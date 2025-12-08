@@ -1,0 +1,74 @@
+---
+title: "Sync Status"
+api: "GET /{locale}/shop/sync-status"
+description: "Get synchronization status for offers and products"
+---
+
+# Sync Status
+
+Get the current synchronization status for partner's offers and products.
+
+## Endpoint
+
+```
+GET /{locale}/shop/sync-status
+```
+
+## Authentication
+
+<ParamField header="X-API-Key" type="string" required>
+  Partner API key
+</ParamField>
+
+<ParamField header="X-API-Secret" type="string" required>
+  Partner API secret
+</ParamField>
+
+## Response
+
+<ResponseField name="data" type="object">
+  <Expandable title="sync status">
+    <ResponseField name="total_offers" type="integer">
+      Total number of offers
+    </ResponseField>
+    
+    <ResponseField name="active_offers" type="integer">
+      Number of active offers
+    </ResponseField>
+    
+    <ResponseField name="expired_offers" type="integer">
+      Number of expired offers
+    </ResponseField>
+    
+    <ResponseField name="last_sync" type="string">
+      Last synchronization timestamp (ISO 8601)
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X GET "https://staging-api.loyalty.lt/en/shop/sync-status" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Success Response (200)
+{
+  "success": true,
+  "data": {
+    "total_offers": 150,
+    "active_offers": 120,
+    "expired_offers": 30,
+    "last_sync": "2024-12-08T14:30:00Z"
+  }
+}
+```
+
+</ResponseExample>
+

@@ -1,0 +1,117 @@
+---
+title: "Get Partner Card"
+api: "GET /{locale}/shop/partner-cards/{id}"
+description: "Get details of a specific partner card template"
+---
+
+# Get Partner Card
+
+Get detailed information about a specific partner card template by ID.
+
+## Endpoint
+
+```
+GET /{locale}/shop/partner-cards/{id}
+```
+
+## Authentication
+
+<ParamField header="X-API-Key" type="string" required>
+  Partner API key
+</ParamField>
+
+<ParamField header="X-API-Secret" type="string" required>
+  Partner API secret
+</ParamField>
+
+## Path Parameters
+
+<ParamField path="locale" type="string" required>
+  Language code (e.g., `en`, `lt`)
+</ParamField>
+
+<ParamField path="id" type="integer" required>
+  Partner card template ID
+</ParamField>
+
+## Response
+
+<ResponseField name="data" type="object">
+  <Expandable title="partner card object">
+    <ResponseField name="id" type="integer">
+      Card template ID
+    </ResponseField>
+    
+    <ResponseField name="name" type="object">
+      Localized card name (`lt`, `en`)
+    </ResponseField>
+    
+    <ResponseField name="description" type="object">
+      Localized description
+    </ResponseField>
+    
+    <ResponseField name="points_per_euro" type="number">
+      Points earned per euro spent
+    </ResponseField>
+    
+    <ResponseField name="welcome_bonus" type="integer">
+      Welcome bonus points for new cards
+    </ResponseField>
+    
+    <ResponseField name="is_active" type="boolean">
+      Whether template is active
+    </ResponseField>
+    
+    <ResponseField name="card_design" type="object">
+      Card visual design settings
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X GET "https://staging-api.loyalty.lt/en/shop/partner-cards/5" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Success Response (200)
+{
+  "success": true,
+  "data": {
+    "id": 5,
+    "partner_id": 45,
+    "name": {
+      "lt": "Kavos megustauju kortele",
+      "en": "Coffee Lover Card"
+    },
+    "description": {
+      "lt": "Rinkite taskus uz kiekviena pirkinį",
+      "en": "Collect points for every purchase"
+    },
+    "points_per_euro": 1.5,
+    "welcome_bonus": 100,
+    "is_active": true,
+    "applicable_shops": null,
+    "card_design": {
+      "background_color": "#8B4513",
+      "text_color": "#FFFFFF"
+    }
+  }
+}
+```
+
+```json Not Found (404)
+{
+  "success": false,
+  "message": "Loyalty card not found"
+}
+```
+
+</ResponseExample>
+

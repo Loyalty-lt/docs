@@ -1,0 +1,90 @@
+---
+title: "Products Sync Status"
+api: "GET /{locale}/shop/products/sync-status"
+description: "Get product synchronization status"
+---
+
+# Products Sync Status
+
+Get detailed synchronization status for partner's products.
+
+## Endpoint
+
+```
+GET /{locale}/shop/products/sync-status
+```
+
+## Authentication
+
+<ParamField header="X-API-Key" type="string" required>
+  Partner API key
+</ParamField>
+
+<ParamField header="X-API-Secret" type="string" required>
+  Partner API secret
+</ParamField>
+
+## Response
+
+<ResponseField name="data" type="object">
+  <Expandable title="sync status">
+    <ResponseField name="total_products" type="integer">
+      Total unique products
+    </ResponseField>
+    
+    <ResponseField name="active_products" type="integer">
+      Currently active products
+    </ResponseField>
+    
+    <ResponseField name="inactive_products" type="integer">
+      Inactive/disabled products
+    </ResponseField>
+    
+    <ResponseField name="products_with_discount" type="integer">
+      Products with active discounts
+    </ResponseField>
+    
+    <ResponseField name="products_in_stock" type="integer">
+      Products available in stock
+    </ResponseField>
+    
+    <ResponseField name="last_sync" type="string">
+      Last synchronization timestamp
+    </ResponseField>
+    
+    <ResponseField name="categories_used" type="integer">
+      Number of categories with products
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X GET "https://staging-api.loyalty.lt/en/shop/products/sync-status" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Success Response (200)
+{
+  "success": true,
+  "data": {
+    "total_products": 1250,
+    "active_products": 1100,
+    "inactive_products": 150,
+    "products_with_discount": 320,
+    "products_in_stock": 980,
+    "last_sync": "2024-12-08T14:30:00Z",
+    "categories_used": 45
+  },
+  "message": "Sync status retrieved"
+}
+```
+
+</ResponseExample>
+

@@ -55,9 +55,7 @@ curl -X GET "https://staging-api.loyalty.lt/en/shop/auth/me" \
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| `POST` | `/auth/request-otp` | None | Request OTP code |
-| `POST` | `/auth/login` | None | Login with OTP |
-| `POST` | `/auth/register` | None | Register new user |
+| `POST` | `/validate-credentials` | Partner | Verify API credentials |
 | `GET` | `/auth/me` | JWT | Get current user |
 | `POST` | `/auth/qr-login/generate` | Partner | Generate QR session |
 | `POST` | `/auth/qr-login/ably-token` | Partner | Get Ably WebSocket token |
@@ -84,12 +82,35 @@ curl -X GET "https://staging-api.loyalty.lt/en/shop/auth/me" \
 | `GET` | `/transactions` | JWT | List user transactions |
 | `GET` | `/transactions/{id}` | JWT | Get transaction details |
 
-### Points Endpoints
+### Shops Endpoints
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| `GET` | `/points` | JWT | List point transactions |
-| `POST` | `/points/redeem` | JWT | Redeem points |
+| `GET` | `/shops` | Partner | List partner shops/locations |
+
+### Offers Endpoints
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/offers` | JWT | List available offers |
+| `GET` | `/categories` | Partner | List offer categories |
+| `GET` | `/sync-status` | Partner | Get offer sync status |
+
+### Products Endpoints
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/products/categories` | Partner | Get product categories |
+| `GET` | `/products/sync-status` | Partner | Get product sync status |
+
+### XML Import Endpoints
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `POST` | `/xml-import/from-url` | Partner | Import from URL |
+| `POST` | `/xml-import/from-file` | Partner | Import from file upload |
+| `POST` | `/xml-import/validate` | Partner | Validate XML structure |
+| `GET` | `/xml-import/stats` | Partner | Get import statistics |
 
 ## Response Format
 
