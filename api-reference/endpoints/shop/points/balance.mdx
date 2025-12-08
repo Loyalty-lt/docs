@@ -21,8 +21,12 @@ This endpoint requires **Partner API authentication** (X-API-Key and X-API-Secre
 
 ## Query Parameters
 
+<Tip>
+The `card_number` parameter accepts both the card number (e.g., `123-456-789`) and the QR code UUID value. This allows you to search by whatever value you have scanned.
+</Tip>
+
 <ParamField query="card_number" type="string">
-  Loyalty card number (e.g., `123-456-789`)
+  Loyalty card number (e.g., `123-456-789`) or QR code value (UUID)
 </ParamField>
 
 <ParamField query="card_id" type="integer">
@@ -41,8 +45,14 @@ At least one query parameter is required.
 
 <RequestExample>
 
-```bash cURL
+```bash cURL - By Card Number
 curl -X GET "https://staging-api.loyalty.lt/en/shop/loyalty-cards/balance?card_number=123-456-789" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"
+```
+
+```bash cURL - By QR Code
+curl -X GET "https://staging-api.loyalty.lt/en/shop/loyalty-cards/balance?card_number=550e8400-e29b-41d4-a716-446655440000" \
   -H "X-API-Key: your_api_key" \
   -H "X-API-Secret: your_api_secret"
 ```
