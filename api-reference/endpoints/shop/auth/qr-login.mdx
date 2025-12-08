@@ -27,11 +27,11 @@ sequenceDiagram
     API-->>Web: Ably JWT token
     Web->>Ably: Subscribe to qr-login:{session_id}
     
-    App->>API: POST /auth/qr-login/scan (with qr_code)
+    App->>API: User scans QR in Loyalty.lt app
     API->>Ably: Publish "scanned" status
     Ably-->>Web: Status update: scanned
     
-    App->>API: POST /auth/qr-login/confirm/{session_id}
+    App->>API: User confirms login in app
     API->>Ably: Publish "confirmed" + tokens
     Ably-->>Web: User data + JWT tokens
 ```
@@ -353,32 +353,6 @@ const interval = setInterval(async () => {
 ```
 
 </ResponseExample>
-
----
-
-## Mobile App: Scan QR Code
-
-<Note>
-This endpoint is used by the **mobile app** (requires JWT authentication) to scan and process QR codes.
-</Note>
-
-### Endpoint
-
-```
-POST /{locale}/shop/auth/qr-login/scan
-```
-
-### Authentication
-
-Requires JWT Bearer token from authenticated mobile app user.
-
-### Request Body
-
-<ParamField body="qr_code" type="string" required>
-  The full QR code URL or deep link scanned by the mobile app
-  
-  **Example:** `loyaltylt://qr-login?code=abc123&session=550e8400-...`
-</ParamField>
 
 ---
 

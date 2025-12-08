@@ -106,6 +106,8 @@ console.log(data.message);
 ```json Success Response (200)
 {
   "success": true,
+  "code": 200,
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
   "message": "App download link sent successfully"
 }
 ```
@@ -114,6 +116,7 @@ console.log(data.message);
 {
   "success": false,
   "code": 1100,
+  "request_id": "550e8400-e29b-41d4-a716-446655440001",
   "message": "Validation failed",
   "errors": {
     "phone": ["The phone field is required."]
