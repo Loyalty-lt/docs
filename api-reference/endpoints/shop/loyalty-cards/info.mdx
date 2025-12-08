@@ -1,0 +1,333 @@
+---
+title: "Get Card Info"
+api: "GET /{locale}/shop/loyalty-cards/info"
+description: "Get loyalty card details by card number, ID, or user ID"
+---
+
+# Get Loyalty Card Info
+
+Retrieve loyalty card information including points balance. This endpoint is essential for checking a customer's points before processing a transaction or redemption.
+
+<Info>
+This endpoint requires **Partner API authentication** (X-API-Key and X-API-Secret headers).
+</Info>
+
+## Path Parameters
+
+<ParamField path="locale" type="string" required>
+  Language code (e.g., `en`, `lt`)
+</ParamField>
+
+## Query Parameters
+
+At least one of the following is required:
+
+<ParamField query="card_id" type="integer">
+  Loyalty card ID
+</ParamField>
+
+<ParamField query="card_number" type="string">
+  Loyalty card number (e.g., `LC00000567`)
+</ParamField>
+
+<ParamField query="user_id" type="integer">
+  User ID to find their card
+</ParamField>
+
+## Authentication
+
+<ParamField header="X-API-Key" type="string" required>
+  Partner API key
+</ParamField>
+
+<ParamField header="X-API-Secret" type="string" required>
+  Partner API secret
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Request success status
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  <Expandable title="data">
+    <ResponseField name="id" type="integer">
+      Loyalty card ID
+    </ResponseField>
+    
+    <ResponseField name="card_number" type="string">
+      Card number (e.g., `LC00000567`)
+    </ResponseField>
+    
+    <ResponseField name="card_name" type="string">
+      Card display name
+    </ResponseField>
+    
+    <ResponseField name="card_type" type="string">
+      Card type (`partner_specific`, `universal`, `third_party`)
+    </ResponseField>
+    
+    <ResponseField name="points" type="integer">
+      Current points balance (non-expired)
+    </ResponseField>
+    
+    <ResponseField name="is_active" type="boolean">
+      Card active status
+    </ResponseField>
+    
+    <ResponseField name="transactions_count" type="integer">
+      Total number of transactions
+    </ResponseField>
+    
+    <ResponseField name="last_used_at" type="string">
+      ISO 8601 timestamp of last activity
+    </ResponseField>
+    
+    <ResponseField name="redemption" type="object">
+      Points redemption settings (if enabled)
+      
+      <Expandable title="redemption">
+        <ResponseField name="enabled" type="boolean">
+          Whether redemption is enabled
+        </ResponseField>
+        
+        <ResponseField name="points_per_currency" type="number">
+          Points required for 1 currency unit discount
+        </ResponseField>
+        
+        <ResponseField name="currency_amount" type="number">
+          Currency discount per redemption unit
+        </ResponseField>
+        
+        <ResponseField name="min_points" type="integer">
+          Minimum points required to redeem
+        </ResponseField>
+        
+        <ResponseField name="max_points" type="integer">
+          Maximum points per redemption
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="user" type="object">
+      Card owner information
+      
+      <Expandable title="user">
+        <ResponseField name="id" type="integer">
+          User ID
+        </ResponseField>
+        
+        <ResponseField name="name" type="string">
+          User's name
+        </ResponseField>
+        
+        <ResponseField name="email" type="string">
+          User's email
+        </ResponseField>
+        
+        <ResponseField name="phone" type="string">
+          User's phone number
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="partner" type="object">
+      Partner information
+    </ResponseField>
+    
+    <ResponseField name="created_at" type="string">
+      Card creation timestamp
+    </ResponseField>
+    
+    <ResponseField name="updated_at" type="string">
+      Last update timestamp
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL - By Card Number
+curl -X GET "https://staging-api.loyalty.lt/en/shop/loyalty-cards/info?card_number=LC00000567" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"
+```
+
+```bash cURL - By User ID
+curl -X GET "https://staging-api.loyalty.lt/en/shop/loyalty-cards/info?user_id=123" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"
+```
+
+```javascript JavaScript
+async function getCustomerPoints(cardNumber) {
+  const response = await fetch(
+    `https://staging-api.loyalty.lt/en/shop/loyalty-cards/info?card_number=${cardNumber}`,
+    {
+      headers: {
+        'X-API-Key': 'your_api_key',
+        'X-API-Secret': 'your_api_secret'
+      }
+    }
+  );
+  
+  const data = await response.json();
+  
+  if (data.success) {
+    console.log(`Customer: ${data.data.user.name}`);
+    console.log(`Points: ${data.data.points}`);
+    
+    if (data.data.redemption?.enabled) {
+      const maxDiscount = data.data.points / data.data.redemption.points_per_currency;
+      console.log(`Max discount: €${maxDiscount.toFixed(2)}`);
+    }
+  }
+  
+  return data;
+}
+```
+
+```php PHP
+<?php
+function getCardInfo($cardNumber) {
+    $curl = curl_init();
+    
+    curl_setopt_array($curl, [
+        CURLOPT_URL => "https://staging-api.loyalty.lt/en/shop/loyalty-cards/info?card_number={$cardNumber}",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => [
+            'X-API-Key: ' . LOYALTY_API_KEY,
+            'X-API-Secret: ' . LOYALTY_API_SECRET,
+        ]
+    ]);
+    
+    $response = curl_exec($curl);
+    curl_close($curl);
+    
+    return json_decode($response, true);
+}
+
+// Calculate available discount
+$cardInfo = getCardInfo('LC00000567');
+if ($cardInfo['success'] && $cardInfo['data']['redemption']['enabled']) {
+    $points = $cardInfo['data']['points'];
+    $pointsPerEuro = $cardInfo['data']['redemption']['points_per_currency'];
+    $maxDiscount = $points / $pointsPerEuro;
+    
+    echo "Available discount: €{$maxDiscount}";
+}
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Success Response (200)
+{
+  "success": true,
+  "message": "Card info retrieved successfully",
+  "data": {
+    "id": 567,
+    "card_number": "LC00000567",
+    "card_name": "Kavos mėgėjo kortelė",
+    "card_type": "partner_specific",
+    "points": 1250,
+    "is_active": true,
+    "transactions_count": 45,
+    "last_used_at": "2024-12-07T14:30:00.000Z",
+    "redemption": {
+      "enabled": true,
+      "points_per_currency": 100,
+      "currency_amount": 1.00,
+      "min_points": 100,
+      "max_points": 5000
+    },
+    "user": {
+      "id": 123,
+      "name": "Jonas Jonaitis",
+      "email": "jonas@example.com",
+      "phone": "+37060000000"
+    },
+    "partner": {
+      "id": 45,
+      "name": "Coffee Paradise",
+      "logo": "https://api.loyalty.lt/storage/logos/coffee-paradise.png"
+    },
+    "created_at": "2024-01-15T10:00:00.000Z",
+    "updated_at": "2024-12-07T14:30:00.000Z"
+  }
+}
+```
+
+```json Card Not Found (404)
+{
+  "success": false,
+  "message": "Loyalty card not found"
+}
+```
+
+```json Validation Error (422)
+{
+  "success": false,
+  "message": "At least one of card_id, card_number, or user_id is required",
+  "code": "VALIDATION_ERROR"
+}
+```
+
+```json Unauthorized (401)
+{
+  "success": false,
+  "message": "Partner not authenticated"
+}
+```
+
+</ResponseExample>
+
+## Points Redemption Calculation
+
+When redemption is enabled, calculate the maximum discount:
+
+```javascript
+const maxDiscount = points / redemption.points_per_currency * redemption.currency_amount;
+```
+
+**Example:**
+- Points: 1250
+- points_per_currency: 100
+- currency_amount: 1.00
+
+Max discount: 1250 / 100 × 1.00 = **€12.50**
+
+## Use Cases
+
+<CardGroup cols={2}>
+  <Card title="Checkout Display" icon="cart-shopping">
+    Show customer's points balance at checkout
+  </Card>
+  
+  <Card title="Pre-Transaction Check" icon="magnifying-glass">
+    Verify points before processing redemption
+  </Card>
+  
+  <Card title="POS Integration" icon="cash-register">
+    Display points when scanning loyalty card
+  </Card>
+  
+  <Card title="Account Lookup" icon="user">
+    Find customer's card by email/phone
+  </Card>
+</CardGroup>
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+  <Card title="Create Transaction" icon="coins" href="/api-reference/endpoints/shop/transactions/create">
+    Award/redeem points
+  </Card>
+  
+  <Card title="List Cards" icon="id-card" href="/api-reference/endpoints/shop/loyalty-cards/list">
+    List all partner cards
+  </Card>
+</CardGroup>
+

@@ -1,368 +1,93 @@
 ---
 title: "Award Points"
-api: "POST /{locale}/shop/points/award"
-description: "Award loyalty points to a user's account for purchases or activities"
+api: "POST /{locale}/shop/transactions/create"
+description: "Award loyalty points to a customer for a purchase"
 ---
 
 # Award Points
 
-Award loyalty points to a user's loyalty card for purchases, activities, or promotional campaigns. This endpoint calculates points based on configurable rules and updates the user's balance instantly.
+Award loyalty points to a customer based on their purchase. This endpoint is an alias for [Create Transaction](/api-reference/endpoints/shop/transactions/create).
 
-<Info>
-Points are awarded in real-time and immediately available for redemption. The system automatically calculates tier progress and triggers tier upgrades when applicable.
-</Info>
+<Note>
+For full documentation including cart items and points redemption, see [Create Transaction](/api-reference/endpoints/shop/transactions/create).
+</Note>
 
-## Path Parameters
-
-<ParamField path="locale" type="string" required>
-  Language code for localized content (e.g., "en", "lt")
-</ParamField>
-
-## Request Body
-
-<ParamField body="card_id" type="integer" required>
-  Unique identifier of the loyalty card to award points to
-</ParamField>
-
-<ParamField body="points" type="integer" required>
-  Number of points to award (must be positive)
-</ParamField>
-
-<ParamField body="transaction_type" type="string" required>
-  Type of transaction that generated the points
-  - `purchase` - Purchase-based points
-  - `bonus` - Promotional bonus points
-  - `referral` - Referral reward points
-  - `activity` - Activity-based points (check-ins, reviews, etc.)
-  - `manual` - Manual adjustment by staff
-</ParamField>
-
-<ParamField body="purchase_amount" type="number">
-  Original purchase amount in euros (required for purchase transactions)
-</ParamField>
-
-<ParamField body="description" type="string">
-  Optional description of the transaction (max 255 characters)
-</ParamField>
-
-<ParamField body="metadata" type="object">
-  Additional transaction data for tracking and analytics
-  <Expandable title="metadata">
-    <ParamField body="shop_id" type="integer">
-      Shop where the transaction occurred
-    </ParamField>
-    
-    <ParamField body="order_id" type="string">
-      External order/receipt reference
-    </ParamField>
-    
-    <ParamField body="campaign_id" type="integer">
-      Associated promotional campaign
-    </ParamField>
-  </Expandable>
-</ParamField>
-
-## Response
-
-<ResponseField name="success" type="boolean">
-  Indicates if points were successfully awarded
-</ResponseField>
-
-<ResponseField name="message" type="string">
-  Human-readable message about the operation
-</ResponseField>
-
-<ResponseField name="data" type="object">
-  <Expandable title="data">
-    <ResponseField name="transaction" type="object">
-      <Expandable title="transaction">
-        <ResponseField name="id" type="integer">
-          Unique transaction identifier
-        </ResponseField>
-        
-        <ResponseField name="points_awarded" type="integer">
-          Number of points awarded
-        </ResponseField>
-        
-        <ResponseField name="transaction_type" type="string">
-          Type of transaction
-        </ResponseField>
-        
-        <ResponseField name="description" type="string">
-          Transaction description
-        </ResponseField>
-        
-        <ResponseField name="created_at" type="string">
-          ISO 8601 timestamp when points were awarded
-        </ResponseField>
-      </Expandable>
-    </ResponseField>
-    
-    <ResponseField name="balance" type="object">
-      <Expandable title="balance">
-        <ResponseField name="current_points" type="integer">
-          Current total points balance after award
-        </ResponseField>
-        
-        <ResponseField name="previous_points" type="integer">
-          Points balance before this award
-        </ResponseField>
-        
-        <ResponseField name="tier" type="string">
-          Current customer tier
-        </ResponseField>
-        
-        <ResponseField name="tier_upgraded" type="boolean">
-          Whether this transaction triggered a tier upgrade
-        </ResponseField>
-        
-        <ResponseField name="next_tier_points" type="integer">
-          Points needed to reach next tier (null if max tier)
-        </ResponseField>
-      </Expandable>
-    </ResponseField>
-  </Expandable>
-</ResponseField>
+## Quick Example
 
 <RequestExample>
 
 ```bash cURL
-curl -X POST "https://staging-api.loyalty.lt/en/shop/points/award" \
-  -H "Authorization: Bearer your_jwt_token" \
+curl -X POST "https://staging-api.loyalty.lt/en/shop/transactions/create" \
   -H "Content-Type: application/json" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
   -d '{
-    "card_id": 123,
-    "points": 50,
-    "transaction_type": "purchase",
-    "purchase_amount": 25.99,
-    "description": "Coffee shop purchase",
-    "metadata": {
-      "shop_id": 45,
-      "order_id": "ORD-2024-001",
-      "campaign_id": null
-    }
+    "user_email": "customer@example.com",
+    "order_id": "ORDER-12345",
+    "order_total": 49.99
   }'
 ```
 
 ```javascript JavaScript
-const response = await fetch('/en/shop/points/award', {
+const response = await fetch('https://staging-api.loyalty.lt/en/shop/transactions/create', {
   method: 'POST',
   headers: {
-    'Authorization': `Bearer ${accessToken}`,
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'X-API-Key': 'your_api_key',
+    'X-API-Secret': 'your_api_secret'
   },
   body: JSON.stringify({
-    card_id: 123,
-    points: 50,
-    transaction_type: 'purchase',
-    purchase_amount: 25.99,
-    description: 'Coffee shop purchase',
-    metadata: {
-      shop_id: 45,
-      order_id: 'ORD-2024-001'
-    }
+    user_email: 'customer@example.com',
+    order_id: 'ORDER-12345',
+    order_total: 49.99
   })
 });
 
 const data = await response.json();
-if (data.success) {
-  console.log(`Awarded ${data.data.transaction.points_awarded} points`);
-  console.log(`New balance: ${data.data.balance.current_points} points`);
-  
-  if (data.data.balance.tier_upgraded) {
-    console.log(`🎉 Tier upgraded to ${data.data.balance.tier}!`);
-  }
-}
-```
-
-```python Python
-import requests
-
-headers = {
-    'Authorization': f'Bearer {access_token}',
-    'Content-Type': 'application/json'
-}
-
-payload = {
-    'card_id': 123,
-    'points': 50,
-    'transaction_type': 'purchase',
-    'purchase_amount': 25.99,
-    'description': 'Coffee shop purchase',
-    'metadata': {
-        'shop_id': 45,
-        'order_id': 'ORD-2024-001'
-    }
-}
-
-response = requests.post(
-    'https://staging-api.loyalty.lt/en/shop/points/award',
-    headers=headers,
-    json=payload
-)
-
-data = response.json()
-if data['success']:
-    transaction = data['data']['transaction']
-    balance = data['data']['balance']
-    
-    print(f"Awarded {transaction['points_awarded']} points")
-    print(f"New balance: {balance['current_points']} points")
-    
-    if balance['tier_upgraded']:
-        print(f"🎉 Tier upgraded to {balance['tier']}!")
+console.log(`Awarded ${data.data.points_awarded} points`);
 ```
 
 </RequestExample>
 
 <ResponseExample>
 
-```json Success Response
+```json Success Response (200)
 {
   "success": true,
   "message": "Points awarded successfully",
   "data": {
-    "transaction": {
-      "id": 12345,
-      "points_awarded": 50,
-      "transaction_type": "purchase",
-      "description": "Coffee shop purchase",
-      "created_at": "2024-01-15T14:30:00Z"
-    },
-    "balance": {
-      "current_points": 1300,
-      "previous_points": 1250,
-      "tier": "Gold",
-      "tier_upgraded": false,
-      "next_tier_points": 200
-    }
-  }
-}
-```
-
-```json Tier Upgrade Response
-{
-  "success": true,
-  "message": "Points awarded successfully - Tier upgraded!",
-  "data": {
-    "transaction": {
-      "id": 12346,
-      "points_awarded": 150,
-      "transaction_type": "purchase",
-      "description": "Large purchase - Electronics",
-      "created_at": "2024-01-15T16:45:00Z"
-    },
-    "balance": {
-      "current_points": 1500,
-      "previous_points": 1350,
-      "tier": "Platinum",
-      "tier_upgraded": true,
-      "next_tier_points": null
-    }
-  }
-}
-```
-
-```json Validation Error
-{
-  "success": false,
-  "message": "Validation failed",
-  "code": "VALIDATION_ERROR",
-  "errors": {
-    "points": ["Points must be a positive integer"],
-    "card_id": ["The selected card does not exist or is inactive"]
-  }
-}
-```
-
-```json Card Not Found
-{
-  "success": false,
-  "message": "Loyalty card not found",
-  "code": "CARD_NOT_FOUND",
-  "errors": {
-    "card_id": ["Loyalty card with ID 123 does not exist or belongs to another user"]
+    "transaction_id": 12345,
+    "points_awarded": 500,
+    "points_balance": 1750,
+    "loyalty_card_id": 567,
+    "card_number": "LC00000567",
+    "user_id": 123,
+    "order_total": 49.99,
+    "currency": "EUR"
   }
 }
 ```
 
 </ResponseExample>
 
-## Points Calculation Rules
+## Required Fields
 
-The system uses configurable rules to calculate points based on transaction type:
+| Field | Type | Description |
+|-------|------|-------------|
+| `user_id` OR `user_email` | int/string | Customer identifier |
+| `order_id` | string | Unique order reference |
+| `order_total` | number | Purchase amount |
 
-<Accordion title="Purchase Points">
-  **Formula**: `floor(purchase_amount * points_per_euro)`
-  
-  - Default: 2 points per €1 spent
-  - Minimum transaction: €0.01
-  - Maximum points per transaction: 10,000
-  - Tier multipliers may apply
-</Accordion>
+## Points Calculation
 
-<Accordion title="Bonus Points">
-  **Manual Award**: Direct points allocation
-  
-  - Used for promotions and special events
-  - No purchase amount required
-  - Subject to daily/monthly limits
-  - Expires based on campaign rules
-</Accordion>
+Points are automatically calculated based on your partner card settings:
 
-<Accordion title="Activity Points">
-  **Fixed Rewards**: Predetermined point values
-  
-  - Check-in: 5 points
-  - Review submission: 10 points
-  - Social share: 3 points
-  - App download: 25 points
-</Accordion>
+```
+points = (order_total / currency_amount) × points_per_currency + points_per_visit
+```
 
-## Business Logic
+Override automatic calculation by providing `points` in the request.
 
-<Steps>
-<Step title="Validation">
-  System validates card ownership, status, and point limits
-</Step>
-
-<Step title="Points Calculation">
-  Applies tier multipliers and promotional bonuses
-</Step>
-
-<Step title="Balance Update">
-  Updates card balance and transaction history
-</Step>
-
-<Step title="Tier Check">
-  Evaluates tier progression and triggers upgrades
-</Step>
-
-<Step title="Notifications">
-  Sends real-time notifications for tier upgrades
-</Step>
-</Steps>
-
-## Related Endpoints
-
-<CardGroup cols={2}>
-<Card title="Redeem Points" icon="money-bill" href="/api-reference/endpoints/shop/points/redeem">
-  Use points for purchases or rewards
+<Card title="Full Documentation" icon="book" href="/api-reference/endpoints/shop/transactions/create">
+  See Create Transaction for complete options including cart items and redemption
 </Card>
-
-<Card title="Points Balance" icon="wallet" href="/api-reference/endpoints/shop/points/balance">
-  Check current points balance and tier status
-</Card>
-
-<Card title="Transaction History" icon="list" href="/api-reference/endpoints/shop/points/transactions">
-  View detailed points transaction history
-</Card>
-
-<Card title="Loyalty Cards" icon="credit-card" href="/api-reference/endpoints/shop/loyalty-cards/list">
-  Manage user's loyalty cards
-</Card>
-</CardGroup>
-
-<Warning>
-**Rate Limits**: Points awarding is limited to 100 transactions per minute per user to prevent abuse. Large batch operations should use the bulk endpoints.
-</Warning> 

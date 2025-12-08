@@ -1,0 +1,417 @@
+---
+title: "Create Transaction"
+api: "POST /{locale}/shop/transactions/create"
+description: "Create purchase transaction and award/redeem points (WooCommerce integration)"
+---
+
+# Create Transaction
+
+Create a purchase transaction for a user, automatically calculating and awarding loyalty points. This endpoint supports both earning points and redeeming points in a single transaction.
+
+<Info>
+This is the primary endpoint for **e-commerce integrations** (WooCommerce, Shopify, etc.) to award and redeem points. It requires Partner API authentication.
+</Info>
+
+## Path Parameters
+
+<ParamField path="locale" type="string" required>
+  Language code (e.g., `en`, `lt`)
+</ParamField>
+
+## Authentication
+
+<ParamField header="X-API-Key" type="string" required>
+  Partner API key from Partners Portal
+</ParamField>
+
+<ParamField header="X-API-Secret" type="string" required>
+  Partner API secret from Partners Portal
+</ParamField>
+
+## Request Body
+
+### Required Fields
+
+<ParamField body="user_id" type="integer">
+  User's ID in the system (required if `user_email` not provided)
+</ParamField>
+
+<ParamField body="user_email" type="string">
+  User's email address (required if `user_id` not provided)
+</ParamField>
+
+<ParamField body="order_id" type="string" required>
+  Unique order/transaction reference from your system
+  
+  **Example:** `"WC-12345"`, `"ORDER-2024-001"`
+</ParamField>
+
+<ParamField body="order_total" type="number" required>
+  Total order amount for points calculation
+  
+  **Example:** `49.99`
+</ParamField>
+
+### Optional Fields
+
+<ParamField body="points" type="integer">
+  Manual points override (if not provided, calculated from card settings)
+</ParamField>
+
+<ParamField body="currency" type="string" default="EUR">
+  Currency code (ISO 4217)
+</ParamField>
+
+<ParamField body="description" type="string">
+  Transaction description (auto-generated if not provided)
+</ParamField>
+
+<ParamField body="shop_id" type="integer">
+  Shop ID for multi-location tracking
+</ParamField>
+
+<ParamField body="partner_card_id" type="integer">
+  Specific partner card template to use
+</ParamField>
+
+<ParamField body="loyalty_card_id" type="integer">
+  Existing user loyalty card ID to use
+</ParamField>
+
+### Points Redemption
+
+<ParamField body="points_redeemed" type="integer">
+  Number of points to redeem for discount
+</ParamField>
+
+<ParamField body="points_discount_amount" type="number">
+  Discount amount applied via points redemption
+</ParamField>
+
+### Cart Items (for analytics)
+
+<ParamField body="cart_items" type="array">
+  Array of purchased products
+  
+  <Expandable title="Cart Item Object">
+    <ParamField body="product_id" type="integer">
+      Product identifier
+    </ParamField>
+    
+    <ParamField body="product_name" type="string">
+      Product name
+    </ParamField>
+    
+    <ParamField body="quantity" type="integer">
+      Quantity purchased
+    </ParamField>
+    
+    <ParamField body="unit_price" type="number">
+      Price per unit
+    </ParamField>
+    
+    <ParamField body="total_price" type="number">
+      Line item total
+    </ParamField>
+    
+    <ParamField body="sku" type="string">
+      Product SKU
+    </ParamField>
+    
+    <ParamField body="category" type="string">
+      Product category
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="meta_data" type="object">
+  Additional custom metadata
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if transaction was created successfully
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Status message
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  <Expandable title="data">
+    <ResponseField name="transaction_id" type="integer">
+      Created transaction ID
+    </ResponseField>
+    
+    <ResponseField name="points_awarded" type="integer">
+      Points earned from this purchase
+    </ResponseField>
+    
+    <ResponseField name="points_balance" type="integer">
+      User's new total points balance
+    </ResponseField>
+    
+    <ResponseField name="loyalty_card_id" type="integer">
+      Loyalty card used/created
+    </ResponseField>
+    
+    <ResponseField name="card_number" type="string">
+      Loyalty card number
+    </ResponseField>
+    
+    <ResponseField name="user_id" type="integer">
+      User's ID
+    </ResponseField>
+    
+    <ResponseField name="order_total" type="number">
+      Order total amount
+    </ResponseField>
+    
+    <ResponseField name="currency" type="string">
+      Currency code
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL - Basic
+curl -X POST "https://staging-api.loyalty.lt/en/shop/transactions/create" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -d '{
+    "user_email": "customer@example.com",
+    "order_id": "WC-12345",
+    "order_total": 49.99,
+    "currency": "EUR"
+  }'
+```
+
+```bash cURL - With Points Redemption
+curl -X POST "https://staging-api.loyalty.lt/en/shop/transactions/create" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -d '{
+    "user_email": "customer@example.com",
+    "order_id": "WC-12346",
+    "order_total": 49.99,
+    "currency": "EUR",
+    "points_redeemed": 500,
+    "points_discount_amount": 5.00
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://staging-api.loyalty.lt/en/shop/transactions/create', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'your_api_key',
+    'X-API-Secret': 'your_api_secret'
+  },
+  body: JSON.stringify({
+    user_email: 'customer@example.com',
+    order_id: 'WC-12345',
+    order_total: 49.99,
+    currency: 'EUR',
+    cart_items: [
+      {
+        product_id: 101,
+        product_name: 'Premium Coffee Beans',
+        quantity: 2,
+        unit_price: 19.99,
+        total_price: 39.98,
+        sku: 'COFFEE-001',
+        category: 'Coffee'
+      },
+      {
+        product_id: 102,
+        product_name: 'Coffee Mug',
+        quantity: 1,
+        unit_price: 10.01,
+        total_price: 10.01,
+        sku: 'MUG-001',
+        category: 'Accessories'
+      }
+    ]
+  })
+});
+
+const data = await response.json();
+console.log(`Awarded ${data.data.points_awarded} points`);
+console.log(`New balance: ${data.data.points_balance} points`);
+```
+
+```php PHP - WooCommerce Integration
+<?php
+// WooCommerce hook example
+add_action('woocommerce_order_status_completed', function($order_id) {
+    $order = wc_get_order($order_id);
+    $user = $order->get_user();
+    
+    $cart_items = [];
+    foreach ($order->get_items() as $item) {
+        $product = $item->get_product();
+        $cart_items[] = [
+            'product_id' => $product->get_id(),
+            'product_name' => $product->get_name(),
+            'quantity' => $item->get_quantity(),
+            'unit_price' => $product->get_price(),
+            'total_price' => $item->get_total(),
+            'sku' => $product->get_sku(),
+        ];
+    }
+    
+    $response = wp_remote_post('https://staging-api.loyalty.lt/en/shop/transactions/create', [
+        'headers' => [
+            'Content-Type' => 'application/json',
+            'X-API-Key' => LOYALTY_API_KEY,
+            'X-API-Secret' => LOYALTY_API_SECRET,
+        ],
+        'body' => json_encode([
+            'user_email' => $order->get_billing_email(),
+            'order_id' => 'WC-' . $order_id,
+            'order_total' => $order->get_total(),
+            'currency' => $order->get_currency(),
+            'cart_items' => $cart_items,
+        ])
+    ]);
+    
+    if (!is_wp_error($response)) {
+        $body = json_decode(wp_remote_retrieve_body($response), true);
+        // Store points info in order meta
+        $order->update_meta_data('_loyalty_points_awarded', $body['data']['points_awarded']);
+        $order->save();
+    }
+});
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Success Response (200)
+{
+  "success": true,
+  "message": "Points awarded successfully",
+  "data": {
+    "transaction_id": 12345,
+    "points_awarded": 500,
+    "points_balance": 1750,
+    "loyalty_card_id": 567,
+    "card_number": "LC00000567",
+    "user_id": 123,
+    "order_total": 49.99,
+    "currency": "EUR"
+  }
+}
+```
+
+```json Duplicate Order (409)
+{
+  "success": false,
+  "message": "Transaction already processed for this order",
+  "code": "RESOURCE_ALREADY_EXISTS"
+}
+```
+
+```json User Not Found (404)
+{
+  "success": false,
+  "message": "User not found"
+}
+```
+
+```json Insufficient Points for Redemption (400)
+{
+  "success": false,
+  "message": "Nepakanka taškų nuskaityti. Turimi: 300 taškų",
+  "code": "VALIDATION_ERROR"
+}
+```
+
+```json Validation Error (422)
+{
+  "success": false,
+  "message": "Validation failed",
+  "code": "VALIDATION_ERROR",
+  "errors": {
+    "order_id": ["The order id field is required."],
+    "order_total": ["The order total must be at least 0."]
+  }
+}
+```
+
+</ResponseExample>
+
+## Points Calculation
+
+Points are calculated based on the partner card's configuration:
+
+```
+base_points = (order_total / currency_amount) × points_per_currency
+visit_bonus = points_per_visit
+total_points = round(base_points) + visit_bonus
+```
+
+<Note>
+If `round_points_up` is true, points are rounded up. Otherwise, rounded down.
+</Note>
+
+### Example Calculation
+
+Card settings:
+- `points_per_currency`: 10
+- `currency_amount`: 1.00
+- `points_per_visit`: 5
+- `round_points_up`: true
+
+For €15.50 order:
+1. Base: (15.50 / 1.00) × 10 = 155 points
+2. Visit bonus: +5 points
+3. **Total: 160 points**
+
+## Automatic Card Creation
+
+If the user doesn't have a loyalty card for your partner:
+
+1. System finds the partner's default card template (`auto_assign: true`)
+2. Creates a new loyalty card for the user
+3. Awards initial bonus points (if configured)
+4. Processes the transaction
+
+## Push Notifications
+
+When points are awarded, users receive a push notification in their mobile app:
+
+> **"Operacija atlikta"**
+> 
+> {shop_name}: {order_total} {currency}. Gavote {points_awarded} taškų!
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+  <Card title="Deduct Points" icon="minus" href="/api-reference/endpoints/shop/transactions/deduct">
+    Deduct points for refunds/cancellations
+  </Card>
+  
+  <Card title="Get Card Info" icon="id-card" href="/api-reference/endpoints/shop/loyalty-cards/info">
+    Check user's points balance
+  </Card>
+  
+  <Card title="Transaction History" icon="clock-rotate-left" href="/api-reference/endpoints/shop/transactions/list">
+    View user's transaction history
+  </Card>
+</CardGroup>
+
+## Alias Endpoint
+
+For backward compatibility, this endpoint is also available as:
+
+```
+POST /{locale}/shop/transactions/award-points
+```
+

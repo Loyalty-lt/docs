@@ -1,0 +1,161 @@
+---
+title: "Shop API Overview"
+description: "Complete guide to Loyalty.lt Shop API for e-commerce integrations"
+---
+
+# Shop API Overview
+
+The Shop API enables e-commerce platforms and POS systems to integrate with the Loyalty.lt loyalty system. Award points, redeem rewards, and manage customer loyalty cards programmatically.
+
+## Base URL
+
+**Production:**
+```
+https://api.loyalty.lt/{locale}/shop/
+```
+
+**Staging:**
+```
+https://staging-api.loyalty.lt/{locale}/shop/
+```
+
+Replace `{locale}` with language code: `en` or `lt`
+
+## Authentication Types
+
+The Shop API uses two authentication methods depending on the endpoint:
+
+### Partner API (Server-to-Server)
+
+For backend integrations (WooCommerce, Shopify, POS systems):
+
+```bash
+curl -X POST "https://api.loyalty.lt/en/shop/transactions/create" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -H "Content-Type: application/json"
+```
+
+| Header | Description |
+|--------|-------------|
+| `X-API-Key` | Your Partner API key |
+| `X-API-Secret` | Your Partner API secret |
+
+<Note>
+Get your API credentials from the Partners Portal - Settings - API Access
+</Note>
+
+### User JWT (Mobile/Frontend)
+
+For user-facing applications:
+
+```bash
+curl -X GET "https://api.loyalty.lt/en/shop/auth/me" \
+  -H "Authorization: Bearer eyJ0eXAiOiJKV1..."
+```
+
+## Endpoint Categories
+
+### Authentication Endpoints
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `POST` | `/auth/request-otp` | None | Request OTP code |
+| `POST` | `/auth/login` | None | Login with OTP |
+| `POST` | `/auth/register` | None | Register new user |
+| `GET` | `/auth/me` | JWT | Get current user |
+| `POST` | `/auth/qr-login/generate` | Partner | Generate QR session |
+| `POST` | `/auth/qr-login/ably-token` | Partner | Get Ably WebSocket token |
+| `POST` | `/auth/qr-login/poll/{session_id}` | Partner | Poll session status |
+| `POST` | `/auth/send-app-link` | Partner | Send app download SMS |
+
+### Loyalty Cards Endpoints
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/loyalty-cards` | Partner | List partner card templates |
+| `GET` | `/partner-cards/{id}` | Partner | Get specific card template |
+| `GET` | `/loyalty-cards/info` | Partner | Get user card by number/ID |
+| `POST` | `/loyalty-cards` | JWT | Create user loyalty card |
+| `GET` | `/loyalty-cards/{user_id}` | JWT | Get user's cards |
+
+### Transaction Endpoints
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `POST` | `/transactions/create` | Partner | Create transaction and award points |
+| `POST` | `/transactions/award-points` | Partner | Alias for create transaction |
+| `POST` | `/transactions/deduct-points` | Partner | Deduct points (refunds) |
+| `GET` | `/transactions` | JWT | List user transactions |
+| `GET` | `/transactions/{id}` | JWT | Get transaction details |
+
+### Points Endpoints
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/points` | JWT | List point transactions |
+| `POST` | `/points/redeem` | JWT | Redeem points |
+
+## Response Format
+
+All endpoints return JSON with consistent structure:
+
+### Success Response
+
+```json
+{
+  "success": true,
+  "message": "Operation completed successfully",
+  "data": { ... },
+  "meta": {
+    "current_page": 1,
+    "total": 100
+  }
+}
+```
+
+### Error Response
+
+```json
+{
+  "success": false,
+  "message": "Error description",
+  "code": "ERROR_CODE",
+  "errors": {
+    "field": ["Validation message"]
+  }
+}
+```
+
+## HTTP Status Codes
+
+| Code | Description |
+|------|-------------|
+| `200` | Success |
+| `201` | Created |
+| `400` | Bad Request / Validation Error |
+| `401` | Unauthorized |
+| `403` | Forbidden |
+| `404` | Not Found |
+| `409` | Conflict (duplicate) |
+| `422` | Unprocessable Entity |
+| `429` | Too Many Requests |
+| `500` | Server Error |
+
+## Rate Limits
+
+| Tier | Limit |
+|------|-------|
+| Standard | 100 requests/minute |
+| Premium | 500 requests/minute |
+
+<Warning>
+Rate limits are per API key. Contact support for higher limits.
+</Warning>
+
+## Support
+
+For API support, email: info@loyalty.lt
+
+Manage credentials at: https://partners.loyalty.lt
+

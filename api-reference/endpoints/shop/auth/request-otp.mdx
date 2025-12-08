@@ -1,44 +1,56 @@
 ---
-title: "Request OTP"
+title: "Request OTP Code"
 api: "POST /{locale}/shop/auth/request-otp"
 description: "Send OTP code to user's phone for authentication"
 ---
 
-# Request OTP
+# Request OTP Code
 
-Send an OTP (One-Time Password) code to a user's phone number for authentication. This is the first step in the phone-based authentication flow.
+Send a one-time password (OTP) to the user's phone number for authentication purposes. The OTP is valid for 5 minutes.
 
 <Info>
-OTP codes are valid for 5 minutes and can be requested up to 5 times per minute per phone number.
+This endpoint does not require authentication. It's the first step in the phone-based authentication flow.
 </Info>
+
+## Path Parameters
+
+<ParamField path="locale" type="string" required>
+  Language code for localized messages (e.g., `en`, `lt`)
+</ParamField>
 
 ## Request Body
 
 <ParamField body="phone" type="string" required>
-  User's phone number in international format (e.g., "+37060000000")
+  Phone number in international format with `+` prefix
+  
+  **Format:** `+[country_code][number]` (E.164 format)
+  
+  **Example:** `+37060000000`
 </ParamField>
 
 <ParamField body="type" type="string" required>
-  Type of OTP request
-  - `login` - For existing users
-  - `register` - For new user registration
+  Purpose of the OTP request
+  
+  **Allowed values:**
+  - `login` - For existing user login (user must exist)
+  - `register` - For new user registration (user must NOT exist)
   - `verify` - For phone verification
 </ParamField>
 
 ## Response
 
 <ResponseField name="success" type="boolean">
-  Indicates if the request was successful
+  Indicates if the OTP was sent successfully
 </ResponseField>
 
 <ResponseField name="message" type="string">
-  Human-readable message about the operation
+  Human-readable status message
 </ResponseField>
 
 <ResponseField name="data" type="object">
   <Expandable title="data">
     <ResponseField name="phone" type="string">
-      The phone number the OTP was sent to (partially masked)
+      The phone number OTP was sent to
     </ResponseField>
     
     <ResponseField name="expires_at" type="string">
@@ -51,8 +63,6 @@ OTP codes are valid for 5 minutes and can be requested up to 5 times per minute 
 
 ```bash cURL
 curl -X POST "https://staging-api.loyalty.lt/en/shop/auth/request-otp" \
-  -H "X-API-Key: your_api_key" \
-  -H "X-API-Secret: your_api_secret" \
   -H "Content-Type: application/json" \
   -d '{
     "phone": "+37060000000",
@@ -61,11 +71,9 @@ curl -X POST "https://staging-api.loyalty.lt/en/shop/auth/request-otp" \
 ```
 
 ```javascript JavaScript
-const response = await fetch('/en/shop/auth/request-otp', {
+const response = await fetch('https://staging-api.loyalty.lt/en/shop/auth/request-otp', {
   method: 'POST',
   headers: {
-    'X-API-Key': 'your_api_key',
-    'X-API-Secret': 'your_api_secret',
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
@@ -73,61 +81,128 @@ const response = await fetch('/en/shop/auth/request-otp', {
     type: 'login'
   })
 });
+
+const data = await response.json();
+console.log(data);
 ```
 
-```python Python
-import requests
+```php PHP
+<?php
+$curl = curl_init();
 
-response = requests.post(
-  'https://staging-api.loyalty.lt/en/shop/auth/request-otp',
-  headers={
-    'X-API-Key': 'your_api_key',
-    'X-API-Secret': 'your_api_secret',
-    'Content-Type': 'application/json'
-  },
-  json={
-    'phone': '+37060000000',
-    'type': 'login'
-  }
-)
+curl_setopt_array($curl, [
+    CURLOPT_URL => 'https://staging-api.loyalty.lt/en/shop/auth/request-otp',
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+    CURLOPT_POSTFIELDS => json_encode([
+        'phone' => '+37060000000',
+        'type' => 'login'
+    ])
+]);
+
+$response = curl_exec($curl);
+curl_close($curl);
+
+print_r(json_decode($response, true));
 ```
 
 </RequestExample>
 
 <ResponseExample>
 
-```json Success Response
+```json Success Response (200)
 {
   "success": true,
   "message": "OTP sent successfully",
   "data": {
-    "phone": "+37060****000",
-    "expires_at": "2024-01-15T10:35:00Z"
+    "phone": "+37060000000",
+    "expires_at": "2024-12-08T15:35:00.000Z"
   }
 }
 ```
 
-```json Error Response
+```json User Not Found (404) - Login type
+{
+  "success": false,
+  "message": "User not found",
+  "code": "USER_NOT_FOUND"
+}
+```
+
+```json User Already Exists (409) - Register type
+{
+  "success": false,
+  "message": "User already exists",
+  "code": "USER_EXISTS"
+}
+```
+
+```json Validation Error (400)
 {
   "success": false,
   "message": "Validation failed",
   "code": "VALIDATION_ERROR",
   "errors": {
-    "phone": ["Phone number is required and must be in international format"]
+    "phone": ["The phone format is invalid."],
+    "type": ["The selected type is invalid."]
   }
+}
+```
+
+```json SMS Send Failed (500)
+{
+  "success": false,
+  "message": "Failed to send OTP",
+  "code": "SMS_SEND_FAILED"
 }
 ```
 
 </ResponseExample>
 
+## OTP Behavior
+
+<AccordionGroup>
+  <Accordion title="OTP Expiration">
+    - OTP codes are valid for **5 minutes**
+    - After expiration, a new OTP must be requested
+    - Expired OTPs cannot be used for login
+  </Accordion>
+  
+  <Accordion title="Rate Limiting">
+    - Maximum **3 OTP requests** per phone number per 5 minutes
+    - Exceeding this limit results in temporary blocking
+    - Wait for cooldown period before retrying
+  </Accordion>
+  
+  <Accordion title="Security">
+    - OTP codes are 6-digit numbers
+    - Codes are cryptographically generated
+    - Maximum **3 verification attempts** per OTP
+    - OTP is invalidated after successful use
+  </Accordion>
+</AccordionGroup>
+
+## Error Codes
+
+| Code | Description | HTTP Status |
+|------|-------------|-------------|
+| `VALIDATION_ERROR` | Invalid phone format or type | 400 |
+| `USER_NOT_FOUND` | No user with this phone (login type) | 404 |
+| `USER_EXISTS` | User already exists (register type) | 409 |
+| `SMS_SEND_FAILED` | Failed to send SMS | 500 |
+| `OTP_REQUEST_ERROR` | Internal error | 500 |
+
 ## Next Steps
 
-After successfully requesting an OTP:
+After receiving the OTP, use one of these endpoints:
 
-1. **Verify OTP**: Use the [Login endpoint](/api-reference/endpoints/shop/auth/login) with the phone number and OTP code
-2. **Handle Errors**: Implement proper error handling for rate limits and validation errors
-3. **User Experience**: Show appropriate loading states and countdown timers
-
-<Card title="Login with OTP" icon="sign-in" href="/api-reference/endpoints/shop/auth/login">
-  Complete the authentication flow by logging in with the OTP code
-</Card> 
+<CardGroup cols={2}>
+  <Card title="Login with OTP" icon="right-to-bracket" href="/api-reference/endpoints/shop/auth/login">
+    Complete login with phone and OTP code
+  </Card>
+  
+  <Card title="Register User" icon="user-plus" href="/api-reference/endpoints/shop/auth/register">
+    Register new user with OTP verification
+  </Card>
+</CardGroup>
