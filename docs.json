@@ -19,18 +19,7 @@
             "pages": [
               "index",
               "overview/quick-start",
-              "overview/architecture",
-              "overview/components"
-            ]
-          },
-          {
-            "group": "System Architecture",
-            "pages": [
-              "architecture/overview",
-              "architecture/backend",
-              "architecture/frontend",
-              "architecture/database",
-              "architecture/authentication"
+              "overview/architecture"
             ]
           }
         ]
@@ -95,32 +84,13 @@
           {
             "group": "Partners Portal",
             "pages": [
-              "apps/partners/overview",
-              "apps/partners/setup",
-              "apps/partners/features",
-              "apps/partners/deployment"
+              "apps/partners/overview"
             ]
           },
           {
             "group": "Mobile Applications",
             "pages": [
               "apps/partner-staff-flutter"
-            ]
-          },
-          {
-            "group": "Website",
-            "pages": [
-              "apps/website/overview",
-              "apps/website/setup",
-              "apps/website/deployment"
-            ]
-          },
-          {
-            "group": "Email Marketing",
-            "pages": [
-              "apps/email/mautic-setup",
-              "apps/email/campaigns",
-              "apps/email/integration"
             ]
           }
         ]
@@ -131,36 +101,15 @@
           {
             "group": "JavaScript/TypeScript",
             "pages": [
-              "sdk/javascript/installation",
-              "sdk/javascript/authentication",
-              "sdk/javascript/loyalty-cards",
-              "sdk/javascript/points",
-              "sdk/javascript/websockets"
-            ]
-          },
-          {
-            "group": "React",
-            "pages": [
-              "sdk/react/installation",
-              "sdk/react/hooks",
-              "sdk/react/components",
-              "sdk/react/examples"
-            ]
-          },
-          {
-            "group": "React Native",
-            "pages": [
-              "sdk/react-native/installation",
-              "sdk/react-native/setup",
-              "sdk/react-native/components"
+              "sdk/javascript/installation"
             ]
           },
           {
             "group": "Other Languages",
             "pages": [
-              "sdk/php/overview",
-              "sdk/python/overview",
-              "sdk/vue/overview"
+              "sdk/php/installation",
+              "sdk/python/installation",
+              "sdk/vue/installation"
             ]
           },
           {
@@ -174,58 +123,13 @@
         ]
       },
       {
-        "tab": "Deployment",
-        "groups": [
-          {
-            "group": "Environment Setup",
-            "pages": [
-              "deployment/environments",
-              "deployment/staging",
-              "deployment/production"
-            ]
-          },
-          {
-            "group": "Backend Deployment",
-            "pages": [
-              "deployment/backend/laravel-setup",
-              "deployment/backend/database",
-              "deployment/backend/configuration"
-            ]
-          },
-          {
-            "group": "Frontend Deployment",
-            "pages": [
-              "deployment/frontend/partners-portal",
-              "deployment/frontend/website"
-            ]
-          }
-        ]
-      },
-      {
         "tab": "Guides",
         "groups": [
-          {
-            "group": "Developer Guides",
-            "pages": [
-              "guides/development/getting-started",
-              "guides/development/local-setup",
-              "guides/development/contributing",
-              "guides/development/testing"
-            ]
-          },
-          {
-            "group": "Partner Guides",
-            "pages": [
-              "guides/partners/onboarding",
-              "guides/partners/shop-setup",
-              "guides/partners/integration",
-              "guides/partners/troubleshooting"
-            ]
-          },
           {
             "group": "Partnerių instrukcijos (LT)",
             "pages": [
               "partners/naudojimosi-instrukcijos",
+              "partners/detali-sistemos-instrukcija",
               "partners/pradinis-nustatymas",
               "partners/parduotuviu-valdymas",
               "partners/lojalumo-korteles",
@@ -235,11 +139,16 @@
             ]
           },
           {
-            "group": "Integration Guides",
+            "group": "Detalios puslapių instrukcijos",
             "pages": [
-              "guides/integration/third-party",
-              "guides/integration/webhooks",
-              "guides/integration/custom-implementations"
+              "partners/puslapiai/pagrindinis-dashboard",
+              "partners/puslapiai/api-raktai-sarasas",
+              "partners/puslapiai/api-rakto-redagavimas",
+              "partners/puslapiai/naujas-api-raktas",
+              "partners/puslapiai/korteles-redagavimas",
+              "partners/puslapiai/nauja-kortele",
+              "partners/puslapiai/verslo-informacija",
+              "partners/puslapiai/korteles-sarasas"
             ]
           }
         ]
