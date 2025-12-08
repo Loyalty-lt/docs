@@ -134,7 +134,7 @@ const response = await fetch(`/en/shop/loyalty-cards/${cardId}`, {
 
 const data = await response.json();
 if (data.success) {
-  console.log('✅ Card updated successfully');
+  console.log('Card updated successfully');
   console.log(`New design: ${data.data.card.card_design}`);
 }
 ```

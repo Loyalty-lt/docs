@@ -254,7 +254,7 @@ if (data.success) {
   console.log(`Available categories:`, categories.map(c => c.display_name));
   
   offers.forEach(offer => {
-    const claimStatus = offer.is_claimable ? '✅ Claimable' : `❌ ${offer.claim_reason}`;
+    const claimStatus = offer.is_claimable ? 'Claimable' : `Not claimable: ${offer.claim_reason}`;
     console.log(`${offer.title}: ${offer.points_required} points - ${claimStatus}`);
   });
 }

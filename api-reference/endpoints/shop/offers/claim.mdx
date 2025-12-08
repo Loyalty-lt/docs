@@ -197,13 +197,13 @@ if (data.success) {
   const claim = data.data.claim;
   const benefit = data.data.benefit;
   
-  console.log(`✅ Offer claimed successfully!`);
+  console.log(`Offer claimed successfully!`);
   console.log(`Claim Code: ${claim.claim_code}`);
   console.log(`Expires: ${claim.expires_at}`);
   
   if (benefit.type === 'discount_code') {
     console.log(`💰 Discount Code: ${benefit.value}`);
-    console.log(`💡 Instructions: ${benefit.usage_instructions}`);
+    console.log(`Instructions: ${benefit.usage_instructions}`);
   }
   
   // Store claim code for later use
@@ -241,7 +241,7 @@ if data['success']:
     benefit = data['data']['benefit']
     points = data['data']['points_transaction']
     
-    print(f"✅ Offer claimed successfully!")
+    print(f"Offer claimed successfully!")
     print(f"Claim Code: {claim['claim_code']}")
     print(f"Points Used: {points['points_deducted']}")
     print(f"Remaining Balance: {points['balance_after']}")

@@ -8,38 +8,87 @@ api: "GET /{locale}/shop/xml-import/field-mappings"
 
 Retrieve the list of supported XML field mappings. This helps you understand which XML tags the import system recognizes.
 
+<Info>
+This endpoint requires **Partner API authentication** using `X-API-Key` and `X-API-Secret` headers.
+</Info>
+
+## Path Parameters
+
+<ParamField path="locale" type="string" required>
+  Language code (e.g., `en`, `lt`)
+</ParamField>
+
 ## Authentication
 
-<Note>
-Requires **Partner API credentials**: `X-API-Key` and `X-API-Secret` headers.
-</Note>
+<ParamField header="X-API-Key" type="string" required>
+  Partner API key from Partners Portal
+</ParamField>
 
-## Request
+<ParamField header="X-API-Secret" type="string" required>
+  Partner API secret from Partners Portal
+</ParamField>
 
-### Headers
+## Response
 
-| Header | Type | Required | Description |
-|--------|------|----------|-------------|
-| `X-API-Key` | string | ✅ | Your Partner API key |
-| `X-API-Secret` | string | ✅ | Your Partner API secret |
+<ResponseField name="success" type="boolean">
+  Indicates if request was successful
+</ResponseField>
 
-### Path Parameters
+<ResponseField name="code" type="integer">
+  HTTP status code
+</ResponseField>
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `locale` | string | ✅ | Language code: `lt` or `en` |
+<ResponseField name="request_id" type="string">
+  Unique request identifier (UUID)
+</ResponseField>
 
-## Example Request
+<ResponseField name="message" type="string">
+  Status message
+</ResponseField>
 
-```bash
+<ResponseField name="data" type="object">
+  <Expandable title="data">
+    <ResponseField name="product_fields" type="object">
+      Mapping of product fields to accepted XML tags
+    </ResponseField>
+    
+    <ResponseField name="offer_fields" type="object">
+      Mapping of offer/price fields to accepted XML tags
+    </ResponseField>
+    
+    <ResponseField name="category_fields" type="object">
+      Mapping of category fields to accepted XML tags
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
 curl -X GET "https://api.loyalty.lt/lt/shop/xml-import/field-mappings" \
   -H "X-API-Key: your_api_key" \
   -H "X-API-Secret: your_api_secret"
 ```
 
-## Response
+```javascript JavaScript
+const response = await fetch('https://api.loyalty.lt/lt/shop/xml-import/field-mappings', {
+  method: 'GET',
+  headers: {
+    'X-API-Key': 'your_api_key',
+    'X-API-Secret': 'your_api_secret'
+  }
+});
 
-```json
+const data = await response.json();
+console.log('Product fields:', data.data.product_fields);
+console.log('Offer fields:', data.data.offer_fields);
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Success Response (200)
 {
   "success": true,
   "code": 200,
@@ -79,6 +128,8 @@ curl -X GET "https://api.loyalty.lt/lt/shop/xml-import/field-mappings" \
 }
 ```
 
+</ResponseExample>
+
 ## Understanding Mappings
 
 Each key in the response represents a field in our system. The array values are the XML tag names we look for.
@@ -97,6 +148,7 @@ Your XML:
 ```
 
 Maps to:
+
 | Your XML Tag | Our Field |
 |--------------|-----------|
 | `title` | `name` |
@@ -115,8 +167,12 @@ Maps to:
 | `model` | Model number | `model` |
 | `ean` | EAN/barcode | `ean`, `ean13`, `barcode` |
 | `sku` | Stock keeping unit | `sku`, `code`, `id` |
+| `xml_id` | External product ID | `id`, `xml_id`, `external_id` |
 | `image_url` | Main product image | `image`, `image_url`, `picture` |
 | `external_url` | Link to product page | `url`, `link`, `product_url` |
+| `weight` | Product weight | `weight` |
+| `color` | Product color | `color` |
+| `size` | Product size | `size` |
 
 ## Offer/Price Fields Reference
 
@@ -124,7 +180,43 @@ Maps to:
 |-----------|-------------|---------------|
 | `price` | Regular price | `price`, `regular_price` |
 | `discounted_price` | Sale/loyalty price | `discounted_price`, `sale_price`, `loyalty_program_item_price` |
-| `currency` | Price currency | `currency` |
+| `currency` | Price currency (default: EUR) | `currency` |
 | `availability` | In stock status | `availability`, `in_stock` |
 | `stock_quantity` | Available quantity | `stock`, `quantity` |
+| `delivery_info` | Delivery/shipping info | `delivery`, `shipping` |
+| `warranty_info` | Warranty information | `warranty` |
+| `external_url` | Link to product page | `url`, `link`, `product_url` |
+| `external_id` | External offer ID | `id`, `external_id` |
+| `featured` | Featured product flag | `featured` |
 
+## Category Fields Reference
+
+| Our Field | Description | Accepted Tags |
+|-----------|-------------|---------------|
+| `categories` | Product categories | `categories/category`, `category` |
+
+<Note>
+Categories should be Loyalty.lt category IDs. When a subcategory is assigned, parent categories are automatically included.
+</Note>
+
+## Availability Values
+
+The `availability` field accepts these values:
+
+| Input Value | Mapped To |
+|-------------|-----------|
+| `true`, `1`, `yes`, `in_stock` | `in_stock` |
+| `false`, `0`, `no`, `out_of_stock` | `out_of_stock` |
+| `limited` | `limited_stock` |
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+  <Card title="Validate XML" icon="check" href="/api-reference/endpoints/shop/xml-import/validate">
+    Test your XML structure
+  </Card>
+  
+  <Card title="Import from URL" icon="link" href="/api-reference/endpoints/shop/xml-import/from-url">
+    Import products from URL
+  </Card>
+</CardGroup>

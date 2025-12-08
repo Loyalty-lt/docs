@@ -6,7 +6,7 @@ description: "Generate QR code session for passwordless authentication"
 
 # QR Login System
 
-The QR Login system allows users to authenticate on desktop/web by scanning a QR code with their mobile app. This is commonly used in POS systems and kiosk integrations.
+The QR Login system allows users to authenticate on desktop/web by scanning a QR code with their mobile app. This is commonly used in custom shop plugin integrations.
 
 <Info>
 QR Login requires **Partner API authentication** (X-API-Key and X-API-Secret headers) and real-time WebSocket support via Ably.
@@ -16,7 +16,7 @@ QR Login requires **Partner API authentication** (X-API-Key and X-API-Secret hea
 
 ```mermaid
 sequenceDiagram
-    participant Web as Web/POS
+    participant Web as Shop Plugin
     participant API as Loyalty API
     participant Ably as Ably WebSocket
     participant App as Mobile App
@@ -63,7 +63,7 @@ POST /{locale}/shop/auth/qr-login/generate
 <ParamField body="device_name" type="string">
   Optional name for the device requesting login
   
-  **Example:** `"POS Terminal 1"`
+  **Example:** `"Shop Plugin - Checkout"`
 </ParamField>
 
 <ParamField body="shop_id" type="integer">
@@ -112,7 +112,7 @@ curl -X POST "https://staging-api.loyalty.lt/en/shop/auth/qr-login/generate" \
   -H "X-API-Key: your_api_key" \
   -H "X-API-Secret: your_api_secret" \
   -d '{
-    "device_name": "POS Terminal 1",
+    "device_name": "Shop Plugin - Checkout",
     "shop_id": 123
   }'
 ```
@@ -126,7 +126,7 @@ const response = await fetch('https://staging-api.loyalty.lt/en/shop/auth/qr-log
     'X-API-Secret': 'your_api_secret'
   },
   body: JSON.stringify({
-    device_name: 'POS Terminal 1',
+    device_name: 'Shop Plugin - Checkout',
     shop_id: 123
   })
 });
@@ -406,7 +406,7 @@ Requires JWT Bearer token from authenticated mobile app user.
   </Step>
   
   <Step title="Receive Tokens">
-    Web/POS receives JWT tokens via WebSocket/polling
+    Shop plugin receives JWT tokens via WebSocket/polling
   </Step>
 </Steps>
 

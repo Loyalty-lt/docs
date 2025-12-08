@@ -4,55 +4,124 @@ description: "Validate XML structure without importing"
 api: "POST /{locale}/shop/xml-import/validate"
 ---
 
-# Validate XML Structure
+# Validate XML
 
-Validate an XML feed structure without actually importing the data. Useful for testing your XML format before running a full import.
+Validate an XML feed structure without actually importing the data. Use this to test your XML format before running a full import.
+
+<Info>
+This endpoint requires **Partner API authentication** using `X-API-Key` and `X-API-Secret` headers.
+</Info>
+
+## Path Parameters
+
+<ParamField path="locale" type="string" required>
+  Language code (e.g., `en`, `lt`)
+</ParamField>
 
 ## Authentication
 
-<Note>
-Requires **Partner API credentials**: `X-API-Key` and `X-API-Secret` headers.
-</Note>
+<ParamField header="X-API-Key" type="string" required>
+  Partner API key from Partners Portal
+</ParamField>
 
-## Request
+<ParamField header="X-API-Secret" type="string" required>
+  Partner API secret from Partners Portal
+</ParamField>
 
-### Headers
+## Request Body
 
-| Header | Type | Required | Description |
-|--------|------|----------|-------------|
-| `X-API-Key` | string | ✅ | Your Partner API key |
-| `X-API-Secret` | string | ✅ | Your Partner API secret |
-| `Content-Type` | string | ✅ | `application/json` |
+<ParamField body="xml_url" type="string" required>
+  URL to the XML feed to validate
+  
+  **Example:** `"https://example.com/products.xml"`
+</ParamField>
 
-### Path Parameters
+## Response
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `locale` | string | ✅ | Language code: `lt` or `en` |
+<ResponseField name="success" type="boolean">
+  Indicates if validation completed
+</ResponseField>
 
-### Body Parameters
+<ResponseField name="code" type="integer">
+  HTTP status code or error code
+</ResponseField>
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `xml_url` | string | ✅ | URL to the XML feed to validate |
+<ResponseField name="request_id" type="string">
+  Unique request identifier (UUID)
+</ResponseField>
 
-## Example Request
+<ResponseField name="message" type="string">
+  Status message
+</ResponseField>
 
-```bash
+<ResponseField name="data" type="object">
+  <Expandable title="data">
+    <ResponseField name="is_valid" type="boolean">
+      `true` if products were found in XML
+    </ResponseField>
+    
+    <ResponseField name="product_count" type="integer">
+      Number of products detected
+    </ResponseField>
+    
+    <ResponseField name="structure" type="object">
+      <Expandable title="structure">
+        <ResponseField name="detected_path" type="string">
+          XML path pattern that matched (e.g., `products/product`)
+        </ResponseField>
+        
+        <ResponseField name="sample_fields" type="array">
+          Sample of fields from first product
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="errors" type="array">
+      List of validation errors
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
 curl -X POST "https://api.loyalty.lt/lt/shop/xml-import/validate" \
+  -H "Content-Type: application/json" \
   -H "X-API-Key: your_api_key" \
   -H "X-API-Secret: your_api_secret" \
-  -H "Content-Type: application/json" \
   -d '{
     "xml_url": "https://example.com/products.xml"
   }'
 ```
 
-## Success Response
+```javascript JavaScript
+const response = await fetch('https://api.loyalty.lt/lt/shop/xml-import/validate', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'your_api_key',
+    'X-API-Secret': 'your_api_secret'
+  },
+  body: JSON.stringify({
+    xml_url: 'https://example.com/products.xml'
+  })
+});
 
-### Valid XML
+const data = await response.json();
 
-```json
+if (data.data.is_valid) {
+  console.log(`Found ${data.data.product_count} products`);
+  console.log(`XML structure: ${data.data.structure.detected_path}`);
+} else {
+  console.log('Validation errors:', data.data.errors);
+}
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Valid XML (200)
 {
   "success": true,
   "code": 200,
@@ -91,9 +160,7 @@ curl -X POST "https://api.loyalty.lt/lt/shop/xml-import/validate" \
 }
 ```
 
-### Invalid XML (No Products Found)
-
-```json
+```json Invalid XML - No Products (200)
 {
   "success": true,
   "code": 200,
@@ -108,37 +175,57 @@ curl -X POST "https://api.loyalty.lt/lt/shop/xml-import/validate" \
 }
 ```
 
-## Response Fields
+```json Validation Error (422)
+{
+  "success": false,
+  "code": 1100,
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  "message": "Validation failed",
+  "errors": {
+    "xml_url": ["The xml url field is required."]
+  }
+}
+```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `is_valid` | boolean | `true` if products were found |
-| `product_count` | integer | Number of products detected |
-| `structure.detected_path` | string | XML path pattern that matched |
-| `structure.sample_fields` | array | Sample of fields from first product |
-| `errors` | array | List of validation errors |
+```json XML Parse Error (400)
+{
+  "success": false,
+  "code": 1701,
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  "message": "XML validation failed: Could not parse XML"
+}
+```
+
+</ResponseExample>
 
 ## Detected Paths
 
 The validator checks for these common XML structures:
 
-```xml
-<!-- Direct elements -->
-<product>...</product>
-<item>...</item>
-<offer>...</offer>
+| Path Pattern | Example |
+|--------------|---------|
+| `product` | `<product>...</product>` |
+| `item` | `<item>...</item>` |
+| `products/product` | `<products><product>...</product></products>` |
+| `items/item` | `<items><item>...</item></items>` |
+| `offer` | `<offer>...</offer>` |
+| `offers/offer` | `<offers><offer>...</offer></offers>` |
 
-<!-- Nested elements -->
-<products>
-  <product>...</product>
-</products>
+## Error Codes
 
-<items>
-  <item>...</item>
-</items>
+| Code | Name | Description |
+|------|------|-------------|
+| 1100 | VALIDATION_FAILED | Invalid request parameters |
+| 1701 | XML_VALIDATION_ERROR | XML structure validation failed |
 
-<offers>
-  <offer>...</offer>
-</offers>
-```
+## Related Endpoints
 
+<CardGroup cols={2}>
+  <Card title="Import from URL" icon="link" href="/api-reference/endpoints/shop/xml-import/from-url">
+    Import products from URL
+  </Card>
+  
+  <Card title="Field Mappings" icon="table" href="/api-reference/endpoints/shop/xml-import/field-mappings">
+    View supported XML fields
+  </Card>
+</CardGroup>

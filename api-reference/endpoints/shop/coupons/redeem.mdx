@@ -123,7 +123,7 @@ const data = await response.json();
 if (data.success) {
   const redemption = data.data.redemption;
   console.log(`💰 Discount applied: €${redemption.discount_applied}`);
-  console.log(`✅ Final amount: €${redemption.final_amount}`);
+  console.log(`Final amount: €${redemption.final_amount}`);
   console.log(`📋 Confirmation code: ${redemption.redemption_code}`);
 }
 ```

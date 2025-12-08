@@ -13,7 +13,7 @@ Welcome to the comprehensive Loyalty.lt API documentation. Our REST API enables 
 
 ## API Overview
 
-The Loyalty.lt API is organized into three main service layers, each designed for specific use cases and integration patterns:
+The Loyalty.lt Shop API provides integration endpoints for custom systems and applications:
 
 ### Shop Integration APIs
 Direct integration endpoints for custom systems, POS systems, and customer-facing applications.
@@ -30,32 +30,12 @@ For popular e-commerce platforms (WooCommerce, Shopify, PrestaShop, Magento, Ope
 
 **Key Features:**
 - Phone + OTP authentication flow
-- QR code login for POS systems
+- QR code login for custom shop plugins
 - Loyalty card management
 - Points earning and redemption
 - Transaction history
 
 **Base Path:** `/{locale}/shop/`
-
-### Partner APIs
-Management endpoints for loyalty program partners, agencies, and multi-store operations.
-
-**Primary Use Cases:**
-- Partner dashboard management
-- Multi-store loyalty programs
-- White-label solutions
-- Agency client management
-- Enterprise analytics and reporting
-
-**Key Features:**
-- Partner authentication and management
-- Store and location management
-- Staff and permissions system
-- Advanced analytics and reporting
-- White-label customization
-- Bulk operations and data export
-
-**Base Path:** `/{locale}/partners/`
 
 ## Base URLs
 
@@ -226,18 +206,23 @@ API uses numeric error codes for programmatic error handling:
 
 ## Pagination
 
-List endpoints use consistent pagination:
+List endpoints return paginated data with metadata in a separate `meta` field:
 
 ```json
 {
   "success": true,
-  "data": {
-    "data": [...],
+  "code": 200,
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  "meta": {
     "current_page": 1,
     "per_page": 15,
     "total": 150,
     "last_page": 10
-  }
+  },
+  "data": [
+    { "id": 1, "name": "Item 1" },
+    { "id": 2, "name": "Item 2" }
+  ]
 }
 ```
 
@@ -266,9 +251,9 @@ GET /en/shop/offers?category=food&featured=true&page=2
   Direct link: [partners.loyalty.lt/lt/api-credentials](https://partners.loyalty.lt/lt/api-credentials)
 </Step>
 
-<Step title="Choose Your Integration">
-  - **Shop APIs**: For direct e-commerce integration
-  - **Partner APIs**: For multi-store management
+<Step title="Choose Your Environment">
+  - **Staging**: `https://staging-api.loyalty.lt` for testing
+  - **Production**: `https://api.loyalty.lt` for live integration
 </Step>
 
 <Step title="Test Authentication">
@@ -290,4 +275,3 @@ For API support and questions:
 
 - **Email:** info@loyalty.lt
 - **Partners Portal:** [partners.loyalty.lt](https://partners.loyalty.lt)
-- **Swagger Docs:** [staging-api.loyalty.lt/api/documentation](https://staging-api.loyalty.lt/api/documentation)

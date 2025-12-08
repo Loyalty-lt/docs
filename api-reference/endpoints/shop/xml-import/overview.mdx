@@ -44,8 +44,12 @@ The API automatically detects common XML structures:
 | `model` | `model` |
 | `ean` | `ean`, `ean13`, `barcode` |
 | `sku` | `sku`, `code`, `id` |
+| `xml_id` | `id`, `xml_id`, `external_id` |
 | `image_url` | `image`, `image_url`, `picture` |
 | `external_url` | `url`, `link`, `product_url` |
+| `weight` | `weight` |
+| `color` | `color` |
+| `size` | `size` |
 
 ### Offer/Price Fields
 
@@ -56,6 +60,17 @@ The API automatically detects common XML structures:
 | `currency` | `currency` |
 | `availability` | `availability`, `in_stock` |
 | `stock_quantity` | `stock`, `quantity` |
+| `delivery_info` | `delivery`, `shipping` |
+| `warranty_info` | `warranty` |
+| `external_url` | `url`, `link`, `product_url` |
+| `external_id` | `id`, `external_id` |
+| `featured` | `featured` |
+
+### Category Fields
+
+| Our Field | Accepted XML Tags |
+|-----------|-------------------|
+| `categories` | `categories/category`, `category` |
 
 ---
 
