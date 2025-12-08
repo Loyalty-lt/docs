@@ -13,9 +13,10 @@ All Shop API endpoints require API Key and Secret authentication. See [Authentic
 
 ## Base URL
 
-```
-https://staging-api.loyalty.lt/api/loyalty-cards
-```
+| Environment | URL |
+|-------------|-----|
+| **Staging** | `https://staging-api.loyalty.lt/api/loyalty-cards` |
+| **Production** | `https://api.loyalty.lt/api/loyalty-cards` |
 
 ## Core Concepts
 
@@ -25,7 +26,7 @@ https://staging-api.loyalty.lt/api/loyalty-cards
   </Accordion>
   
   <Accordion title="Card Numbers">
-    Human-readable card numbers (e.g., LC001234567890) that customers can reference. Generated automatically but can be customized.
+    Human-readable card numbers (e.g., 567-890-123) that customers can reference. Generated automatically but can be customized.
   </Accordion>
   
   <Accordion title="Customer Linking">
@@ -104,7 +105,7 @@ curl -X POST 'https://staging-api.loyalty.lt/api/loyalty-cards' \
   "success": true,
   "data": {
     "id": "card_123456789",
-    "card_number": "LC001234567890",
+    "card_number": "567-890-123",
     "customer_email": "customer@example.com",
     "customer_name": "John Doe",
     "customer_phone": "+1234567890",
@@ -168,7 +169,7 @@ curl -X GET 'https://staging-api.loyalty.lt/api/loyalty-cards/card_123456789' \
   "success": true,
   "data": {
     "id": "card_123456789",
-    "card_number": "LC001234567890",
+    "card_number": "567-890-123",
     "customer_email": "customer@example.com",
     "customer_name": "John Doe",
     "customer_phone": "+1234567890",
@@ -249,7 +250,7 @@ curl -X GET 'https://staging-api.loyalty.lt/api/loyalty-cards?status=active&page
     "cards": [
       {
         "id": "card_123456789",
-        "card_number": "LC001234567890",
+        "card_number": "567-890-123",
         "customer_email": "customer@example.com",
         "customer_name": "John Doe",
         "points_balance": 250,
@@ -333,7 +334,7 @@ curl -X PUT 'https://staging-api.loyalty.lt/api/loyalty-cards/card_123456789' \
   "success": true,
   "data": {
     "id": "card_123456789",
-    "card_number": "LC001234567890",
+    "card_number": "567-890-123",
     "customer_email": "customer@example.com",
     "customer_name": "John Smith",
     "customer_phone": "+1234567891",

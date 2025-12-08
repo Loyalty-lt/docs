@@ -13,7 +13,7 @@ Retrieve a customer's current points balance. This is an alias for the [Get Card
 <RequestExample>
 
 ```bash cURL
-curl -X GET "https://staging-api.loyalty.lt/en/shop/loyalty-cards/info?card_number=LC00000567" \
+curl -X GET "https://staging-api.loyalty.lt/en/shop/loyalty-cards/info?card_number=123-456-789" \
   -H "X-API-Key: your_api_key" \
   -H "X-API-Secret: your_api_secret"
 ```
@@ -34,7 +34,7 @@ async function getBalance(cardNumber) {
   return data.data.points;
 }
 
-const points = await getBalance('LC00000567');
+const points = await getBalance('123-456-789');
 console.log(`Current balance: ${points} points`);
 ```
 
@@ -48,7 +48,7 @@ console.log(`Current balance: ${points} points`);
   "message": "Card info retrieved successfully",
   "data": {
     "id": 567,
-    "card_number": "LC00000567",
+    "card_number": "123-456-789",
     "points": 1250,
     "is_active": true,
     "redemption": {
@@ -72,7 +72,7 @@ console.log(`Current balance: ${points} points`);
 
 | Parameter | Description |
 |-----------|-------------|
-| `card_number` | Loyalty card number (e.g., LC00000567) |
+| `card_number` | Loyalty card number (e.g., 123-456-789) |
 | `card_id` | Loyalty card ID |
 | `user_id` | User ID to find their card |
 

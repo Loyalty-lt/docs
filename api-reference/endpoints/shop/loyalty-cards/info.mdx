@@ -27,7 +27,7 @@ At least one of the following is required:
 </ParamField>
 
 <ParamField query="card_number" type="string">
-  Loyalty card number (e.g., `LC00000567`)
+  Loyalty card number (e.g., `123-456-789`)
 </ParamField>
 
 <ParamField query="user_id" type="integer">
@@ -57,7 +57,7 @@ At least one of the following is required:
     </ResponseField>
     
     <ResponseField name="card_number" type="string">
-      Card number (e.g., `LC00000567`)
+      Card number (e.g., `123-456-789`)
     </ResponseField>
     
     <ResponseField name="card_name" type="string">
@@ -149,7 +149,7 @@ At least one of the following is required:
 <RequestExample>
 
 ```bash cURL - By Card Number
-curl -X GET "https://staging-api.loyalty.lt/en/shop/loyalty-cards/info?card_number=LC00000567" \
+curl -X GET "https://staging-api.loyalty.lt/en/shop/loyalty-cards/info?card_number=123-456-789" \
   -H "X-API-Key: your_api_key" \
   -H "X-API-Secret: your_api_secret"
 ```
@@ -209,7 +209,7 @@ function getCardInfo($cardNumber) {
 }
 
 // Calculate available discount
-$cardInfo = getCardInfo('LC00000567');
+$cardInfo = getCardInfo('123-456-789');
 if ($cardInfo['success'] && $cardInfo['data']['redemption']['enabled']) {
     $points = $cardInfo['data']['points'];
     $pointsPerEuro = $cardInfo['data']['redemption']['points_per_currency'];
@@ -229,7 +229,7 @@ if ($cardInfo['success'] && $cardInfo['data']['redemption']['enabled']) {
   "message": "Card info retrieved successfully",
   "data": {
     "id": 567,
-    "card_number": "LC00000567",
+    "card_number": "123-456-789",
     "card_name": "Kavos mėgėjo kortelė",
     "card_type": "partner_specific",
     "points": 1250,
