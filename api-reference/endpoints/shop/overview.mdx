@@ -66,9 +66,10 @@ curl -X GET "https://staging-api.loyalty.lt/en/shop/auth/me" \
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| `GET` | `/loyalty-cards` | Partner | List partner card templates |
+| `GET` | `/loyalty-cards` | Partner | List loyalty card templates |
 | `GET` | `/loyalty-cards/{id}` | Partner | Get specific card template |
-| `GET` | `/loyalty-cards/info` | Partner | Get user card by number/ID |
+| `GET` | `/loyalty-cards/info` | Partner | Get full card details by number/ID |
+| `GET` | `/loyalty-cards/balance` | Partner | Get points balance only |
 | `POST` | `/loyalty-cards` | JWT | Create user loyalty card |
 | `GET` | `/loyalty-cards/{user_id}` | JWT | Get user's cards |
 
