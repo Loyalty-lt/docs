@@ -21,16 +21,17 @@ sequenceDiagram
     participant Ably as Ably WebSocket
     participant App as Mobile App
     
-    POS->>API: POST /qr-card/generate
+    POS->>API: POST /shop/qr-card/generate
     API-->>POS: session_id, qr_code, ably_channel
-    POS->>API: POST /qr-card/ably-token
+    POS->>API: POST /shop/ably/token
     API-->>POS: Ably JWT token
     POS->>Ably: Subscribe to qr-card:{session_id}
     POS->>POS: Display QR Code
     
-    App->>API: POST /auth/qr-card/scan (User scans QR)
+    App->>App: Customer scans QR code
+    App->>API: (Internal mobile app flow)
     API->>Ably: Publish card_identified
-    Ably-->>POS: Loyalty card data (instant!)
+    Ably-->>POS: Loyalty card data
     
     Note over POS: Customer identified!<br/>Show points, apply discounts
 ```
@@ -651,27 +652,3 @@ try {
   </Step>
 </Steps>
 
----
-
-## Mobile App Endpoint
-
-<Note>
-This endpoint is called by the Loyalty.lt mobile app when a user scans the QR code. POS integrators don't need to call this endpoint directly.
-</Note>
-
-### Endpoint (User API)
-
-```
-POST /{locale}/auth/qr-card/scan
-```
-
-**Authentication:** JWT Bearer token (mobile app user)
-
-**Request Body:**
-```json
-{
-  "qr_code": "loyaltylt://qr-card?code=abcd1234&session=550e8400..."
-}
-```
-
-**Response:** Confirms scan success and shows partner/shop info to the mobile app user.

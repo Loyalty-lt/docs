@@ -58,8 +58,8 @@ curl -X GET "https://staging-api.loyalty.lt/en/shop/auth/me" \
 | `POST` | `/validate-credentials` | Partner | Verify API credentials |
 | `GET` | `/auth/me` | JWT | Get current user |
 | `POST` | `/auth/qr-login/generate` | Partner | Generate QR session |
-| `POST` | `/auth/qr-login/ably-token` | Partner | Get Ably WebSocket token |
 | `POST` | `/auth/qr-login/poll/{session_id}` | Partner | Poll session status |
+| `POST` | `/ably/token` | Partner | Get Ably WebSocket token |
 | `POST` | `/auth/send-app-link` | Partner | Send app download SMS |
 
 ### Loyalty Cards Endpoints

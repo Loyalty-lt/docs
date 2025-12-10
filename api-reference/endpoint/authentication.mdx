@@ -17,9 +17,8 @@ All authentication endpoints are automatically documented below from the OpenAPI
 Desktop-to-mobile authentication flow for seamless login:
 
 - `POST /{locale}/shop/auth/qr-login/generate` - Generate QR session
-- `GET /{locale}/shop/auth/qr-login/poll/{sessionId}` - Poll session status
-- `POST /{locale}/shop/auth/qr-login/scan/{qrCode}` - Scan QR (mobile)
-- `POST /{locale}/shop/auth/qr-login/confirm/{sessionId}` - Confirm login
+- `POST /{locale}/shop/auth/qr-login/poll/{sessionId}` - Poll session status
+- `POST /{locale}/shop/ably/token` - Get Ably WebSocket token
 
 **Use Case:** Desktop applications where users want to login using their mobile device.
 
@@ -76,14 +75,12 @@ Account deletion is irreversible and removes all user data including loyalty car
 # 1. Desktop generates QR session
 POST /{locale}/shop/auth/qr-login/generate
 
-# 2. Desktop polls for completion
-GET /{locale}/shop/auth/qr-login/poll/{sessionId}
+# 2. Get Ably token and subscribe to real-time events
+POST /{locale}/shop/ably/token
 
-# 3. Mobile scans and confirms
-POST /{locale}/shop/auth/qr-login/scan/{qrCode}
-POST /{locale}/shop/auth/qr-login/confirm/{sessionId}
+# 3. User scans QR with Loyalty.lt mobile app
 
-# 4. Desktop receives authentication tokens
+# 4. Desktop receives authentication tokens via Ably WebSocket
 ```
 
 ## Response Examples
