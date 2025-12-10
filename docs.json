@@ -31,6 +31,7 @@
             "pages": [
               "api-reference/endpoints/shop/auth/validate-credentials",
               "api-reference/endpoints/shop/auth/qr-login",
+              "api-reference/endpoints/shop/auth/qr-card-scan",
               "api-reference/endpoints/shop/auth/send-app-link"
             ]
           },
