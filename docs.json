@@ -96,14 +96,50 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "JavaScript SDK",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "sdk/javascript/installation",
+              "sdk/javascript/usage"
+            ]
+          },
+          {
+            "group": "Features",
+            "pages": [
+              "sdk/javascript/qr-login",
+              "sdk/javascript/qr-card-scan"
+            ]
+          },
+          {
+            "group": "React",
+            "pages": [
+              "sdk/javascript/react-components"
+            ]
+          },
+          {
+            "group": "Resources",
+            "pages": [
+              "sdk/javascript/examples"
+            ]
+          }
+        ]
       }
     ],
     "global": {
       "anchors": [
         {
-          "anchor": "Swagger API Docs",
-          "href": "https://staging-api.loyalty.lt/api/documentation",
-          "icon": "code"
+          "anchor": "NPM Package",
+          "href": "https://www.npmjs.com/package/@loyaltylt/sdk",
+          "icon": "npm"
+        },
+        {
+          "anchor": "GitHub",
+          "href": "https://github.com/Loyalty-lt/sdk-javascript",
+          "icon": "github"
         },
         {
           "anchor": "Partners Portal",
@@ -142,7 +178,8 @@
   "footer": {
     "socials": {
       "website": "https://loyalty.lt",
-      "linkedin": "https://linkedin.com/company/loyalty-lt"
+      "linkedin": "https://linkedin.com/company/loyalty-lt",
+      "github": "https://github.com/Loyalty-lt"
     }
   }
 }

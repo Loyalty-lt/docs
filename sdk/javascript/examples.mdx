@@ -1,0 +1,289 @@
+---
+title: "Examples"
+description: "Complete code examples for the Loyalty.lt JavaScript SDK"
+---
+
+# Examples
+
+Complete working examples demonstrating various SDK features.
+
+## Live Examples
+
+The SDK includes several HTML examples you can run locally:
+
+| Example | Description | File |
+|---------|-------------|------|
+| **QR Login** | Customer authentication via QR | `examples/qr-login-example.html` |
+| **QR Card Scan** | POS customer identification | `examples/qr-card-scan-example.html` |
+| **Full POS System** | Complete POS simulation | `examples/pos-full-example.html` |
+
+### Running Examples
+
+```bash
+# Clone the repository
+git clone https://github.com/Loyalty-lt/sdk-javascript.git
+cd sdk-javascript
+
+# Install dependencies & build
+yarn install
+yarn build
+
+# Open examples in browser
+open examples/qr-login-example.html
+```
+
+## POS System Example
+
+A complete Point of Sale implementation with customer identification, cart management, and points processing.
+
+### Features
+
+- Split-screen layout (Customer Display + POS Interface)
+- QR code customer identification
+- Real-time Ably updates
+- Product catalog
+- Cart with points earning preview
+- Points redemption
+- Manual card lookup
+- Send app download link
+
+### Key Code
+
+```typescript
+import { LoyaltySDK } from '@loyaltylt/sdk';
+
+class POSSystem {
+  private sdk: LoyaltySDK;
+  private currentCustomer: Customer | null = null;
+  private cart: CartItem[] = [];
+  
+  constructor(apiKey: string, apiSecret: string) {
+    this.sdk = new LoyaltySDK({
+      apiKey,
+      apiSecret,
+      environment: 'production'
+    });
+  }
+  
+  // Start customer identification
+  async startIdentification() {
+    const session = await this.sdk.generateQrCardSession('POS');
+    this.displayQR(session.qr_code);
+    
+    const ablyToken = await this.sdk.getAblyToken(session.session_id);
+    // ... subscribe to events
+  }
+  
+  // Process checkout
+  async checkout() {
+    const total = this.calculateTotal();
+    const pointsToEarn = Math.floor(total * 10);
+    
+    await this.sdk.createTransaction({
+      card_id: this.currentCustomer.cardId,
+      amount: total,
+      points: pointsToEarn,
+      type: 'earn',
+      description: 'Purchase',
+      reference: `POS-${Date.now()}`
+    });
+    
+    this.showSuccess(`+${pointsToEarn} points earned!`);
+    this.clearCart();
+    this.clearCustomer();
+  }
+}
+```
+
+## React Integration
+
+### Next.js App Router
+
+```tsx
+// app/loyalty/page.tsx
+'use client';
+
+import { useState, useEffect } from 'react';
+import { QRLogin, QRCardDisplay } from '@loyaltylt/sdk/react';
+import '@loyaltylt/sdk/styles';
+
+export default function LoyaltyPage() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userToken, setUserToken] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const token = localStorage.getItem('loyalty_token');
+    if (token) {
+      setUserToken(token);
+      setIsLoggedIn(true);
+    }
+  }, []);
+  
+  if (!isLoggedIn) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <QRLogin
+          apiKey={process.env.NEXT_PUBLIC_LOYALTY_API_KEY!}
+          apiSecret={process.env.NEXT_PUBLIC_LOYALTY_API_SECRET!}
+          onAuthenticated={(user, token) => {
+            localStorage.setItem('loyalty_token', token);
+            setUserToken(token);
+            setIsLoggedIn(true);
+          }}
+        />
+      </div>
+    );
+  }
+  
+  return (
+    <div className="container mx-auto p-8">
+      <h1 className="text-2xl font-bold mb-6">Your Loyalty Card</h1>
+      <QRCardDisplay
+        apiKey={process.env.NEXT_PUBLIC_LOYALTY_API_KEY!}
+        apiSecret={process.env.NEXT_PUBLIC_LOYALTY_API_SECRET!}
+        userToken={userToken!}
+        showPoints
+        showUserInfo
+      />
+    </div>
+  );
+}
+```
+
+### Environment Variables
+
+```env
+# .env.local
+NEXT_PUBLIC_LOYALTY_API_KEY=lty_your_api_key
+NEXT_PUBLIC_LOYALTY_API_SECRET=your_api_secret
+```
+
+## Node.js Backend
+
+### Express.js Integration
+
+```typescript
+// server.ts
+import express from 'express';
+import { LoyaltySDK } from '@loyaltylt/sdk';
+
+const app = express();
+app.use(express.json());
+
+const sdk = new LoyaltySDK({
+  apiKey: process.env.LOYALTY_API_KEY!,
+  apiSecret: process.env.LOYALTY_API_SECRET!,
+  environment: 'production'
+});
+
+// Award points after purchase
+app.post('/api/orders/complete', async (req, res) => {
+  const { orderId, cardNumber, amount } = req.body;
+  
+  try {
+    // Find customer's card
+    const cards = await sdk.getLoyaltyCards({ card_number: cardNumber });
+    
+    if (!cards.data.length) {
+      return res.status(404).json({ error: 'Card not found' });
+    }
+    
+    const card = cards.data[0];
+    const pointsToAward = Math.floor(amount * 10);
+    
+    // Award points
+    const transaction = await sdk.createTransaction({
+      card_id: card.id,
+      amount,
+      points: pointsToAward,
+      type: 'earn',
+      description: `Order #${orderId}`,
+      reference: orderId
+    });
+    
+    res.json({
+      success: true,
+      points_awarded: pointsToAward,
+      new_balance: card.points_balance + pointsToAward
+    });
+    
+  } catch (error) {
+    console.error('Error awarding points:', error);
+    res.status(500).json({ error: 'Failed to award points' });
+  }
+});
+
+// Get customer info by card number
+app.get('/api/customers/lookup', async (req, res) => {
+  const { card_number } = req.query;
+  
+  try {
+    const cards = await sdk.getLoyaltyCards({ card_number: String(card_number) });
+    
+    if (!cards.data.length) {
+      return res.status(404).json({ error: 'Card not found' });
+    }
+    
+    const card = cards.data[0];
+    res.json({
+      name: card.user?.name,
+      card_number: card.card_number,
+      points: card.points_balance,
+      status: card.status
+    });
+    
+  } catch (error) {
+    res.status(500).json({ error: 'Lookup failed' });
+  }
+});
+
+app.listen(3000, () => {
+  console.log('Server running on port 3000');
+});
+```
+
+## Webhooks Integration
+
+```typescript
+// Handle loyalty webhooks
+app.post('/api/webhooks/loyalty', async (req, res) => {
+  const { event, data } = req.body;
+  
+  switch (event) {
+    case 'points.awarded':
+      console.log(`Customer ${data.customer_id} earned ${data.points} points`);
+      // Update your database, send notification, etc.
+      break;
+      
+    case 'points.redeemed':
+      console.log(`Customer ${data.customer_id} redeemed ${data.points} points`);
+      break;
+      
+    case 'offer.claimed':
+      console.log(`Customer claimed offer: ${data.offer_id}`);
+      break;
+  }
+  
+  res.json({ received: true });
+});
+```
+
+## GitHub Repository
+
+All examples are available in the SDK repository:
+
+<Card title="GitHub Repository" icon="github" href="https://github.com/Loyalty-lt/sdk-javascript">
+  View complete source code and examples
+</Card>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="API Reference" icon="book" href="/sdk/javascript/api-reference">
+    Complete SDK API documentation
+  </Card>
+  
+  <Card title="Shop API Docs" icon="store" href="/api-reference/endpoints/shop/overview">
+    Backend API documentation
+  </Card>
+</CardGroup>

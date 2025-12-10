@@ -1,0 +1,133 @@
+---
+title: "Installation"
+description: "Install the official Loyalty.lt JavaScript SDK"
+---
+
+# Installation
+
+The official Loyalty.lt JavaScript SDK is available on npm and can be used in Node.js, React, Vue, and any JavaScript environment.
+
+## NPM / Yarn
+
+<CodeGroup>
+```bash npm
+npm install @loyaltylt/sdk
+```
+
+```bash yarn
+yarn add @loyaltylt/sdk
+```
+
+```bash pnpm
+pnpm add @loyaltylt/sdk
+```
+</CodeGroup>
+
+## CDN (Browser)
+
+For browser-based applications without a build system:
+
+```html
+<script src="https://unpkg.com/@loyaltylt/sdk@2.2.0/dist/index.umd.js"></script>
+<script>
+  const sdk = new LoyaltySDK.LoyaltySDK({
+    apiKey: 'lty_xxxxxxxxxxxx',
+    apiSecret: 'your_api_secret',
+    environment: 'production'
+  });
+</script>
+```
+
+## Requirements
+
+<CardGroup cols={2}>
+  <Card title="Node.js" icon="node-js">
+    Node.js 16.0.0 or higher
+  </Card>
+  
+  <Card title="TypeScript" icon="code">
+    TypeScript 4.0+ (optional, types included)
+  </Card>
+</CardGroup>
+
+### For React Components
+
+If you plan to use the React components (`QRLogin`, `QRCardDisplay`), you also need:
+
+```bash
+npm install react react-dom qrcode.react
+```
+
+## Quick Start
+
+```typescript
+import { LoyaltySDK } from '@loyaltylt/sdk';
+
+// Initialize SDK with Partner API credentials
+const sdk = new LoyaltySDK({
+  apiKey: 'lty_your_api_key',
+  apiSecret: 'your_api_secret',
+  environment: 'production', // or 'staging'
+  locale: 'lt'
+});
+
+// Test connection
+const shops = await sdk.getShops();
+console.log('Connected! Shops:', shops.data);
+```
+
+## Configuration Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `apiKey` | `string` | - | Your Partner API Key (required) |
+| `apiSecret` | `string` | - | Your Partner API Secret (required) |
+| `environment` | `'production'` \| `'staging'` | `'production'` | API environment |
+| `locale` | `string` | `'lt'` | API locale (`lt`, `en`) |
+| `timeout` | `number` | `30000` | Request timeout in ms |
+| `debug` | `boolean` | `false` | Enable debug logging |
+| `retries` | `number` | `3` | Number of retry attempts |
+
+## Getting API Credentials
+
+<Steps>
+  <Step title="Access Partners Portal">
+    Go to [partners.loyalty.lt](https://partners.loyalty.lt) and log in to your account.
+  </Step>
+  
+  <Step title="Navigate to API Settings">
+    Click on **Settings** → **API Credentials** in the sidebar.
+  </Step>
+  
+  <Step title="Generate Credentials">
+    Click **Generate New Credentials** to create your API Key and Secret.
+  </Step>
+  
+  <Step title="Copy Credentials">
+    Copy both the API Key (`lty_...`) and API Secret. **Store them securely!**
+  </Step>
+</Steps>
+
+<Warning>
+Never expose your API Secret in client-side code. The SDK is designed for server-to-server communication or secure backend integrations.
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Basic Usage" icon="code" href="/sdk/javascript/usage">
+    Learn how to use the SDK for common operations
+  </Card>
+  
+  <Card title="QR Login" icon="qrcode" href="/sdk/javascript/qr-login">
+    Implement QR code-based login
+  </Card>
+  
+  <Card title="QR Card Scan" icon="credit-card" href="/sdk/javascript/qr-card-scan">
+    Customer identification via QR code
+  </Card>
+  
+  <Card title="React Components" icon="react" href="/sdk/javascript/react-components">
+    Pre-built React components
+  </Card>
+</CardGroup>

@@ -1,0 +1,279 @@
+---
+title: "QR Card Scan"
+description: "Identify customers via QR code scanning for POS systems"
+---
+
+# QR Card Scan
+
+QR Card Scan enables POS systems to identify customers by displaying a QR code that customers scan with their Loyalty.lt app. Unlike QR Login, this returns the customer's loyalty card data without authentication tokens.
+
+## How It Works
+
+<Steps>
+  <Step title="Generate QR Session">
+    POS system generates a QR code for customer identification
+  </Step>
+  
+  <Step title="Display on Customer Screen">
+    QR code is displayed on the customer-facing display
+  </Step>
+  
+  <Step title="Customer Scans">
+    Customer scans the QR code with Loyalty.lt mobile app
+  </Step>
+  
+  <Step title="Automatic Identification">
+    POS receives customer's loyalty card data automatically (no confirmation needed)
+  </Step>
+  
+  <Step title="Process Transaction">
+    POS can now award points, apply discounts, etc.
+  </Step>
+</Steps>
+
+## Implementation
+
+### 1. Generate QR Card Session
+
+```typescript
+const session = await sdk.generateQrCardSession(
+  'POS Terminal #1',  // Device name
+  shopId              // Optional shop ID
+);
+
+console.log(session.session_id);  // Unique session ID
+console.log(session.qr_code);     // Deep link for QR code
+console.log(session.expires_at);  // Expiration time
+```
+
+### 2. Display QR Code
+
+```typescript
+const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(session.qr_code)}`;
+
+// Update customer display
+document.getElementById('customer-qr').src = qrImageUrl;
+```
+
+### 3. Subscribe to Card Identification Events
+
+```typescript
+import Ably from 'ably';
+
+// Get Ably token
+const ablyToken = await sdk.getAblyToken(session.session_id);
+
+// Connect to Ably
+const ably = new Ably.Realtime({ token: ablyToken.token });
+const channel = ably.channels.get(ablyToken.channel);
+
+// Listen for card identification
+channel.subscribe('card_identified', (message) => {
+  const cardData = message.data.card_data;
+  
+  console.log('Customer identified!');
+  console.log('Name:', cardData.user?.name);
+  console.log('Card Number:', cardData.card_number);
+  console.log('Points Balance:', cardData.points_balance);
+  
+  // Update POS with customer data
+  setCurrentCustomer(cardData);
+});
+```
+
+### 4. Polling Fallback
+
+```typescript
+async function pollCardStatus(sessionId: string) {
+  const interval = setInterval(async () => {
+    try {
+      const status = await sdk.pollQrCardStatus(sessionId);
+      
+      if (status.status === 'completed' && status.card_data) {
+        clearInterval(interval);
+        setCurrentCustomer(status.card_data);
+      } else if (status.status === 'expired') {
+        clearInterval(interval);
+        regenerateQR();
+      }
+    } catch (error) {
+      console.error('Polling error:', error);
+    }
+  }, 2000);
+  
+  // Stop polling after 5 minutes
+  setTimeout(() => clearInterval(interval), 5 * 60 * 1000);
+}
+```
+
+## Complete POS Example
+
+```typescript
+import { LoyaltySDK } from '@loyaltylt/sdk';
+import Ably from 'ably';
+
+class POSSystem {
+  private sdk: LoyaltySDK;
+  private currentCustomer: any = null;
+  private ablyClient: Ably.Realtime | null = null;
+  
+  constructor() {
+    this.sdk = new LoyaltySDK({
+      apiKey: 'lty_...',
+      apiSecret: '...',
+      environment: 'production'
+    });
+  }
+  
+  async startCustomerIdentification() {
+    // Generate QR session
+    const session = await this.sdk.generateQrCardSession('POS Terminal');
+    
+    // Display QR on customer screen
+    this.updateCustomerDisplay(session.qr_code);
+    
+    // Subscribe to events
+    const ablyToken = await this.sdk.getAblyToken(session.session_id);
+    
+    this.ablyClient = new Ably.Realtime({ token: ablyToken.token });
+    const channel = this.ablyClient.channels.get(ablyToken.channel);
+    
+    channel.subscribe('card_identified', (message) => {
+      this.handleCustomerIdentified(message.data.card_data);
+    });
+    
+    // Auto-regenerate on expiry
+    setTimeout(() => {
+      if (!this.currentCustomer) {
+        this.startCustomerIdentification();
+      }
+    }, 5 * 60 * 1000);
+  }
+  
+  handleCustomerIdentified(cardData: any) {
+    this.currentCustomer = {
+      name: cardData.user?.name || 'Customer',
+      phone: cardData.user?.phone,
+      cardId: cardData.id,
+      cardNumber: cardData.card_number,
+      points: cardData.points_balance || 0
+    };
+    
+    // Update POS display
+    this.updatePOSDisplay();
+    
+    // Calculate available discount
+    const pointsValue = this.currentCustomer.points * 0.01; // €0.01 per point
+    console.log(`Customer can redeem up to €${pointsValue.toFixed(2)}`);
+  }
+  
+  async processTransaction(cartTotal: number, pointsToRedeem: number = 0) {
+    if (!this.currentCustomer) {
+      throw new Error('No customer identified');
+    }
+    
+    // Calculate points to award
+    const pointsToAward = Math.floor(cartTotal * 10); // 10 points per €1
+    
+    // Create transaction
+    const transaction = await this.sdk.createTransaction({
+      card_id: this.currentCustomer.cardId,
+      amount: cartTotal,
+      points: pointsToAward,
+      type: 'earn',
+      description: 'Purchase',
+      reference: `TXN-${Date.now()}`
+    });
+    
+    // Deduct redeemed points if any
+    if (pointsToRedeem > 0) {
+      await this.sdk.deductPoints(
+        this.currentCustomer.cardId,
+        pointsToRedeem,
+        'Points redemption'
+      );
+    }
+    
+    return {
+      transactionId: transaction.id,
+      pointsEarned: pointsToAward,
+      pointsRedeemed: pointsToRedeem
+    };
+  }
+  
+  clearCustomer() {
+    this.currentCustomer = null;
+    this.startCustomerIdentification();
+  }
+}
+```
+
+## Card Data Structure
+
+When a customer is identified, you receive:
+
+```typescript
+interface CardData {
+  id: number;
+  card_number: string;
+  points_balance: number;
+  status: 'active' | 'blocked' | 'expired';
+  user: {
+    id: number;
+    name: string;
+    phone: string;
+    email: string;
+  };
+  partner: {
+    id: number;
+    name: string;
+  };
+  redemption?: {
+    enabled: boolean;
+    points_per_currency: number;  // e.g., 100 points = 1 EUR
+    currency_amount: number;       // e.g., 1
+    min_points: number;           // Minimum points to redeem
+  };
+  created_at: string;
+  updated_at: string;
+}
+```
+
+## Ably Channel Events
+
+| Event | Description | Data |
+|-------|-------------|------|
+| `card_identified` | Customer scanned QR | `{ card_data: CardData }` |
+
+## Auto-Regeneration
+
+QR codes expire after 5 minutes. Implement auto-regeneration:
+
+```typescript
+let qrTimeout: NodeJS.Timeout;
+
+async function generateAndDisplayQR() {
+  // Clear previous timeout
+  if (qrTimeout) clearTimeout(qrTimeout);
+  
+  // Generate new session
+  const session = await sdk.generateQrCardSession('POS');
+  displayQR(session.qr_code);
+  subscribeToEvents(session.session_id);
+  
+  // Schedule regeneration
+  qrTimeout = setTimeout(generateAndDisplayQR, 4.5 * 60 * 1000);
+}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="React Components" icon="react" href="/sdk/javascript/react-components">
+    Pre-built QR display components
+  </Card>
+  
+  <Card title="Full POS Example" icon="cash-register" href="/sdk/javascript/examples#pos-system">
+    Complete POS implementation
+  </Card>
+</CardGroup>

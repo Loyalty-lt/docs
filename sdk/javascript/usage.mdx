@@ -1,0 +1,243 @@
+---
+title: "Basic Usage"
+description: "Learn how to use the Loyalty.lt JavaScript SDK"
+---
+
+# Basic Usage
+
+This guide covers the most common SDK operations for Partner API integration.
+
+## Initialization
+
+```typescript
+import { LoyaltySDK } from '@loyaltylt/sdk';
+
+const sdk = new LoyaltySDK({
+  apiKey: 'lty_your_api_key',
+  apiSecret: 'your_api_secret',
+  environment: 'production',
+  locale: 'lt',
+  debug: true // Enable for development
+});
+```
+
+## Shops
+
+### List Partner Shops
+
+```typescript
+// Get all shops
+const shops = await sdk.getShops();
+console.log(shops.data); // Array of shops
+console.log(shops.meta); // Pagination info
+
+// Filter shops
+const activeShops = await sdk.getShops({ 
+  is_active: true,
+  is_virtual: false 
+});
+```
+
+### Get Single Shop
+
+```typescript
+const shop = await sdk.getShop(4);
+console.log(shop.name, shop.address);
+```
+
+## Loyalty Cards
+
+### List Cards
+
+```typescript
+// Get all partner's loyalty cards
+const cards = await sdk.getLoyaltyCards();
+
+// Filter by card number
+const card = await sdk.getLoyaltyCards({ 
+  card_number: 'LOYALTY123456' 
+});
+```
+
+### Get Card Details
+
+```typescript
+const card = await sdk.getLoyaltyCard(123);
+console.log(card.card_number);
+console.log(card.points_balance);
+console.log(card.user); // Customer info
+```
+
+## Points & Transactions
+
+### Create Transaction (Award Points)
+
+```typescript
+const transaction = await sdk.createTransaction({
+  card_id: 123,
+  amount: 50.00,        // Purchase amount in EUR
+  points: 50,           // Points to award
+  type: 'earn',
+  description: 'Purchase reward',
+  reference: 'ORDER-12345'
+});
+
+console.log('Transaction ID:', transaction.id);
+console.log('Points awarded:', transaction.points);
+```
+
+### Deduct Points
+
+```typescript
+const deduction = await sdk.deductPoints(
+  123,    // card_id
+  100,    // points to deduct
+  'Points redemption for discount'
+);
+```
+
+### Get Points Balance
+
+```typescript
+const balance = await sdk.getPointsBalance(123);
+console.log('Current points:', balance.current_points);
+console.log('Lifetime earned:', balance.total_earned);
+```
+
+### Transaction History
+
+```typescript
+const history = await sdk.getPointsTransactions({
+  card_id: 123,
+  type: 'earn',
+  page: 1,
+  per_page: 20
+});
+```
+
+## Offers
+
+### List Available Offers
+
+```typescript
+const offers = await sdk.getOffers();
+
+// Filter by category
+const diningOffers = await sdk.getOffers({ 
+  category: 'dining',
+  is_active: true 
+});
+```
+
+### Get Featured Offers
+
+```typescript
+const featured = await sdk.getFeaturedOffers();
+```
+
+### Claim Offer
+
+```typescript
+const coupon = await sdk.claimOffer(offerId, shopId);
+console.log('Coupon code:', coupon.code);
+console.log('Expires:', coupon.expires_at);
+```
+
+## Coupons
+
+### List Customer Coupons
+
+```typescript
+const coupons = await sdk.getCoupons({
+  status: 'active'
+});
+```
+
+### Redeem Coupon
+
+```typescript
+const result = await sdk.redeemCoupon(couponId, {
+  amount: 25.00,
+  reference: 'ORDER-12345'
+});
+```
+
+## Error Handling
+
+The SDK uses custom error types for better error handling:
+
+```typescript
+import { LoyaltySDKError } from '@loyaltylt/sdk';
+
+try {
+  const result = await sdk.deductPoints(123, 10000);
+} catch (error) {
+  if (error instanceof LoyaltySDKError) {
+    console.error('Error code:', error.code);
+    console.error('Message:', error.message);
+    console.error('Status:', error.status);
+    
+    switch (error.code) {
+      case 'INSUFFICIENT_POINTS':
+        alert('Not enough points available');
+        break;
+      case 'CARD_NOT_FOUND':
+        alert('Loyalty card not found');
+        break;
+      case 'AUTH_FAILED':
+        alert('Authentication failed');
+        break;
+      default:
+        alert('An error occurred: ' + error.message);
+    }
+  }
+}
+```
+
+## TypeScript Support
+
+The SDK is written in TypeScript and includes full type definitions:
+
+```typescript
+import { 
+  LoyaltySDK,
+  Shop,
+  LoyaltyCard,
+  PointsTransaction,
+  Offer,
+  PaginatedResponse,
+  LoyaltySDKError 
+} from '@loyaltylt/sdk';
+
+// Fully typed responses
+const shops: PaginatedResponse<Shop> = await sdk.getShops();
+const card: LoyaltyCard = await sdk.getLoyaltyCard(123);
+```
+
+## Debug Mode
+
+Enable debug mode to see detailed request/response logs:
+
+```typescript
+const sdk = new LoyaltySDK({
+  apiKey: 'lty_...',
+  apiSecret: '...',
+  debug: true
+});
+
+// Console output:
+// [SDK] GET https://api.loyalty.lt/lt/shop/shops
+// [SDK] Response: {"success":true,"data":[...],"meta":{...}}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="QR Login" icon="qrcode" href="/sdk/javascript/qr-login">
+    Implement QR code authentication
+  </Card>
+  
+  <Card title="QR Card Scan" icon="credit-card" href="/sdk/javascript/qr-card-scan">
+    POS customer identification
+  </Card>
+</CardGroup>

@@ -1,0 +1,244 @@
+---
+title: "QR Login"
+description: "Implement QR code-based authentication with the SDK"
+---
+
+# QR Login
+
+QR Login allows customers to authenticate on web/POS systems by scanning a QR code with their Loyalty.lt mobile app.
+
+## How It Works
+
+<Steps>
+  <Step title="Generate QR Session">
+    Your system generates a QR code with a unique session ID
+  </Step>
+  
+  <Step title="Display QR Code">
+    Customer sees the QR code on your website/POS display
+  </Step>
+  
+  <Step title="Customer Scans">
+    Customer scans the QR code with Loyalty.lt mobile app
+  </Step>
+  
+  <Step title="Confirm Login">
+    Customer confirms the login in their app
+  </Step>
+  
+  <Step title="Receive Authentication">
+    Your system receives the authentication token via real-time events
+  </Step>
+</Steps>
+
+## Implementation
+
+### 1. Generate QR Login Session
+
+```typescript
+const session = await sdk.generateQrLogin('Web Browser');
+
+console.log(session.session_id);  // Unique session ID
+console.log(session.qr_code);     // Deep link for QR code
+console.log(session.expires_at);  // Expiration time
+```
+
+### 2. Display QR Code
+
+```typescript
+// Generate QR code image URL
+const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(session.qr_code)}`;
+
+// Or use qrcode.react
+import { QRCodeSVG } from 'qrcode.react';
+
+<QRCodeSVG value={session.qr_code} size={250} />
+```
+
+### 3. Subscribe to Real-time Events
+
+```typescript
+// Get Ably token for real-time updates
+const ablyToken = await sdk.getAblyToken(session.session_id);
+
+// Connect to Ably
+const ably = new Ably.Realtime({ token: ablyToken.token });
+const channel = ably.channels.get(ablyToken.channel);
+
+// Listen for status updates
+channel.subscribe('status_update', (message) => {
+  const { status, user, token } = message.data;
+  
+  switch (status) {
+    case 'scanned':
+      showMessage('QR scanned! Please confirm on your phone...');
+      break;
+      
+    case 'authenticated':
+      showMessage('Login successful!');
+      handleLogin(user, token);
+      break;
+      
+    case 'cancelled':
+      showMessage('Login cancelled');
+      regenerateQR();
+      break;
+      
+    case 'failed':
+      showMessage('Login failed');
+      regenerateQR();
+      break;
+  }
+});
+```
+
+### 4. Polling Fallback
+
+If WebSocket is unavailable, use polling:
+
+```typescript
+async function pollLoginStatus(sessionId: string) {
+  const interval = setInterval(async () => {
+    try {
+      const status = await sdk.pollQrLoginStatus(sessionId);
+      
+      if (status.status === 'authenticated' && status.token) {
+        clearInterval(interval);
+        handleLogin(status.user, status.token);
+      } else if (status.status === 'expired') {
+        clearInterval(interval);
+        regenerateQR();
+      }
+    } catch (error) {
+      console.error('Polling error:', error);
+    }
+  }, 2000);
+  
+  // Stop polling after 5 minutes
+  setTimeout(() => clearInterval(interval), 5 * 60 * 1000);
+}
+```
+
+## Complete Example
+
+```typescript
+import { LoyaltySDK } from '@loyaltylt/sdk';
+import Ably from 'ably';
+
+const sdk = new LoyaltySDK({
+  apiKey: 'lty_...',
+  apiSecret: '...',
+  environment: 'production'
+});
+
+let ablyClient: Ably.Realtime | null = null;
+let currentSession: any = null;
+
+async function startQRLogin() {
+  // Generate session
+  currentSession = await sdk.generateQrLogin('Web Browser');
+  
+  // Display QR code
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(currentSession.qr_code)}`;
+  document.getElementById('qr-image').src = qrUrl;
+  
+  // Subscribe to events
+  const ablyToken = await sdk.getAblyToken(currentSession.session_id);
+  
+  ablyClient = new Ably.Realtime({ token: ablyToken.token });
+  const channel = ablyClient.channels.get(ablyToken.channel);
+  
+  channel.subscribe('status_update', handleStatusUpdate);
+}
+
+function handleStatusUpdate(message: any) {
+  const { status, user, token } = message.data;
+  
+  if (status === 'authenticated') {
+    // Store token, redirect user, etc.
+    localStorage.setItem('auth_token', token);
+    window.location.href = '/dashboard';
+  }
+}
+
+// Start QR login when page loads
+startQRLogin();
+```
+
+## Send App Download Link
+
+If the customer doesn't have the app:
+
+```typescript
+await sdk.sendAppLink(
+  '+37060000000',    // Phone number
+  shopId,            // Optional shop ID
+  'John',            // Optional customer name
+  'lt'               // Language (lt/en)
+);
+```
+
+## React Component
+
+For React applications, use the pre-built component:
+
+```tsx
+import { QRLogin } from '@loyaltylt/sdk/react';
+import '@loyaltylt/sdk/styles';
+
+function LoginPage() {
+  return (
+    <QRLogin
+      apiKey="lty_..."
+      apiSecret="..."
+      onAuthenticated={(user, token) => {
+        console.log('Logged in:', user);
+        // Handle successful login
+      }}
+      onError={(error) => {
+        console.error('Login error:', error);
+      }}
+    />
+  );
+}
+```
+
+See [React Components](/sdk/javascript/react-components) for more details.
+
+## Ably Channel Events
+
+| Event | Description | Data |
+|-------|-------------|------|
+| `status_update` | Login status changed | `{ status, user?, token? }` |
+
+### Status Values
+
+| Status | Description |
+|--------|-------------|
+| `pending` | Waiting for scan |
+| `scanned` | QR scanned, waiting for confirmation |
+| `authenticated` | Login successful |
+| `cancelled` | User cancelled login |
+| `failed` | Login failed |
+| `expired` | Session expired |
+
+## Security Considerations
+
+<Warning>
+- QR sessions expire after 5 minutes
+- Each session can only be used once
+- Always validate tokens on your backend
+- Use HTTPS for all communications
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="QR Card Scan" icon="credit-card" href="/sdk/javascript/qr-card-scan">
+    Customer identification for POS
+  </Card>
+  
+  <Card title="React Components" icon="react" href="/sdk/javascript/react-components">
+    Pre-built UI components
+  </Card>
+</CardGroup>
