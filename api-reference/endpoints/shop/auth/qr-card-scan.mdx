@@ -193,7 +193,7 @@ Get a secure Ably JWT token to subscribe to real-time card identification events
 ### Endpoint
 
 ```
-POST /{locale}/shop/qr-card/ably-token
+POST /{locale}/shop/ably/token
 ```
 
 ### Request Body
@@ -213,13 +213,19 @@ POST /{locale}/shop/qr-card/ably-token
 </ResponseField>
 
 <ResponseField name="data.channel" type="string">
-  Ably channel name: `qr-card:{session_id}`
+  Ably channel name (automatically determined based on session type):
+  - For card scan: `qr-card:{session_id}`
+  - For login: `qr-login:{session_id}`
+</ResponseField>
+
+<ResponseField name="data.session_type" type="string">
+  Type of session: `card_scan` or `login`
 </ResponseField>
 
 <RequestExample>
 
 ```bash cURL
-curl -X POST "https://staging-api.loyalty.lt/en/shop/qr-card/ably-token" \
+curl -X POST "https://staging-api.loyalty.lt/en/shop/ably/token" \
   -H "Content-Type: application/json" \
   -H "X-API-Key: your_api_key" \
   -H "X-API-Secret: your_api_secret" \
@@ -230,7 +236,7 @@ curl -X POST "https://staging-api.loyalty.lt/en/shop/qr-card/ably-token" \
 
 ```javascript JavaScript
 // After generating session, get Ably token and subscribe
-const tokenResponse = await fetch('https://staging-api.loyalty.lt/en/shop/qr-card/ably-token', {
+const tokenResponse = await fetch('https://staging-api.loyalty.lt/en/shop/ably/token', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -246,7 +252,7 @@ const { data } = await tokenResponse.json();
 
 // Connect to Ably with the token
 const ably = new Ably.Realtime({ token: data.token });
-const channel = ably.channels.get(`qr-card:${sessionId}`);
+const channel = ably.channels.get(data.channel); // Use channel from response
 
 // Listen for card identification
 channel.subscribe('card_identified', (message) => {
@@ -269,7 +275,8 @@ channel.subscribe('card_identified', (message) => {
   "data": {
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
     "expires": 1702234500,
-    "channel": "qr-card:550e8400-e29b-41d4-a716-446655440000"
+    "channel": "qr-card:550e8400-e29b-41d4-a716-446655440000",
+    "session_type": "card_scan"
   }
 }
 ```
@@ -508,8 +515,8 @@ class LoyaltyPOS {
     const { data: session } = await sessionResponse.json();
     this.currentSession = session;
     
-    // 2. Get Ably token
-    const tokenResponse = await fetch(`${this.baseUrl}/qr-card/ably-token`, {
+    // 2. Get Ably token (universal endpoint)
+    const tokenResponse = await fetch(`${this.baseUrl}/ably/token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

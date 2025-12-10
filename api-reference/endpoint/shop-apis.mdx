@@ -35,18 +35,18 @@ Where `{locale}` is the language code (e.g., `en`, `lt`).
 - `PUT /{locale}/shop/auth/profile` - Update user profile
 
 ### QR Card Scan (POS Integration)
-Instant customer identification system for POS terminals and kiosks.
+Customer identification system for POS terminals and kiosks.
 
 **Features:**
 - Display QR code on POS screen
 - Customer scans with Loyalty.lt mobile app
-- Instant card data returned via WebSocket (no confirmation needed)
+- Card data returned via WebSocket
 - Real-time points balance and redemption settings
 - Fallback polling for non-WebSocket environments
 
 **Key Endpoints:**
 - `POST /{locale}/shop/qr-card/generate` - Generate QR card scan session
-- `POST /{locale}/shop/qr-card/ably-token` - Get Ably WebSocket token
+- `POST /{locale}/shop/ably/token` - Get Ably WebSocket token
 - `GET /{locale}/shop/qr-card/status/{sessionId}` - Poll session status
 
 ## Core Shop Features

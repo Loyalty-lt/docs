@@ -1,0 +1,226 @@
+---
+title: "Ably Token"
+api: "POST /{locale}/shop/ably/token"
+description: "Generate Ably JWT tokens for real-time WebSocket communication"
+---
+
+# Ably Token Generation
+
+Generate secure Ably JWT tokens for subscribing to real-time events. Supports both QR Login and QR Card Scan session types.
+
+## Supported Session Types
+
+| Session Type | Channel Format | Use Case |
+|--------------|----------------|----------|
+| `login` | `qr-login:{session_id}` | User authentication via QR code |
+| `card_scan` | `qr-card:{session_id}` | Customer identification at POS |
+
+## Endpoint
+
+```
+POST /{locale}/shop/ably/token
+```
+
+## Authentication
+
+<ParamField header="X-API-Key" type="string" required>
+  Partner API key from Partners Portal
+</ParamField>
+
+<ParamField header="X-API-Secret" type="string" required>
+  Partner API secret from Partners Portal
+</ParamField>
+
+## Request Body
+
+<ParamField body="session_id" type="string" required>
+  The session ID (UUID) from either:
+  - `POST /shop/auth/qr-login/generate` for QR Login
+  - `POST /shop/qr-card/generate` for QR Card Scan
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if token was generated successfully
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  <Expandable title="data">
+    <ResponseField name="token" type="string">
+      Ably JWT token for WebSocket connection (valid for 1 hour)
+    </ResponseField>
+    
+    <ResponseField name="expires" type="integer">
+      Unix timestamp when token expires
+    </ResponseField>
+    
+    <ResponseField name="channel" type="string">
+      Ably channel name to subscribe to. Format depends on session type:
+      - `qr-login:{session_id}` for login sessions
+      - `qr-card:{session_id}` for card scan sessions
+    </ResponseField>
+    
+    <ResponseField name="session_type" type="string">
+      Type of the session: `login` or `card_scan`
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X POST "https://staging-api.loyalty.lt/en/shop/ably/token" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -d '{
+    "session_id": "550e8400-e29b-41d4-a716-446655440000"
+  }'
+```
+
+```javascript JavaScript
+async function getAblyToken(sessionId) {
+  const response = await fetch('https://staging-api.loyalty.lt/en/shop/ably/token', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-Key': 'your_api_key',
+      'X-API-Secret': 'your_api_secret'
+    },
+    body: JSON.stringify({ session_id: sessionId })
+  });
+  
+  const { data } = await response.json();
+  
+  // Connect to Ably
+  const ably = new Ably.Realtime({ token: data.token });
+  const channel = ably.channels.get(data.channel);
+  
+  // Subscribe based on session type
+  if (data.session_type === 'card_scan') {
+    channel.subscribe('card_identified', (msg) => {
+      console.log('Card data:', msg.data.card_data);
+    });
+  } else {
+    channel.subscribe('qr_login_status', (msg) => {
+      console.log('Login status:', msg.data.status);
+    });
+  }
+  
+  return { ably, channel, data };
+}
+```
+
+```php PHP
+$response = Http::withHeaders([
+    'X-API-Key' => config('services.loyalty.api_key'),
+    'X-API-Secret' => config('services.loyalty.api_secret'),
+])->post('https://staging-api.loyalty.lt/en/shop/ably/token', [
+    'session_id' => $sessionId,
+]);
+
+$data = $response->json()['data'];
+
+// Return token to frontend for Ably connection
+return response()->json([
+    'ably_token' => $data['token'],
+    'channel' => $data['channel'],
+    'session_type' => $data['session_type'],
+]);
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json QR Login Session
+{
+  "success": true,
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "expires": 1702234500,
+    "channel": "qr-login:550e8400-e29b-41d4-a716-446655440000",
+    "session_type": "login"
+  }
+}
+```
+
+```json QR Card Scan Session
+{
+  "success": true,
+  "data": {
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "expires": 1702234500,
+    "channel": "qr-card:550e8400-e29b-41d4-a716-446655440000",
+    "session_type": "card_scan"
+  }
+}
+```
+
+```json Session Not Found (404)
+{
+  "success": false,
+  "message": "Session not found",
+  "code": "RESOURCE_NOT_FOUND"
+}
+```
+
+```json Session Expired (410)
+{
+  "success": false,
+  "message": "Session expired",
+  "code": "RESOURCE_EXPIRED"
+}
+```
+
+</ResponseExample>
+
+---
+
+## Token Capabilities
+
+The generated token grants the following Ably capabilities for the session channel:
+
+| Capability | Description |
+|------------|-------------|
+| `subscribe` | Listen for real-time events on the channel |
+| `history` | Retrieve message history |
+| `presence` | Track presence on the channel |
+
+<Note>
+The token does **not** grant `publish` permissions. Only the API server can publish events to these channels.
+</Note>
+
+---
+
+## Error Codes
+
+| Code | Description | HTTP Status |
+|------|-------------|-------------|
+| `AUTH_FORBIDDEN` | Invalid or missing API credentials | 403 |
+| `RESOURCE_NOT_FOUND` | Session not found or doesn't belong to partner | 404 |
+| `RESOURCE_EXPIRED` | Session has expired | 410 |
+| `INTERNAL_ERROR` | Ably not configured or token generation failed | 500 |
+
+---
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Use Response Channel" icon="hashtag">
+    Always use the `channel` from the response rather than constructing it manually
+  </Card>
+  
+  <Card title="Check Session Type" icon="code-branch">
+    Use `session_type` to determine which events to subscribe to
+  </Card>
+  
+  <Card title="Handle Expiration" icon="clock">
+    Tokens expire after 1 hour. Implement token refresh if needed
+  </Card>
+  
+  <Card title="Error Handling" icon="triangle-exclamation">
+    Handle 410 (expired) errors by generating a new QR session
+  </Card>
+</CardGroup>

@@ -165,7 +165,7 @@ Get a secure Ably JWT token to subscribe to real-time QR login events.
 ### Endpoint
 
 ```
-POST /{locale}/shop/auth/qr-login/ably-token
+POST /{locale}/shop/ably/token
 ```
 
 ### Request Body
@@ -184,10 +184,18 @@ POST /{locale}/shop/auth/qr-login/ably-token
   Unix timestamp when token expires
 </ResponseField>
 
+<ResponseField name="data.channel" type="string">
+  Ably channel name (automatically determined based on session type)
+</ResponseField>
+
+<ResponseField name="data.session_type" type="string">
+  Type of session: `login` or `card_scan`
+</ResponseField>
+
 <RequestExample>
 
 ```bash cURL
-curl -X POST "https://staging-api.loyalty.lt/en/shop/auth/qr-login/ably-token" \
+curl -X POST "https://staging-api.loyalty.lt/en/shop/ably/token" \
   -H "Content-Type: application/json" \
   -H "X-API-Key: your_api_key" \
   -H "X-API-Secret: your_api_secret" \
@@ -198,7 +206,7 @@ curl -X POST "https://staging-api.loyalty.lt/en/shop/auth/qr-login/ably-token" \
 
 ```javascript JavaScript
 // After generating session, get Ably token
-const tokenResponse = await fetch('https://staging-api.loyalty.lt/en/shop/auth/qr-login/ably-token', {
+const tokenResponse = await fetch('https://staging-api.loyalty.lt/en/shop/ably/token', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -214,7 +222,7 @@ const { data } = await tokenResponse.json();
 
 // Connect to Ably with the token
 const ably = new Ably.Realtime({ token: data.token });
-const channel = ably.channels.get(`qr-login:${sessionId}`);
+const channel = ably.channels.get(data.channel); // Use channel from response
 
 channel.subscribe('qr_login_status', (message) => {
   console.log('Status:', message.data.status);
@@ -236,7 +244,9 @@ channel.subscribe('qr_login_status', (message) => {
   "success": true,
   "data": {
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "expires": 1702054500
+    "expires": 1702054500,
+    "channel": "qr-login:550e8400-e29b-41d4-a716-446655440000",
+    "session_type": "login"
   }
 }
 ```

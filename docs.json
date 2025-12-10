@@ -36,6 +36,12 @@
             ]
           },
           {
+            "group": "Real-time (Ably)",
+            "pages": [
+              "api-reference/endpoints/shop/ably/token"
+            ]
+          },
+          {
             "group": "Shops",
             "pages": [
               "api-reference/endpoints/shop/shops/list"
