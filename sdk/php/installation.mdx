@@ -1,0 +1,89 @@
+---
+title: "Installation"
+description: "Install the official Loyalty.lt PHP SDK"
+---
+
+# Installation
+
+The official Loyalty.lt PHP SDK for Partner API integration.
+
+## Composer
+
+```bash
+composer require loyaltylt/sdk
+```
+
+## Requirements
+
+- PHP 8.1 or higher
+- ext-json
+- Guzzle HTTP client (installed automatically)
+
+## Quick Start
+
+```php
+<?php
+
+require_once 'vendor/autoload.php';
+
+use LoyaltyLt\SDK\LoyaltySDK;
+
+$sdk = new LoyaltySDK([
+    'apiKey' => 'lty_your_api_key',
+    'apiSecret' => 'your_api_secret',
+    'environment' => 'production', // or 'staging'
+    'locale' => 'lt',
+]);
+
+// Test connection
+$shops = $sdk->getShops();
+print_r($shops['data']);
+```
+
+## Configuration Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `apiKey` | string | required | Partner API Key |
+| `apiSecret` | string | required | Partner API Secret |
+| `environment` | string | `production` | `production` or `staging` |
+| `locale` | string | `lt` | API locale (`lt`, `en`) |
+| `timeout` | int | `30` | Request timeout in seconds |
+| `retries` | int | `3` | Number of retry attempts |
+| `debug` | bool | `false` | Enable debug logging |
+
+## Getting API Credentials
+
+<Steps>
+  <Step title="Access Partners Portal">
+    Go to [partners.loyalty.lt](https://partners.loyalty.lt) and log in.
+  </Step>
+  
+  <Step title="Navigate to API Settings">
+    Click **Settings** → **API Credentials**.
+  </Step>
+  
+  <Step title="Generate Credentials">
+    Click **Generate New Credentials**.
+  </Step>
+  
+  <Step title="Copy Credentials">
+    Copy API Key (`lty_...`) and API Secret. **Store securely!**
+  </Step>
+</Steps>
+
+<Warning>
+Never expose your API Secret in client-side code. The SDK is designed for server-to-server communication.
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Basic Usage" icon="code" href="/sdk/php/usage">
+    Learn common SDK operations
+  </Card>
+  
+  <Card title="QR Features" icon="qrcode" href="/sdk/php/qr-features">
+    QR Login and Card Scan
+  </Card>
+</CardGroup>

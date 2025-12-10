@@ -1,0 +1,227 @@
+---
+title: "Basic Usage"
+description: "Learn how to use the Loyalty.lt PHP SDK"
+---
+
+# Basic Usage
+
+Common operations with the PHP SDK.
+
+## Initialization
+
+```php
+<?php
+
+use LoyaltyLt\SDK\LoyaltySDK;
+
+$sdk = new LoyaltySDK([
+    'apiKey' => 'lty_your_api_key',
+    'apiSecret' => 'your_api_secret',
+    'environment' => 'production',
+    'locale' => 'lt',
+    'debug' => true, // Enable for development
+]);
+```
+
+## Shops
+
+```php
+// Get all shops
+$shops = $sdk->getShops();
+print_r($shops['data']); // Array of shops
+print_r($shops['meta']); // Pagination
+
+// Filter shops
+$activeShops = $sdk->getShops([
+    'is_active' => true,
+    'is_virtual' => false,
+]);
+```
+
+## Loyalty Cards
+
+```php
+// Get all cards
+$cards = $sdk->getLoyaltyCards();
+
+// Get single card
+$card = $sdk->getLoyaltyCard(123);
+
+// Get card by number
+$cardInfo = $sdk->getLoyaltyCardInfo([
+    'card_number' => 'LOYALTY123456'
+]);
+
+// Get points balance
+$balance = $sdk->getPointsBalance(['card_id' => 123]);
+echo "Points: " . $balance['current_points'];
+```
+
+## Transactions & Points
+
+### Create Transaction (Award Points)
+
+```php
+$transaction = $sdk->createTransaction([
+    'card_id' => 123,
+    'amount' => 50.00,
+    'points' => 50,
+    'type' => 'earn',
+    'description' => 'Purchase reward',
+    'reference' => 'ORDER-12345',
+]);
+
+echo "Transaction ID: " . $transaction['id'];
+echo "Points awarded: " . $transaction['points'];
+```
+
+### Deduct Points
+
+```php
+$result = $sdk->deductPoints(
+    123,    // card_id
+    100,    // points
+    'Points redemption for discount'
+);
+```
+
+### Get Transactions
+
+```php
+$transactions = $sdk->getTransactions([
+    'card_id' => 123,
+    'type' => 'earn',
+    'page' => 1,
+    'per_page' => 20,
+]);
+```
+
+## Offers
+
+```php
+// Get offers
+$offers = $sdk->getOffers(['is_active' => true]);
+
+// Get single offer
+$offer = $sdk->getOffer(456);
+
+// Create offer
+$newOffer = $sdk->createOffer([
+    'title' => 'Summer Sale',
+    'description' => '20% off all items',
+    'discount_type' => 'percentage',
+    'discount_value' => 20,
+]);
+
+// Update offer
+$sdk->updateOffer(456, ['title' => 'Updated Title']);
+
+// Delete offer
+$sdk->deleteOffer(456);
+
+// Get categories
+$categories = $sdk->getCategories();
+```
+
+## XML Import
+
+```php
+// Import from URL
+$result = $sdk->importFromUrl('https://example.com/offers.xml', [
+    'auto_publish' => true,
+]);
+
+// Validate XML
+$validation = $sdk->validateXml('https://example.com/offers.xml');
+
+// Get import stats
+$stats = $sdk->getImportStats();
+```
+
+## Error Handling
+
+```php
+use LoyaltyLt\SDK\Exceptions\LoyaltySDKException;
+
+try {
+    $result = $sdk->deductPoints(123, 10000);
+} catch (LoyaltySDKException $e) {
+    echo "Error: " . $e->getMessage();
+    echo "Code: " . $e->getErrorCode();
+    echo "HTTP Status: " . $e->getHttpStatus();
+    
+    // Handle specific errors
+    switch ($e->getErrorCode()) {
+        case 'INSUFFICIENT_POINTS':
+            echo "Not enough points!";
+            break;
+        case 'CARD_NOT_FOUND':
+            echo "Card not found!";
+            break;
+    }
+}
+```
+
+## Laravel Integration
+
+### Service Provider
+
+```php
+// config/services.php
+'loyalty' => [
+    'api_key' => env('LOYALTY_API_KEY'),
+    'api_secret' => env('LOYALTY_API_SECRET'),
+    'environment' => env('LOYALTY_ENVIRONMENT', 'production'),
+],
+```
+
+```php
+// app/Providers/AppServiceProvider.php
+use LoyaltyLt\SDK\LoyaltySDK;
+
+public function register()
+{
+    $this->app->singleton(LoyaltySDK::class, function ($app) {
+        return new LoyaltySDK([
+            'apiKey' => config('services.loyalty.api_key'),
+            'apiSecret' => config('services.loyalty.api_secret'),
+            'environment' => config('services.loyalty.environment'),
+        ]);
+    });
+}
+```
+
+### Controller Usage
+
+```php
+use LoyaltyLt\SDK\LoyaltySDK;
+
+class LoyaltyController extends Controller
+{
+    public function __construct(private LoyaltySDK $loyalty) {}
+    
+    public function awardPoints(Request $request)
+    {
+        $transaction = $this->loyalty->createTransaction([
+            'card_id' => $request->card_id,
+            'amount' => $request->amount,
+            'points' => (int) $request->amount,
+            'type' => 'earn',
+        ]);
+        
+        return response()->json($transaction);
+    }
+}
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="QR Features" icon="qrcode" href="/sdk/php/qr-features">
+    QR Login and Card Scan
+  </Card>
+  
+  <Card title="API Reference" icon="book" href="/api-reference/endpoints/shop/overview">
+    Full API documentation
+  </Card>
+</CardGroup>

@@ -98,32 +98,39 @@
         ]
       },
       {
-        "tab": "JavaScript SDK",
+        "tab": "SDKs",
         "groups": [
           {
-            "group": "Getting Started",
+            "group": "Overview",
+            "pages": [
+              "sdk/overview"
+            ]
+          },
+          {
+            "group": "JavaScript SDK",
             "pages": [
               "sdk/javascript/installation",
-              "sdk/javascript/usage"
-            ]
-          },
-          {
-            "group": "Features",
-            "pages": [
+              "sdk/javascript/usage",
               "sdk/javascript/qr-login",
-              "sdk/javascript/qr-card-scan"
-            ]
-          },
-          {
-            "group": "React",
-            "pages": [
-              "sdk/javascript/react-components"
-            ]
-          },
-          {
-            "group": "Resources",
-            "pages": [
+              "sdk/javascript/qr-card-scan",
+              "sdk/javascript/react-components",
               "sdk/javascript/examples"
+            ]
+          },
+          {
+            "group": "PHP SDK",
+            "pages": [
+              "sdk/php/installation",
+              "sdk/php/usage",
+              "sdk/php/qr-features"
+            ]
+          },
+          {
+            "group": "Python SDK",
+            "pages": [
+              "sdk/python/installation",
+              "sdk/python/usage",
+              "sdk/python/qr-features"
             ]
           }
         ]
@@ -132,23 +139,18 @@
     "global": {
       "anchors": [
         {
-          "anchor": "NPM Package",
-          "href": "https://www.npmjs.com/package/@loyaltylt/sdk",
-          "icon": "npm"
-        },
-        {
-          "anchor": "GitHub",
-          "href": "https://github.com/Loyalty-lt/sdk-javascript",
-          "icon": "github"
-        },
-        {
           "anchor": "Partners Portal",
           "href": "https://partners.loyalty.lt",
           "icon": "users"
         },
         {
+          "anchor": "GitHub",
+          "href": "https://github.com/Loyalty-lt",
+          "icon": "github"
+        },
+        {
           "anchor": "Support",
-          "href": "mailto:info@loyalty.lt",
+          "href": "mailto:developers@loyalty.lt",
           "icon": "envelope"
         }
       ]
@@ -161,12 +163,12 @@
   "navbar": {
     "links": [
       {
-        "label": "Staging API",
-        "href": "https://staging-api.loyalty.lt"
+        "label": "API",
+        "href": "/api-reference/introduction"
       },
       {
-        "label": "Production API",
-        "href": "https://api.loyalty.lt"
+        "label": "SDKs",
+        "href": "/sdk/overview"
       }
     ],
     "primary": {

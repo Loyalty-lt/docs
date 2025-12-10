@@ -1,0 +1,277 @@
+---
+title: "QR Features"
+description: "QR Login and QR Card Scan with Python SDK"
+---
+
+# QR Features
+
+Implement QR-based authentication and customer identification.
+
+## QR Login
+
+Allow customers to authenticate by scanning a QR code.
+
+### Generate QR Session
+
+```python
+session = sdk.generate_qr_login('POS Terminal #1', shop_id=1)
+
+print(session['session_id'])   # Unique session ID
+print(session['qr_code'])      # Deep link for QR code
+print(session['expires_at'])   # Expiration time (5 min)
+```
+
+### Display QR Code
+
+```python
+from urllib.parse import quote
+
+qr_image_url = f"https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={quote(session['qr_code'])}"
+print(f"<img src='{qr_image_url}'>")
+```
+
+### Poll for Status
+
+```python
+import time
+
+max_attempts = 150  # 5 minutes
+attempt = 0
+
+while attempt < max_attempts:
+    status = sdk.poll_qr_login(session['session_id'])
+    
+    if status['status'] == 'authenticated':
+        user = status['user']
+        token = status['token']
+        print(f"Welcome, {user['name']}")
+        break
+    elif status['status'] == 'scanned':
+        print("QR scanned, waiting for confirmation...")
+    elif status['status'] == 'expired':
+        print("Session expired")
+        break
+    
+    time.sleep(2)
+    attempt += 1
+```
+
+### Real-time with Ably
+
+```python
+# Get Ably token
+ably_token = sdk.get_ably_token(session['session_id'])
+
+# Use with Ably Python client
+print(ably_token['token'])
+print(ably_token['channel'])
+```
+
+## QR Card Scan (POS)
+
+Identify customers by displaying a QR code.
+
+### Generate Session
+
+```python
+session = sdk.generate_qr_card_session('POS Terminal', shop_id=1)
+
+print(session['session_id'])
+print(session['qr_code'])
+print(session['expires_at'])
+```
+
+### Poll for Customer
+
+```python
+import time
+
+while True:
+    result = sdk.poll_qr_card_status(session['session_id'])
+    
+    if result['status'] == 'completed':
+        card = result['card_data']
+        
+        print(f"Customer: {card['user']['name']}")
+        print(f"Card: {card['card_number']}")
+        print(f"Points: {card['points_balance']}")
+        
+        # Process transaction
+        sdk.create_transaction(
+            card_id=card['id'],
+            amount=order_total,
+            points=int(order_total),
+            transaction_type='earn'
+        )
+        break
+    
+    if result['status'] == 'expired':
+        # Regenerate QR
+        break
+    
+    time.sleep(2)
+```
+
+## Send App Link
+
+```python
+sdk.send_app_link(
+    phone='+37060000000',
+    shop_id=1,
+    customer_name='Jonas',
+    language='lt'
+)
+```
+
+## Complete POS Example
+
+```python
+from loyalty_sdk import LoyaltySDK, LoyaltyAPIError
+from urllib.parse import quote
+import time
+import os
+
+class POSSystem:
+    def __init__(self):
+        self.sdk = LoyaltySDK(
+            api_key=os.environ['LOYALTY_API_KEY'],
+            api_secret=os.environ['LOYALTY_API_SECRET']
+        )
+        self.current_customer = None
+        self.qr_session = None
+    
+    def start_customer_identification(self) -> dict:
+        """Generate QR code for customer identification."""
+        self.qr_session = self.sdk.generate_qr_card_session('POS')
+        
+        return {
+            'qr_url': f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={quote(self.qr_session['qr_code'])}",
+            'session_id': self.qr_session['session_id'],
+            'expires_at': self.qr_session['expires_at']
+        }
+    
+    def check_customer_status(self) -> dict | None:
+        """Poll for customer identification."""
+        if not self.qr_session:
+            return None
+        
+        result = self.sdk.poll_qr_card_status(self.qr_session['session_id'])
+        
+        if result['status'] == 'completed':
+            self.current_customer = result['card_data']
+            return self.current_customer
+        
+        return None
+    
+    def wait_for_customer(self, timeout: int = 300) -> dict | None:
+        """Wait for customer to scan QR code."""
+        self.start_customer_identification()
+        
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            customer = self.check_customer_status()
+            if customer:
+                return customer
+            time.sleep(2)
+        
+        return None
+    
+    def process_checkout(self, total: float) -> dict:
+        """Process checkout and award points."""
+        if not self.current_customer:
+            raise Exception('No customer identified')
+        
+        points_to_award = int(total * 10)  # 10 points per €1
+        
+        transaction = self.sdk.create_transaction(
+            card_id=self.current_customer['id'],
+            amount=total,
+            points=points_to_award,
+            transaction_type='earn',
+            description='Purchase',
+            reference=f'POS-{int(time.time())}'
+        )
+        
+        return {
+            'transaction_id': transaction['id'],
+            'points_awarded': points_to_award,
+            'customer': self.current_customer['user']['name']
+        }
+    
+    def redeem_points(self, points: int) -> dict:
+        """Redeem customer points."""
+        if not self.current_customer:
+            raise Exception('No customer identified')
+        
+        return self.sdk.deduct_points(
+            card_id=self.current_customer['id'],
+            points=points,
+            description='Points redemption'
+        )
+    
+    def clear_customer(self):
+        """Clear current customer."""
+        self.current_customer = None
+        self.qr_session = None
+
+
+# Usage
+if __name__ == '__main__':
+    pos = POSSystem()
+    
+    print("Waiting for customer...")
+    customer = pos.wait_for_customer(timeout=60)
+    
+    if customer:
+        print(f"Customer identified: {customer['user']['name']}")
+        print(f"Current points: {customer['points_balance']}")
+        
+        # Process checkout
+        result = pos.process_checkout(total=45.50)
+        print(f"Awarded {result['points_awarded']} points")
+        
+        pos.clear_customer()
+    else:
+        print("No customer identified")
+```
+
+## Async Support
+
+For async frameworks like FastAPI:
+
+```python
+import asyncio
+from loyalty_sdk import LoyaltySDK
+
+async def wait_for_customer_async(sdk: LoyaltySDK, session_id: str, timeout: int = 300):
+    """Async version of customer wait."""
+    import time
+    start = time.time()
+    
+    while time.time() - start < timeout:
+        result = sdk.poll_qr_card_status(session_id)
+        
+        if result['status'] == 'completed':
+            return result['card_data']
+        
+        await asyncio.sleep(2)
+    
+    return None
+```
+
+## Events Reference
+
+| Event | Description |
+|-------|-------------|
+| `status_update` | QR Login status changed |
+| `card_identified` | Customer scanned QR Card |
+
+### Status Values
+
+| Status | Description |
+|--------|-------------|
+| `pending` | Waiting for scan |
+| `scanned` | QR scanned, waiting confirmation |
+| `authenticated` | Login successful |
+| `completed` | Card identified |
+| `expired` | Session expired |

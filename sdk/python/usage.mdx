@@ -1,0 +1,280 @@
+---
+title: "Basic Usage"
+description: "Learn how to use the Loyalty.lt Python SDK"
+---
+
+# Basic Usage
+
+Common operations with the Python SDK.
+
+## Initialization
+
+```python
+from loyalty_sdk import LoyaltySDK
+
+sdk = LoyaltySDK(
+    api_key='lty_your_api_key',
+    api_secret='your_api_secret',
+    environment='production',
+    locale='lt',
+    debug=True  # Enable for development
+)
+```
+
+## Shops
+
+```python
+# Get all shops
+shops = sdk.get_shops()
+print(shops['data'])  # List of shops
+print(shops['meta'])  # Pagination info
+
+# Filter shops
+active_shops = sdk.get_shops(is_active=True, is_virtual=False)
+```
+
+## Loyalty Cards
+
+```python
+# Get all cards
+cards = sdk.get_loyalty_cards()
+
+# Get single card
+card = sdk.get_loyalty_card(123)
+
+# Get card by number
+card_info = sdk.get_loyalty_card_info(card_number='LOYALTY123456')
+
+# Get points balance
+balance = sdk.get_points_balance(card_id=123)
+print(f"Points: {balance['current_points']}")
+```
+
+## Transactions & Points
+
+### Create Transaction (Award Points)
+
+```python
+transaction = sdk.create_transaction(
+    card_id=123,
+    amount=50.00,
+    points=50,
+    transaction_type='earn',
+    description='Purchase reward',
+    reference='ORDER-12345'
+)
+
+print(f"Transaction ID: {transaction['id']}")
+print(f"Points awarded: {transaction['points']}")
+```
+
+### Deduct Points
+
+```python
+result = sdk.deduct_points(
+    card_id=123,
+    points=100,
+    description='Points redemption for discount'
+)
+```
+
+### Get Transactions
+
+```python
+transactions = sdk.get_transactions(
+    card_id=123,
+    type='earn',
+    page=1,
+    per_page=20
+)
+```
+
+## Offers
+
+```python
+# Get offers
+offers = sdk.get_offers(is_active=True)
+
+# Get single offer
+offer = sdk.get_offer(456)
+
+# Create offer
+new_offer = sdk.create_offer(
+    title='Summer Sale',
+    description='20% off all items',
+    discount_type='percentage',
+    discount_value=20
+)
+
+# Update offer
+sdk.update_offer(456, title='Updated Title')
+
+# Delete offer
+sdk.delete_offer(456)
+
+# Get categories
+categories = sdk.get_categories()
+```
+
+## XML Import
+
+```python
+# Import from URL
+result = sdk.import_from_url(
+    'https://example.com/offers.xml',
+    auto_publish=True
+)
+
+# Validate XML
+validation = sdk.validate_xml('https://example.com/offers.xml')
+
+# Get import stats
+stats = sdk.get_import_stats()
+```
+
+## Error Handling
+
+```python
+from loyalty_sdk import LoyaltySDKError, LoyaltyAPIError
+
+try:
+    result = sdk.deduct_points(card_id=123, points=10000)
+except LoyaltyAPIError as e:
+    print(f"Error: {e.message}")
+    print(f"Code: {e.code}")
+    print(f"HTTP Status: {e.http_status}")
+    
+    # Handle specific errors
+    if e.code == 'INSUFFICIENT_POINTS':
+        print("Not enough points!")
+    elif e.code == 'CARD_NOT_FOUND':
+        print("Card not found!")
+        
+except LoyaltySDKError as e:
+    print(f"SDK Error: {e}")
+```
+
+## Django Integration
+
+### Settings
+
+```python
+# settings.py
+import os
+
+LOYALTY_API_KEY = os.environ.get('LOYALTY_API_KEY')
+LOYALTY_API_SECRET = os.environ.get('LOYALTY_API_SECRET')
+LOYALTY_ENVIRONMENT = os.environ.get('LOYALTY_ENVIRONMENT', 'production')
+```
+
+### Service
+
+```python
+# services/loyalty.py
+from loyalty_sdk import LoyaltySDK
+from django.conf import settings
+
+def get_loyalty_sdk():
+    return LoyaltySDK(
+        api_key=settings.LOYALTY_API_KEY,
+        api_secret=settings.LOYALTY_API_SECRET,
+        environment=settings.LOYALTY_ENVIRONMENT
+    )
+```
+
+### View
+
+```python
+# views.py
+from django.http import JsonResponse
+from .services.loyalty import get_loyalty_sdk
+
+def award_points(request):
+    sdk = get_loyalty_sdk()
+    
+    transaction = sdk.create_transaction(
+        card_id=request.POST['card_id'],
+        amount=float(request.POST['amount']),
+        points=int(request.POST['amount']),
+        transaction_type='earn'
+    )
+    
+    return JsonResponse(transaction)
+```
+
+## Flask Integration
+
+```python
+from flask import Flask, jsonify, request
+from loyalty_sdk import LoyaltySDK
+import os
+
+app = Flask(__name__)
+
+sdk = LoyaltySDK(
+    api_key=os.environ['LOYALTY_API_KEY'],
+    api_secret=os.environ['LOYALTY_API_SECRET']
+)
+
+@app.route('/award-points', methods=['POST'])
+def award_points():
+    data = request.json
+    
+    transaction = sdk.create_transaction(
+        card_id=data['card_id'],
+        amount=data['amount'],
+        points=data['points'],
+        transaction_type='earn'
+    )
+    
+    return jsonify(transaction)
+
+if __name__ == '__main__':
+    app.run()
+```
+
+## FastAPI Integration
+
+```python
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from loyalty_sdk import LoyaltySDK, LoyaltyAPIError
+import os
+
+app = FastAPI()
+
+sdk = LoyaltySDK(
+    api_key=os.environ['LOYALTY_API_KEY'],
+    api_secret=os.environ['LOYALTY_API_SECRET']
+)
+
+class PointsRequest(BaseModel):
+    card_id: int
+    amount: float
+    points: int
+
+@app.post('/award-points')
+async def award_points(data: PointsRequest):
+    try:
+        transaction = sdk.create_transaction(
+            card_id=data.card_id,
+            amount=data.amount,
+            points=data.points,
+            transaction_type='earn'
+        )
+        return transaction
+    except LoyaltyAPIError as e:
+        raise HTTPException(status_code=e.http_status, detail=e.message)
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="QR Features" icon="qrcode" href="/sdk/python/qr-features">
+    QR Login and Card Scan
+  </Card>
+  
+  <Card title="API Reference" icon="book" href="/api-reference/endpoints/shop/overview">
+    Full API documentation
+  </Card>
+</CardGroup>

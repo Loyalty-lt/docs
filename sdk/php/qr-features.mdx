@@ -1,0 +1,243 @@
+---
+title: "QR Features"
+description: "QR Login and QR Card Scan with PHP SDK"
+---
+
+# QR Features
+
+Implement QR-based authentication and customer identification.
+
+## QR Login
+
+Allow customers to authenticate by scanning a QR code with their Loyalty.lt mobile app.
+
+### Generate QR Session
+
+```php
+$session = $sdk->generateQrLogin('POS Terminal #1', $shopId);
+
+echo $session['session_id'];   // Unique session ID
+echo $session['qr_code'];      // Deep link for QR code
+echo $session['expires_at'];   // Expiration time (5 min)
+```
+
+### Display QR Code
+
+```php
+// Generate QR image URL
+$qrImageUrl = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" 
+    . urlencode($session['qr_code']);
+
+echo "<img src='{$qrImageUrl}' alt='Scan to login'>";
+```
+
+### Poll for Status
+
+```php
+// Poll every 2 seconds until authenticated or expired
+$maxAttempts = 150; // 5 minutes
+$attempt = 0;
+
+while ($attempt < $maxAttempts) {
+    $status = $sdk->pollQrLogin($session['session_id']);
+    
+    switch ($status['status']) {
+        case 'authenticated':
+            $user = $status['user'];
+            $token = $status['token'];
+            echo "Welcome, " . $user['name'];
+            break 2;
+            
+        case 'scanned':
+            echo "QR scanned, waiting for confirmation...";
+            break;
+            
+        case 'expired':
+            echo "Session expired";
+            break 2;
+    }
+    
+    sleep(2);
+    $attempt++;
+}
+```
+
+### Real-time with Ably
+
+```php
+// Get Ably token for real-time updates
+$ablyToken = $sdk->getAblyToken($session['session_id']);
+
+// Use with Ably PHP client
+echo $ablyToken['token'];
+echo $ablyToken['channel'];
+```
+
+## QR Card Scan (POS)
+
+Identify customers by displaying a QR code that they scan with their app.
+
+### Generate Session
+
+```php
+$session = $sdk->generateQrCardSession('POS Terminal', $shopId);
+
+echo $session['session_id'];
+echo $session['qr_code'];
+echo $session['expires_at'];
+```
+
+### Display & Poll
+
+```php
+// Display QR
+$qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" 
+    . urlencode($session['qr_code']);
+
+// Poll for customer identification
+while (true) {
+    $result = $sdk->pollQrCardStatus($session['session_id']);
+    
+    if ($result['status'] === 'completed') {
+        $card = $result['card_data'];
+        
+        echo "Customer: " . $card['user']['name'];
+        echo "Card: " . $card['card_number'];
+        echo "Points: " . $card['points_balance'];
+        
+        // Process transaction
+        $sdk->createTransaction([
+            'card_id' => $card['id'],
+            'amount' => $orderTotal,
+            'points' => (int) $orderTotal,
+            'type' => 'earn',
+        ]);
+        
+        break;
+    }
+    
+    if ($result['status'] === 'expired') {
+        // Regenerate QR
+        break;
+    }
+    
+    sleep(2);
+}
+```
+
+## Send App Link
+
+Send app download link if customer doesn't have the app:
+
+```php
+$sdk->sendAppLink(
+    '+37060000000',  // Phone number
+    $shopId,         // Optional shop ID  
+    'Jonas',         // Optional customer name
+    'lt'             // Language (lt/en)
+);
+```
+
+## Complete POS Example
+
+```php
+<?php
+
+use LoyaltyLt\SDK\LoyaltySDK;
+use LoyaltyLt\SDK\Exceptions\LoyaltySDKException;
+
+class POSController
+{
+    private LoyaltySDK $sdk;
+    private ?array $currentCustomer = null;
+    private ?array $qrSession = null;
+    
+    public function __construct()
+    {
+        $this->sdk = new LoyaltySDK([
+            'apiKey' => env('LOYALTY_API_KEY'),
+            'apiSecret' => env('LOYALTY_API_SECRET'),
+        ]);
+    }
+    
+    public function startCustomerIdentification(): array
+    {
+        $this->qrSession = $this->sdk->generateQrCardSession('POS');
+        
+        return [
+            'qr_url' => "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" 
+                . urlencode($this->qrSession['qr_code']),
+            'session_id' => $this->qrSession['session_id'],
+            'expires_at' => $this->qrSession['expires_at'],
+        ];
+    }
+    
+    public function checkCustomerStatus(): ?array
+    {
+        if (!$this->qrSession) return null;
+        
+        $result = $this->sdk->pollQrCardStatus($this->qrSession['session_id']);
+        
+        if ($result['status'] === 'completed') {
+            $this->currentCustomer = $result['card_data'];
+            return $this->currentCustomer;
+        }
+        
+        return null;
+    }
+    
+    public function processCheckout(float $total): array
+    {
+        if (!$this->currentCustomer) {
+            throw new \Exception('No customer identified');
+        }
+        
+        $pointsToAward = (int) ($total * 10); // 10 points per €1
+        
+        $transaction = $this->sdk->createTransaction([
+            'card_id' => $this->currentCustomer['id'],
+            'amount' => $total,
+            'points' => $pointsToAward,
+            'type' => 'earn',
+            'description' => 'Purchase',
+            'reference' => 'POS-' . time(),
+        ]);
+        
+        return [
+            'transaction_id' => $transaction['id'],
+            'points_awarded' => $pointsToAward,
+            'customer' => $this->currentCustomer['user']['name'],
+        ];
+    }
+    
+    public function redeemPoints(int $points): array
+    {
+        if (!$this->currentCustomer) {
+            throw new \Exception('No customer identified');
+        }
+        
+        return $this->sdk->deductPoints(
+            $this->currentCustomer['id'],
+            $points,
+            'Points redemption'
+        );
+    }
+}
+```
+
+## Ably Events Reference
+
+| Event | Description |
+|-------|-------------|
+| `status_update` | QR Login status changed |
+| `card_identified` | Customer scanned QR Card |
+
+### Status Values
+
+| Status | Description |
+|--------|-------------|
+| `pending` | Waiting for scan |
+| `scanned` | QR scanned, waiting confirmation |
+| `authenticated` | Login successful |
+| `completed` | Card identified |
+| `expired` | Session expired |

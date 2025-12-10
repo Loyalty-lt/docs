@@ -1,0 +1,102 @@
+---
+title: "SDK Overview"
+description: "Official Loyalty.lt SDKs for Partner API integration"
+---
+
+# Loyalty.lt SDKs
+
+Official SDKs for integrating with the Loyalty.lt Partner API. Choose your preferred language:
+
+<CardGroup cols={3}>
+  <Card title="JavaScript / TypeScript" icon="js" href="/sdk/javascript/installation">
+    Full-featured SDK with React components. Perfect for web apps, Node.js backends, and POS systems.
+    
+    ```bash
+    npm install @loyaltylt/sdk
+    ```
+  </Card>
+  
+  <Card title="PHP" icon="php" href="/sdk/php/installation">
+    Native PHP SDK for Laravel, Symfony, and custom PHP applications.
+    
+    ```bash
+    composer require loyaltylt/sdk
+    ```
+  </Card>
+  
+  <Card title="Python" icon="python" href="/sdk/python/installation">
+    Python SDK for Django, Flask, FastAPI, and data processing pipelines.
+    
+    ```bash
+    pip install loyaltylt-sdk
+    ```
+  </Card>
+</CardGroup>
+
+## Features
+
+All SDKs provide access to:
+
+<AccordionGroup>
+  <Accordion title="QR Login" icon="qrcode">
+    Allow customers to authenticate on your website or POS by scanning a QR code with their Loyalty.lt mobile app.
+  </Accordion>
+  
+  <Accordion title="QR Card Scan" icon="credit-card">
+    Identify customers at POS terminals. Display a QR code, customer scans it, and you receive their loyalty card data instantly.
+  </Accordion>
+  
+  <Accordion title="Points & Transactions" icon="coins">
+    Award points for purchases, deduct points for redemptions, and track transaction history.
+  </Accordion>
+  
+  <Accordion title="Offers Management" icon="tag">
+    Create, update, and manage promotional offers. Import offers from XML feeds.
+  </Accordion>
+  
+  <Accordion title="Real-time Updates" icon="bolt">
+    Use Ably WebSocket integration for instant notifications when customers scan QR codes.
+  </Accordion>
+</AccordionGroup>
+
+## Quick Comparison
+
+| Feature | JavaScript | PHP | Python |
+|---------|------------|-----|--------|
+| QR Login | Yes | Yes | Yes |
+| QR Card Scan | Yes | Yes | Yes |
+| Transactions | Yes | Yes | Yes |
+| Offers | Yes | Yes | Yes |
+| XML Import | Yes | Yes | Yes |
+| React Components | Yes | - | - |
+| TypeScript | Yes | - | Yes (types) |
+
+## Authentication
+
+All SDKs use Partner API credentials:
+
+```
+X-API-Key: lty_xxxxxxxxxxxx
+X-API-Secret: your_api_secret
+```
+
+Get your credentials from [Partners Portal](https://partners.loyalty.lt) → Settings → API Credentials.
+
+## API Environments
+
+| Environment | Base URL |
+|-------------|----------|
+| **Production** | `https://api.loyalty.lt` |
+| **Staging** | `https://staging-api.loyalty.lt` |
+
+## Need Help?
+
+<CardGroup cols={2}>
+  <Card title="API Reference" icon="book" href="/api-reference/introduction">
+    Complete REST API documentation
+  </Card>
+  
+  <Card title="Support" icon="envelope" href="mailto:developers@loyalty.lt">
+    Contact our developer support team
+  </Card>
+</CardGroup>

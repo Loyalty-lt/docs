@@ -1,276 +1,169 @@
 ---
-title: "API Reference"
-description: "Complete reference for the Loyalty.lt API with authentication, shop integration, and partner management endpoints"
+title: "Introduction"
+description: "Loyalty.lt Partner API for loyalty program integrations"
 ---
 
-# Loyalty.lt API Reference
+# Loyalty.lt Partner API
 
-Welcome to the comprehensive Loyalty.lt API documentation. Our REST API enables you to integrate loyalty programs, manage customer relationships, and build powerful e-commerce experiences.
-
-<Info>
-**Interactive Documentation**: All API endpoints below are automatically generated from our OpenAPI specification. You can test endpoints directly in your browser with real API responses.
-</Info>
-
-## API Overview
-
-The Loyalty.lt Shop API provides integration endpoints for custom systems and applications:
-
-### Shop Integration APIs
-Direct integration endpoints for custom systems, POS systems, and customer-facing applications.
-
-**Primary Use Cases:**
-- Custom e-commerce integrations
-- POS system connectivity
-- Mobile app backends
-- Customer loyalty portals
-
-<Note>
-For popular e-commerce platforms (WooCommerce, Shopify, PrestaShop, Magento, OpenCart), we provide ready-made plugins: [loyalty.lt/partneriams/integracijos](https://loyalty.lt/partneriams/integracijos)
-</Note>
-
-**Key Features:**
-- QR code login for custom shop plugins
-- Loyalty card management
-- Points earning and redemption
-- Transaction history
-
-**Base Path:** `/{locale}/shop/`
+Welcome to the Loyalty.lt Partner API documentation. This API enables you to integrate loyalty program features into your applications, POS systems, and e-commerce platforms.
 
 ## Base URLs
 
-| Environment | URL | Description |
-|-------------|-----|-------------|
-| **Staging** | `https://staging-api.loyalty.lt` | Development and testing |
-| **Production** | `https://api.loyalty.lt` | Live production environment |
-
-All endpoints require a locale parameter (e.g., `en`, `lt`) in the URL path.
-
-## Authentication Methods
-
 <Tabs>
-<Tab title="API Credentials">
-**Server-side authentication** for backend integrations:
-
-```bash
-curl -X GET "https://staging-api.loyalty.lt/en/shop/loyalty-cards" \
-  -H "X-API-Key: your_api_key" \
-  -H "X-API-Secret: your_api_secret"
-```
-
-Use for:
-- E-commerce platform integrations
-- Server-to-server communication
-- Automated systems and cron jobs
-</Tab>
-
-<Tab title="JWT Tokens">
-**User session authentication** for customer-facing features:
-
-```bash
-curl -X GET "https://staging-api.loyalty.lt/en/shop/auth/me" \
-  -H "Authorization: Bearer jwt_token_here"
-```
-
-Use for:
-- Mobile apps
-- Customer portals
-- User-specific operations
-</Tab>
+  <Tab title="Production">
+    ```
+    https://api.loyalty.lt/{locale}/shop/
+    ```
+    
+    Use for live integrations with real customer data.
+  </Tab>
+  
+  <Tab title="Staging">
+    ```
+    https://staging-api.loyalty.lt/{locale}/shop/
+    ```
+    
+    Use for development and testing. Test data only.
+  </Tab>
 </Tabs>
 
-## Rate Limits
+**Locale**: `lt` (Lithuanian) or `en` (English)
 
-| Authentication Type | Limit | Identification | Notes |
-|-------------------|-------|----------------|-------|
-| API Credentials | 60/min | Per API Key | Standard for all partners |
-| JWT Tokens | 60/min | Per User ID | Per authenticated user session |
-| Unauthenticated | 60/min | Per IP Address | Public endpoints only |
+## Authentication
 
-<Warning>
-Exceeding rate limits returns HTTP 429 (Too Many Requests). Implement exponential backoff for retries.
-</Warning>
+All Partner API endpoints require authentication via HTTP headers:
+
+```bash
+curl -X GET 'https://api.loyalty.lt/lt/shop/shops' \
+  -H 'X-API-Key: lty_your_api_key' \
+  -H 'X-API-Secret: your_api_secret' \
+  -H 'Content-Type: application/json'
+```
+
+| Header | Description |
+|--------|-------------|
+| `X-API-Key` | Your Partner API Key (starts with `lty_`) |
+| `X-API-Secret` | Your Partner API Secret |
+| `Content-Type` | `application/json` |
+
+<Info>
+Get your API credentials from [Partners Portal](https://partners.loyalty.lt) → Settings → API Credentials.
+</Info>
 
 ## Response Format
 
-All API endpoints return consistent JSON responses with these fields:
+All responses follow a consistent JSON structure:
 
-**Success Response:**
+### Success Response
+
 ```json
 {
   "success": true,
   "code": 200,
-  "request_id": "550e8400-e29b-41d4-a716-446655440000",
-  "message": "Operation completed successfully",
-  "data": {
-    // Response data object
-  }
+  "request_id": "abc-123-def",
+  "data": { ... }
 }
 ```
 
-**Error Response:**
+### Paginated Response
+
+```json
+{
+  "success": true,
+  "code": 200,
+  "request_id": "abc-123-def",
+  "meta": {
+    "current_page": 1,
+    "last_page": 5,
+    "per_page": 15,
+    "total": 73
+  },
+  "data": [ ... ]
+}
+```
+
+### Error Response
+
 ```json
 {
   "success": false,
-  "code": 1100,
-  "request_id": "550e8400-e29b-41d4-a716-446655440000",
-  "message": "Validation failed",
+  "code": 400,
+  "message": "Validation error",
   "errors": {
-    "phone": ["The phone field is required."]
+    "card_id": ["The card_id field is required."]
   }
 }
 ```
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `success` | boolean | `true` for success, `false` for errors |
-| `code` | integer | HTTP status code (2xx) or error code (1xxx+) |
-| `request_id` | string | Unique UUID for request tracking |
-| `message` | string | Human-readable status message |
-| `data` | object | Response payload (optional) |
-| `errors` | object | Validation errors by field (optional) |
+## API Categories
 
-## Error Codes
-
-API uses numeric error codes for programmatic error handling:
-
-<Accordion title="Authentication Errors (1000-1099)">
-| Code | Name | Description |
-|------|------|-------------|
-| 1000 | AUTH_INVALID_CREDENTIALS | Invalid credentials |
-| 1001 | AUTH_TOKEN_EXPIRED | Authentication token expired |
-| 1002 | AUTH_TOKEN_INVALID | Invalid authentication token |
-| 1004 | AUTH_UNAUTHORIZED | Unauthorized access |
-| 1005 | AUTH_FORBIDDEN | Access forbidden |
-| 1007 | AUTH_REQUIRED | Authentication required |
-| 1010 | API_CREDENTIALS_MISSING | API credentials missing |
-| 1012 | API_KEY_NOT_FOUND | API key not found |
-| 1013 | API_SECRET_INVALID | Invalid API secret |
-</Accordion>
-
-<Accordion title="Validation Errors (1100-1199)">
-| Code | Name | Description |
-|------|------|-------------|
-| 1100 | VALIDATION_FAILED | Validation failed |
-| 1101 | VALIDATION_REQUIRED_FIELD | Required field missing |
-| 1102 | VALIDATION_INVALID_FORMAT | Invalid data format |
-| 1103 | VALIDATION_UNIQUE_CONSTRAINT | Unique constraint violation |
-</Accordion>
-
-<Accordion title="Resource Errors (1200-1299)">
-| Code | Name | Description |
-|------|------|-------------|
-| 1200 | RESOURCE_NOT_FOUND | Resource not found |
-| 1201 | RESOURCE_ALREADY_EXISTS | Resource already exists |
-| 1202 | RESOURCE_CONFLICT | Resource conflict |
-| 1204 | RESOURCE_EXPIRED | Resource has expired |
-</Accordion>
-
-<Accordion title="Business Logic Errors (1300-1399)">
-| Code | Name | Description |
-|------|------|-------------|
-| 1300 | BUSINESS_CARD_BLOCKED | Card is blocked |
-| 1301 | BUSINESS_INSUFFICIENT_BALANCE | Insufficient balance |
-| 1302 | BUSINESS_OPERATION_NOT_ALLOWED | Operation not allowed |
-| 1303 | BUSINESS_LIMIT_EXCEEDED | Limit exceeded |
-| 1304 | BUSINESS_INSUFFICIENT_POINTS | Insufficient loyalty points |
-| 2001 | COUPON_ALREADY_USED | Coupon has already been used |
-| 2002 | COUPON_EXPIRED | Coupon has expired |
-| 2003 | OFFER_INACTIVE | Offer is inactive |
-| 2004 | OFFER_EXPIRED | Offer has expired |
-| 2006 | INSUFFICIENT_POINTS | Insufficient points |
-</Accordion>
-
-<Accordion title="System Errors (1400-1699)">
-| Code | Name | Description |
-|------|------|-------------|
-| 1400 | SYSTEM_UNAVAILABLE | System unavailable |
-| 1401 | SYSTEM_INTERNAL_ERROR | Internal system error |
-| 1402 | SYSTEM_MAINTENANCE | System under maintenance |
-| 1609 | RATE_LIMIT_EXCEEDED | Rate limit exceeded |
-</Accordion>
-
-## HTTP Status Codes
-
-| Code | Meaning | Usage |
-|------|---------|-------|
-| **200** | OK | Successful GET, PUT, PATCH |
-| **201** | Created | Successful POST (resource created) |
-| **400** | Bad Request | Validation errors, malformed requests |
-| **401** | Unauthorized | Missing or invalid authentication |
-| **403** | Forbidden | Insufficient permissions |
-| **404** | Not Found | Resource doesn't exist |
-| **422** | Unprocessable Entity | Business logic validation failed |
-| **429** | Too Many Requests | Rate limit exceeded |
-| **500** | Internal Server Error | Server-side errors (rare) |
-
-## Pagination
-
-List endpoints return paginated data with metadata in a separate `meta` field:
-
-```json
-{
-  "success": true,
-  "code": 200,
-  "request_id": "550e8400-e29b-41d4-a716-446655440000",
-  "meta": {
-    "current_page": 1,
-    "per_page": 15,
-    "total": 150,
-    "last_page": 10
-  },
-  "data": [
-    { "id": 1, "name": "Item 1" },
-    { "id": 2, "name": "Item 2" }
-  ]
-}
-```
-
-**Query Parameters:**
-- `page` - Page number (default: 1)
-- `per_page` - Items per page (default: 15, max: 50)
-
-## Filtering and Sorting
-
-Most list endpoints support filtering and sorting:
-
-```bash
-# Filter and sort examples
-GET /en/shop/transactions?type=points&status=completed&sort=-created_at
-GET /en/shop/offers?category=food&featured=true&page=2
-```
-
-## Getting Started
-
-<Steps>
-<Step title="Get API Credentials">
-  1. Sign up for a Partner account at [partners.loyalty.lt](https://partners.loyalty.lt)
-  2. Navigate to **API Credentials** in the sidebar menu
-  3. Click **Create Credential** to generate your API key and secret
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="key" href="/api-reference/endpoints/shop/auth/qr-login">
+    QR Login, QR Card Scan, credential validation
+  </Card>
   
-  Direct link: [partners.loyalty.lt/lt/api-credentials](https://partners.loyalty.lt/lt/api-credentials)
-</Step>
+  <Card title="Shops" icon="store" href="/api-reference/endpoints/shop/shops/list">
+    List and manage partner shops
+  </Card>
+  
+  <Card title="Loyalty Cards" icon="credit-card" href="/api-reference/endpoints/shop/loyalty-cards/list">
+    Card lookup, balance queries
+  </Card>
+  
+  <Card title="Transactions" icon="coins" href="/api-reference/endpoints/shop/transactions/create">
+    Award points, deduct points, transaction history
+  </Card>
+  
+  <Card title="Offers" icon="tag" href="/api-reference/endpoints/shop/offers/list">
+    Promotional offers and discounts
+  </Card>
+  
+  <Card title="XML Import" icon="file-code" href="/api-reference/endpoints/shop/xml-import/overview">
+    Bulk import offers from XML feeds
+  </Card>
+</CardGroup>
 
-<Step title="Choose Your Environment">
-  - **Staging**: `https://staging-api.loyalty.lt` for testing
-  - **Production**: `https://api.loyalty.lt` for live integration
-</Step>
+## SDKs
 
-<Step title="Test Authentication">
-  ```bash
-  curl -X GET "https://staging-api.loyalty.lt/shop/health" \
-    -H "X-API-Key: your_api_key" \
-    -H "X-API-Secret: your_api_secret"
-  ```
-</Step>
+We provide official SDKs to simplify integration:
 
-<Step title="Explore Endpoints">
-  Use the interactive documentation below to test API endpoints and understand responses.
-</Step>
-</Steps>
+<CardGroup cols={3}>
+  <Card title="JavaScript" icon="js" href="/sdk/javascript/installation">
+    npm install @loyaltylt/sdk
+  </Card>
+  
+  <Card title="PHP" icon="php" href="/sdk/php/installation">
+    composer require loyaltylt/sdk
+  </Card>
+  
+  <Card title="Python" icon="python" href="/sdk/python/installation">
+    pip install loyaltylt-sdk
+  </Card>
+</CardGroup>
+
+## Rate Limits
+
+| Tier | Requests/Hour | Requests/Minute |
+|------|---------------|-----------------|
+| Standard | 1,000 | 60 |
+| Premium | 10,000 | 300 |
+
+Rate limit headers are included in all responses:
+
+```
+X-RateLimit-Limit: 1000
+X-RateLimit-Remaining: 847
+X-RateLimit-Reset: 1703707200
+```
 
 ## Support
 
-For API support and questions:
-
-- **Email:** info@loyalty.lt
-- **Partners Portal:** [partners.loyalty.lt](https://partners.loyalty.lt)
+<CardGroup cols={2}>
+  <Card title="Developer Support" icon="envelope" href="mailto:developers@loyalty.lt">
+    developers@loyalty.lt
+  </Card>
+  
+  <Card title="Partners Portal" icon="users" href="https://partners.loyalty.lt">
+    Manage your integration
+  </Card>
+</CardGroup>

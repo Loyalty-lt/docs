@@ -1,0 +1,84 @@
+---
+title: "Installation"
+description: "Install the official Loyalty.lt Python SDK"
+---
+
+# Installation
+
+The official Loyalty.lt Python SDK for Partner API integration.
+
+## pip
+
+```bash
+pip install loyaltylt-sdk
+```
+
+## Requirements
+
+- Python 3.8+
+- requests library (installed automatically)
+
+## Quick Start
+
+```python
+from loyalty_sdk import LoyaltySDK
+
+sdk = LoyaltySDK(
+    api_key='lty_your_api_key',
+    api_secret='your_api_secret',
+    environment='production',  # or 'staging'
+    locale='lt'
+)
+
+# Test connection
+shops = sdk.get_shops()
+print(shops['data'])
+```
+
+## Configuration Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `api_key` | str | required | Partner API Key |
+| `api_secret` | str | required | Partner API Secret |
+| `environment` | str | `production` | `production` or `staging` |
+| `locale` | str | `lt` | API locale (`lt`, `en`) |
+| `timeout` | int | `30` | Request timeout in seconds |
+| `retries` | int | `3` | Number of retry attempts |
+| `debug` | bool | `False` | Enable debug logging |
+
+## Getting API Credentials
+
+<Steps>
+  <Step title="Access Partners Portal">
+    Go to [partners.loyalty.lt](https://partners.loyalty.lt) and log in.
+  </Step>
+  
+  <Step title="Navigate to API Settings">
+    Click **Settings** → **API Credentials**.
+  </Step>
+  
+  <Step title="Generate Credentials">
+    Click **Generate New Credentials**.
+  </Step>
+  
+  <Step title="Copy Credentials">
+    Copy API Key (`lty_...`) and API Secret. **Store securely!**
+  </Step>
+</Steps>
+
+<Warning>
+Never expose your API Secret in client-side code. Store credentials in environment variables.
+</Warning>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Basic Usage" icon="code" href="/sdk/python/usage">
+    Learn common SDK operations
+  </Card>
+  
+  <Card title="QR Features" icon="qrcode" href="/sdk/python/qr-features">
+    QR Login and Card Scan
+  </Card>
+</CardGroup>
