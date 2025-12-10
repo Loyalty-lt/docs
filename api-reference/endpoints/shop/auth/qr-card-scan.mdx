@@ -286,7 +286,82 @@ channel.subscribe('card_identified', (message) => {
 
 ---
 
-## Poll Session Status
+## Real-time Integration (Ably)
+
+After generating a session and obtaining an Ably token, subscribe to the WebSocket channel to receive card data in real-time.
+
+### Channel Name
+
+```
+qr-card:{session_id}
+```
+
+**Example:** `qr-card:550e8400-e29b-41d4-a716-446655440000`
+
+### Event to Subscribe
+
+| Event Name | Description |
+|------------|-------------|
+| `card_identified` | Customer scanned QR code, card data available |
+
+### Ably Connection Example
+
+```javascript
+import Ably from 'ably';
+
+// 1. Get token from API response
+const { token, channel } = ablyTokenResponse.data;
+
+// 2. Connect to Ably
+const ably = new Ably.Realtime({ token: token });
+
+// 3. Subscribe to channel
+const ablyChannel = ably.channels.get(channel);
+
+// 4. Listen for card identification
+ablyChannel.subscribe('card_identified', (message) => {
+  const { card_data } = message.data;
+  
+  console.log('Customer:', card_data.user.name);
+  console.log('Card:', card_data.card_number);
+  console.log('Points:', card_data.points);
+  
+  // Process customer data...
+});
+```
+
+### Event Payload: `card_identified`
+
+```json
+{
+  "session_id": "550e8400-e29b-41d4-a716-446655440000",
+  "status": "authenticated",
+  "card_data": {
+    "loyalty_card_id": 12345,
+    "card_number": "LT0001234567",
+    "points": 1500,
+    "user": {
+      "id": 789,
+      "name": "Jonas Jonaitis",
+      "email": "jonas@example.com",
+      "phone": "+37060000000"
+    },
+    "redemption": {
+      "enabled": true,
+      "points_per_currency": 100,
+      "currency_amount": 1.00,
+      "min_points": 100,
+      "max_points": 10000
+    },
+    "scanned_at": "2024-12-10T16:02:30.000Z"
+  },
+  "timestamp": "2024-12-10T16:02:30.500Z"
+}
+```
+
+---
+
+## Poll Session Status (Fallback)
 
 Alternative to WebSockets: poll the session status periodically. Use this as a fallback if real-time connection is unavailable.
 
@@ -447,41 +522,6 @@ When a customer scans the QR code, you receive comprehensive loyalty card data:
     </ResponseField>
   </Expandable>
 </ResponseField>
-
----
-
-## Ably Event Structure
-
-When subscribing to the Ably channel, you'll receive the following event:
-
-### Event: `card_identified`
-
-```json
-{
-  "session_id": "550e8400-e29b-41d4-a716-446655440000",
-  "status": "authenticated",
-  "card_data": {
-    "loyalty_card_id": 12345,
-    "card_number": "LT0001234567",
-    "points": 1500,
-    "user": {
-      "id": 789,
-      "name": "Jonas Jonaitis",
-      "email": "jonas@example.com",
-      "phone": "+37060000000"
-    },
-    "redemption": {
-      "enabled": true,
-      "points_per_currency": 100,
-      "currency_amount": 1.00,
-      "min_points": 100,
-      "max_points": 10000
-    },
-    "scanned_at": "2024-12-10T16:02:30.000Z"
-  },
-  "timestamp": "2024-12-10T16:02:30.500Z"
-}
-```
 
 ---
 
