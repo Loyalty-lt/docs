@@ -24,9 +24,9 @@ echo $session['expires_at'];   // Expiration time (5 min)
 ### Display QR Code
 
 ```php
-// Generate QR image URL
-$qrImageUrl = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" 
-    . urlencode($session['qr_code']);
+// Generate QR image URL using Loyalty.lt API
+$qrImageUrl = "https://api.loyalty.lt/qr?data=" 
+    . urlencode($session['qr_code']) . "&size=250";
 
 echo "<img src='{$qrImageUrl}' alt='Scan to login'>";
 ```
@@ -90,9 +90,9 @@ echo $session['expires_at'];
 ### Display & Poll
 
 ```php
-// Display QR
-$qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" 
-    . urlencode($session['qr_code']);
+// Display QR using Loyalty.lt API
+$qrUrl = "https://api.loyalty.lt/qr?data=" 
+    . urlencode($session['qr_code']) . "&size=250";
 
 // Poll for customer identification
 while (true) {
@@ -132,7 +132,7 @@ Send app download link if customer doesn't have the app:
 ```php
 $sdk->sendAppLink(
     '+37060000000',  // Phone number
-    $shopId,         // Optional shop ID  
+    $shopId,         // Shop ID (required)
     'Jonas',         // Optional customer name
     'lt'             // Language (lt/en)
 );
@@ -165,8 +165,8 @@ class POSController
         $this->qrSession = $this->sdk->generateQrCardSession('POS');
         
         return [
-            'qr_url' => "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" 
-                . urlencode($this->qrSession['qr_code']),
+            'qr_url' => "https://api.loyalty.lt/qr?data=" 
+                . urlencode($this->qrSession['qr_code']) . "&size=300",
             'session_id' => $this->qrSession['session_id'],
             'expires_at' => $this->qrSession['expires_at'],
         ];

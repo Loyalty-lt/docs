@@ -26,7 +26,8 @@ print(session['expires_at'])   # Expiration time (5 min)
 ```python
 from urllib.parse import quote
 
-qr_image_url = f"https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={quote(session['qr_code'])}"
+# Generate QR code URL using Loyalty.lt API
+qr_image_url = f"https://api.loyalty.lt/qr?data={quote(session['qr_code'])}&size=250"
 print(f"<img src='{qr_image_url}'>")
 ```
 
@@ -114,12 +115,14 @@ while True:
 
 ## Send App Link
 
+Send app download link if customer doesn't have the app:
+
 ```python
 sdk.send_app_link(
     phone='+37060000000',
-    shop_id=1,
-    customer_name='Jonas',
-    language='lt'
+    shop_id=1,              # Required
+    customer_name='Jonas',  # Optional
+    language='lt'           # Optional, default 'lt'
 )
 ```
 
@@ -145,7 +148,7 @@ class POSSystem:
         self.qr_session = self.sdk.generate_qr_card_session('POS')
         
         return {
-            'qr_url': f"https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={quote(self.qr_session['qr_code'])}",
+            'qr_url': f"https://api.loyalty.lt/qr?data={quote(self.qr_session['qr_code'])}&size=300",
             'session_id': self.qr_session['session_id'],
             'expires_at': self.qr_session['expires_at']
         }

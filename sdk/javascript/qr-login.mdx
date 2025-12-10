@@ -46,10 +46,10 @@ console.log(session.expires_at);  // Expiration time
 ### 2. Display QR Code
 
 ```typescript
-// Generate QR code image URL
-const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(session.qr_code)}`;
+// Generate QR code image URL using Loyalty.lt API
+const qrImageUrl = `https://api.loyalty.lt/qr?data=${encodeURIComponent(session.qr_code)}&size=250`;
 
-// Or use qrcode.react
+// Or use qrcode.react for client-side rendering
 import { QRCodeSVG } from 'qrcode.react';
 
 <QRCodeSVG value={session.qr_code} size={250} />
@@ -172,7 +172,7 @@ If the customer doesn't have the app:
 ```typescript
 await sdk.sendAppLink(
   '+37060000000',    // Phone number
-  shopId,            // Optional shop ID
+  shopId,            // Shop ID (required)
   'John',            // Optional customer name
   'lt'               // Language (lt/en)
 );

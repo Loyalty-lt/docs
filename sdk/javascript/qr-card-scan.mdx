@@ -49,7 +49,8 @@ console.log(session.expires_at);  // Expiration time
 ### 2. Display QR Code
 
 ```typescript
-const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(session.qr_code)}`;
+// Generate QR code image URL using Loyalty.lt API
+const qrImageUrl = `https://api.loyalty.lt/qr?data=${encodeURIComponent(session.qr_code)}&size=250`;
 
 // Update customer display
 document.getElementById('customer-qr').src = qrImageUrl;
