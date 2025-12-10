@@ -164,11 +164,11 @@
     "links": [
       {
         "label": "API",
-        "href": "/api-reference/introduction"
+        "href": "https://docs.loyalty.lt/api-reference/introduction"
       },
       {
         "label": "SDKs",
-        "href": "/sdk/overview"
+        "href": "https://docs.loyalty.lt/sdk/overview"
       }
     ],
     "primary": {
