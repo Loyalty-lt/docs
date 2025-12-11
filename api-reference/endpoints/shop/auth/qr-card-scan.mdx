@@ -338,7 +338,7 @@ ablyChannel.subscribe('card_identified', (message) => {
   "status": "authenticated",
   "card_data": {
     "loyalty_card_id": 12345,
-    "card_number": "LT0001234567",
+    "card_number": "123-456-789",
     "points": 1500,
     "user": {
       "id": 789,
@@ -446,7 +446,7 @@ const interval = setInterval(async () => {
     "status": "authenticated",
     "card_data": {
       "loyalty_card_id": 12345,
-      "card_number": "LT0001234567",
+      "card_number": "123-456-789",
       "points": 1500,
       "user": {
         "id": 789,
@@ -490,7 +490,7 @@ When a customer scans the QR code, you receive comprehensive loyalty card data:
     </ResponseField>
     
     <ResponseField name="card_number" type="string">
-      Formatted card number (e.g., `LT0001234567`)
+      Formatted card number (e.g., `123-456-789`)
     </ResponseField>
     
     <ResponseField name="points" type="integer">

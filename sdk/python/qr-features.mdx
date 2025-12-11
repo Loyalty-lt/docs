@@ -201,17 +201,6 @@ class POSSystem:
             'customer': self.current_customer['user']['name']
         }
     
-    def redeem_points(self, points: int) -> dict:
-        """Redeem customer points."""
-        if not self.current_customer:
-            raise Exception('No customer identified')
-        
-        return self.sdk.deduct_points(
-            card_id=self.current_customer['id'],
-            points=points,
-            description='Points redemption'
-        )
-    
     def clear_customer(self):
         """Clear current customer."""
         self.current_customer = None

@@ -11310,7 +11310,7 @@
                                     "vat_number": {
                                         "description": "VAT number",
                                         "type": "string",
-                                        "example": "LT123456789"
+                                        "example": "123-456-789"
                                     },
                                     "contact_name": {
                                         "description": "Contact person name",
@@ -12677,7 +12677,7 @@
                                                         },
                                                         "vat_code": {
                                                             "type": "string",
-                                                            "example": "LT307165534"
+                                                            "example": "307-165-534"
                                                         },
                                                         "address": {
                                                             "type": "string",

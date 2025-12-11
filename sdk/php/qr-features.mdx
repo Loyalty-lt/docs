@@ -209,19 +209,6 @@ class POSController
             'customer' => $this->currentCustomer['user']['name'],
         ];
     }
-    
-    public function redeemPoints(int $points): array
-    {
-        if (!$this->currentCustomer) {
-            throw new \Exception('No customer identified');
-        }
-        
-        return $this->sdk->deductPoints(
-            $this->currentCustomer['id'],
-            $points,
-            'Points redemption'
-        );
-    }
 }
 ```
 

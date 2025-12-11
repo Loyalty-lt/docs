@@ -70,8 +70,17 @@ class POSSystem {
     const session = await this.sdk.generateQrCardSession('POS');
     this.displayQR(session.qr_code);
     
-    const ablyToken = await this.sdk.getAblyToken(session.session_id);
-    // ... subscribe to events
+    // Get Ably options with automatic token renewal
+    const ablyOptions = await this.sdk.createAblyClientOptions(session.session_id);
+    const tokenResponse = await this.sdk.getAblyToken(session.session_id);
+    
+    // Connect to Ably (token auto-renews)
+    const ably = new Ably.Realtime(ablyOptions);
+    const channel = ably.channels.get(tokenResponse.channel);
+    
+    channel.subscribe('card_identified', (message) => {
+      this.handleCustomerIdentified(message.data.card_data);
+    });
   }
   
   // Process checkout
@@ -94,6 +103,38 @@ class POSSystem {
   }
 }
 ```
+
+## Points Calculation
+
+Use the SDK's built-in calculation functions for accurate points math:
+
+```typescript
+import { 
+  calculateAmountFromPoints,
+  calculatePointsFromAmount,
+  calculateFinalAmount 
+} from '@loyaltylt/sdk';
+
+// Points rules from card_identified event
+const pointsRules = cardData.redemption;
+
+// Calculate discount value
+const discount = calculateAmountFromPoints(500, pointsRules);
+// 500 points = 5.00 EUR
+
+// Calculate points to earn
+const pointsToEarn = calculatePointsFromAmount(cartTotal, pointsRules);
+// 25.00 EUR = 250 points
+
+// Calculate final amount after discount
+const finalAmount = calculateFinalAmount(cartTotal, pointsToRedeem, pointsRules);
+// 50.00 EUR - 5.00 EUR = 45.00 EUR
+```
+
+<Tip>
+  Always use the `pointsRules` from the backend instead of hardcoding values.
+  Rules can vary per partner and may change.
+</Tip>
 
 ## React Integration
 

@@ -55,7 +55,7 @@ const cards = await sdk.getLoyaltyCards();
 
 // Filter by card number
 const card = await sdk.getLoyaltyCards({ 
-  card_number: 'LOYALTY123456' 
+  card_number: '123-456-789' 
 });
 ```
 
@@ -84,16 +84,6 @@ const transaction = await sdk.createTransaction({
 
 console.log('Transaction ID:', transaction.id);
 console.log('Points awarded:', transaction.points);
-```
-
-### Deduct Points
-
-```typescript
-const deduction = await sdk.deductPoints(
-  123,    // card_id
-  100,    // points to deduct
-  'Points redemption for discount'
-);
 ```
 
 ### Get Points Balance
@@ -170,7 +160,7 @@ The SDK uses custom error types for better error handling:
 import { LoyaltySDKError } from '@loyaltylt/sdk';
 
 try {
-  const result = await sdk.deductPoints(123, 10000);
+  const result = await sdk.getLoyaltyCardInfo({ card_number: 'INVALID' });
 } catch (error) {
   if (error instanceof LoyaltySDKError) {
     console.error('Error code:', error.code);
@@ -178,9 +168,6 @@ try {
     console.error('Status:', error.status);
     
     switch (error.code) {
-      case 'INSUFFICIENT_POINTS':
-        alert('Not enough points available');
-        break;
       case 'CARD_NOT_FOUND':
         alert('Loyalty card not found');
         break;
@@ -192,6 +179,51 @@ try {
     }
   }
 }
+```
+
+## Points Calculator
+
+The SDK includes utility functions for points calculations:
+
+```typescript
+import { 
+  calculateAmountFromPoints,
+  calculatePointsFromAmount,
+  calculateFinalAmount,
+  calculateMaxRedeemablePoints,
+  validatePointsRedemption
+} from '@loyaltylt/sdk';
+
+// Points rules from backend
+const pointsRules = {
+  points_per_currency: 10,           // 10 points per 1 EUR
+  currency_amount: 1,
+  points_redemption_enabled: true,
+  points_per_currency_redemption: 100, // 100 points = 1 EUR
+  currency_amount_redemption: 1,
+  min_points_for_redemption: 100,
+  max_points_per_redemption: 5000
+};
+
+// Calculate discount from points
+const discount = calculateAmountFromPoints(500, pointsRules);
+// Result: 5.00 (500 points = 5 EUR)
+
+// Calculate points earned from purchase
+const pointsEarned = calculatePointsFromAmount(25.00, pointsRules);
+// Result: 250 (25 EUR = 250 points)
+
+// Calculate final amount after points discount
+const finalAmount = calculateFinalAmount(50.00, 500, pointsRules);
+// Result: 45.00 (50 EUR - 5 EUR discount)
+
+// Get max redeemable points for amount
+const maxPoints = calculateMaxRedeemablePoints(30.00, 5000, pointsRules);
+// Result: 3000 (enough to cover 30 EUR)
+
+// Validate redemption
+const validation = validatePointsRedemption(500, 1000, pointsRules);
+// Result: { isValid: true }
 ```
 
 ## TypeScript Support
@@ -206,7 +238,8 @@ import {
   PointsTransaction,
   Offer,
   PaginatedResponse,
-  LoyaltySDKError 
+  LoyaltySDKError,
+  PointsRules
 } from '@loyaltylt/sdk';
 
 // Fully typed responses

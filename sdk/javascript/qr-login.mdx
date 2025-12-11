@@ -58,12 +58,15 @@ import { QRCodeSVG } from 'qrcode.react';
 ### 3. Subscribe to Real-time Events
 
 ```typescript
-// Get Ably token for real-time updates
-const ablyToken = await sdk.getAblyToken(session.session_id);
+import Ably from 'ably';
 
-// Connect to Ably
-const ably = new Ably.Realtime({ token: ablyToken.token });
-const channel = ably.channels.get(ablyToken.channel);
+// Get Ably client options with automatic token renewal
+const ablyOptions = await sdk.createAblyClientOptions(session.session_id);
+const tokenResponse = await sdk.getAblyToken(session.session_id);
+
+// Connect to Ably (token auto-renews before expiry)
+const ably = new Ably.Realtime(ablyOptions);
+const channel = ably.channels.get(tokenResponse.channel);
 
 // Listen for status updates
 channel.subscribe('status_update', (message) => {
@@ -91,6 +94,11 @@ channel.subscribe('status_update', (message) => {
   }
 });
 ```
+
+<Note>
+  The `createAblyClientOptions` method automatically handles token renewal.
+  You don't need to manually refresh tokens - the SDK does it for you.
+</Note>
 
 ### 4. Polling Fallback
 

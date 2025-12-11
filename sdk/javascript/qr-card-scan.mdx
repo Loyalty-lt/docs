@@ -61,12 +61,13 @@ document.getElementById('customer-qr').src = qrImageUrl;
 ```typescript
 import Ably from 'ably';
 
-// Get Ably token
-const ablyToken = await sdk.getAblyToken(session.session_id);
+// Get Ably client options with automatic token renewal
+const ablyOptions = await sdk.createAblyClientOptions(session.session_id);
 
-// Connect to Ably
-const ably = new Ably.Realtime({ token: ablyToken.token });
-const channel = ably.channels.get(ablyToken.channel);
+// Connect to Ably (token will auto-renew before expiry)
+const ably = new Ably.Realtime(ablyOptions);
+const tokenResponse = await sdk.getAblyToken(session.session_id);
+const channel = ably.channels.get(tokenResponse.channel);
 
 // Listen for card identification
 channel.subscribe('card_identified', (message) => {
@@ -75,12 +76,17 @@ channel.subscribe('card_identified', (message) => {
   console.log('Customer identified!');
   console.log('Name:', cardData.user?.name);
   console.log('Card Number:', cardData.card_number);
-  console.log('Points Balance:', cardData.points_balance);
+  console.log('Points Balance:', cardData.points);
   
   // Update POS with customer data
   setCurrentCustomer(cardData);
 });
 ```
+
+<Note>
+  The `createAblyClientOptions` method includes `authCallback` for automatic token renewal.
+  This ensures your connection stays alive without manual token refresh.
+</Note>
 
 ### 4. Polling Fallback
 
@@ -133,11 +139,13 @@ class POSSystem {
     // Display QR on customer screen
     this.updateCustomerDisplay(session.qr_code);
     
-    // Subscribe to events
-    const ablyToken = await this.sdk.getAblyToken(session.session_id);
+    // Get Ably options with automatic token renewal
+    const ablyOptions = await this.sdk.createAblyClientOptions(session.session_id);
+    const tokenResponse = await this.sdk.getAblyToken(session.session_id);
     
-    this.ablyClient = new Ably.Realtime({ token: ablyToken.token });
-    const channel = this.ablyClient.channels.get(ablyToken.channel);
+    // Connect to Ably (token auto-renews)
+    this.ablyClient = new Ably.Realtime(ablyOptions);
+    const channel = this.ablyClient.channels.get(tokenResponse.channel);
     
     channel.subscribe('card_identified', (message) => {
       this.handleCustomerIdentified(message.data.card_data);
@@ -185,15 +193,6 @@ class POSSystem {
       description: 'Purchase',
       reference: `TXN-${Date.now()}`
     });
-    
-    // Deduct redeemed points if any
-    if (pointsToRedeem > 0) {
-      await this.sdk.deductPoints(
-        this.currentCustomer.cardId,
-        pointsToRedeem,
-        'Points redemption'
-      );
-    }
     
     return {
       transactionId: transaction.id,
