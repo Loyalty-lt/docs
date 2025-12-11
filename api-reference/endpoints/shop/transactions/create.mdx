@@ -9,7 +9,7 @@ description: "Create purchase transaction and award/redeem points (WooCommerce i
 Create a purchase transaction for a user, automatically calculating and awarding loyalty points. This endpoint supports both earning points and redeeming points in a single transaction.
 
 <Info>
-This is the primary endpoint for **e-commerce integrations** (WooCommerce, Shopify, etc.) to award and redeem points. It requires Partner API authentication.
+This is the primary endpoint for **e-commerce integrations** (WooCommerce, Shopify, etc.) to award and redeem points. It requires Shop API authentication.
 </Info>
 
 ## Path Parameters
@@ -21,11 +21,11 @@ This is the primary endpoint for **e-commerce integrations** (WooCommerce, Shopi
 ## Authentication
 
 <ParamField header="X-API-Key" type="string" required>
-  Partner API key from Partners Portal
+  API key from Partners Portal
 </ParamField>
 
 <ParamField header="X-API-Secret" type="string" required>
-  Partner API secret from Partners Portal
+  API secret from Partners Portal
 </ParamField>
 
 ## Request Body

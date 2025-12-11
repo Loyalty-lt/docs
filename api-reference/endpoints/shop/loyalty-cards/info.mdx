@@ -9,7 +9,7 @@ description: "Get loyalty card details by card number, ID, or user ID"
 Retrieve loyalty card information including points balance. This endpoint is essential for checking a customer's points before processing a transaction or redemption.
 
 <Info>
-This endpoint requires **Partner API authentication** (X-API-Key and X-API-Secret headers).
+This endpoint requires **Shop API authentication** (X-API-Key and X-API-Secret headers).
 </Info>
 
 ## Path Parameters
@@ -41,11 +41,11 @@ The `card_number` parameter accepts both the card number (e.g., `123-456-789`) a
 ## Authentication
 
 <ParamField header="X-API-Key" type="string" required>
-  Partner API key
+  API key
 </ParamField>
 
 <ParamField header="X-API-Secret" type="string" required>
-  Partner API secret
+  API secret
 </ParamField>
 
 ## Response

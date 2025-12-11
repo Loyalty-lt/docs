@@ -63,7 +63,7 @@ npm install react react-dom qrcode.react
 ```typescript
 import { LoyaltySDK } from '@loyaltylt/sdk';
 
-// Initialize SDK with Partner API credentials
+// Initialize SDK with API credentials
 const sdk = new LoyaltySDK({
   apiKey: 'lty_your_api_key',
   apiSecret: 'your_api_secret',
@@ -80,8 +80,8 @@ console.log('Connected! Shops:', shops.data);
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `apiKey` | `string` | - | Your Partner API Key (required) |
-| `apiSecret` | `string` | - | Your Partner API Secret (required) |
+| `apiKey` | `string` | - | Your API Key (required) |
+| `apiSecret` | `string` | - | Your API Secret (required) |
 | `environment` | `'production'` \| `'staging'` | `'production'` | API environment |
 | `locale` | `string` | `'lt'` | API locale (`lt`, `en`) |
 | `timeout` | `number` | `30000` | Request timeout in ms |

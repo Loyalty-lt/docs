@@ -9,7 +9,7 @@ api: "POST /{locale}/shop/xml-import/from-url"
 Import products and offers from an external XML feed URL. This is useful for syncing your product catalog from e-commerce platforms or ERP systems.
 
 <Info>
-This endpoint requires **Partner API authentication** using `X-API-Key` and `X-API-Secret` headers.
+This endpoint requires **Shop API authentication** using `X-API-Key` and `X-API-Secret` headers.
 </Info>
 
 ## Path Parameters
@@ -21,11 +21,11 @@ This endpoint requires **Partner API authentication** using `X-API-Key` and `X-A
 ## Authentication
 
 <ParamField header="X-API-Key" type="string" required>
-  Partner API key from Partners Portal
+  API key from Partners Portal
 </ParamField>
 
 <ParamField header="X-API-Secret" type="string" required>
-  Partner API secret from Partners Portal
+  API secret from Partners Portal
 </ParamField>
 
 ## Request Body

@@ -9,7 +9,7 @@ description: "Generate QR code session for passwordless authentication"
 The QR Login system allows users to authenticate on desktop/web by scanning a QR code with their mobile app. This is commonly used in custom shop plugin integrations.
 
 <Info>
-QR Login requires **Partner API authentication** (X-API-Key and X-API-Secret headers) and real-time WebSocket support via Ably.
+QR Login requires **Shop API authentication** (X-API-Key and X-API-Secret headers) and real-time WebSocket support via Ably.
 </Info>
 
 ## Authentication Flow
@@ -51,11 +51,11 @@ POST /{locale}/shop/auth/qr-login/generate
 ### Authentication
 
 <ParamField header="X-API-Key" type="string" required>
-  Partner API key from Partners Portal
+  API key from Partners Portal
 </ParamField>
 
 <ParamField header="X-API-Secret" type="string" required>
-  Partner API secret from Partners Portal
+  API secret from Partners Portal
 </ParamField>
 
 ### Request Body
