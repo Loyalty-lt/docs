@@ -1,88 +1,43 @@
 ---
 title: "API Overview"
-description: "Complete REST API reference for Loyalty.lt Shop API integration"
+description: "Loyalty.lt REST APIs for loyalty program integrations"
 ---
 
-# Shop API Overview
+# API Overview
 
-Complete REST API for integrating with the Loyalty.lt loyalty platform. Use this API to manage loyalty cards, process transactions, and handle customer authentication.
+Loyalty.lt provides multiple REST APIs for different integration scenarios. Choose the API that fits your use case.
 
-## Base URLs
-
-| Environment | URL |
-|-------------|-----|
-| **Production** | `https://api.loyalty.lt/{locale}/shop/` |
-| **Staging** | `https://staging-api.loyalty.lt/{locale}/shop/` |
-
-<Note>
-**Locale** parameter: `lt` (Lithuanian) or `en` (English)
-</Note>
-
-## Authentication
-
-All Shop API endpoints require authentication via HTTP headers:
-
-```bash
-curl -X GET 'https://api.loyalty.lt/lt/shop/shops' \
-  -H 'X-API-Key: lty_your_api_key' \
-  -H 'X-API-Secret: your_api_secret' \
-  -H 'Content-Type: application/json'
-```
-
-| Header | Description |
-|--------|-------------|
-| `X-API-Key` | Your API key (starts with `lty_`) |
-| `X-API-Secret` | Your API secret |
-| `Content-Type` | `application/json` |
-
-<Tip>
-Get your API keys from [Partners Portal](https://partners.loyalty.lt) → API Credentials section.
-</Tip>
-
-## API Endpoints
+## Available APIs
 
 <CardGroup cols={2}>
-  <Card title="Authentication" icon="key" href="/api-reference/endpoints/shop/auth/qr-login">
-    QR Login, QR Card Scan, credential validation, app link sending
+  <Card title="Shop API" icon="store" href="/api-reference/endpoints/shop/overview">
+    For e-commerce platforms and POS systems. Award points, manage loyalty cards, process transactions.
   </Card>
   
-  <Card title="Shops" icon="store" href="/api-reference/endpoints/shop/shops/list">
-    List and manage partner shop locations
-  </Card>
-  
-  <Card title="Loyalty Cards" icon="credit-card" href="/api-reference/endpoints/shop/loyalty-cards/list">
-    Card lookup, info retrieval, balance queries
-  </Card>
-  
-  <Card title="Transactions" icon="coins" href="/api-reference/endpoints/shop/transactions/create">
-    Create transactions, award points, view history
-  </Card>
-  
-  <Card title="Offers" icon="tag" href="/api-reference/endpoints/shop/offers/list">
-    Promotional offers and discounts
-  </Card>
-  
-  <Card title="XML Import" icon="file-code" href="/api-reference/endpoints/shop/xml-import/overview">
-    Bulk import offers from XML feeds
+  <Card title="Partner API" icon="building" href="#">
+    For partner management systems. Manage shops, staff, settings, and analytics. *Coming soon*
   </Card>
 </CardGroup>
 
-## Quick Comparison
+## Shop API
 
-| Category | Endpoints | Description |
-|----------|-----------|-------------|
-| **Authentication** | 4 | QR Login, QR Card Scan, Validate Credentials, Send App Link |
-| **Shops** | 1 | List partner shops |
-| **Loyalty Cards** | 3 | List, Get Card, Get Card Info |
-| **Transactions** | 4 | Create, List Partner, List User, Get Balance |
-| **Offers** | 1 | List available offers |
-| **Categories** | 2 | List categories, Sync status |
-| **Products** | 2 | Categories, Sync status |
-| **XML Import** | 4 | From URL, From File, Validate, Stats |
+The Shop API enables e-commerce platforms and POS systems to integrate with the Loyalty.lt loyalty system.
+
+### Key Features
+
+- **Loyalty Cards** - Look up cards, check balances, get card info
+- **Transactions** - Create purchases, award points, view history  
+- **QR Authentication** - QR Login, QR Card Scan for POS
+- **Offers** - Retrieve promotional offers and discounts
+- **XML Import** - Bulk import offers from XML feeds
+
+<Card title="Shop API Documentation" icon="arrow-right" href="/api-reference/endpoints/shop/overview">
+  Complete Shop API reference with endpoints, authentication, and examples
+</Card>
 
 ## Response Format
 
-All responses follow a consistent JSON structure:
+All Loyalty.lt APIs follow a consistent JSON response structure:
 
 ### Success Response
 
@@ -91,24 +46,8 @@ All responses follow a consistent JSON structure:
   "success": true,
   "code": 200,
   "request_id": "abc-123-def",
+  "message": "Operation completed successfully",
   "data": { ... }
-}
-```
-
-### Paginated Response
-
-```json
-{
-  "success": true,
-  "code": 200,
-  "request_id": "abc-123-def",
-  "meta": {
-    "current_page": 1,
-    "last_page": 5,
-    "per_page": 15,
-    "total": 73
-  },
-  "data": [ ... ]
 }
 ```
 
@@ -132,7 +71,7 @@ All responses follow a consistent JSON structure:
 | `200` | Success |
 | `201` | Created |
 | `400` | Bad Request / Validation Error |
-| `401` | Unauthorized - Invalid API credentials |
+| `401` | Unauthorized - Invalid credentials |
 | `403` | Forbidden - Access denied |
 | `404` | Not Found |
 | `422` | Unprocessable Entity |
@@ -141,18 +80,10 @@ All responses follow a consistent JSON structure:
 
 ## Rate Limits
 
-| Tier | Requests/Hour | Requests/Minute |
-|------|---------------|-----------------|
-| Standard | 1,000 | 60 |
-| Premium | 10,000 | 300 |
-
-Rate limit headers are included in all responses:
-
-```
-X-RateLimit-Limit: 1000
-X-RateLimit-Remaining: 847
-X-RateLimit-Reset: 1703707200
-```
+| Tier | Requests/Minute |
+|------|-----------------|
+| Standard | 100 |
+| Premium | 500 |
 
 <Warning>
 Exceeding rate limits will result in `429 Too Many Requests` responses. Contact support for higher limits.
@@ -161,12 +92,19 @@ Exceeding rate limits will result in `429 Too Many Requests` responses. Contact 
 ## Need Help?
 
 <CardGroup cols={2}>
-  <Card title="API Reference" icon="code" href="/api-reference/endpoints/shop/overview">
-    Complete endpoint documentation
+  <Card title="Shop API" icon="store" href="/api-reference/endpoints/shop/overview">
+    E-commerce and POS integration
+  </Card>
+  
+  <Card title="SDKs" icon="puzzle-piece" href="/sdk/overview">
+    Official SDK libraries
   </Card>
   
   <Card title="Support" icon="envelope" href="mailto:developers@loyalty.lt">
-    Contact developer support team
+    Contact developer support
+  </Card>
+  
+  <Card title="Partners Portal" icon="users" href="https://partners.loyalty.lt">
+    Manage your integration
   </Card>
 </CardGroup>
-
