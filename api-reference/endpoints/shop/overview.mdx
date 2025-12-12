@@ -161,13 +161,10 @@ All endpoints return JSON with consistent structure:
 
 ## Rate Limits
 
-| Tier | Limit |
-|------|-------|
-| Standard | 100 requests/minute |
-| Premium | 500 requests/minute |
+All API requests are limited to **60 requests per minute** per API key or IP address.
 
 <Warning>
-Rate limits are per API key. Contact support for higher limits.
+Exceeding rate limits will result in `429 Too Many Requests` responses. Contact support if you need higher limits.
 </Warning>
 
 ## Support
