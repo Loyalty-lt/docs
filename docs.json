@@ -26,9 +26,9 @@
         "tab": "API Reference",
         "groups": [
           {
-            "group": "Getting Started",
+            "group": "Overview",
             "pages": [
-              "api-reference/introduction"
+              "api-reference/overview"
             ]
           },
           {
@@ -175,7 +175,7 @@
     "links": [
       {
         "label": "API",
-        "href": "https://docs.loyalty.lt/api-reference/introduction"
+        "href": "https://docs.loyalty.lt/api-reference/overview"
       },
       {
         "label": "SDKs",
