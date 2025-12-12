@@ -68,71 +68,15 @@ Loyalty.lt is a modern loyalty program platform that enables businesses to creat
   </Card>
 </CardGroup>
 
-## Documentation Structure
+## Documentation
 
 <CardGroup cols={2}>
-  <Card title="API Reference" icon="code" href="/api-reference/introduction">
+  <Card title="API Reference" icon="code" href="/api-reference/overview">
     Complete REST API documentation with all endpoints, parameters, and examples.
   </Card>
   
   <Card title="SDKs" icon="puzzle-piece" href="/sdk/overview">
     Official SDK libraries for JavaScript, PHP, and Python.
-  </Card>
-</CardGroup>
-
-## Base URLs
-
-| Environment | URL |
-|-------------|-----|
-| **Production** | `https://api.loyalty.lt/{locale}/shop/` |
-| **Staging** | `https://staging-api.loyalty.lt/{locale}/shop/` |
-
-<Note>
-**Locale** parameter: `lt` (Lithuanian) or `en` (English)
-</Note>
-
-## Authentication
-
-All Shop API endpoints require authentication via HTTP headers:
-
-```bash
-curl -X GET 'https://api.loyalty.lt/lt/shop/shops' \
-  -H 'X-API-Key: lty_your_api_key' \
-  -H 'X-API-Secret: your_api_secret' \
-  -H 'Content-Type: application/json'
-```
-
-| Header | Description |
-|--------|-------------|
-| `X-API-Key` | Your API key (starts with `lty_`) |
-| `X-API-Secret` | Your API secret |
-| `Content-Type` | `application/json` |
-
-<Tip>
-Get your API keys from [Partners Portal](https://partners.loyalty.lt) → API Credentials section.
-</Tip>
-
-## SDKs
-
-Official SDK libraries to simplify integration:
-
-<CardGroup cols={3}>
-  <Card title="JavaScript" icon="js" href="/sdk/javascript/installation">
-    ```bash
-    npm install @loyaltylt/sdk
-    ```
-  </Card>
-  
-  <Card title="PHP" icon="php" href="/sdk/php/installation">
-    ```bash
-    composer require loyaltylt/sdk
-    ```
-  </Card>
-  
-  <Card title="Python" icon="python" href="/sdk/python/installation">
-    ```bash
-    pip install loyaltylt-sdk
-    ```
   </Card>
 </CardGroup>
 

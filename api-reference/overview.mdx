@@ -7,6 +7,38 @@ description: "Complete REST API reference for Loyalty.lt Shop API integration"
 
 Complete REST API for integrating with the Loyalty.lt loyalty platform. Use this API to manage loyalty cards, process transactions, and handle customer authentication.
 
+## Base URLs
+
+| Environment | URL |
+|-------------|-----|
+| **Production** | `https://api.loyalty.lt/{locale}/shop/` |
+| **Staging** | `https://staging-api.loyalty.lt/{locale}/shop/` |
+
+<Note>
+**Locale** parameter: `lt` (Lithuanian) or `en` (English)
+</Note>
+
+## Authentication
+
+All Shop API endpoints require authentication via HTTP headers:
+
+```bash
+curl -X GET 'https://api.loyalty.lt/lt/shop/shops' \
+  -H 'X-API-Key: lty_your_api_key' \
+  -H 'X-API-Secret: your_api_secret' \
+  -H 'Content-Type: application/json'
+```
+
+| Header | Description |
+|--------|-------------|
+| `X-API-Key` | Your API key (starts with `lty_`) |
+| `X-API-Secret` | Your API secret |
+| `Content-Type` | `application/json` |
+
+<Tip>
+Get your API keys from [Partners Portal](https://partners.loyalty.lt) → API Credentials section.
+</Tip>
+
 ## API Endpoints
 
 <CardGroup cols={2}>
