@@ -172,16 +172,6 @@
     "dark": "/logo/dark.svg"
   },
   "navbar": {
-    "links": [
-      {
-        "label": "API",
-        "href": "https://docs.loyalty.lt/api-reference/overview"
-      },
-      {
-        "label": "SDKs",
-        "href": "https://docs.loyalty.lt/sdk/overview"
-      }
-    ],
     "primary": {
       "type": "button",
       "label": "Partners Portal",
