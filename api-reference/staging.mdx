@@ -19,7 +19,7 @@ The Loyalty.lt API provides a dedicated staging environment for testing your int
 ## Getting Staging API Credentials
 
 1. Log in to the [Partners Portal](https://partners.loyalty.lt)
-2. Navigate to **Settings** → **API Credentials**
+2. Navigate to **API Credentials** in the sidebar menu
 3. Click **Create New Credential**
 4. Select **Environment: Staging**
 5. Save your API Key and Secret (shown only once!)
@@ -51,12 +51,20 @@ Card numbers use the format `XXX-XXX-XXX`. Demo cards start with `900-`:
 
 ### Demo Staff Accounts
 
-For testing staff-related operations:
+Staff members log in to the Staff App using their **Barcode** (numbers only):
 
-| Email | Role |
-|-------|------|
-| demo.manager@loyalty.lt | Manager |
-| demo.cashier@loyalty.lt | Cashier |
+| Barcode | Name | Role |
+|---------|------|------|
+| `100000001` | Demo Manager | Manager |
+| `100000002` | Demo Cashier | Cashier |
+
+<Info>
+  Barcode format: `{partner_id}{user_id}` where user_id is zero-padded to 8 digits.
+  
+  Example: For partner ID 5 and user ID 123, barcode would be `500000123`.
+  
+  Staff accounts are created for each partner synced from production.
+</Info>
 
 ## SDK Configuration
 
