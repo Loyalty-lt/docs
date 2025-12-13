@@ -741,55 +741,33 @@ curl -X POST 'https://staging-api.loyalty.lt/api/points/adjust' \
 <Tabs>
   <Tab title="Purchase-based Points">
     ```javascript
-    // Award 1 point per $1 spent
+    // Create transaction - points awarded automatically based on partner settings
     const orderTotal = 25.50;
-    const pointsToAward = Math.floor(orderTotal);
     
-    await awardPoints({
-      card_id: 'card_123',
-      points: pointsToAward, // 25 points
-      reason: `Purchase reward for $${orderTotal}`,
-      reference: order.id,
-      metadata: {
-        order_total: orderTotal,
-        currency: 'USD',
-        points_rate: '1 point per $1'
-      }
+    await sdk.createTransaction({
+      cardId: 'card_123',
+      amount: orderTotal,
+      shopId: 1,
+      description: `Purchase reward for $${orderTotal}`,
+      reference: order.id
     });
     ```
   </Tab>
   
   <Tab title="Tier-based Multipliers">
     ```javascript
-    // Different point rates by customer tier
-    const tierMultipliers = {
-      bronze: 1.0,
-      silver: 1.5,
-      gold: 2.0,
-      platinum: 2.5
-    };
+    // Points are calculated automatically based on partner tier settings
+    // Configure tier multipliers in the Partners Portal
     
-    const basePoints = Math.floor(orderTotal);
-    const multiplier = tierMultipliers[customer.tier];
-    const bonusPoints = Math.floor(basePoints * (multiplier - 1));
-    
-    // Award base points
-    await awardPoints({
-      card_id: customer.card_id,
-      points: basePoints,
-      reason: 'Purchase reward',
+    await sdk.createTransaction({
+      cardId: customer.card_id,
+      amount: orderTotal,
+      shopId: 1,
+      description: 'Purchase reward',
       reference: order.id
     });
     
-    // Award tier bonus if applicable
-    if (bonusPoints > 0) {
-      await awardPoints({
-        card_id: customer.card_id,
-        points: bonusPoints,
-        reason: `${customer.tier} tier bonus`,
-        reference: order.id
-      });
-    }
+    // Tier bonuses are applied automatically based on customer's tier
     ```
   </Tab>
   

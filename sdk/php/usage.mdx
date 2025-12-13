@@ -187,13 +187,13 @@ class LoyaltyController extends Controller
 {
     public function __construct(private LoyaltySDK $loyalty) {}
     
-    public function awardPoints(Request $request)
+    public function processTransaction(Request $request)
     {
         $transaction = $this->loyalty->createTransaction([
             'card_id' => $request->card_id,
             'amount' => $request->amount,
-            'points' => (int) $request->amount,
-            'type' => 'earn',
+            'shop_id' => $request->shop_id,
+            'description' => 'Purchase',
         ]);
         
         return response()->json($transaction);
