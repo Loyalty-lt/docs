@@ -1,0 +1,153 @@
+---
+title: "List Coupons"
+api: "GET /{locale}/shop/coupons"
+description: "List coupons for a shop or customer (Partner API)"
+---
+
+# List Coupons
+
+Get a paginated list of coupons. Filter by shop, customer, or status.
+
+<Info>
+This endpoint uses Partner API authentication (X-API-Key and X-API-Secret headers).
+</Info>
+
+## Query Parameters
+
+<ParamField query="shop_id" type="integer" required>
+  Filter coupons valid for this shop
+</ParamField>
+
+<ParamField query="user_id" type="integer">
+  Filter by customer user ID
+</ParamField>
+
+<ParamField query="card_id" type="integer">
+  Filter by loyalty card ID (alternative to user_id)
+</ParamField>
+
+<ParamField query="status" type="string" default="active">
+  Filter by status: `active`, `used`, `expired`, `all`
+</ParamField>
+
+<ParamField query="page" type="integer" default="1">
+  Page number for pagination
+</ParamField>
+
+<ParamField query="per_page" type="integer" default="20">
+  Items per page (max 100)
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates successful retrieval
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  <Expandable title="data">
+    <ResponseField name="coupons" type="array">
+      Array of coupon objects with offer/game details
+    </ResponseField>
+    
+    <ResponseField name="pagination" type="object">
+      Pagination info (current_page, per_page, total, last_page)
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X GET "https://staging-api.loyalty.lt/en/shop/coupons?shop_id=1&status=active&per_page=10" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"
+```
+
+```javascript JavaScript SDK
+import { LoyaltySDK } from '@loyaltylt/sdk';
+
+const sdk = new LoyaltySDK({
+  apiKey: 'your_api_key',
+  apiSecret: 'your_api_secret',
+  environment: 'staging'
+});
+
+const result = await sdk.listCoupons({
+  shop_id: 1,
+  status: 'active',
+  per_page: 10
+});
+
+console.log(`Found ${result.pagination.total} coupons`);
+result.coupons.forEach(coupon => {
+  console.log(`- ${coupon.code}: ${coupon.offer?.title}`);
+});
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Success Response
+{
+  "success": true,
+  "message": "Coupons retrieved successfully",
+  "data": {
+    "coupons": [
+      {
+        "id": 123,
+        "code": "K1234567890",
+        "qr_code": "uuid-1234-5678",
+        "status": "active",
+        "expires_at": "2025-01-31T23:59:59Z",
+        "is_used": false,
+        "is_pending": false,
+        "offer": {
+          "id": 456,
+          "title": "Free Coffee",
+          "description": "Reward for completing stamp card",
+          "discount_type": "game_reward",
+          "reward_type": "free_product",
+          "reward_details": "Free medium coffee"
+        },
+        "game": {
+          "id": 789,
+          "name": "Coffee Stamp Card",
+          "type": "stamps",
+          "reward_description": "Collect 10 stamps for a free coffee"
+        },
+        "user": {
+          "id": 100,
+          "name": "Jonas Jonaitis",
+          "email": "jonas@example.com"
+        },
+        "products": [],
+        "categories": [],
+        "requires_product_selection": false
+      }
+    ],
+    "pagination": {
+      "current_page": 1,
+      "per_page": 10,
+      "total": 25,
+      "last_page": 3
+    }
+  }
+}
+```
+
+</ResponseExample>
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+<Card title="Card Coupons" icon="id-card" href="/api-reference/endpoints/shop/coupons/card-coupons">
+  Get coupons for a specific customer
+</Card>
+
+<Card title="Verify Coupon" icon="magnifying-glass" href="/api-reference/endpoints/shop/coupons/verify">
+  Verify a scanned coupon
+</Card>
+</CardGroup>
+

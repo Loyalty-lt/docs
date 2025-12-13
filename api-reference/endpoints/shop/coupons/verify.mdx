@@ -1,0 +1,200 @@
+---
+title: "Verify Coupon"
+api: "POST /{locale}/shop/coupons/verify"
+description: "Verify a coupon by scanning its code (Partner API)"
+---
+
+# Verify Coupon
+
+Verify a coupon by scanning its code or QR code. This endpoint is used by POS systems to validate coupons before redemption.
+
+<Info>
+This endpoint uses Partner API authentication (X-API-Key and X-API-Secret headers).
+</Info>
+
+## Request Body
+
+<ParamField body="coupon_code" type="string" required>
+  The coupon code or QR code scanned from the customer's app
+</ParamField>
+
+<ParamField body="shop_id" type="integer" required>
+  The ID of the shop where the coupon is being verified
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the coupon was successfully verified
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  <Expandable title="data">
+    <ResponseField name="coupon" type="object">
+      <Expandable title="coupon">
+        <ResponseField name="id" type="integer">
+          Coupon unique identifier
+        </ResponseField>
+        
+        <ResponseField name="code" type="string">
+          Coupon code
+        </ResponseField>
+        
+        <ResponseField name="status" type="string">
+          Coupon status: active, pending, used, expired
+        </ResponseField>
+        
+        <ResponseField name="expiry_time" type="string">
+          ISO 8601 expiration timestamp
+        </ResponseField>
+        
+        <ResponseField name="is_pending" type="boolean">
+          Whether coupon is currently pending at a shop
+        </ResponseField>
+        
+        <ResponseField name="pending_shop_id" type="integer">
+          Shop ID where coupon is pending (if applicable)
+        </ResponseField>
+        
+        <ResponseField name="offer" type="object">
+          Offer or game reward details
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="user" type="object">
+      Coupon owner details (id, name, email, phone, points_balance)
+    </ResponseField>
+    
+    <ResponseField name="card" type="object">
+      User's loyalty card details (id, card_number, points_balance)
+    </ResponseField>
+    
+    <ResponseField name="points_rules" type="object">
+      Partner's points earning/redemption rules
+    </ResponseField>
+    
+    <ResponseField name="games_count" type="integer">
+      Number of active games for this partner
+    </ResponseField>
+    
+    <ResponseField name="coupons_count" type="integer">
+      Number of active coupons for this user
+    </ResponseField>
+    
+    <ResponseField name="game" type="object">
+      Game details if this is a game-based coupon
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X POST "https://staging-api.loyalty.lt/en/shop/coupons/verify" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "coupon_code": "K1234567890",
+    "shop_id": 1
+  }'
+```
+
+```javascript JavaScript SDK
+import { LoyaltySDK } from '@loyaltylt/sdk';
+
+const sdk = new LoyaltySDK({
+  apiKey: 'your_api_key',
+  apiSecret: 'your_api_secret',
+  environment: 'staging'
+});
+
+const result = await sdk.verifyCoupon('K1234567890', 1);
+
+console.log(`Coupon status: ${result.coupon.status}`);
+console.log(`Customer: ${result.user.name}`);
+console.log(`Points balance: ${result.user.points_balance}`);
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Successful Verification
+{
+  "success": true,
+  "message": "Coupon verified successfully",
+  "data": {
+    "coupon": {
+      "id": 123,
+      "code": "K1234567890",
+      "status": "active",
+      "expiry_time": "2025-01-31T23:59:59Z",
+      "is_pending": false,
+      "pending_shop_id": null,
+      "offer": {
+        "id": 456,
+        "title": "Free Coffee",
+        "description": "Get a free coffee with your stamp card",
+        "discount_type": "game_reward",
+        "reward_type": "free_product",
+        "reward_details": "Free medium coffee"
+      }
+    },
+    "user": {
+      "id": 789,
+      "name": "Jonas Jonaitis",
+      "email": "jonas@example.com",
+      "phone": "+37060000000",
+      "default_card_id": 456,
+      "points_balance": 150
+    },
+    "card": {
+      "id": 456,
+      "card_number": "123-456-789",
+      "user_id": 789,
+      "points_balance": 150
+    },
+    "points_rules": {
+      "points_enabled": true,
+      "points_redemption_enabled": true,
+      "points_per_euro": 1,
+      "euro_per_point": 0.01
+    },
+    "games_count": 3,
+    "coupons_count": 2
+  }
+}
+```
+
+```json Coupon Already Used
+{
+  "success": false,
+  "message": "Coupon has already been used",
+  "code": "COUPON_ALREADY_USED"
+}
+```
+
+```json Coupon Expired
+{
+  "success": false,
+  "message": "Coupon has expired",
+  "code": "COUPON_EXPIRED"
+}
+```
+
+</ResponseExample>
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+<Card title="Redeem Coupon" icon="check" href="/api-reference/endpoints/shop/coupons/redeem">
+  Redeem the verified coupon
+</Card>
+
+<Card title="Get Card Coupons" icon="ticket" href="/api-reference/endpoints/shop/coupons/card-coupons">
+  Get all coupons for a customer
+</Card>
+</CardGroup>
+

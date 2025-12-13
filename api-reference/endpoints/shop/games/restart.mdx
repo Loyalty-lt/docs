@@ -1,0 +1,96 @@
+---
+title: 'Restart Game'
+api: 'POST /{locale}/shop/games/{id}/restart'
+description: 'Restart a completed game to allow new progress'
+---
+
+## Overview
+
+Restart a completed stamp card game to allow the customer to start fresh. This is useful when a customer has claimed their reward and wants to start collecting stamps again.
+
+## Authentication
+
+This endpoint requires Partner API authentication with `X-API-Key` and `X-API-Secret` headers.
+
+## Parameters
+
+<ParamField path="id" type="integer" required>
+  The game ID
+</ParamField>
+
+<ParamField body="card_id" type="integer" required>
+  The customer's loyalty card ID
+</ParamField>
+
+<ParamField body="shop_id" type="integer" required>
+  The shop ID where the restart is happening
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="data.message" type="string">
+  Success message
+</ResponseField>
+
+<ResponseField name="data.progress" type="object">
+  New (reset) progress information
+</ResponseField>
+
+<ResponseExample>
+```json 200
+{
+  "success": true,
+  "message": "Game restarted successfully",
+  "data": {
+    "progress": {
+      "current_step": 0,
+      "completed": false,
+      "completed_at": null
+    }
+  }
+}
+```
+</ResponseExample>
+
+## Example Request
+
+```bash
+curl -X POST "https://staging-api.loyalty.lt/en/shop/games/1/restart" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "card_id": 123,
+    "shop_id": 1
+  }'
+```
+
+## SDK Example
+
+```typescript
+import { LoyaltySDK } from '@loyaltylt/sdk';
+
+const sdk = new LoyaltySDK({
+  apiKey: 'your_api_key',
+  apiSecret: 'your_api_secret',
+});
+
+// Restart a game after completion
+const result = await sdk.restartGame(1, 123, 1); // gameId, cardId, shopId
+console.log('Game restarted, new progress:', result.progress);
+```
+
+## Notes
+
+<Note>
+  Restarting a game does not affect previous rewards. Once a coupon has been generated, it remains valid regardless of game restart.
+</Note>
+
+<Warning>
+  This action cannot be undone. The customer's previous progress will be lost.
+</Warning>
+

@@ -1,0 +1,95 @@
+---
+title: 'Complete Game'
+api: 'POST /{locale}/shop/games/{id}/complete'
+description: 'Manually complete a stamp card game and generate reward'
+---
+
+## Overview
+
+Manually complete a stamp card game and generate the reward. This is typically called automatically when the last stamp is added, but can be used to force completion if needed.
+
+## Authentication
+
+This endpoint requires Partner API authentication with `X-API-Key` and `X-API-Secret` headers.
+
+## Parameters
+
+<ParamField path="id" type="integer" required>
+  The game ID
+</ParamField>
+
+<ParamField body="card_id" type="integer" required>
+  The customer's loyalty card ID
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="data.completed" type="boolean">
+  Whether the game was completed
+</ResponseField>
+
+<ResponseField name="data.reward" type="object">
+  Reward details if applicable
+</ResponseField>
+
+<ResponseField name="data.coupon" type="object">
+  Generated coupon if reward type creates one
+</ResponseField>
+
+<ResponseExample>
+```json 200
+{
+  "success": true,
+  "message": "Game completed successfully",
+  "data": {
+    "completed": true,
+    "reward": {
+      "type": "free_product",
+      "product_name": "Cappuccino",
+      "description": "Free Cappuccino"
+    },
+    "coupon": {
+      "id": 456,
+      "code": "K12345678",
+      "status": "active",
+      "expires_at": "2024-02-15T23:59:59Z"
+    }
+  }
+}
+```
+</ResponseExample>
+
+## Example Request
+
+```bash
+curl -X POST "https://staging-api.loyalty.lt/en/shop/games/1/complete" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "card_id": 123
+  }'
+```
+
+## SDK Example
+
+```typescript
+import { LoyaltySDK } from '@loyaltylt/sdk';
+
+const sdk = new LoyaltySDK({
+  apiKey: 'your_api_key',
+  apiSecret: 'your_api_secret',
+});
+
+// Complete a game manually
+const result = await sdk.completeStampCard(1, 123); // gameId, cardId
+
+if (result.coupon) {
+  console.log('Coupon generated:', result.coupon.code);
+}
+```
+

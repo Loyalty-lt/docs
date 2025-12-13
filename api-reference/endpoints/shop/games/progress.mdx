@@ -1,0 +1,147 @@
+---
+title: 'Get Game Progress'
+api: 'GET /{locale}/shop/games/{id}/progress'
+description: 'Get detailed game progress for a customer'
+---
+
+## Overview
+
+Get detailed progress information for a specific game and customer. Includes stamp settings, current progress, and history of all actions.
+
+## Authentication
+
+This endpoint requires Partner API authentication with `X-API-Key` and `X-API-Secret` headers.
+
+## Parameters
+
+<ParamField path="id" type="integer" required>
+  The game ID
+</ParamField>
+
+<ParamField query="card_id" type="integer" required>
+  The customer's loyalty card ID
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="data.game" type="object">
+  Game information
+</ResponseField>
+
+<ResponseField name="data.progress" type="object">
+  Detailed progress information
+</ResponseField>
+
+<ResponseField name="data.progress.current_step" type="integer">
+  Current number of stamps
+</ResponseField>
+
+<ResponseField name="data.progress.completed" type="boolean">
+  Whether the game is completed
+</ResponseField>
+
+<ResponseField name="data.progress.completed_at" type="string">
+  ISO 8601 timestamp when completed (if completed)
+</ResponseField>
+
+<ResponseField name="data.progress.history" type="array">
+  Array of all progress actions
+</ResponseField>
+
+<ResponseField name="data.stamps_required" type="integer">
+  Total stamps required to complete
+</ResponseField>
+
+<ResponseField name="data.stamp_settings" type="object">
+  Full stamp settings including layout and images
+</ResponseField>
+
+<ResponseExample>
+```json 200
+{
+  "success": true,
+  "message": "Game progress retrieved successfully",
+  "data": {
+    "game": {
+      "id": 1,
+      "name": {
+        "lt": "Kavos kortelė",
+        "en": "Coffee Card"
+      },
+      "game_type": "stamps"
+    },
+    "progress": {
+      "current_step": 5,
+      "completed": false,
+      "completed_at": null,
+      "history": [
+        {
+          "timestamp": "2024-01-15T10:30:00Z",
+          "action": "stamp_added",
+          "value": 1,
+          "shop_id": 1,
+          "performed_by_staff": 42
+        },
+        {
+          "timestamp": "2024-01-14T14:20:00Z",
+          "action": "stamp_added",
+          "value": 2,
+          "shop_id": 1,
+          "performed_by_staff": 42
+        }
+      ]
+    },
+    "stamps_required": 8,
+    "stamp_settings": {
+      "stamps_required": 8,
+      "reward_type": "free_product",
+      "product_name": "Cappuccino",
+      "layout": "grid",
+      "rows": 2,
+      "columns": 4,
+      "stamp_icon": "coffee",
+      "stamp_icon_type": "icon",
+      "background_color": "#f0f9ff",
+      "text_color": "#0369a1",
+      "punch_text": {
+        "lt": "Perkite kavą ir gaukite antspaudą!",
+        "en": "Buy coffee and get a stamp!"
+      },
+      "reward_text": {
+        "lt": "Nemokama kava!",
+        "en": "Free coffee!"
+      }
+    }
+  }
+}
+```
+</ResponseExample>
+
+## Example Request
+
+```bash
+curl -X GET "https://staging-api.loyalty.lt/en/shop/games/1/progress?card_id=123" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -H "Accept: application/json"
+```
+
+## SDK Example
+
+```typescript
+import { LoyaltySDK } from '@loyaltylt/sdk';
+
+const sdk = new LoyaltySDK({
+  apiKey: 'your_api_key',
+  apiSecret: 'your_api_secret',
+});
+
+// Get detailed progress for a game
+const progress = await sdk.getGameProgress(1, 123); // gameId, cardId
+console.log(`Progress: ${progress.progress.current_step}/${progress.stamps_required}`);
+console.log('Stamp settings:', progress.stamp_settings);
+```

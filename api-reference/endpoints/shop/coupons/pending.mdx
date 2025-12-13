@@ -1,0 +1,121 @@
+---
+title: "Set Coupon Pending"
+api: "POST /{locale}/shop/coupons/pending"
+description: "Reserve a coupon for redemption (Partner API)"
+---
+
+# Set Coupon Pending
+
+Set a coupon to pending status, reserving it for redemption at your shop. This prevents the coupon from being used at other locations while you process the transaction.
+
+<Info>
+This endpoint uses Partner API authentication (X-API-Key and X-API-Secret headers). A pending coupon can only be redeemed or cancelled at the shop that set it to pending.
+</Info>
+
+## Request Body
+
+<ParamField body="coupon_id" type="integer" required>
+  The ID of the coupon to set as pending
+</ParamField>
+
+<ParamField body="shop_id" type="integer" required>
+  The ID of the shop reserving the coupon
+</ParamField>
+
+<ParamField body="selected_product_id" type="integer">
+  Product ID if the coupon requires product selection
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the coupon was successfully set to pending
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  <Expandable title="data">
+    <ResponseField name="coupon_id" type="integer">
+      The coupon ID
+    </ResponseField>
+    
+    <ResponseField name="pending_at" type="string">
+      ISO 8601 timestamp when pending status was set
+    </ResponseField>
+    
+    <ResponseField name="shop_id" type="integer">
+      The shop where coupon is pending
+    </ResponseField>
+    
+    <ResponseField name="selected_product_id" type="integer">
+      Selected product ID (if provided)
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X POST "https://staging-api.loyalty.lt/en/shop/coupons/pending" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "coupon_id": 123,
+    "shop_id": 1,
+    "selected_product_id": 456
+  }'
+```
+
+```javascript JavaScript SDK
+import { LoyaltySDK } from '@loyaltylt/sdk';
+
+const sdk = new LoyaltySDK({
+  apiKey: 'your_api_key',
+  apiSecret: 'your_api_secret',
+  environment: 'staging'
+});
+
+const result = await sdk.setCouponPending(123, 1, 456);
+
+console.log(`Coupon ${result.coupon_id} reserved at ${result.pending_at}`);
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Successful Pending
+{
+  "success": true,
+  "message": "Coupon set to pending successfully",
+  "data": {
+    "coupon_id": 123,
+    "pending_at": "2025-01-15T14:25:00Z",
+    "shop_id": 1,
+    "selected_product_id": 456
+  }
+}
+```
+
+```json Already Pending at Another Shop
+{
+  "success": false,
+  "message": "Coupon is already pending at another shop",
+  "code": "OPERATION_NOT_ALLOWED"
+}
+```
+
+</ResponseExample>
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+<Card title="Cancel Pending" icon="xmark" href="/api-reference/endpoints/shop/coupons/cancel-pending">
+  Cancel pending status
+</Card>
+
+<Card title="Redeem Coupon" icon="check" href="/api-reference/endpoints/shop/coupons/redeem">
+  Redeem the pending coupon
+</Card>
+</CardGroup>
+

@@ -1,0 +1,114 @@
+---
+title: "Cancel Coupon Pending"
+api: "POST /{locale}/shop/coupons/cancel-pending"
+description: "Cancel pending status of a reserved coupon (Partner API)"
+---
+
+# Cancel Coupon Pending
+
+Cancel the pending status of a coupon that was previously reserved. This releases the coupon so it can be used elsewhere.
+
+<Info>
+This endpoint uses Partner API authentication (X-API-Key and X-API-Secret headers). Only the shop that set the pending status can cancel it.
+</Info>
+
+## Request Body
+
+<ParamField body="coupon_id" type="integer" required>
+  The ID of the pending coupon to cancel
+</ParamField>
+
+<ParamField body="shop_id" type="integer" required>
+  The ID of the shop that set the pending status
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the pending status was successfully cancelled
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  <Expandable title="data">
+    <ResponseField name="coupon_id" type="integer">
+      The coupon ID
+    </ResponseField>
+    
+    <ResponseField name="cancelled_at" type="string">
+      ISO 8601 timestamp when pending was cancelled
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X POST "https://staging-api.loyalty.lt/en/shop/coupons/cancel-pending" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "coupon_id": 123,
+    "shop_id": 1
+  }'
+```
+
+```javascript JavaScript SDK
+import { LoyaltySDK } from '@loyaltylt/sdk';
+
+const sdk = new LoyaltySDK({
+  apiKey: 'your_api_key',
+  apiSecret: 'your_api_secret',
+  environment: 'staging'
+});
+
+const result = await sdk.cancelCouponPending(123, 1);
+
+console.log(`Pending cancelled at ${result.cancelled_at}`);
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Successful Cancellation
+{
+  "success": true,
+  "message": "Coupon pending status cancelled successfully",
+  "data": {
+    "coupon_id": 123,
+    "cancelled_at": "2025-01-15T14:35:00Z"
+  }
+}
+```
+
+```json Not Pending
+{
+  "success": false,
+  "message": "Coupon is not in pending status",
+  "code": "OPERATION_NOT_ALLOWED"
+}
+```
+
+```json Wrong Shop
+{
+  "success": false,
+  "message": "Coupon is not pending at this shop",
+  "code": "FORBIDDEN"
+}
+```
+
+</ResponseExample>
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+<Card title="Set Pending" icon="clock" href="/api-reference/endpoints/shop/coupons/pending">
+  Reserve a coupon
+</Card>
+
+<Card title="Verify Coupon" icon="magnifying-glass" href="/api-reference/endpoints/shop/coupons/verify">
+  Verify coupon status
+</Card>
+</CardGroup>
+

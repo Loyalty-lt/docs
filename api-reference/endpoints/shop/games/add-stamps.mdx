@@ -1,0 +1,175 @@
+---
+title: 'Add Stamps'
+api: 'POST /{locale}/shop/games/{id}/add-stamps'
+description: 'Add stamps to a customer stamp card'
+---
+
+## Overview
+
+Add one or more stamps to a customer's stamp card game. This is the primary action for staff/POS to record customer purchases and progress.
+
+## Authentication
+
+This endpoint requires Partner API authentication with `X-API-Key` and `X-API-Secret` headers.
+
+## Parameters
+
+<ParamField path="id" type="integer" required>
+  The game ID
+</ParamField>
+
+<ParamField body="card_id" type="integer" required>
+  The customer's loyalty card ID
+</ParamField>
+
+<ParamField body="shop_id" type="integer" required>
+  The shop ID where the stamp is being added
+</ParamField>
+
+<ParamField body="stamps_count" type="integer" default="1">
+  Number of stamps to add (1-10)
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="data.current_step" type="integer">
+  New total number of stamps
+</ResponseField>
+
+<ResponseField name="data.is_completed" type="boolean">
+  Whether the game is now completed
+</ResponseField>
+
+<ResponseField name="data.was_already_completed" type="boolean">
+  Whether the game was already completed before this action
+</ResponseField>
+
+<ResponseField name="data.reward_generated" type="object">
+  Details of the reward if game was completed (coupon, points, etc.)
+</ResponseField>
+
+<ResponseExample>
+```json 200 Stamps Added
+{
+  "success": true,
+  "message": "Stamps added successfully",
+  "data": {
+    "current_step": 6,
+    "stamps_required": 8,
+    "is_completed": false,
+    "was_already_completed": false,
+    "remaining": 2
+  }
+}
+```
+
+```json 200 Game Completed
+{
+  "success": true,
+  "message": "Game completed!",
+  "data": {
+    "current_step": 8,
+    "stamps_required": 8,
+    "is_completed": true,
+    "was_already_completed": false,
+    "reward_generated": {
+      "type": "coupon",
+      "coupon_code": "K12345678",
+      "reward_type": "free_product",
+      "product_name": "Cappuccino",
+      "expires_at": "2024-02-15T23:59:59Z"
+    }
+  }
+}
+```
+</ResponseExample>
+
+## Example Request
+
+```bash
+curl -X POST "https://staging-api.loyalty.lt/en/shop/games/1/add-stamps" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "card_id": 123,
+    "shop_id": 1,
+    "stamps_count": 2
+  }'
+```
+
+## SDK Example
+
+```typescript
+import { LoyaltySDK } from '@loyaltylt/sdk';
+
+const sdk = new LoyaltySDK({
+  apiKey: 'your_api_key',
+  apiSecret: 'your_api_secret',
+});
+
+// Add stamps to a customer's card
+const result = await sdk.addStamps(
+  1,   // gameId
+  123, // cardId
+  1,   // shopId
+  2    // stampsCount
+);
+
+if (result.is_completed) {
+  console.log('Game completed! Reward:', result.reward_generated);
+} else {
+  console.log(`Progress: ${result.current_step}/${result.stamps_required}`);
+}
+```
+
+## React Component Example
+
+```tsx
+import { StampCard } from '@loyaltylt/sdk/react';
+
+function POSScreen({ game, cardId, shopId }) {
+  const handleAddStamps = async (gameId, cardId, shopId, count) => {
+    const result = await sdk.addStamps(gameId, cardId, shopId, count);
+    return result;
+  };
+
+  return (
+    <StampCard
+      game={game}
+      cardId={cardId}
+      shopId={shopId}
+      onAddStamps={handleAddStamps}
+      onGameCompleted={() => {
+        console.log('Game completed!');
+        // Refresh customer data
+      }}
+    />
+  );
+}
+```
+
+## Error Responses
+
+<ResponseExample>
+```json 404 Game Not Found
+{
+  "success": false,
+  "message": "Game not found",
+  "code": "RESOURCE_NOT_FOUND"
+}
+```
+
+```json 400 Invalid Card
+{
+  "success": false,
+  "message": "Loyalty card not found or inactive",
+  "code": "BUSINESS_CARD_BLOCKED"
+}
+```
+</ResponseExample>
+

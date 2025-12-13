@@ -1,0 +1,155 @@
+---
+title: "Calculate Coupon Discount"
+api: "POST /{locale}/shop/coupons/calculate-discount"
+description: "Calculate discount amount for a coupon (Partner API)"
+---
+
+# Calculate Coupon Discount
+
+Calculate the discount amount that would be applied for a given coupon and purchase amount. Useful for previewing the discount before redeeming.
+
+<Info>
+This endpoint uses Partner API authentication (X-API-Key and X-API-Secret headers).
+</Info>
+
+## Request Body
+
+<ParamField body="coupon_code" type="string" required>
+  The coupon code to calculate discount for
+</ParamField>
+
+<ParamField body="purchase_amount" type="number" required>
+  The purchase amount in euros
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates successful calculation
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  <Expandable title="data">
+    <ResponseField name="can_apply" type="boolean">
+      Whether the coupon can be applied to this purchase
+    </ResponseField>
+    
+    <ResponseField name="reason" type="string">
+      Reason if coupon cannot be applied (e.g., minimum purchase not met)
+    </ResponseField>
+    
+    <ResponseField name="discount_amount" type="number">
+      Calculated discount amount in euros
+    </ResponseField>
+    
+    <ResponseField name="final_amount" type="number">
+      Final amount after discount
+    </ResponseField>
+    
+    <ResponseField name="purchase_amount" type="number">
+      Original purchase amount
+    </ResponseField>
+    
+    <ResponseField name="savings" type="number">
+      Total savings (same as discount_amount)
+    </ResponseField>
+    
+    <ResponseField name="points_awarded" type="integer">
+      Points awarded if applicable (for points-type coupons)
+    </ResponseField>
+    
+    <ResponseField name="reward_details" type="string">
+      Human-readable reward description
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X POST "https://staging-api.loyalty.lt/en/shop/coupons/calculate-discount" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "coupon_code": "SUMMER20",
+    "purchase_amount": 50.00
+  }'
+```
+
+```javascript JavaScript SDK
+import { LoyaltySDK } from '@loyaltylt/sdk';
+
+const sdk = new LoyaltySDK({
+  apiKey: 'your_api_key',
+  apiSecret: 'your_api_secret',
+  environment: 'staging'
+});
+
+const result = await sdk.calculateCouponDiscount('SUMMER20', 50.00);
+
+if (result.can_apply) {
+  console.log(`Discount: €${result.discount_amount}`);
+  console.log(`Final amount: €${result.final_amount}`);
+  console.log(`You save: €${result.savings}`);
+} else {
+  console.log(`Cannot apply: ${result.reason}`);
+}
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Successful Calculation
+{
+  "success": true,
+  "message": "Discount calculated successfully",
+  "data": {
+    "can_apply": true,
+    "discount_amount": 10.00,
+    "final_amount": 40.00,
+    "purchase_amount": 50.00,
+    "savings": 10.00,
+    "points_awarded": 0,
+    "reward_details": "20% discount"
+  }
+}
+```
+
+```json Minimum Purchase Not Met
+{
+  "success": true,
+  "message": "Discount calculated successfully",
+  "data": {
+    "can_apply": false,
+    "reason": "Minimum purchase: 30€",
+    "discount_amount": 0,
+    "final_amount": 25.00,
+    "purchase_amount": 25.00
+  }
+}
+```
+
+</ResponseExample>
+
+## Discount Types
+
+| Type | Calculation |
+|------|-------------|
+| `percentage` | `purchase_amount * discount_amount / 100` |
+| `fixed` | `min(discount_amount, purchase_amount)` |
+| `points` | No direct discount, awards points instead |
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+<Card title="Verify Coupon" icon="magnifying-glass" href="/api-reference/endpoints/shop/coupons/verify">
+  Verify coupon details
+</Card>
+
+<Card title="Redeem Coupon" icon="check" href="/api-reference/endpoints/shop/coupons/redeem">
+  Apply the discount
+</Card>
+</CardGroup>
+

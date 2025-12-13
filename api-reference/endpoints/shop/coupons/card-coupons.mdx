@@ -1,0 +1,139 @@
+---
+title: "Get Card Coupons"
+api: "GET /{locale}/shop/coupons/card"
+description: "Get active coupons for a loyalty card (Partner API)"
+---
+
+# Get Card Coupons
+
+Get all active coupons for a specific loyalty card or user. This endpoint is optimized for POS systems to quickly display available coupons during checkout.
+
+<Info>
+This endpoint uses Partner API authentication (X-API-Key and X-API-Secret headers).
+</Info>
+
+## Query Parameters
+
+<ParamField query="shop_id" type="integer" required>
+  The shop ID to filter valid coupons
+</ParamField>
+
+<ParamField query="card_id" type="integer">
+  Loyalty card ID (use either card_id or user_id)
+</ParamField>
+
+<ParamField query="user_id" type="integer">
+  User ID (alternative to card_id)
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates successful retrieval
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  <Expandable title="data">
+    <ResponseField name="coupons" type="array">
+      Array of active coupons with full details including products/categories
+    </ResponseField>
+    
+    <ResponseField name="total_count" type="integer">
+      Total number of active coupons
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X GET "https://staging-api.loyalty.lt/en/shop/coupons/card?shop_id=1&card_id=456" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"
+```
+
+```javascript JavaScript SDK
+import { LoyaltySDK } from '@loyaltylt/sdk';
+
+const sdk = new LoyaltySDK({
+  apiKey: 'your_api_key',
+  apiSecret: 'your_api_secret',
+  environment: 'staging'
+});
+
+const result = await sdk.getCardCoupons(1, 456);
+
+console.log(`Customer has ${result.total_count} active coupons`);
+result.coupons.forEach(coupon => {
+  console.log(`- ${coupon.code}: ${coupon.offer?.reward_details}`);
+  if (coupon.requires_product_selection) {
+    console.log(`  Products: ${coupon.products.map(p => p.name).join(', ')}`);
+  }
+});
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Success Response
+{
+  "success": true,
+  "message": "Customer coupons retrieved successfully",
+  "data": {
+    "coupons": [
+      {
+        "id": 123,
+        "code": "K1234567890",
+        "status": "active",
+        "expiry_time": "2025-01-31T23:59:59Z",
+        "offer": {
+          "id": 456,
+          "title": "Free Coffee",
+          "description": "Choose your free coffee",
+          "reward_details": "Free medium coffee",
+          "original_price": 3.50
+        },
+        "user": {
+          "id": 100,
+          "name": "Jonas Jonaitis",
+          "email": "jonas@example.com"
+        },
+        "is_pending": false,
+        "products": [
+          {
+            "id": 1,
+            "name": "Americano",
+            "description": "Classic black coffee",
+            "image_url": "https://example.com/americano.jpg"
+          },
+          {
+            "id": 2,
+            "name": "Latte",
+            "description": "Espresso with steamed milk",
+            "image_url": "https://example.com/latte.jpg"
+          }
+        ],
+        "categories": [],
+        "requires_product_selection": true
+      }
+    ],
+    "total_count": 1
+  }
+}
+```
+
+</ResponseExample>
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+<Card title="Get Coupon Products" icon="box" href="/api-reference/endpoints/shop/coupons/products">
+  Get available products for a coupon
+</Card>
+
+<Card title="Redeem Coupon" icon="check" href="/api-reference/endpoints/shop/coupons/redeem">
+  Redeem the selected coupon
+</Card>
+</CardGroup>
+

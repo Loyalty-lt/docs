@@ -1,0 +1,130 @@
+---
+title: 'Get Card Games'
+api: 'GET /{locale}/shop/cards/{cardId}/games'
+description: 'Get games with progress for a specific loyalty card'
+---
+
+## Overview
+
+Get all games available for a specific loyalty card, including user progress. This is useful for displaying games on a POS when a customer's card has been scanned.
+
+## Authentication
+
+This endpoint requires Partner API authentication with `X-API-Key` and `X-API-Secret` headers.
+
+## Parameters
+
+<ParamField path="cardId" type="integer" required>
+  The loyalty card ID
+</ParamField>
+
+<ParamField query="shop_id" type="integer">
+  Filter games by shop ID
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  Array of games with user progress
+</ResponseField>
+
+<ResponseField name="data[].id" type="integer">
+  Game ID
+</ResponseField>
+
+<ResponseField name="data[].name" type="object">
+  Localized game name
+</ResponseField>
+
+<ResponseField name="data[].game_type" type="string">
+  Type of game
+</ResponseField>
+
+<ResponseField name="data[].status" type="string">
+  Game status for this user: `available`, `active`, `completed`
+</ResponseField>
+
+<ResponseField name="data[].user_progress" type="object">
+  User's current progress in the game
+</ResponseField>
+
+<ResponseField name="data[].user_progress.current_step" type="integer">
+  Current number of stamps/progress
+</ResponseField>
+
+<ResponseField name="data[].user_progress.completed" type="boolean">
+  Whether the game is completed
+</ResponseField>
+
+<ResponseField name="data[].user_progress.completed_at" type="string">
+  ISO 8601 timestamp when completed
+</ResponseField>
+
+<ResponseExample>
+```json 200
+{
+  "success": true,
+  "message": "Card games retrieved successfully",
+  "data": [
+    {
+      "id": 1,
+      "name": {
+        "lt": "Kavos kortelė",
+        "en": "Coffee Card"
+      },
+      "game_type": "stamps",
+      "is_active": true,
+      "status": "active",
+      "stamps_required": 8,
+      "user_progress": {
+        "current_step": 5,
+        "completed": false,
+        "completed_at": null,
+        "history": [
+          {
+            "timestamp": "2024-01-15T10:30:00Z",
+            "action": "stamp_added",
+            "value": 1,
+            "shop_id": 1
+          }
+        ]
+      },
+      "stamp_settings": {
+        "stamps_required": 8,
+        "reward_type": "free_product",
+        "stamp_icon": "coffee"
+      }
+    }
+  ]
+}
+```
+</ResponseExample>
+
+## Example Request
+
+```bash
+curl -X GET "https://staging-api.loyalty.lt/en/shop/cards/123/games?shop_id=1" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -H "Accept: application/json"
+```
+
+## SDK Example
+
+```typescript
+import { LoyaltySDK } from '@loyaltylt/sdk';
+
+const sdk = new LoyaltySDK({
+  apiKey: 'your_api_key',
+  apiSecret: 'your_api_secret',
+});
+
+// Get games for a customer's card
+const games = await sdk.getCardGames(123, 1); // cardId, shopId
+console.log(games);
+```
+

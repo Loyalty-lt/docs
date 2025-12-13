@@ -1,0 +1,181 @@
+---
+title: 'Get Customer Game History'
+api: 'GET /{locale}/shop/cards/{cardId}/games/history'
+description: 'Get game history for a specific customer'
+---
+
+## Overview
+
+Get the complete game history for a specific customer, including all games they've participated in and their progress.
+
+## Authentication
+
+This endpoint requires Partner API authentication with `X-API-Key` and `X-API-Secret` headers.
+
+## Parameters
+
+<ParamField path="cardId" type="integer" required>
+  The customer's loyalty card ID
+</ParamField>
+
+<ParamField query="shop_id" type="integer">
+  Filter by shop ID
+</ParamField>
+
+<ParamField query="status" type="string">
+  Filter by status: `available`, `active`, `completed`
+</ParamField>
+
+<ParamField query="per_page" type="integer" default="15">
+  Number of items per page
+</ParamField>
+
+<ParamField query="page" type="integer" default="1">
+  Page number
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  Array of games with full history
+</ResponseField>
+
+<ResponseField name="data[].id" type="integer">
+  Game ID
+</ResponseField>
+
+<ResponseField name="data[].name" type="object">
+  Localized game name
+</ResponseField>
+
+<ResponseField name="data[].status" type="string">
+  Current status for this customer
+</ResponseField>
+
+<ResponseField name="data[].user_progress" type="object">
+  Complete progress with history
+</ResponseField>
+
+<ResponseExample>
+```json 200
+{
+  "success": true,
+  "message": "Customer game history retrieved successfully",
+  "data": [
+    {
+      "id": 1,
+      "name": {
+        "lt": "Kavos kortelė",
+        "en": "Coffee Card"
+      },
+      "game_type": "stamps",
+      "status": "completed",
+      "stamps_required": 8,
+      "user_progress": {
+        "current_step": 8,
+        "completed": true,
+        "completed_at": "2024-01-20T15:30:00Z",
+        "history": [
+          {
+            "timestamp": "2024-01-20T15:30:00Z",
+            "action": "game_completed",
+            "value": 8,
+            "shop_id": 1
+          },
+          {
+            "timestamp": "2024-01-20T15:30:00Z",
+            "action": "stamp_added",
+            "value": 1,
+            "shop_id": 1,
+            "performed_by_staff": 42
+          },
+          {
+            "timestamp": "2024-01-18T11:20:00Z",
+            "action": "stamp_added",
+            "value": 2,
+            "shop_id": 1,
+            "performed_by_staff": 42
+          }
+        ]
+      },
+      "reward_claimed": {
+        "type": "coupon",
+        "code": "K12345678",
+        "claimed_at": "2024-01-20T15:30:00Z"
+      }
+    },
+    {
+      "id": 2,
+      "name": {
+        "lt": "Picos kortelė",
+        "en": "Pizza Card"
+      },
+      "game_type": "stamps",
+      "status": "active",
+      "stamps_required": 10,
+      "user_progress": {
+        "current_step": 3,
+        "completed": false,
+        "history": [
+          {
+            "timestamp": "2024-01-15T19:45:00Z",
+            "action": "stamp_added",
+            "value": 3,
+            "shop_id": 2,
+            "performed_by_staff": 15
+          }
+        ]
+      }
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "last_page": 1,
+    "per_page": 15,
+    "total": 2
+  }
+}
+```
+</ResponseExample>
+
+## Example Request
+
+```bash
+curl -X GET "https://staging-api.loyalty.lt/en/shop/cards/123/games/history?status=completed" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -H "Accept: application/json"
+```
+
+## SDK Example
+
+```typescript
+import { LoyaltySDK } from '@loyaltylt/sdk';
+
+const sdk = new LoyaltySDK({
+  apiKey: 'your_api_key',
+  apiSecret: 'your_api_secret',
+});
+
+// Get customer's complete game history
+const history = await sdk.getCustomerGameHistory(123, 1); // cardId, shopId
+
+// Find completed games
+const completedGames = history.filter(g => g.status === 'completed');
+console.log(`Customer has completed ${completedGames.length} games`);
+```
+
+## Use Cases
+
+### Display on POS
+When a customer scans their card at POS, you can use this endpoint to show their game progress and available rewards.
+
+### Customer Analytics
+Track customer engagement by analyzing their game history across all your shops.
+
+### Reward Validation
+Before redeeming a reward, verify the customer has actually completed the game.

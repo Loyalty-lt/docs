@@ -1,0 +1,195 @@
+---
+title: "Get Coupon Products"
+api: "GET /{locale}/shop/coupons/products"
+description: "Get available products for a coupon (Partner API)"
+---
+
+# Get Coupon Products
+
+Get the list of products available for a coupon that requires product selection. Some coupons (especially from games) allow the customer to choose from multiple products.
+
+<Info>
+This endpoint uses Partner API authentication (X-API-Key and X-API-Secret headers).
+</Info>
+
+## Query Parameters
+
+<ParamField query="coupon_id" type="integer" required>
+  The coupon ID to get products for
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates successful retrieval
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  <Expandable title="data">
+    <ResponseField name="products" type="array">
+      Array of available products
+      <Expandable title="Product Object">
+        <ResponseField name="id" type="integer">
+          Product unique identifier
+        </ResponseField>
+        
+        <ResponseField name="name" type="string">
+          Product name
+        </ResponseField>
+        
+        <ResponseField name="description" type="string">
+          Product description
+        </ResponseField>
+        
+        <ResponseField name="image_url" type="string">
+          Product image URL
+        </ResponseField>
+        
+        <ResponseField name="sku" type="string">
+          Product SKU
+        </ResponseField>
+        
+        <ResponseField name="barcode" type="string">
+          Product barcode
+        </ResponseField>
+        
+        <ResponseField name="price" type="number">
+          Current/final price
+        </ResponseField>
+        
+        <ResponseField name="regular_price" type="number">
+          Regular price before discounts
+        </ResponseField>
+        
+        <ResponseField name="currency" type="string">
+          Price currency (default: EUR)
+        </ResponseField>
+        
+        <ResponseField name="categories" type="array">
+          Product categories
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="total_count" type="integer">
+      Total number of available products
+    </ResponseField>
+    
+    <ResponseField name="selection_required" type="boolean">
+      Whether customer must select a product
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X GET "https://staging-api.loyalty.lt/en/shop/coupons/products?coupon_id=123" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"
+```
+
+```javascript JavaScript SDK
+import { LoyaltySDK } from '@loyaltylt/sdk';
+
+const sdk = new LoyaltySDK({
+  apiKey: 'your_api_key',
+  apiSecret: 'your_api_secret',
+  environment: 'staging'
+});
+
+const result = await sdk.getCouponProducts(123);
+
+console.log(`${result.total_count} products available`);
+console.log(`Selection required: ${result.selection_required}`);
+
+result.products.forEach(product => {
+  console.log(`- ${product.name} (${product.price} ${product.currency})`);
+});
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Success Response
+{
+  "success": true,
+  "message": "Available products retrieved successfully",
+  "data": {
+    "products": [
+      {
+        "id": 1,
+        "name": "Americano",
+        "description": "Classic black coffee with hot water",
+        "image_url": "https://example.com/images/americano.jpg",
+        "sku": "COFFEE-001",
+        "barcode": "4750000000001",
+        "price": 2.90,
+        "regular_price": 3.50,
+        "currency": "EUR",
+        "categories": [
+          {
+            "id": 1,
+            "name": "Hot Drinks",
+            "description": "Hot beverages"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "name": "Cappuccino",
+        "description": "Espresso with steamed milk foam",
+        "image_url": "https://example.com/images/cappuccino.jpg",
+        "sku": "COFFEE-002",
+        "barcode": "4750000000002",
+        "price": 3.20,
+        "regular_price": 3.90,
+        "currency": "EUR",
+        "categories": [
+          {
+            "id": 1,
+            "name": "Hot Drinks",
+            "description": "Hot beverages"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "name": "Latte",
+        "description": "Espresso with steamed milk",
+        "image_url": "https://example.com/images/latte.jpg",
+        "sku": "COFFEE-003",
+        "barcode": "4750000000003",
+        "price": 3.50,
+        "regular_price": 4.20,
+        "currency": "EUR",
+        "categories": [
+          {
+            "id": 1,
+            "name": "Hot Drinks",
+            "description": "Hot beverages"
+          }
+        ]
+      }
+    ],
+    "total_count": 3,
+    "selection_required": true
+  }
+}
+```
+
+</ResponseExample>
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+<Card title="Redeem Coupon" icon="check" href="/api-reference/endpoints/shop/coupons/redeem">
+  Redeem with selected product
+</Card>
+
+<Card title="Card Coupons" icon="id-card" href="/api-reference/endpoints/shop/coupons/card-coupons">
+  Get all customer coupons
+</Card>
+</CardGroup>
+

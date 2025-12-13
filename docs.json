@@ -28,7 +28,8 @@
           {
             "group": "Overview",
             "pages": [
-              "api-reference/overview"
+              "api-reference/overview",
+              "api-reference/staging"
             ]
           },
           {
@@ -79,6 +80,32 @@
             "group": "Offers",
             "pages": [
               "api-reference/endpoints/shop/offers/list"
+            ]
+          },
+          {
+            "group": "Games",
+            "pages": [
+              "api-reference/endpoints/shop/games/list",
+              "api-reference/endpoints/shop/games/show",
+              "api-reference/endpoints/shop/games/card-games",
+              "api-reference/endpoints/shop/games/progress",
+              "api-reference/endpoints/shop/games/add-stamps",
+              "api-reference/endpoints/shop/games/complete",
+              "api-reference/endpoints/shop/games/restart",
+              "api-reference/endpoints/shop/games/history"
+            ]
+          },
+          {
+            "group": "Coupons",
+            "pages": [
+              "api-reference/endpoints/shop/coupons/verify",
+              "api-reference/endpoints/shop/coupons/redeem",
+              "api-reference/endpoints/shop/coupons/pending",
+              "api-reference/endpoints/shop/coupons/cancel-pending",
+              "api-reference/endpoints/shop/coupons/list",
+              "api-reference/endpoints/shop/coupons/card-coupons",
+              "api-reference/endpoints/shop/coupons/products",
+              "api-reference/endpoints/shop/coupons/calculate-discount"
             ]
           },
           {

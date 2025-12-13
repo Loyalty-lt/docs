@@ -1,0 +1,148 @@
+---
+title: 'List Games'
+api: 'GET /{locale}/shop/games'
+description: 'Get available games for a shop'
+---
+
+## Overview
+
+List all active games available for a specific shop. Returns games with their stamp settings and basic configuration.
+
+## Authentication
+
+This endpoint requires Partner API authentication with `X-API-Key` and `X-API-Secret` headers.
+
+## Parameters
+
+<ParamField query="shop_id" type="integer" required>
+  The shop ID to filter games for
+</ParamField>
+
+<ParamField query="type" type="string">
+  Filter by game type. Options: `stamps`, `wheel`, `quiz`, `collection`
+</ParamField>
+
+<ParamField query="per_page" type="integer" default="15">
+  Number of items per page (1-100)
+</ParamField>
+
+<ParamField query="page" type="integer" default="1">
+  Page number
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  Array of game objects
+</ResponseField>
+
+<ResponseField name="data[].id" type="integer">
+  Game ID
+</ResponseField>
+
+<ResponseField name="data[].name" type="object">
+  Localized game name (e.g., `{"lt": "Kavos kortelė", "en": "Coffee Card"}`)
+</ResponseField>
+
+<ResponseField name="data[].game_type" type="string">
+  Type of game: `stamps`, `wheel`, `quiz`, `collection`
+</ResponseField>
+
+<ResponseField name="data[].is_active" type="boolean">
+  Whether the game is active
+</ResponseField>
+
+<ResponseField name="data[].stamps_required" type="integer">
+  Number of stamps required to complete (for stamp games)
+</ResponseField>
+
+<ResponseField name="data[].stamp_settings" type="object">
+  Detailed stamp settings including layout, images, and reward configuration
+</ResponseField>
+
+<ResponseField name="data[].partner_name" type="string">
+  Name of the partner offering this game
+</ResponseField>
+
+<ResponseExample>
+```json 200
+{
+  "success": true,
+  "message": "Game list retrieved successfully",
+  "data": [
+    {
+      "id": 1,
+      "name": {
+        "lt": "Kavos kortelė",
+        "en": "Coffee Card"
+      },
+      "description": {
+        "lt": "Surink 8 antspaudus ir gauk kavą nemokamai!",
+        "en": "Collect 8 stamps and get a free coffee!"
+      },
+      "game_type": "stamps",
+      "is_active": true,
+      "stamps_required": 8,
+      "stamp_settings": {
+        "stamps_required": 8,
+        "reward_type": "free_product",
+        "product_name": "Cappuccino",
+        "layout": "grid",
+        "rows": 2,
+        "columns": 4,
+        "stamp_icon": "coffee",
+        "punch_text": {
+          "lt": "Perkite kavą ir gaukite antspaudą!",
+          "en": "Buy coffee and get a stamp!"
+        },
+        "reward_text": {
+          "lt": "Nemokama kava!",
+          "en": "Free coffee!"
+        }
+      },
+      "partner_name": "Coffee Shop",
+      "partner_info": {
+        "id": 1,
+        "name": "Coffee Shop",
+        "description": "Best coffee in town"
+      }
+    }
+  ],
+  "meta": {
+    "current_page": 1,
+    "last_page": 1,
+    "per_page": 15,
+    "total": 1
+  }
+}
+```
+</ResponseExample>
+
+## Example Request
+
+```bash
+curl -X GET "https://staging-api.loyalty.lt/en/shop/games?shop_id=1" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -H "Accept: application/json"
+```
+
+## SDK Example
+
+```typescript
+import { LoyaltySDK } from '@loyaltylt/sdk';
+
+const sdk = new LoyaltySDK({
+  apiKey: 'your_api_key',
+  apiSecret: 'your_api_secret',
+  environment: 'staging',
+});
+
+// List games for a shop
+const games = await sdk.listShopGames(1, { type: 'stamps' });
+console.log(games.data);
+```

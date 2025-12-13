@@ -1,0 +1,154 @@
+---
+title: 'Get Game'
+api: 'GET /{locale}/shop/games/{id}'
+description: 'Get detailed information about a specific game'
+---
+
+## Overview
+
+Get detailed information about a specific game, including its configuration and stamp settings.
+
+## Authentication
+
+This endpoint requires Partner API authentication with `X-API-Key` and `X-API-Secret` headers.
+
+## Parameters
+
+<ParamField path="id" type="integer" required>
+  The game ID
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the request was successful
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  Game details
+</ResponseField>
+
+<ResponseField name="data.id" type="integer">
+  Game ID
+</ResponseField>
+
+<ResponseField name="data.name" type="object">
+  Localized game name
+</ResponseField>
+
+<ResponseField name="data.description" type="object">
+  Localized game description
+</ResponseField>
+
+<ResponseField name="data.game_type" type="string">
+  Type of game: `stamps`, `wheel`, `quiz`, `collection`
+</ResponseField>
+
+<ResponseField name="data.is_active" type="boolean">
+  Whether the game is active
+</ResponseField>
+
+<ResponseField name="data.start_date" type="string">
+  ISO 8601 timestamp when game starts (optional)
+</ResponseField>
+
+<ResponseField name="data.end_date" type="string">
+  ISO 8601 timestamp when game ends (optional)
+</ResponseField>
+
+<ResponseField name="data.stamps_required" type="integer">
+  Number of stamps required to complete (for stamp games)
+</ResponseField>
+
+<ResponseField name="data.stamp_settings" type="object">
+  Full stamp settings including layout, colors, and images
+</ResponseField>
+
+<ResponseExample>
+```json 200
+{
+  "success": true,
+  "message": "Game retrieved successfully",
+  "data": {
+    "id": 1,
+    "name": {
+      "lt": "Kavos kortelė",
+      "en": "Coffee Card"
+    },
+    "description": {
+      "lt": "Surink 8 antspaudus ir gauk kavą nemokamai!",
+      "en": "Collect 8 stamps and get a free coffee!"
+    },
+    "game_type": "stamps",
+    "is_active": true,
+    "start_date": null,
+    "end_date": null,
+    "stamps_required": 8,
+    "stamp_settings": {
+      "stamps_required": 8,
+      "reward_type": "free_product",
+      "product_name": "Cappuccino",
+      "discount_amount": null,
+      "points_amount": null,
+      "expiration_days": 30,
+      "reset_on_complete": true,
+      "layout": "grid",
+      "rows": 2,
+      "columns": 4,
+      "background_color": "#f0f9ff",
+      "text_color": "#0369a1",
+      "item_name_singular": {
+        "lt": "antspaudas",
+        "en": "stamp"
+      },
+      "item_name_plural": {
+        "lt": "antspaudai",
+        "en": "stamps"
+      },
+      "punch_text": {
+        "lt": "Perkite kavą ir gaukite antspaudą!",
+        "en": "Buy coffee and get a stamp!"
+      },
+      "reward_text": {
+        "lt": "Nemokama kava!",
+        "en": "Free coffee!"
+      },
+      "stamp_icon": "coffee",
+      "stamp_icon_type": "icon"
+    },
+    "partner_name": "Coffee Shop",
+    "partner_info": {
+      "id": 1,
+      "name": "Coffee Shop",
+      "description": "Best coffee in town",
+      "logo": "https://example.com/logo.png"
+    }
+  }
+}
+```
+</ResponseExample>
+
+## Example Request
+
+```bash
+curl -X GET "https://staging-api.loyalty.lt/en/shop/games/1" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -H "Accept: application/json"
+```
+
+## SDK Example
+
+```typescript
+import { LoyaltySDK } from '@loyaltylt/sdk';
+
+const sdk = new LoyaltySDK({
+  apiKey: 'your_api_key',
+  apiSecret: 'your_api_secret',
+});
+
+// Get game details
+const game = await sdk.getGame(1);
+console.log('Game:', game.name);
+console.log('Stamps required:', game.stamps_required);
+```
