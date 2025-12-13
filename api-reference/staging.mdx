@@ -139,8 +139,13 @@ await sdk.validateCredentials();
 // 2. Get customer by card
 const customer = await sdk.getPartnerCard('900-001-001');
 
-// 3. Award points
-await sdk.awardPoints('900-001-001', 100, 'Test purchase', 'TEST-001');
+// 3. Create transaction (awards points automatically)
+await sdk.createTransaction({
+  cardId: customer.data.id,
+  amount: 25.50,
+  shopId: 1,
+  description: 'Test purchase'
+});
 
 // 4. Check balance
 const balance = await sdk.getCardBalance('900-001-001');
