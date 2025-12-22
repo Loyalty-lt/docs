@@ -9,9 +9,13 @@ Loyalty.lt provides multiple REST APIs for different integration scenarios. Choo
 
 ## Available APIs
 
-<CardGroup cols={2}>
+<CardGroup cols={3}>
   <Card title="Shop API" icon="store" href="/api-reference/endpoints/shop/overview">
     For e-commerce platforms and POS systems. Award points, manage loyalty cards, process transactions.
+  </Card>
+  
+  <Card title="SMS API" icon="message" href="/api-reference/endpoints/sms/overview">
+    Send SMS messages programmatically with delivery tracking and GDPR-compliant consent management.
   </Card>
   
   <Card title="Partner API" icon="building" href="#">
@@ -33,6 +37,21 @@ The Shop API enables e-commerce platforms and POS systems to integrate with the 
 
 <Card title="Shop API Documentation" icon="arrow-right" href="/api-reference/endpoints/shop/overview">
   Complete Shop API reference with endpoints, authentication, and examples
+</Card>
+
+## SMS API
+
+The SMS API allows partners to send SMS messages programmatically with automatic billing, delivery tracking, and webhook notifications.
+
+### Key Features
+
+- **Send SMS** - Send single or scheduled messages
+- **Delivery Tracking** - Real-time status via webhooks
+- **Marketing Consent** - GDPR-compliant consent management
+- **Sender Names** - Custom alphatag support
+
+<Card title="SMS API Documentation" icon="arrow-right" href="/api-reference/endpoints/sms/overview">
+  Complete SMS API reference with endpoints, pricing, and webhook examples
 </Card>
 
 ## Response Format
@@ -93,12 +112,12 @@ Exceeding rate limits will result in `429 Too Many Requests` responses. If you n
     E-commerce and POS integration
   </Card>
   
-  <Card title="SDKs" icon="puzzle-piece" href="/sdk/overview">
-    Official SDK libraries
+  <Card title="SMS API" icon="message" href="/api-reference/endpoints/sms/overview">
+    Programmatic SMS messaging
   </Card>
   
-  <Card title="Support" icon="envelope" href="mailto:developers@loyalty.lt">
-    Contact developer support
+  <Card title="SDKs" icon="puzzle-piece" href="/sdk/overview">
+    Official SDK libraries
   </Card>
   
   <Card title="Partners Portal" icon="users" href="https://partners.loyalty.lt">
