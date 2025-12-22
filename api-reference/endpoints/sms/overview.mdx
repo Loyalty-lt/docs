@@ -1,0 +1,157 @@
+---
+title: "SMS API Overview"
+description: "Send SMS messages programmatically with automatic billing and delivery tracking"
+---
+
+# SMS API
+
+The Loyalty.lt SMS API allows partners to send SMS messages programmatically with automatic billing, delivery tracking, and marketing consent management.
+
+<Info>
+SMS API is available only for approved partners. Contact [developers@loyalty.lt](mailto:developers@loyalty.lt) to request access.
+</Info>
+
+## Base URL
+
+```
+https://api.loyalty.lt/{locale}/sms
+```
+
+## Features
+
+<CardGroup cols={2}>
+  <Card title="Send SMS" icon="message" href="/api-reference/endpoints/sms/send">
+    Send single or scheduled SMS messages
+  </Card>
+  
+  <Card title="Delivery Status" icon="check-circle" href="/api-reference/endpoints/sms/status">
+    Track message delivery in real-time
+  </Card>
+  
+  <Card title="Marketing Consent" icon="shield-check" href="/api-reference/endpoints/sms/consent">
+    GDPR-compliant consent management
+  </Card>
+  
+  <Card title="Webhooks" icon="webhook">
+    Receive delivery receipts via webhook
+  </Card>
+</CardGroup>
+
+## Authentication
+
+SMS API uses API Key + Secret authentication via headers:
+
+<ParamField header="X-API-Key" type="string" required>
+  Your API key from the Partners Portal
+</ParamField>
+
+<ParamField header="X-API-Secret" type="string" required>
+  Your API secret from the Partners Portal
+</ParamField>
+
+```bash
+curl -X POST "https://api.loyalty.lt/lt/sms/send" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -d '{...}'
+```
+
+## Sender Names (Alphatags)
+
+Before sending SMS, you must have at least one approved sender name. Sender names:
+
+- Must be alphanumeric (letters, numbers, spaces)
+- Maximum 11 characters
+- Require approval before use
+
+<Note>
+Manage your sender names in the [Partners Portal](https://partners.loyalty.lt) → SMS → Sender Names.
+</Note>
+
+## Pricing
+
+SMS messages are billed per message part:
+
+| Region | Price per SMS |
+|--------|---------------|
+| Lithuania | €0.035 |
+| Latvia | €0.045 |
+| Estonia | €0.045 |
+| Other EU | €0.06 |
+
+<Warning>
+Messages longer than 160 characters (or 70 for Unicode) are split into multiple parts and billed accordingly.
+</Warning>
+
+### Message Length Limits
+
+| Encoding | Single SMS | Multi-part SMS (per part) |
+|----------|-----------|---------------------------|
+| GSM-7 (Latin) | 160 chars | 153 chars |
+| Unicode (Cyrillic, emoji, etc.) | 70 chars | 67 chars |
+
+## Rate Limits
+
+| Limit Type | Default | Notes |
+|------------|---------|-------|
+| Per minute | 60 messages | Can be increased on request |
+| Per day | Unlimited | Subject to account balance |
+
+## Error Codes
+
+| Code | HTTP Status | Description |
+|------|-------------|-------------|
+| 1001 | 401 | Invalid API credentials |
+| 1002 | 402 | Insufficient balance |
+| 1003 | 429 | Rate limit exceeded |
+| 2001 | 422 | Sender name not approved |
+| 2002 | 422 | Invalid phone number format |
+
+## Webhook Delivery Reports
+
+When message status changes, we send a POST request to your `receiptURL`:
+
+```json
+{
+  "message_id": "msg_abc123",
+  "status": "delivered",
+  "source": "MyBrand",
+  "destination": "+37061234567",
+  "sent_at": "2025-01-15T10:30:00Z",
+  "delivered_at": "2025-01-15T10:30:05Z",
+  "error_code": null,
+  "error_message": null
+}
+```
+
+### Status Values
+
+| Status | Description |
+|--------|-------------|
+| `queued` | Message accepted, waiting to send |
+| `sent` | Message sent to carrier |
+| `delivered` | Confirmed delivered to handset |
+| `failed` | Delivery failed |
+| `expired` | Message validity period expired |
+
+## Quick Start
+
+<Steps>
+  <Step title="Get API Credentials">
+    Log in to [Partners Portal](https://partners.loyalty.lt) and generate API credentials.
+  </Step>
+  
+  <Step title="Add Sender Name">
+    Request approval for your sender name (alphatag) in the Partners Portal.
+  </Step>
+  
+  <Step title="Send Your First SMS">
+    Use the [Send SMS](/api-reference/endpoints/sms/send) endpoint to send a test message.
+  </Step>
+  
+  <Step title="Set Up Webhooks">
+    Configure your webhook URL to receive delivery reports.
+  </Step>
+</Steps>
+

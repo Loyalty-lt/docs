@@ -1,0 +1,315 @@
+---
+title: "Register Marketing Consent"
+api: "POST /{locale}/sms/consent"
+description: "Register or revoke GDPR-compliant marketing consent for phone numbers"
+---
+
+# Register Marketing Consent
+
+Register or revoke marketing consent for a phone number. Use this endpoint to maintain GDPR-compliant records of consent obtained through your website, app, or other channels.
+
+<Info>
+Marketing consent can also be registered when sending SMS by including `marketing_consent: true` in the send request.
+</Info>
+
+## Path Parameters
+
+<ParamField path="locale" type="string" required>
+  Language code (e.g., `lt`, `en`)
+</ParamField>
+
+## Authentication
+
+<ParamField header="X-API-Key" type="string" required>
+  API key from Partners Portal
+</ParamField>
+
+<ParamField header="X-API-Secret" type="string" required>
+  API secret from Partners Portal
+</ParamField>
+
+## Request Body
+
+### Required Fields
+
+<ParamField body="phone_number" type="string" required>
+  Phone number to register consent for. E.164 format recommended.
+  
+  **Example:** `"+37061234567"`
+</ParamField>
+
+<ParamField body="consent_given" type="boolean" required>
+  - `true` - Register consent (opt-in)
+  - `false` - Revoke consent (opt-out)
+</ParamField>
+
+### Optional Fields (Recommended for GDPR)
+
+<ParamField body="consent_source" type="string" default="api">
+  Source/channel where consent was obtained.
+  
+  **Examples:** `"website_form"`, `"pos"`, `"app"`, `"phone_call"`
+</ParamField>
+
+<ParamField body="client_ip" type="string">
+  The actual IP address of the end user who gave consent. **Important for GDPR compliance.**
+  
+  **Example:** `"192.168.1.100"`
+  
+  <Warning>
+  Do NOT send your server's IP address. Send the actual end user's IP.
+  </Warning>
+</ParamField>
+
+<ParamField body="client_user_agent" type="string">
+  Browser/device user agent string of the person who gave consent.
+  
+  **Example:** `"Mozilla/5.0 (Windows NT 10.0; Win64; x64)..."`
+</ParamField>
+
+<ParamField body="consent_page_url" type="string">
+  URL of the page/form where consent was obtained.
+  
+  **Example:** `"https://example.com/newsletter-subscribe"`
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Whether the consent was registered successfully
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Status message
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  <Expandable title="data">
+    <ResponseField name="phone_number" type="string">
+      Normalized phone number
+    </ResponseField>
+    
+    <ResponseField name="consent_given" type="boolean">
+      Current consent status
+    </ResponseField>
+    
+    <ResponseField name="consent_source" type="string">
+      Consent source channel
+    </ResponseField>
+    
+    <ResponseField name="consent_date" type="string">
+      When consent was given (for opt-in)
+    </ResponseField>
+    
+    <ResponseField name="revoked_at" type="string">
+      When consent was revoked (for opt-out)
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL - Register Consent (Opt-in)
+curl -X POST "https://api.loyalty.lt/lt/sms/consent" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -d '{
+    "phone_number": "+37061234567",
+    "consent_given": true,
+    "consent_source": "website_form",
+    "client_ip": "192.168.1.100",
+    "client_user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    "consent_page_url": "https://example.com/newsletter"
+  }'
+```
+
+```bash cURL - Revoke Consent (Opt-out)
+curl -X POST "https://api.loyalty.lt/lt/sms/consent" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -d '{
+    "phone_number": "+37061234567",
+    "consent_given": false
+  }'
+```
+
+```javascript JavaScript - Website Form Integration
+// When user submits newsletter form
+async function registerSmsConsent(phoneNumber, clientIp, userAgent) {
+  const response = await fetch('https://api.loyalty.lt/lt/sms/consent', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-Key': 'your_api_key',
+      'X-API-Secret': 'your_api_secret'
+    },
+    body: JSON.stringify({
+      phone_number: phoneNumber,
+      consent_given: true,
+      consent_source: 'website_form',
+      client_ip: clientIp,  // Pass from server-side
+      client_user_agent: userAgent,
+      consent_page_url: window.location.href
+    })
+  });
+
+  const data = await response.json();
+  
+  if (data.success) {
+    console.log('Consent registered successfully');
+  }
+  
+  return data;
+}
+```
+
+```php PHP - Server-side Form Handler
+<?php
+// Process newsletter signup form
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $phoneNumber = $_POST['phone'];
+    $consentGiven = isset($_POST['sms_consent']) && $_POST['sms_consent'] === 'on';
+    
+    if ($consentGiven) {
+        $response = file_get_contents('https://api.loyalty.lt/lt/sms/consent', false, stream_context_create([
+            'http' => [
+                'method' => 'POST',
+                'header' => [
+                    'Content-Type: application/json',
+                    'X-API-Key: ' . LOYALTY_API_KEY,
+                    'X-API-Secret: ' . LOYALTY_API_SECRET
+                ],
+                'content' => json_encode([
+                    'phone_number' => $phoneNumber,
+                    'consent_given' => true,
+                    'consent_source' => 'website_form',
+                    'client_ip' => $_SERVER['REMOTE_ADDR'],
+                    'client_user_agent' => $_SERVER['HTTP_USER_AGENT'],
+                    'consent_page_url' => $_SERVER['HTTP_REFERER'] ?? 'https://example.com/subscribe'
+                ])
+            ]
+        ]));
+        
+        $result = json_decode($response, true);
+        
+        if ($result['success']) {
+            echo "Thank you for subscribing!";
+        }
+    }
+}
+```
+
+```python Python
+import requests
+
+# Register consent
+response = requests.post(
+    'https://api.loyalty.lt/lt/sms/consent',
+    headers={
+        'Content-Type': 'application/json',
+        'X-API-Key': 'your_api_key',
+        'X-API-Secret': 'your_api_secret'
+    },
+    json={
+        'phone_number': '+37061234567',
+        'consent_given': True,
+        'consent_source': 'website_form',
+        'client_ip': '192.168.1.100',
+        'client_user_agent': 'Mozilla/5.0...',
+        'consent_page_url': 'https://example.com/newsletter'
+    }
+)
+
+data = response.json()
+print(f"Consent registered: {data['data']['consent_date']}")
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Consent Registered (200)
+{
+  "success": true,
+  "message": "Marketing consent registered successfully",
+  "data": {
+    "phone_number": "+37061234567",
+    "consent_given": true,
+    "consent_source": "website_form",
+    "consent_date": "2025-01-15T10:30:00Z"
+  },
+  "code": 200
+}
+```
+
+```json Consent Revoked (200)
+{
+  "success": true,
+  "message": "Marketing consent revoked successfully",
+  "data": {
+    "phone_number": "+37061234567",
+    "consent_given": false,
+    "revoked_at": "2025-01-15T10:35:00Z"
+  },
+  "code": 200
+}
+```
+
+```json Validation Error (422)
+{
+  "success": false,
+  "message": "Validation failed",
+  "code": "VALIDATION_ERROR",
+  "errors": {
+    "phone_number": ["The phone number format is invalid."],
+    "consent_given": ["The consent given field is required."]
+  }
+}
+```
+
+</ResponseExample>
+
+## GDPR Best Practices
+
+<Steps>
+  <Step title="Collect Client Information">
+    Always capture the end user's IP address and user agent when obtaining consent. Do not use your server's IP.
+  </Step>
+  
+  <Step title="Record Consent Source">
+    Use descriptive `consent_source` values like `website_form`, `checkout_page`, `mobile_app`, `pos_terminal`.
+  </Step>
+  
+  <Step title="Include Page URL">
+    Record `consent_page_url` to prove where consent was obtained.
+  </Step>
+  
+  <Step title="Handle Opt-Outs">
+    Immediately process opt-out requests by calling this endpoint with `consent_given: false`.
+  </Step>
+</Steps>
+
+<Warning>
+**GDPR Compliance Note**
+
+You are responsible for ensuring your consent collection process meets GDPR requirements:
+- Clear and unambiguous consent request
+- Separate consent for different purposes
+- Easy way to withdraw consent
+- Keep records of when and how consent was obtained
+</Warning>
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+  <Card title="Send SMS" icon="message" href="/api-reference/endpoints/sms/send">
+    Send SMS with consent registration in one call
+  </Card>
+  
+  <Card title="SMS Overview" icon="book" href="/api-reference/endpoints/sms/overview">
+    Complete SMS API documentation
+  </Card>
+</CardGroup>
+

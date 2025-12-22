@@ -132,6 +132,15 @@
               "api-reference/endpoints/shop/xml-import/field-mappings",
               "api-reference/endpoints/shop/xml-import/stats"
             ]
+          },
+          {
+            "group": "SMS API",
+            "pages": [
+              "api-reference/endpoints/sms/overview",
+              "api-reference/endpoints/sms/send",
+              "api-reference/endpoints/sms/status",
+              "api-reference/endpoints/sms/consent"
+            ]
           }
         ]
       },

@@ -1,0 +1,415 @@
+---
+title: "Send SMS"
+api: "POST /{locale}/sms/send"
+description: "Send SMS message with automatic billing and delivery tracking"
+---
+
+# Send SMS
+
+Send an SMS message to a mobile phone number. Messages are queued and processed asynchronously with delivery status tracking.
+
+<Info>
+This endpoint requires an approved sender name. See [SMS Overview](/api-reference/endpoints/sms/overview) for setup instructions.
+</Info>
+
+## Path Parameters
+
+<ParamField path="locale" type="string" required>
+  Language code (e.g., `lt`, `en`)
+</ParamField>
+
+## Authentication
+
+<ParamField header="X-API-Key" type="string" required>
+  API key from Partners Portal
+</ParamField>
+
+<ParamField header="X-API-Secret" type="string" required>
+  API secret from Partners Portal
+</ParamField>
+
+## Request Body
+
+### Required Fields
+
+<ParamField body="source" type="string" required>
+  Origin sender name (alphatag). Must be pre-approved in Partners Portal.
+  
+  **Requirements:**
+  - Alphanumeric only (letters, numbers, spaces)
+  - Maximum 11 characters
+  - Must be approved for your account
+  
+  **Example:** `"Loyalty"`, `"MyBrand"`
+</ParamField>
+
+<ParamField body="destination" type="string" required>
+  Target mobile number in E.164 format (with country code).
+  
+  **Example:** `"+37061234567"`, `"37061234567"`
+</ParamField>
+
+<ParamField body="message" type="string" required>
+  Message text to send. Maximum 1600 characters.
+  
+  <Warning>
+  Long messages are split into multiple parts and billed accordingly.
+  </Warning>
+</ParamField>
+
+### Optional Fields
+
+<ParamField body="receipt" type="boolean" default="false">
+  Request delivery receipt. If `true`, status updates will be sent to `receiptURL` or your default webhook URL.
+</ParamField>
+
+<ParamField body="receiptURL" type="string">
+  Callback URL for delivery receipt webhook. Overrides your default webhook URL.
+  
+  **Example:** `"https://your-site.com/sms-webhook"`
+</ParamField>
+
+<ParamField body="scheduled" type="string" format="date-time">
+  Schedule message for future delivery. ISO 8601 format.
+  
+  **Example:** `"2025-01-15T10:30:00Z"`
+</ParamField>
+
+<ParamField body="validity" type="string" format="date-time">
+  Message expiry time. If not delivered by this time, message is discarded. ISO 8601 format.
+  
+  **Example:** `"2025-01-15T23:59:59Z"`
+</ParamField>
+
+<ParamField body="validityMinutes" type="integer">
+  Alternative to `validity`. Number of minutes until message expires.
+  
+  **Range:** 1-10080 (7 days max)
+  
+  **Example:** `1440` (24 hours)
+</ParamField>
+
+### Marketing Consent (GDPR)
+
+<ParamField body="marketing_consent" type="boolean">
+  If `true`, registers that the recipient has consented to receive marketing messages from you.
+</ParamField>
+
+<ParamField body="client_ip" type="string">
+  The actual IP address of the end user/client who gave consent. Required for GDPR compliance.
+  
+  **Example:** `"192.168.1.100"`
+</ParamField>
+
+<ParamField body="client_user_agent" type="string">
+  Browser/device user agent string of the person who gave consent.
+  
+  **Example:** `"Mozilla/5.0 (Windows NT 10.0; Win64; x64)..."`
+</ParamField>
+
+<ParamField body="consent_page_url" type="string">
+  URL of the page where consent was obtained.
+  
+  **Example:** `"https://example.com/subscribe"`
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Whether the message was queued successfully
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Status message
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  <Expandable title="data">
+    <ResponseField name="message_id" type="string">
+      Unique message identifier for status tracking
+    </ResponseField>
+    
+    <ResponseField name="source" type="string">
+      Sender name used
+    </ResponseField>
+    
+    <ResponseField name="destination" type="string">
+      Normalized recipient number
+    </ResponseField>
+    
+    <ResponseField name="status" type="string">
+      Initial status (`queued`)
+    </ResponseField>
+    
+    <ResponseField name="parts" type="integer">
+      Number of message parts (for long messages)
+    </ResponseField>
+    
+    <ResponseField name="cost" type="object">
+      <Expandable title="cost">
+        <ResponseField name="amount" type="number">
+          Total cost in EUR
+        </ResponseField>
+        
+        <ResponseField name="currency" type="string">
+          Currency code (`EUR`)
+        </ResponseField>
+        
+        <ResponseField name="parts_charged" type="integer">
+          Number of parts billed
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="scheduled" type="string">
+      Scheduled delivery time (if provided)
+    </ResponseField>
+    
+    <ResponseField name="validity" type="string">
+      Message expiry time
+    </ResponseField>
+    
+    <ResponseField name="marketing_consent_registered" type="boolean">
+      Whether consent was registered with this message
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL - Basic
+curl -X POST "https://api.loyalty.lt/lt/sms/send" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -d '{
+    "source": "MyBrand",
+    "destination": "+37061234567",
+    "message": "Sveiki! Jūsų užsakymas #12345 išsiųstas."
+  }'
+```
+
+```bash cURL - With Delivery Receipt
+curl -X POST "https://api.loyalty.lt/lt/sms/send" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -d '{
+    "source": "MyBrand",
+    "destination": "+37061234567",
+    "message": "Jūsų patvirtinimo kodas: 123456",
+    "receipt": true,
+    "receiptURL": "https://your-site.com/sms-webhook",
+    "validityMinutes": 10
+  }'
+```
+
+```bash cURL - Scheduled Message
+curl -X POST "https://api.loyalty.lt/lt/sms/send" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -d '{
+    "source": "MyBrand",
+    "destination": "+37061234567",
+    "message": "Primename apie jūsų vizitą rytoj 10:00!",
+    "scheduled": "2025-01-15T08:00:00Z"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://api.loyalty.lt/lt/sms/send', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'your_api_key',
+    'X-API-Secret': 'your_api_secret'
+  },
+  body: JSON.stringify({
+    source: 'MyBrand',
+    destination: '+37061234567',
+    message: 'Sveiki! Jūsų užsakymas #12345 išsiųstas.',
+    receipt: true,
+    receiptURL: 'https://your-site.com/sms-webhook'
+  })
+});
+
+const data = await response.json();
+console.log(`Message ID: ${data.data.message_id}`);
+console.log(`Cost: €${data.data.cost.amount}`);
+```
+
+```php PHP
+<?php
+$apiKey = 'your_api_key';
+$apiSecret = 'your_api_secret';
+
+$response = file_get_contents('https://api.loyalty.lt/lt/sms/send', false, stream_context_create([
+    'http' => [
+        'method' => 'POST',
+        'header' => [
+            'Content-Type: application/json',
+            "X-API-Key: $apiKey",
+            "X-API-Secret: $apiSecret"
+        ],
+        'content' => json_encode([
+            'source' => 'MyBrand',
+            'destination' => '+37061234567',
+            'message' => 'Sveiki! Jūsų užsakymas #12345 išsiųstas.',
+            'receipt' => true
+        ])
+    ]
+]));
+
+$result = json_decode($response, true);
+echo "Message ID: " . $result['data']['message_id'];
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://api.loyalty.lt/lt/sms/send',
+    headers={
+        'Content-Type': 'application/json',
+        'X-API-Key': 'your_api_key',
+        'X-API-Secret': 'your_api_secret'
+    },
+    json={
+        'source': 'MyBrand',
+        'destination': '+37061234567',
+        'message': 'Sveiki! Jūsų užsakymas #12345 išsiųstas.',
+        'receipt': True
+    }
+)
+
+data = response.json()
+print(f"Message ID: {data['data']['message_id']}")
+print(f"Cost: €{data['data']['cost']['amount']}")
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Success (200)
+{
+  "success": true,
+  "message": "SMS sent successfully",
+  "data": {
+    "message_id": "msg_abc123def456",
+    "source": "MyBrand",
+    "destination": "+37061234567",
+    "status": "queued",
+    "parts": 1,
+    "cost": {
+      "amount": 0.035,
+      "currency": "EUR",
+      "parts_charged": 1
+    },
+    "scheduled": null,
+    "validity": "2025-01-16T10:30:00Z",
+    "marketing_consent_registered": false
+  },
+  "code": 200
+}
+```
+
+```json Long Message (200)
+{
+  "success": true,
+  "message": "SMS sent successfully",
+  "data": {
+    "message_id": "msg_xyz789",
+    "source": "MyBrand",
+    "destination": "+37061234567",
+    "status": "queued",
+    "parts": 3,
+    "cost": {
+      "amount": 0.105,
+      "currency": "EUR",
+      "parts_charged": 3
+    }
+  },
+  "code": 200
+}
+```
+
+```json Sender Not Approved (422)
+{
+  "success": false,
+  "message": "Source address 'BadSender' is not allowed. Allowed senders: MyBrand, Company",
+  "code": 2001
+}
+```
+
+```json Invalid Credentials (401)
+{
+  "success": false,
+  "message": "Invalid API credentials",
+  "code": 1001
+}
+```
+
+```json Rate Limit Exceeded (429)
+{
+  "success": false,
+  "message": "Rate limit exceeded. Try again later.",
+  "code": 1003
+}
+```
+
+```json Validation Error (422)
+{
+  "success": false,
+  "message": "Validation failed",
+  "code": "VALIDATION_ERROR",
+  "errors": {
+    "destination": ["The destination format is invalid."],
+    "message": ["The message field is required."]
+  }
+}
+```
+
+</ResponseExample>
+
+## Message Parts Calculation
+
+Messages are split based on character encoding:
+
+### GSM-7 (Standard Latin Characters)
+
+```
+Characters: A-Z, a-z, 0-9, space, and: @£$¥èéùìòÇØøÅåΔ_ΦΓΛΩΠΨΣΘΞ^{}\\[~]|€ÆæßÉ!"#¤%&'()*+,-./:;<=>?¡ÄÖÑÜ§¿äöñüà
+```
+
+| Message Length | Parts |
+|---------------|-------|
+| 1-160 chars | 1 part |
+| 161-306 chars | 2 parts |
+| 307-459 chars | 3 parts |
+
+### Unicode (Non-Latin Characters, Emoji)
+
+| Message Length | Parts |
+|---------------|-------|
+| 1-70 chars | 1 part |
+| 71-134 chars | 2 parts |
+| 135-201 chars | 3 parts |
+
+<Tip>
+To minimize costs, keep messages short and use GSM-7 compatible characters when possible.
+</Tip>
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+  <Card title="Check Status" icon="magnifying-glass" href="/api-reference/endpoints/sms/status">
+    Get delivery status of sent message
+  </Card>
+  
+  <Card title="Register Consent" icon="shield-check" href="/api-reference/endpoints/sms/consent">
+    Register marketing consent separately
+  </Card>
+</CardGroup>
+
