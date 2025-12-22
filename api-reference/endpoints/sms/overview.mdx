@@ -116,14 +116,12 @@ When message status changes, we send a POST request to your `receiptURL`:
 
 ```json
 {
-  "message_id": "msg_abc123",
-  "status": "delivered",
-  "source": "MyBrand",
-  "destination": "+37061234567",
-  "sent_at": "2025-01-15T10:30:00Z",
-  "delivered_at": "2025-01-15T10:30:05Z",
-  "error_code": null,
-  "error_message": null
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "externalId": "your-order-ref-123",
+  "status": "DELIVERED",
+  "recipient": "+37061234567",
+  "timestamp": "2025-01-15T10:30:05.000Z",
+  "error": null
 }
 ```
 
@@ -131,11 +129,14 @@ When message status changes, we send a POST request to your `receiptURL`:
 
 | Status | Description |
 |--------|-------------|
-| `queued` | Message accepted, waiting to send |
-| `sent` | Message sent to carrier |
-| `delivered` | Confirmed delivered to handset |
-| `failed` | Delivery failed |
-| `expired` | Message validity period expired |
+| `SENT` | Message sent to carrier |
+| `DELIVERED` | Confirmed delivered to handset |
+| `FAILED` | Delivery failed |
+| `UNDELIVERABLE` | Number invalid or unreachable |
+
+<Info>
+See [Webhooks documentation](/api-reference/endpoints/sms/webhooks) for complete webhook handling examples.
+</Info>
 
 ## Quick Start
 

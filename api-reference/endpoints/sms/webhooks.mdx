@@ -29,9 +29,9 @@ Webhooks allow you to receive real-time notifications when SMS message status ch
 
 ## Enabling Webhooks
 
-### Per-Message Webhook
+### Setting Webhook URL
 
-Include webhook URL when sending each message:
+Webhook URL must be provided with each SMS request using the `receiptURL` parameter:
 
 ```bash
 curl -X POST "https://api.loyalty.lt/lt/sms/send" \
@@ -47,9 +47,9 @@ curl -X POST "https://api.loyalty.lt/lt/sms/send" \
   }'
 ```
 
-### Default Webhook URL
-
-You can set a default webhook URL in the [Partners Portal](https://partners.loyalty.lt) → Settings → Webhooks. This URL will be used when `receipt: true` but no `receiptURL` is provided.
+<Warning>
+You must include `receiptURL` in every request where you want to receive delivery status updates. There is no default webhook URL setting.
+</Warning>
 
 ## Webhook Payload
 
@@ -57,17 +57,12 @@ When a message status changes, we send a POST request with the following JSON pa
 
 ```json
 {
-  "message_id": "msg_abc123def456",
-  "status": "delivered",
-  "source": "MyBrand",
-  "destination": "+37061234567",
-  "sent_at": "2025-01-15T10:30:00Z",
-  "delivered_at": "2025-01-15T10:30:05Z",
-  "failed_at": null,
-  "scheduled": null,
-  "validity": "2025-01-16T10:30:00Z",
-  "error_code": null,
-  "error_message": null
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "externalId": "your-order-ref-123",
+  "status": "DELIVERED",
+  "recipient": "+37061234567",
+  "timestamp": "2025-01-15T10:30:05.000Z",
+  "error": null
 }
 ```
 
@@ -75,37 +70,25 @@ When a message status changes, we send a POST request with the following JSON pa
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `message_id` | string | Unique message identifier (same as returned from send) |
-| `status` | string | Current status: `sent`, `delivered`, `failed`, `expired` |
-| `source` | string | Sender name used |
-| `destination` | string | Recipient phone number |
-| `sent_at` | string | ISO 8601 timestamp when sent to carrier |
-| `delivered_at` | string | ISO 8601 timestamp when delivered (null if not yet) |
-| `failed_at` | string | ISO 8601 timestamp when failed (null if successful) |
-| `scheduled` | string | Scheduled time if was scheduled message |
-| `validity` | string | Message expiry time |
-| `error_code` | integer | Error code if failed (null otherwise) |
-| `error_message` | string | Human-readable error description if failed |
+| `id` | string | Internal message UUID |
+| `externalId` | string | Your external reference ID (if provided when sending) |
+| `status` | string | Current status: `SENT`, `DELIVERED`, `FAILED`, `UNDELIVERABLE` |
+| `recipient` | string | Recipient phone number |
+| `timestamp` | string | ISO 8601 timestamp when status changed |
+| `error` | string | Error details if failed (null otherwise) |
 
 ## Status Values
 
 | Status | Description | When Triggered |
 |--------|-------------|----------------|
-| `sent` | Message sent to carrier | Immediately after SMPP submission |
-| `delivered` | Confirmed delivered to phone | When carrier confirms DLR |
-| `failed` | Delivery failed | When carrier rejects or reports failure |
-| `expired` | Validity period expired | When message expires undelivered |
+| `SENT` | Message sent to carrier | Immediately after SMPP submission |
+| `DELIVERED` | Confirmed delivered to phone | When carrier confirms DLR |
+| `FAILED` | Delivery failed | When carrier rejects message |
+| `UNDELIVERABLE` | Number unreachable | When number is invalid, expired, or rejected |
 
-## Error Codes
-
-| Code | Description |
-|------|-------------|
-| 1 | Unknown subscriber / invalid number |
-| 2 | Number temporarily unavailable |
-| 3 | Number permanently unavailable |
-| 4 | Carrier rejected message |
-| 5 | Message expired |
-| 6 | Carrier network error |
+<Note>
+Statuses are uppercase: `SENT`, `DELIVERED`, `FAILED`, `UNDELIVERABLE`
+</Note>
 
 ## Handling Webhooks
 
@@ -117,26 +100,35 @@ const app = express();
 
 app.use(express.json());
 
-app.post('/webhooks/sms', (req, res) => {
-  const { message_id, status, destination, error_message } = req.body;
+app.post('/webhooks/sms', async (req, res) => {
+  const { id, externalId, status, recipient, timestamp, error } = req.body;
   
-  console.log(`SMS ${message_id} to ${destination}: ${status}`);
+  console.log(`SMS ${id} to ${recipient}: ${status}`);
   
   switch (status) {
-    case 'delivered':
+    case 'DELIVERED':
       // Mark message as delivered in your database
       await db.messages.update({ 
-        where: { externalId: message_id },
-        data: { status: 'delivered', deliveredAt: new Date() }
+        where: { externalId: externalId },
+        data: { status: 'delivered', deliveredAt: new Date(timestamp) }
       });
       break;
       
-    case 'failed':
+    case 'FAILED':
+    case 'UNDELIVERABLE':
       // Handle failure - maybe retry or notify admin
-      console.error(`SMS failed: ${error_message}`);
+      console.error(`SMS failed: ${error}`);
       await db.messages.update({
-        where: { externalId: message_id },
-        data: { status: 'failed', errorMessage: error_message }
+        where: { externalId: externalId },
+        data: { status: 'failed', errorMessage: error }
+      });
+      break;
+      
+    case 'SENT':
+      // Message sent to carrier, waiting for DLR
+      await db.messages.update({
+        where: { externalId: externalId },
+        data: { status: 'sent', sentAt: new Date(timestamp) }
       });
       break;
   }
@@ -156,24 +148,32 @@ app.listen(3000);
 
 $payload = json_decode(file_get_contents('php://input'), true);
 
-$messageId = $payload['message_id'];
+$id = $payload['id'];
+$externalId = $payload['externalId'];
 $status = $payload['status'];
-$destination = $payload['destination'];
-$errorMessage = $payload['error_message'];
+$recipient = $payload['recipient'];
+$timestamp = $payload['timestamp'];
+$error = $payload['error'];
 
 // Log the webhook
-error_log("SMS Webhook: $messageId to $destination - $status");
+error_log("SMS Webhook: $id to $recipient - $status");
 
 // Update your database
 switch ($status) {
-    case 'delivered':
-        $stmt = $pdo->prepare("UPDATE sms_messages SET status = 'delivered', delivered_at = NOW() WHERE external_id = ?");
-        $stmt->execute([$messageId]);
+    case 'DELIVERED':
+        $stmt = $pdo->prepare("UPDATE sms_messages SET status = 'delivered', delivered_at = ? WHERE external_id = ?");
+        $stmt->execute([$timestamp, $externalId]);
         break;
         
-    case 'failed':
+    case 'SENT':
+        $stmt = $pdo->prepare("UPDATE sms_messages SET status = 'sent', sent_at = ? WHERE external_id = ?");
+        $stmt->execute([$timestamp, $externalId]);
+        break;
+        
+    case 'FAILED':
+    case 'UNDELIVERABLE':
         $stmt = $pdo->prepare("UPDATE sms_messages SET status = 'failed', error_message = ? WHERE external_id = ?");
-        $stmt->execute([$errorMessage, $messageId]);
+        $stmt->execute([$error, $externalId]);
         break;
 }
 
@@ -193,23 +193,29 @@ app = Flask(__name__)
 def sms_webhook():
     payload = request.json
     
-    message_id = payload['message_id']
+    msg_id = payload['id']
+    external_id = payload['externalId']
     status = payload['status']
-    destination = payload['destination']
-    error_message = payload.get('error_message')
+    recipient = payload['recipient']
+    timestamp = payload['timestamp']
+    error = payload.get('error')
     
-    print(f"SMS {message_id} to {destination}: {status}")
+    print(f"SMS {msg_id} to {recipient}: {status}")
     
-    if status == 'delivered':
-        # Update database
+    if status == 'DELIVERED':
         db.execute(
-            "UPDATE sms_messages SET status = 'delivered', delivered_at = NOW() WHERE external_id = %s",
-            [message_id]
+            "UPDATE sms_messages SET status = 'delivered', delivered_at = %s WHERE external_id = %s",
+            [timestamp, external_id]
         )
-    elif status == 'failed':
+    elif status == 'SENT':
+        db.execute(
+            "UPDATE sms_messages SET status = 'sent', sent_at = %s WHERE external_id = %s",
+            [timestamp, external_id]
+        )
+    elif status in ['FAILED', 'UNDELIVERABLE']:
         db.execute(
             "UPDATE sms_messages SET status = 'failed', error_message = %s WHERE external_id = %s",
-            [error_message, message_id]
+            [error, external_id]
         )
     
     return jsonify({'received': True}), 200
@@ -279,20 +285,20 @@ Use this sample payload to test your webhook handler:
 ```bash
 curl -X POST "https://your-site.com/webhooks/sms" \
   -H "Content-Type: application/json" \
+  -H "User-Agent: Loyalty-LT-SMPP-Gateway/1.0" \
   -d '{
-    "message_id": "msg_test123",
-    "status": "delivered",
-    "source": "TestBrand",
-    "destination": "+37061234567",
-    "sent_at": "2025-01-15T10:30:00Z",
-    "delivered_at": "2025-01-15T10:30:05Z",
-    "failed_at": null,
-    "scheduled": null,
-    "validity": "2025-01-16T10:30:00Z",
-    "error_code": null,
-    "error_message": null
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "externalId": "test-order-123",
+    "status": "DELIVERED",
+    "recipient": "+37061234567",
+    "timestamp": "2025-01-15T10:30:05.000Z",
+    "error": null
   }'
 ```
+
+<Tip>
+Webhooks from Loyalty.lt include the header `User-Agent: Loyalty-LT-SMPP-Gateway/1.0` which you can use for verification.
+</Tip>
 
 ## Security Recommendations
 
