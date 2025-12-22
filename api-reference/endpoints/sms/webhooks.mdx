@@ -11,7 +11,7 @@ Webhooks allow you to receive real-time notifications when SMS message status ch
 
 <Steps>
   <Step title="Send SMS with Webhook">
-    Include `receipt: true` and optionally `receiptURL` when sending an SMS.
+    Include `receipt: true` and `receiptURL` when sending an SMS. Both are required to receive webhooks.
   </Step>
   
   <Step title="Message Status Changes">
@@ -58,7 +58,7 @@ When a message status changes, we send a POST request with the following JSON pa
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
-  "externalId": "your-order-ref-123",
+  "externalId": "your-reference-123",
   "status": "DELIVERED",
   "recipient": "+37061234567",
   "timestamp": "2025-01-15T10:30:05.000Z",
@@ -71,7 +71,7 @@ When a message status changes, we send a POST request with the following JSON pa
 | Field | Type | Description |
 |-------|------|-------------|
 | `id` | string | Internal message UUID |
-| `externalId` | string | Your external reference ID (if provided when sending) |
+| `externalId` | string | Your reference ID from your system (if provided when sending) |
 | `status` | string | Current status: `SENT`, `DELIVERED`, `FAILED`, `UNDELIVERABLE` |
 | `recipient` | string | Recipient phone number |
 | `timestamp` | string | ISO 8601 timestamp when status changed |
@@ -246,18 +246,18 @@ if __name__ == '__main__':
 
 ## Retry Policy
 
-If your webhook endpoint fails to respond with HTTP 2xx:
+If your webhook endpoint fails to respond with HTTP 2xx, we retry with increasing delays:
 
 | Attempt | Delay |
 |---------|-------|
 | 1st retry | 30 seconds |
 | 2nd retry | 2 minutes |
 | 3rd retry | 10 minutes |
-| 4th retry | 1 hour |
-| Final | Webhook abandoned |
+| 4th retry | 30 minutes |
+| 5th (final) | 1 hour |
 
 <Warning>
-After 5 failed attempts, the webhook is abandoned. Make sure your endpoint is reliable and responds quickly.
+After 5 failed attempts (over ~2 hours total), the webhook is abandoned. Make sure your endpoint is reliable and responds quickly.
 </Warning>
 
 ## Testing Webhooks
@@ -288,7 +288,7 @@ curl -X POST "https://your-site.com/webhooks/sms" \
   -H "User-Agent: Loyalty-LT-SMPP-Gateway/1.0" \
   -d '{
     "id": "550e8400-e29b-41d4-a716-446655440000",
-    "externalId": "test-order-123",
+    "externalId": "my-ref-123",
     "status": "DELIVERED",
     "recipient": "+37061234567",
     "timestamp": "2025-01-15T10:30:05.000Z",
@@ -302,17 +302,39 @@ Webhooks from Loyalty.lt include the header `User-Agent: Loyalty-LT-SMPP-Gateway
 
 ## Security Recommendations
 
+### Webhook IP Addresses
+
+All webhooks are sent from the following IP addresses. **Whitelist these in your firewall:**
+
+| IP Address | Description |
+|------------|-------------|
+| `185.170.198.15` | Primary webhook server |
+| `5.189.181.34` | Secondary webhook server |
+
+```nginx
+# Nginx example
+location /webhooks/sms {
+    allow 185.170.198.15;
+    allow 5.189.181.34;
+    deny all;
+    
+    # ... your proxy config
+}
+```
+
+### Additional Security Steps
+
 <Steps>
   <Step title="Use HTTPS">
     Always use HTTPS for your webhook endpoint to encrypt data in transit.
   </Step>
   
-  <Step title="Validate IP Address">
-    Optionally whitelist Loyalty.lt IP addresses. Contact support for the current list.
+  <Step title="Whitelist IP Addresses">
+    Only allow requests from `185.170.198.15` and `5.189.181.34`.
   </Step>
   
   <Step title="Verify Message Exists">
-    Before processing, verify the `message_id` exists in your system and was sent by you.
+    Before processing, verify the `id` exists in your system and was sent by you.
   </Step>
   
   <Step title="Rate Limit">

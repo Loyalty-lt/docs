@@ -60,11 +60,15 @@ This endpoint requires an approved sender name. See [SMS Overview](/api-referenc
 ### Optional Fields
 
 <ParamField body="receipt" type="boolean" default="false">
-  Request delivery receipt. If `true`, status updates will be sent to `receiptURL` or your default webhook URL.
+  Request delivery receipt. If `true`, status updates will be sent to `receiptURL`.
 </ParamField>
 
 <ParamField body="receiptURL" type="string">
-  Callback URL for delivery receipt webhook. Overrides your default webhook URL.
+  Callback URL for delivery receipt webhook. **Required** when `receipt: true`.
+  
+  <Warning>
+  There is no default webhook URL. You must provide `receiptURL` with every request to receive delivery updates.
+  </Warning>
   
   **Example:** `"https://your-site.com/sms-webhook"`
 </ParamField>
