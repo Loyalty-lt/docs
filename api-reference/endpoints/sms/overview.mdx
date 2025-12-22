@@ -32,7 +32,7 @@ https://api.loyalty.lt/{locale}/sms
     GDPR-compliant consent management
   </Card>
   
-  <Card title="Webhooks" icon="webhook">
+  <Card title="Webhooks" icon="webhook" href="/api-reference/endpoints/sms/webhooks">
     Receive delivery receipts via webhook
   </Card>
 </CardGroup>
@@ -75,10 +75,12 @@ SMS messages are billed per message part:
 
 | Region | Price per SMS |
 |--------|---------------|
-| Lithuania | €0.035 |
-| Latvia | €0.045 |
-| Estonia | €0.045 |
-| Other EU | €0.06 |
+| Lithuania | €0.0556 |
+| Foreign numbers | €0.1295 |
+
+<Note>
+Exact pricing is displayed in the [Partners Portal](https://partners.loyalty.lt). Prices may vary based on your contract.
+</Note>
 
 <Warning>
 Messages longer than 160 characters (or 70 for Unicode) are split into multiple parts and billed accordingly.

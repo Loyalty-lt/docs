@@ -139,7 +139,8 @@
               "api-reference/endpoints/sms/overview",
               "api-reference/endpoints/sms/send",
               "api-reference/endpoints/sms/status",
-              "api-reference/endpoints/sms/consent"
+              "api-reference/endpoints/sms/consent",
+              "api-reference/endpoints/sms/webhooks"
             ]
           }
         ]

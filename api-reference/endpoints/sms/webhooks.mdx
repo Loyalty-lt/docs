@@ -1,0 +1,328 @@
+---
+title: "SMS Webhooks"
+description: "Receive real-time SMS delivery status updates via webhooks"
+---
+
+# SMS Webhooks
+
+Webhooks allow you to receive real-time notifications when SMS message status changes. Instead of polling the status endpoint, you can configure a callback URL to receive automatic updates.
+
+## How Webhooks Work
+
+<Steps>
+  <Step title="Send SMS with Webhook">
+    Include `receipt: true` and optionally `receiptURL` when sending an SMS.
+  </Step>
+  
+  <Step title="Message Status Changes">
+    When the message is sent, delivered, or fails, our system triggers a webhook.
+  </Step>
+  
+  <Step title="Receive POST Request">
+    We send a POST request to your webhook URL with the delivery status.
+  </Step>
+  
+  <Step title="Confirm Receipt">
+    Your server should respond with HTTP 200 to confirm receipt.
+  </Step>
+</Steps>
+
+## Enabling Webhooks
+
+### Per-Message Webhook
+
+Include webhook URL when sending each message:
+
+```bash
+curl -X POST "https://api.loyalty.lt/lt/sms/send" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -d '{
+    "source": "MyBrand",
+    "destination": "+37061234567",
+    "message": "Your verification code: 123456",
+    "receipt": true,
+    "receiptURL": "https://your-site.com/webhooks/sms"
+  }'
+```
+
+### Default Webhook URL
+
+You can set a default webhook URL in the [Partners Portal](https://partners.loyalty.lt) → Settings → Webhooks. This URL will be used when `receipt: true` but no `receiptURL` is provided.
+
+## Webhook Payload
+
+When a message status changes, we send a POST request with the following JSON payload:
+
+```json
+{
+  "message_id": "msg_abc123def456",
+  "status": "delivered",
+  "source": "MyBrand",
+  "destination": "+37061234567",
+  "sent_at": "2025-01-15T10:30:00Z",
+  "delivered_at": "2025-01-15T10:30:05Z",
+  "failed_at": null,
+  "scheduled": null,
+  "validity": "2025-01-16T10:30:00Z",
+  "error_code": null,
+  "error_message": null
+}
+```
+
+## Payload Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `message_id` | string | Unique message identifier (same as returned from send) |
+| `status` | string | Current status: `sent`, `delivered`, `failed`, `expired` |
+| `source` | string | Sender name used |
+| `destination` | string | Recipient phone number |
+| `sent_at` | string | ISO 8601 timestamp when sent to carrier |
+| `delivered_at` | string | ISO 8601 timestamp when delivered (null if not yet) |
+| `failed_at` | string | ISO 8601 timestamp when failed (null if successful) |
+| `scheduled` | string | Scheduled time if was scheduled message |
+| `validity` | string | Message expiry time |
+| `error_code` | integer | Error code if failed (null otherwise) |
+| `error_message` | string | Human-readable error description if failed |
+
+## Status Values
+
+| Status | Description | When Triggered |
+|--------|-------------|----------------|
+| `sent` | Message sent to carrier | Immediately after SMPP submission |
+| `delivered` | Confirmed delivered to phone | When carrier confirms DLR |
+| `failed` | Delivery failed | When carrier rejects or reports failure |
+| `expired` | Validity period expired | When message expires undelivered |
+
+## Error Codes
+
+| Code | Description |
+|------|-------------|
+| 1 | Unknown subscriber / invalid number |
+| 2 | Number temporarily unavailable |
+| 3 | Number permanently unavailable |
+| 4 | Carrier rejected message |
+| 5 | Message expired |
+| 6 | Carrier network error |
+
+## Handling Webhooks
+
+### Example: Node.js / Express
+
+```javascript
+const express = require('express');
+const app = express();
+
+app.use(express.json());
+
+app.post('/webhooks/sms', (req, res) => {
+  const { message_id, status, destination, error_message } = req.body;
+  
+  console.log(`SMS ${message_id} to ${destination}: ${status}`);
+  
+  switch (status) {
+    case 'delivered':
+      // Mark message as delivered in your database
+      await db.messages.update({ 
+        where: { externalId: message_id },
+        data: { status: 'delivered', deliveredAt: new Date() }
+      });
+      break;
+      
+    case 'failed':
+      // Handle failure - maybe retry or notify admin
+      console.error(`SMS failed: ${error_message}`);
+      await db.messages.update({
+        where: { externalId: message_id },
+        data: { status: 'failed', errorMessage: error_message }
+      });
+      break;
+  }
+  
+  // Always respond with 200 to acknowledge receipt
+  res.status(200).json({ received: true });
+});
+
+app.listen(3000);
+```
+
+### Example: PHP
+
+```php
+<?php
+// webhooks/sms.php
+
+$payload = json_decode(file_get_contents('php://input'), true);
+
+$messageId = $payload['message_id'];
+$status = $payload['status'];
+$destination = $payload['destination'];
+$errorMessage = $payload['error_message'];
+
+// Log the webhook
+error_log("SMS Webhook: $messageId to $destination - $status");
+
+// Update your database
+switch ($status) {
+    case 'delivered':
+        $stmt = $pdo->prepare("UPDATE sms_messages SET status = 'delivered', delivered_at = NOW() WHERE external_id = ?");
+        $stmt->execute([$messageId]);
+        break;
+        
+    case 'failed':
+        $stmt = $pdo->prepare("UPDATE sms_messages SET status = 'failed', error_message = ? WHERE external_id = ?");
+        $stmt->execute([$errorMessage, $messageId]);
+        break;
+}
+
+// Respond with 200
+http_response_code(200);
+echo json_encode(['received' => true]);
+```
+
+### Example: Python / Flask
+
+```python
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+@app.route('/webhooks/sms', methods=['POST'])
+def sms_webhook():
+    payload = request.json
+    
+    message_id = payload['message_id']
+    status = payload['status']
+    destination = payload['destination']
+    error_message = payload.get('error_message')
+    
+    print(f"SMS {message_id} to {destination}: {status}")
+    
+    if status == 'delivered':
+        # Update database
+        db.execute(
+            "UPDATE sms_messages SET status = 'delivered', delivered_at = NOW() WHERE external_id = %s",
+            [message_id]
+        )
+    elif status == 'failed':
+        db.execute(
+            "UPDATE sms_messages SET status = 'failed', error_message = %s WHERE external_id = %s",
+            [error_message, message_id]
+        )
+    
+    return jsonify({'received': True}), 200
+
+if __name__ == '__main__':
+    app.run(port=3000)
+```
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Respond Quickly" icon="bolt">
+    Return HTTP 200 within 5 seconds. Process data asynchronously if needed.
+  </Card>
+  
+  <Card title="Handle Duplicates" icon="copy">
+    Webhooks may be sent multiple times. Use `message_id` to deduplicate.
+  </Card>
+  
+  <Card title="Verify Source" icon="shield">
+    Validate webhook comes from Loyalty.lt IP ranges or use signature verification.
+  </Card>
+  
+  <Card title="Log Everything" icon="file-lines">
+    Log all webhook payloads for debugging and audit purposes.
+  </Card>
+</CardGroup>
+
+## Retry Policy
+
+If your webhook endpoint fails to respond with HTTP 2xx:
+
+| Attempt | Delay |
+|---------|-------|
+| 1st retry | 30 seconds |
+| 2nd retry | 2 minutes |
+| 3rd retry | 10 minutes |
+| 4th retry | 1 hour |
+| Final | Webhook abandoned |
+
+<Warning>
+After 5 failed attempts, the webhook is abandoned. Make sure your endpoint is reliable and responds quickly.
+</Warning>
+
+## Testing Webhooks
+
+### Using ngrok for Local Development
+
+```bash
+# Install ngrok
+npm install -g ngrok
+
+# Start your local server
+node server.js
+
+# Expose it publicly
+ngrok http 3000
+
+# Use the ngrok URL as your receiptURL
+# https://abc123.ngrok.io/webhooks/sms
+```
+
+### Test Payload
+
+Use this sample payload to test your webhook handler:
+
+```bash
+curl -X POST "https://your-site.com/webhooks/sms" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message_id": "msg_test123",
+    "status": "delivered",
+    "source": "TestBrand",
+    "destination": "+37061234567",
+    "sent_at": "2025-01-15T10:30:00Z",
+    "delivered_at": "2025-01-15T10:30:05Z",
+    "failed_at": null,
+    "scheduled": null,
+    "validity": "2025-01-16T10:30:00Z",
+    "error_code": null,
+    "error_message": null
+  }'
+```
+
+## Security Recommendations
+
+<Steps>
+  <Step title="Use HTTPS">
+    Always use HTTPS for your webhook endpoint to encrypt data in transit.
+  </Step>
+  
+  <Step title="Validate IP Address">
+    Optionally whitelist Loyalty.lt IP addresses. Contact support for the current list.
+  </Step>
+  
+  <Step title="Verify Message Exists">
+    Before processing, verify the `message_id` exists in your system and was sent by you.
+  </Step>
+  
+  <Step title="Rate Limit">
+    Implement rate limiting to protect against potential abuse.
+  </Step>
+</Steps>
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+  <Card title="Send SMS" icon="message" href="/api-reference/endpoints/sms/send">
+    Send SMS with webhook configuration
+  </Card>
+  
+  <Card title="Check Status" icon="magnifying-glass" href="/api-reference/endpoints/sms/status">
+    Manually check message status
+  </Card>
+</CardGroup>
+
