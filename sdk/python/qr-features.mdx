@@ -57,16 +57,57 @@ while attempt < max_attempts:
     attempt += 1
 ```
 
-### Real-time with Ably
+### Real-time with Laravel Reverb
+
+The Python SDK is server-side, so it does not open the WebSocket itself. Fetch the Reverb
+connection details and hand them to your frontend, which connects with `pusher-js`:
 
 ```python
-# Get Ably token
-ably_token = sdk.get_ably_token(session['session_id'])
+# Get Reverb connection details (no arguments — the config is not session-specific)
+config = sdk.get_realtime_config()
 
-# Use with Ably Python client
-print(ably_token['token'])
-print(ably_token['channel'])
+# e.g. return it to the browser as JSON
+return {
+    'realtime': config,
+    'channel': config['channel_prefix']['qr_login'] + session['session_id'],
+}
 ```
+
+In the browser:
+
+```javascript
+import Pusher from 'pusher-js';
+
+// 1. Reverb connection details fetched from your backend
+const config = realtime;
+
+// 2. Connect to Reverb (Pusher protocol)
+const pusher = new Pusher(config.key, {
+  wsHost: config.host,
+  wsPort: config.port,
+  wssPort: config.port,
+  forceTLS: config.scheme === 'https',
+  enabledTransports: ['ws', 'wss'],
+  cluster: '',        // Reverb has no clusters, but pusher-js throws without this option
+  disableStats: true
+});
+
+// 3. Subscribe to the public session channel
+const channel = pusher.subscribe(`${config.channel_prefix.qr_login}${sessionId}`);
+
+// 4. Listen for events
+channel.bind(config.event, (payload) => {
+  console.log('Status:', payload.status);
+});
+```
+
+<Note>
+  `get_realtime_config()` maps to
+  [`GET /{locale}/shop/realtime/config`](/api-reference/endpoints/shop/realtime/config) and uses
+  the same `X-API-Key` / `X-API-Secret` headers as every other Shop endpoint. QR channels are
+  public — the unguessable session ID is the secret — so no realtime tokens are involved.
+  Server-side polling (above) remains the fallback if you cannot run a WebSocket client.
+</Note>
 
 ## QR Card Scan (POS)
 
@@ -251,12 +292,16 @@ async def wait_for_customer_async(sdk: LoyaltySDK, session_id: str, timeout: int
     return None
 ```
 
-## Events Reference
+## Realtime Events Reference
 
-| Event | Description |
-|-------|-------------|
-| `status_update` | QR Login status changed |
-| `card_identified` | Customer scanned QR Card |
+| Channel | Event | Description |
+|---------|-------|-------------|
+| `qr-login.{session_id}` | `status_update` | QR Login status changed |
+| `qr-card.{session_id}` | `card_identified` | Customer scanned QR Card |
+| `qr-card.{session_id}` | `status_update` | QR Card session status changed |
+
+Both channels are public — the unguessable session ID is the secret — so no channel
+authentication is required.
 
 ### Status Values
 

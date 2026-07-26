@@ -58,20 +58,39 @@ document.getElementById('customer-qr').src = qrImageUrl;
 
 ### 3. Subscribe to Card Identification Events
 
+The simplest option is the SDK helper, which connects to Reverb for you:
+
 ```typescript
-import Ably from 'ably';
+const unsubscribe = sdk.subscribeToQrCardScan(session.session_id, (payload) => {
+  setCurrentCustomer(payload.card_data);
+});
+```
 
-// Get Ably client options with automatic token renewal
-const ablyOptions = await sdk.createAblyClientOptions(session.session_id);
+If you prefer to drive the connection yourself, use `pusher-js` directly:
 
-// Connect to Ably (token will auto-renew before expiry)
-const ably = new Ably.Realtime(ablyOptions);
-const tokenResponse = await sdk.getAblyToken(session.session_id);
-const channel = ably.channels.get(tokenResponse.channel);
+```javascript
+import Pusher from 'pusher-js';
 
-// Listen for card identification
-channel.subscribe('card_identified', (message) => {
-  const cardData = message.data.card_data;
+// 1. Fetch Reverb connection details
+const config = await sdk.getRealtimeConfig();
+
+// 2. Connect to Reverb (Pusher protocol)
+const pusher = new Pusher(config.key, {
+  wsHost: config.host,
+  wsPort: config.port,
+  wssPort: config.port,
+  forceTLS: config.scheme === 'https',
+  enabledTransports: ['ws', 'wss'],
+  cluster: '',        // Reverb has no clusters, but pusher-js throws without this option
+  disableStats: true
+});
+
+// 3. Subscribe to the public session channel
+const channel = pusher.subscribe(`${config.channel_prefix.qr_card}${session.session_id}`);
+
+// 4. Listen for card identification
+channel.bind('card_identified', (payload) => {
+  const cardData = payload.card_data;
   
   console.log('Customer identified!');
   console.log('Name:', cardData.user?.name);
@@ -81,11 +100,18 @@ channel.subscribe('card_identified', (message) => {
   // Update POS with customer data
   setCurrentCustomer(cardData);
 });
+
+// Session status changes (scanned / expired / completed)
+channel.bind(config.event, (payload) => {
+  console.log('Status:', payload.status);
+});
 ```
 
 <Note>
-  The `createAblyClientOptions` method includes `authCallback` for automatic token renewal.
-  This ensures your connection stays alive without manual token refresh.
+  There are no realtime tokens anymore. The card channel (`qr-card.{session_id}`) is a public
+  channel — the unguessable session ID is the secret — and `pusher-js` reconnects
+  automatically, so nothing has to be refreshed. Connection details come from
+  [`GET /{locale}/shop/realtime/config`](/api-reference/endpoints/shop/realtime/config).
 </Note>
 
 ### 4. Polling Fallback
@@ -117,12 +143,12 @@ async function pollCardStatus(sessionId: string) {
 
 ```typescript
 import { LoyaltySDK } from '@loyaltylt/sdk';
-import Ably from 'ably';
+import Pusher from 'pusher-js';
 
 class POSSystem {
   private sdk: LoyaltySDK;
   private currentCustomer: any = null;
-  private ablyClient: Ably.Realtime | null = null;
+  private pusherClient: Pusher | null = null;
   
   constructor() {
     this.sdk = new LoyaltySDK({
@@ -139,16 +165,26 @@ class POSSystem {
     // Display QR on customer screen
     this.updateCustomerDisplay(session.qr_code);
     
-    // Get Ably options with automatic token renewal
-    const ablyOptions = await this.sdk.createAblyClientOptions(session.session_id);
-    const tokenResponse = await this.sdk.getAblyToken(session.session_id);
+    // Fetch Reverb connection details
+    const config = await this.sdk.getRealtimeConfig();
     
-    // Connect to Ably (token auto-renews)
-    this.ablyClient = new Ably.Realtime(ablyOptions);
-    const channel = this.ablyClient.channels.get(tokenResponse.channel);
+    // Connect to Reverb (Pusher protocol)
+    this.pusherClient = new Pusher(config.key, {
+      wsHost: config.host,
+      wsPort: config.port,
+      wssPort: config.port,
+      forceTLS: config.scheme === 'https',
+      enabledTransports: ['ws', 'wss'],
+      cluster: '',        // Reverb has no clusters, but pusher-js throws without this option
+      disableStats: true
+    });
     
-    channel.subscribe('card_identified', (message) => {
-      this.handleCustomerIdentified(message.data.card_data);
+    const channel = this.pusherClient.subscribe(
+      `${config.channel_prefix.qr_card}${session.session_id}`
+    );
+    
+    channel.bind('card_identified', (payload) => {
+      this.handleCustomerIdentified(payload.card_data);
     });
     
     // Auto-regenerate on expiry
@@ -239,11 +275,15 @@ interface CardData {
 }
 ```
 
-## Ably Channel Events
+## Reverb Channel Events
+
+Channel: `qr-card.{session_id}` (public — no channel authentication needed). The session
+response also returns this name in the `realtime_channel` field.
 
 | Event | Description | Data |
 |-------|-------------|------|
 | `card_identified` | Customer scanned QR | `{ card_data: CardData }` |
+| `status_update` | Session status changed | `{ status }` |
 
 ## Auto-Regeneration
 

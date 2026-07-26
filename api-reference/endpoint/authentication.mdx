@@ -18,7 +18,7 @@ Desktop-to-mobile authentication flow for seamless login:
 
 - `POST /{locale}/shop/auth/qr-login/generate` - Generate QR session
 - `POST /{locale}/shop/auth/qr-login/poll/{sessionId}` - Poll session status
-- `POST /{locale}/shop/ably/token` - Get Ably WebSocket token
+- `GET /{locale}/shop/realtime/config` - Get Reverb WebSocket connection config
 
 **Use Case:** Desktop applications where users want to login using their mobile device.
 
@@ -75,12 +75,49 @@ Account deletion is irreversible and removes all user data including loyalty car
 # 1. Desktop generates QR session
 POST /{locale}/shop/auth/qr-login/generate
 
-# 2. Get Ably token and subscribe to real-time events
-POST /{locale}/shop/ably/token
+# 2. Get Reverb connection config and subscribe to the qr-login.{sessionId} channel
+GET /{locale}/shop/realtime/config
 
 # 3. User scans QR with Loyalty.lt mobile app
 
-# 4. Desktop receives authentication tokens via Ably WebSocket
+# 4. Desktop receives authentication tokens via the Reverb WebSocket (status_update event)
+```
+
+Connecting with `pusher-js`:
+
+```javascript
+import Pusher from 'pusher-js';
+
+// 1. Fetch Reverb connection details
+const response = await fetch('https://staging-api.loyalty.lt/en/shop/realtime/config', {
+  headers: {
+    'X-API-Key': 'your_api_key',
+    'X-API-Secret': 'your_api_secret'
+  }
+});
+const { data: config } = await response.json();
+
+// 2. Connect to Reverb (Pusher protocol)
+const pusher = new Pusher(config.key, {
+  wsHost: config.host,
+  wsPort: config.port,
+  wssPort: config.port,
+  forceTLS: config.scheme === 'https',
+  enabledTransports: ['ws', 'wss'],
+  cluster: '',        // Reverb has no clusters, but pusher-js throws without this option
+  disableStats: true
+});
+
+// 3. Subscribe to the public QR login channel
+const channel = pusher.subscribe(`qr-login.${session_id}`);
+
+// 4. Listen for status updates
+channel.bind('status_update', (payload) => {
+  if (payload.status === 'confirmed') {
+    console.log('User:', payload.user);
+    console.log('Token:', payload.token);
+  }
+});
 ```
 
 ## Response Examples

@@ -46,8 +46,42 @@ Customer identification system for POS terminals and kiosks.
 
 **Key Endpoints:**
 - `POST /{locale}/shop/qr-card/generate` - Generate QR card scan session
-- `POST /{locale}/shop/ably/token` - Get Ably WebSocket token
+- `GET /{locale}/shop/realtime/config` - Get Reverb WebSocket connection config
 - `GET /{locale}/shop/qr-card/status/{sessionId}` - Poll session status
+
+Subscribe to the public `qr-card.{sessionId}` channel and listen for the `card_identified` event:
+
+```javascript
+import Pusher from 'pusher-js';
+
+// 1. Fetch Reverb connection details
+const response = await fetch('https://staging-api.loyalty.lt/en/shop/realtime/config', {
+  headers: {
+    'X-API-Key': 'your_api_key',
+    'X-API-Secret': 'your_api_secret'
+  }
+});
+const { data: config } = await response.json();
+
+// 2. Connect to Reverb (Pusher protocol)
+const pusher = new Pusher(config.key, {
+  wsHost: config.host,
+  wsPort: config.port,
+  wssPort: config.port,
+  forceTLS: config.scheme === 'https',
+  enabledTransports: ['ws', 'wss'],
+  cluster: '',        // Reverb has no clusters, but pusher-js throws without this option
+  disableStats: true
+});
+
+// 3. Subscribe to the public QR card channel
+const channel = pusher.subscribe(`qr-card.${session_id}`);
+
+// 4. Listen for the identified card
+channel.bind('card_identified', (payload) => {
+  console.log('Card:', payload);
+});
+```
 
 ## Core Shop Features
 

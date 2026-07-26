@@ -48,9 +48,9 @@
             ]
           },
           {
-            "group": "Real-time (Ably)",
+            "group": "Real-time (Reverb)",
             "pages": [
-              "api-reference/endpoints/shop/ably/token"
+              "api-reference/endpoints/shop/realtime/config"
             ]
           },
           {

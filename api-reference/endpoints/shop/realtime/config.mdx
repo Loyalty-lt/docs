@@ -1,0 +1,415 @@
+---
+title: "Realtime Config"
+api: "GET /{locale}/shop/realtime/config"
+description: "Get Laravel Reverb (Pusher protocol) connection details for real-time WebSocket communication"
+---
+
+# Realtime Configuration
+
+Real-time events are delivered over **Laravel Reverb** at `wss://ws.loyalty.lt` using the **Pusher protocol**. This endpoint returns everything a client needs to open that connection: the app key, host, port and the channel prefixes for QR sessions.
+
+## Supported Session Types
+
+| Session Type | Channel Format | Visibility | Use Case |
+|--------------|----------------|------------|----------|
+| `login` | `qr-login.{session_id}` | Public | User authentication via QR code |
+| `card_scan` | `qr-card.{session_id}` | Public | Customer identification at POS |
+
+<Note>
+QR channels are **public** — there is no channel authorization step. The unguessable session ID is the secret, and sessions expire after 5 minutes. Private channels (`user.{id}`, `shopping-session.{id}`) authenticate separately via `POST /{locale}/broadcasting/auth` with a JWT `Authorization: Bearer` header.
+</Note>
+
+## Endpoint
+
+```
+GET /{locale}/shop/realtime/config
+```
+
+## Authentication
+
+<ParamField header="X-API-Key" type="string" required>
+  API key from Partners Portal
+</ParamField>
+
+<ParamField header="X-API-Secret" type="string" required>
+  API secret from Partners Portal
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Indicates if the configuration was returned successfully
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable status message
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  <Expandable title="data">
+    <ResponseField name="key" type="string">
+      Reverb app key — pass as the first argument to `pusher-js`. This is a public key; no secret is ever returned.
+    </ResponseField>
+
+    <ResponseField name="host" type="string">
+      WebSocket host, e.g. `ws.loyalty.lt`
+    </ResponseField>
+
+    <ResponseField name="port" type="integer">
+      WebSocket port, e.g. `443`
+    </ResponseField>
+
+    <ResponseField name="scheme" type="string">
+      `https` or `http`. Use `forceTLS: scheme === 'https'` in the client options.
+    </ResponseField>
+
+    <ResponseField name="channel_prefix" type="object">
+      Channel name prefixes. Append the session ID to build the channel name:
+      - `qr_login` — `qr-login.` → `qr-login.{session_id}`
+      - `qr_card` — `qr-card.` → `qr-card.{session_id}`
+    </ResponseField>
+
+    <ResponseField name="event" type="string">
+      Event name to bind on QR session channels: `status_update`
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl -X GET "https://staging-api.loyalty.lt/en/shop/realtime/config" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret"
+```
+
+```javascript JavaScript SDK (Recommended)
+import { LoyaltySDK } from '@loyaltylt/sdk';
+
+const sdk = new LoyaltySDK({
+  apiKey: 'lty_your_api_key',
+  apiSecret: 'your_api_secret'
+});
+
+// Raw connection details (takes no arguments)
+const config = await sdk.getRealtimeConfig();
+
+// Or let the SDK handle the connection for you
+const unsubscribe = sdk.subscribeToQrLogin(sessionId, (payload) => {
+  console.log('Status:', payload.status);
+});
+```
+
+```javascript JavaScript Manual
+import Pusher from 'pusher-js';
+
+// 1. Fetch Reverb connection details
+const response = await fetch('https://staging-api.loyalty.lt/en/shop/realtime/config', {
+  headers: {
+    'X-API-Key': 'your_api_key',
+    'X-API-Secret': 'your_api_secret'
+  }
+});
+
+const { data: config } = await response.json();
+
+// 2. Connect to Reverb (Pusher protocol)
+const pusher = new Pusher(config.key, {
+  wsHost: config.host,
+  wsPort: config.port,
+  wssPort: config.port,
+  forceTLS: config.scheme === 'https',
+  enabledTransports: ['ws', 'wss'],
+  cluster: '',        // Reverb has no clusters, but pusher-js throws without this option
+  disableStats: true
+});
+
+// 3. Subscribe to the public QR session channel
+const channel = pusher.subscribe(`${config.channel_prefix.qr_login}${sessionId}`);
+
+// 4. Listen for status updates
+channel.bind(config.event, (payload) => {
+  console.log('Status:', payload.status);
+});
+```
+
+```php PHP
+$response = Http::withHeaders([
+    'X-API-Key' => config('services.loyalty.api_key'),
+    'X-API-Secret' => config('services.loyalty.api_secret'),
+])->get('https://staging-api.loyalty.lt/en/shop/realtime/config');
+
+$config = $response->json()['data'];
+
+// Hand the public connection details to your frontend
+return response()->json([
+    'key' => $config['key'],
+    'host' => $config['host'],
+    'port' => $config['port'],
+    'scheme' => $config['scheme'],
+    'channel' => $config['channel_prefix']['qr_login'].$sessionId,
+    'event' => $config['event'],
+]);
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Success Response (200)
+{
+  "success": true,
+  "message": "Realtime configuration",
+  "data": {
+    "key": "loyalty_reverb_key",
+    "host": "ws.loyalty.lt",
+    "port": 443,
+    "scheme": "https",
+    "channel_prefix": {
+      "qr_login": "qr-login.",
+      "qr_card": "qr-card."
+    },
+    "event": "status_update"
+  }
+}
+```
+
+```json Invalid Credentials (403)
+{
+  "success": false,
+  "message": "Invalid API credentials",
+  "code": "AUTH_FORBIDDEN"
+}
+```
+
+</ResponseExample>
+
+---
+
+## Client Setup
+
+Install `pusher-js` (Reverb speaks the Pusher protocol — no Reverb-specific client exists):
+
+<CodeGroup>
+
+```bash npm
+npm install pusher-js
+```
+
+```bash Laravel Echo
+npm install laravel-echo pusher-js
+```
+
+```html CDN
+<script src="https://js.pusher.com/8.4/pusher.min.js"></script>
+```
+
+</CodeGroup>
+
+### Client Options
+
+| Option | Value | Why |
+|--------|-------|-----|
+| `wsHost` | `data.host` | Reverb host (`ws.loyalty.lt`) |
+| `wsPort` / `wssPort` | `data.port` | Same port for both — `443` |
+| `forceTLS` | `data.scheme === 'https'` | Use `wss://` in production |
+| `enabledTransports` | `['ws', 'wss']` | Reverb has no HTTP fallback transports |
+| `cluster` | `''` | Reverb has no Pusher "cluster", but `pusher-js` throws without the option |
+| `disableStats` | `true` | Avoids calls to Pusher's stats endpoint |
+
+### Laravel Echo
+
+```javascript
+import Echo from 'laravel-echo';
+import Pusher from 'pusher-js';
+
+window.Pusher = Pusher;
+
+const echo = new Echo({
+  broadcaster: 'pusher',
+  key: config.key,
+  wsHost: config.host,
+  wsPort: config.port,
+  wssPort: config.port,
+  forceTLS: config.scheme === 'https',
+  enabledTransports: ['ws', 'wss'],
+  cluster: '',
+  disableStats: true
+});
+
+echo.channel(`qr-login.${sessionId}`)
+  .listen('.status_update', (payload) => {
+    console.log('Status:', payload.status);
+  });
+```
+
+---
+
+## Channel Reference
+
+| Channel | Type | Auth | Events |
+|---------|------|------|--------|
+| `qr-login.{session_id}` | Public | None | `status_update` |
+| `qr-card.{session_id}` | Public | None | `status_update`, `card_identified` |
+| `user.{user_id}` | Private | JWT via `/broadcasting/auth` | User-scoped events |
+| `user.{user_id}.notifications` | Private | JWT via `/broadcasting/auth` | `notification:received` |
+| `shopping-session.{session_id}` | Private | JWT via `/broadcasting/auth` | `session_update` |
+
+<Note>
+The Pusher protocol forbids `:` in **channel** names, so channel segments are separated with `.`. Event names may still contain `:` (for example `notification:received`).
+</Note>
+
+---
+
+## Publish to an Upload Session
+
+Storefront integrations that hand a file from a phone to a desktop (photo upload sessions) publish through this endpoint. Reverb has no client-side publish, so your **server** posts the event and Loyalty.lt broadcasts it.
+
+<Warning>
+**Server-to-server only.** This endpoint requires the API secret and must never be called from a browser.
+</Warning>
+
+### Endpoint
+
+```
+POST /{locale}/shop/realtime/publish
+```
+
+### Request Body
+
+<ParamField body="session_code" type="string" required>
+  Upload session code. Must match `^[A-Za-z0-9_-]{1,64}$`.
+</ParamField>
+
+<ParamField body="event" type="string" required>
+  One of `image-upload`, `mobile-joined`, `mobile-left`.
+</ParamField>
+
+<ParamField body="data" type="object">
+  Optional payload delivered to subscribers as-is.
+</ParamField>
+
+### Broadcast Channel
+
+```
+upload-session.{session_code}
+```
+
+This is a **public** channel — the unguessable session code is the secret, exactly like the QR channels.
+
+<RequestExample>
+
+```bash cURL
+curl -X POST "https://staging-api.loyalty.lt/en/shop/realtime/publish" \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your_api_key" \
+  -H "X-API-Secret: your_api_secret" \
+  -d '{
+    "session_code": "aB3xK9_upload-42",
+    "event": "image-upload",
+    "data": {
+      "url": "https://cdn.example.com/uploads/photo.jpg"
+    }
+  }'
+```
+
+```php PHP (server-side)
+Http::withHeaders([
+    'X-API-Key' => config('services.loyalty.api_key'),
+    'X-API-Secret' => config('services.loyalty.api_secret'),
+])->post('https://staging-api.loyalty.lt/en/shop/realtime/publish', [
+    'session_code' => $sessionCode,
+    'event' => 'image-upload',
+    'data' => ['url' => $uploadedUrl],
+]);
+```
+
+```javascript Node.js (server-side)
+// Never run this in the browser - it needs the API secret.
+await fetch('https://staging-api.loyalty.lt/en/shop/realtime/publish', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': process.env.LOYALTY_API_KEY,
+    'X-API-Secret': process.env.LOYALTY_API_SECRET
+  },
+  body: JSON.stringify({
+    session_code: sessionCode,
+    event: 'image-upload',
+    data: { url: uploadedUrl }
+  })
+});
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json Success Response (200)
+{
+  "success": true,
+  "message": "Published",
+  "data": null
+}
+```
+
+```json Validation Error (422)
+{
+  "success": false,
+  "message": "Validation failed",
+  "errors": {
+    "event": ["The selected event is invalid."]
+  }
+}
+```
+
+</ResponseExample>
+
+### Subscribing on the Desktop
+
+```javascript
+const channel = pusher.subscribe(`upload-session.${sessionCode}`);
+
+channel.bind('image-upload', (payload) => {
+  document.querySelector('#preview').src = payload.url;
+});
+
+channel.bind('mobile-joined', () => console.log('Phone connected'));
+channel.bind('mobile-left', () => console.log('Phone disconnected'));
+```
+
+---
+
+## Error Codes
+
+| Code | Description | HTTP Status |
+|------|-------------|-------------|
+| `AUTH_FORBIDDEN` | Invalid or missing API credentials | 403 |
+| `VALIDATION_ERROR` | Invalid `session_code` or `event` (publish only) | 422 |
+| `INTERNAL_ERROR` | Realtime not configured or broadcast failed | 500 |
+
+---
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Use SDK Methods" icon="code">
+    `subscribeToQrLogin()` / `subscribeToQrCardScan()` handle connection and cleanup for you
+  </Card>
+
+  <Card title="Cache the Config" icon="hashtag">
+    Connection details rarely change — fetch once per page load, not per subscription
+  </Card>
+
+  <Card title="Always Pass `cluster`" icon="triangle-exclamation">
+    `pusher-js` throws without it even though Reverb ignores the value
+  </Card>
+
+  <Card title="Publish from a Server" icon="lock">
+    `/realtime/publish` needs the API secret — never call it from a browser
+  </Card>
+</CardGroup>
+
+<Tip>
+  Reverb keeps the connection alive with its own heartbeat and `pusher-js` reconnects automatically — there are no tokens to refresh.
+</Tip>

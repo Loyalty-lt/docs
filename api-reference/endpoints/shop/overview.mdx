@@ -59,7 +59,8 @@ curl -X GET "https://staging-api.loyalty.lt/en/shop/auth/me" \
 | `GET` | `/auth/me` | JWT | Get current user |
 | `POST` | `/auth/qr-login/generate` | Partner | Generate QR session |
 | `POST` | `/auth/qr-login/poll/{session_id}` | Partner | Poll session status |
-| `POST` | `/ably/token` | Partner | Get Ably WebSocket token |
+| `GET` | `/realtime/config` | Partner | Get Reverb WebSocket connection config |
+| `POST` | `/realtime/publish` | Partner | Publish a realtime event (server-to-server only) |
 | `POST` | `/auth/send-app-link` | Partner | Send app download SMS |
 
 ### Loyalty Cards Endpoints

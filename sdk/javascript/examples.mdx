@@ -40,7 +40,7 @@ A complete Point of Sale implementation with customer identification, cart manag
 
 - Split-screen layout (Customer Display + POS Interface)
 - QR code customer identification
-- Real-time Ably updates
+- Real-time Reverb (WebSocket) updates
 - Product catalog
 - Cart with points earning preview
 - Points redemption
@@ -51,6 +51,7 @@ A complete Point of Sale implementation with customer identification, cart manag
 
 ```typescript
 import { LoyaltySDK } from '@loyaltylt/sdk';
+import Pusher from 'pusher-js';
 
 class POSSystem {
   private sdk: LoyaltySDK;
@@ -70,16 +71,26 @@ class POSSystem {
     const session = await this.sdk.generateQrCardSession('POS');
     this.displayQR(session.qr_code);
     
-    // Get Ably options with automatic token renewal
-    const ablyOptions = await this.sdk.createAblyClientOptions(session.session_id);
-    const tokenResponse = await this.sdk.getAblyToken(session.session_id);
+    // Fetch Reverb connection details
+    const config = await this.sdk.getRealtimeConfig();
     
-    // Connect to Ably (token auto-renews)
-    const ably = new Ably.Realtime(ablyOptions);
-    const channel = ably.channels.get(tokenResponse.channel);
+    // Connect to Reverb (Pusher protocol)
+    const pusher = new Pusher(config.key, {
+      wsHost: config.host,
+      wsPort: config.port,
+      wssPort: config.port,
+      forceTLS: config.scheme === 'https',
+      enabledTransports: ['ws', 'wss'],
+      cluster: '',        // Reverb has no clusters, but pusher-js throws without this option
+      disableStats: true
+    });
     
-    channel.subscribe('card_identified', (message) => {
-      this.handleCustomerIdentified(message.data.card_data);
+    const channel = pusher.subscribe(
+      `${config.channel_prefix.qr_card}${session.session_id}`
+    );
+    
+    channel.bind('card_identified', (payload) => {
+      this.handleCustomerIdentified(payload.card_data);
     });
   }
   

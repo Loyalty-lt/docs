@@ -57,20 +57,39 @@ import { QRCodeSVG } from 'qrcode.react';
 
 ### 3. Subscribe to Real-time Events
 
+The simplest option is the SDK helper, which connects to Reverb for you:
+
 ```typescript
-import Ably from 'ably';
+const unsubscribe = sdk.subscribeToQrLogin(session.session_id, (payload) => {
+  console.log('Status:', payload.status);
+});
+```
 
-// Get Ably client options with automatic token renewal
-const ablyOptions = await sdk.createAblyClientOptions(session.session_id);
-const tokenResponse = await sdk.getAblyToken(session.session_id);
+If you prefer to drive the connection yourself, use `pusher-js` directly:
 
-// Connect to Ably (token auto-renews before expiry)
-const ably = new Ably.Realtime(ablyOptions);
-const channel = ably.channels.get(tokenResponse.channel);
+```javascript
+import Pusher from 'pusher-js';
 
-// Listen for status updates
-channel.subscribe('status_update', (message) => {
-  const { status, user, token } = message.data;
+// 1. Fetch Reverb connection details
+const config = await sdk.getRealtimeConfig();
+
+// 2. Connect to Reverb (Pusher protocol)
+const pusher = new Pusher(config.key, {
+  wsHost: config.host,
+  wsPort: config.port,
+  wssPort: config.port,
+  forceTLS: config.scheme === 'https',
+  enabledTransports: ['ws', 'wss'],
+  cluster: '',        // Reverb has no clusters, but pusher-js throws without this option
+  disableStats: true
+});
+
+// 3. Subscribe to the public session channel
+const channel = pusher.subscribe(`${config.channel_prefix.qr_login}${session.session_id}`);
+
+// 4. Listen for status updates
+channel.bind(config.event, (payload) => {
+  const { status, user, token } = payload;
   
   switch (status) {
     case 'scanned':
@@ -96,8 +115,10 @@ channel.subscribe('status_update', (message) => {
 ```
 
 <Note>
-  The `createAblyClientOptions` method automatically handles token renewal.
-  You don't need to manually refresh tokens - the SDK does it for you.
+  There are no realtime tokens anymore. The QR login channel (`qr-login.{session_id}`) is a
+  public channel — the unguessable session ID is the secret — and `pusher-js` reconnects
+  automatically, so nothing has to be refreshed. Connection details come from
+  [`GET /{locale}/shop/realtime/config`](/api-reference/endpoints/shop/realtime/config).
 </Note>
 
 ### 4. Polling Fallback
@@ -131,7 +152,7 @@ async function pollLoginStatus(sessionId: string) {
 
 ```typescript
 import { LoyaltySDK } from '@loyaltylt/sdk';
-import Ably from 'ably';
+import Pusher from 'pusher-js';
 
 const sdk = new LoyaltySDK({
   apiKey: 'lty_...',
@@ -139,7 +160,7 @@ const sdk = new LoyaltySDK({
   environment: 'production'
 });
 
-let ablyClient: Ably.Realtime | null = null;
+let pusherClient: Pusher | null = null;
 let currentSession: any = null;
 
 async function startQRLogin() {
@@ -150,17 +171,28 @@ async function startQRLogin() {
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(currentSession.qr_code)}`;
   document.getElementById('qr-image').src = qrUrl;
   
-  // Subscribe to events
-  const ablyToken = await sdk.getAblyToken(currentSession.session_id);
+  // Fetch Reverb connection details
+  const config = await sdk.getRealtimeConfig();
   
-  ablyClient = new Ably.Realtime({ token: ablyToken.token });
-  const channel = ablyClient.channels.get(ablyToken.channel);
+  pusherClient = new Pusher(config.key, {
+    wsHost: config.host,
+    wsPort: config.port,
+    wssPort: config.port,
+    forceTLS: config.scheme === 'https',
+    enabledTransports: ['ws', 'wss'],
+    cluster: '',        // Reverb has no clusters, but pusher-js throws without this option
+    disableStats: true
+  });
   
-  channel.subscribe('status_update', handleStatusUpdate);
+  const channel = pusherClient.subscribe(
+    `${config.channel_prefix.qr_login}${currentSession.session_id}`
+  );
+  
+  channel.bind(config.event, handleStatusUpdate);
 }
 
-function handleStatusUpdate(message: any) {
-  const { status, user, token } = message.data;
+function handleStatusUpdate(payload: any) {
+  const { status, user, token } = payload;
   
   if (status === 'authenticated') {
     // Store token, redirect user, etc.
@@ -213,7 +245,9 @@ function LoginPage() {
 
 See [React Components](/sdk/javascript/react-components) for more details.
 
-## Ably Channel Events
+## Reverb Channel Events
+
+Channel: `qr-login.{session_id}` (public — no channel authentication needed).
 
 | Event | Description | Data |
 |-------|-------------|------|
