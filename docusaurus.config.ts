@@ -93,7 +93,8 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: 'Loyalty.lt',
+      // No title text: the CDN logo is already a wordmark, so a text title next
+      // to it duplicated the brand name.
       logo: {
         alt: 'Loyalty.lt',
         // Served from the org CDN, same as the loyalty.lt navbar. `logo_light.png`
