@@ -51,6 +51,13 @@
   line-height: 1;
 }
 
+.cardIconGlyph {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+  color: var(--ifm-color-primary);
+}
+
 .cardTitle {
   font-weight: 600;
   font-size: 1rem;

@@ -14,7 +14,20 @@ import Link from '@docusaurus/Link';
 import Admonition from '@theme/Admonition';
 import DocusaurusTabs from '@theme/Tabs';
 import DocusaurusTabItem from '@theme/TabItem';
+import { ICONS } from './icons';
 import styles from './styles.module.css';
+
+/**
+ * Renders a Mintlify icon slug (`icon="coins"`) as an actual glyph via the
+ * ICONS map. An unmapped slug falls back to the raw string — visible in the UI
+ * rather than a blank space, so a typo or a new icon a page starts using shows
+ * up immediately instead of silently rendering nothing.
+ */
+function MintlifyIcon({ slug }: { slug: string }) {
+  const Glyph = ICONS[slug];
+  if (!Glyph) return <span className={styles.cardIcon}>{slug}</span>;
+  return <Glyph className={styles.cardIconGlyph} aria-hidden="true" />;
+}
 
 type Kids = { children?: ReactNode };
 
@@ -90,7 +103,7 @@ export function Card({
     <>
       {(icon || title) && (
         <div className={styles.cardHeader}>
-          {typeof icon === 'string' ? <span className={styles.cardIcon}>{icon}</span> : icon}
+          {typeof icon === 'string' ? <MintlifyIcon slug={icon} /> : icon}
           {title && <span className={styles.cardTitle}>{title}</span>}
         </div>
       )}
@@ -268,7 +281,8 @@ export function Tooltip({ tip, children }: Kids & { tip?: string }) {
 }
 
 export function Icon({ icon }: { icon?: string; color?: string; size?: number }) {
-  return <span className={styles.cardIcon}>{icon}</span>;
+  if (!icon) return null;
+  return <MintlifyIcon slug={icon} />;
 }
 
 /**
