@@ -106,10 +106,26 @@
   --ifm-code-font-size: 90%;
   --ifm-code-background: #f7f7f5;
 
-  /* The product uses noticeably rounder corners than Infima's default 4px. */
-  --ifm-global-radius: 0.75rem;
-  --ifm-button-border-radius: 20px;
-  --ifm-card-border-radius: 20px;
+  /* Shape scale, copied verbatim from partners' globals.css. Infima's own radius
+     variables are mapped onto it below so built-in components pick it up too. */
+  --loyalty-radius: 0.75rem;
+  --loyalty-radius-card: 20px;
+  --loyalty-radius-sheet: 30px;
+  --loyalty-radius-input: 16px;
+  --loyalty-radius-pill: 20px;
+
+  --loyalty-shadow-card: 0 2px 12px rgb(0 0 0 / 3%);
+  --loyalty-shadow-overlay: 0 8px 30px rgb(0 0 0 / 8%);
+
+  --ifm-global-radius: var(--loyalty-radius);
+  --ifm-button-border-radius: var(--loyalty-radius-pill);
+  --ifm-card-border-radius: var(--loyalty-radius-card);
+  --ifm-alert-border-radius: var(--loyalty-radius-card);
+  --ifm-code-border-radius: 6px;
+  --ifm-pre-border-radius: var(--loyalty-radius);
+  --ifm-global-shadow-lw: var(--loyalty-shadow-card);
+  --ifm-global-shadow-md: var(--loyalty-shadow-overlay);
+  --ifm-global-shadow-tl: var(--loyalty-shadow-overlay);
 
   --docusaurus-highlighted-code-line-bg: rgb(101 169 73 / 12%);
 }
@@ -140,6 +156,10 @@
   --ifm-toc-border-color: #263230;
   --ifm-code-background: #1b2622;
 
+  /* Partners darkens the shadows rather than dropping them. */
+  --loyalty-shadow-card: 0 2px 12px rgb(0 0 0 / 40%);
+  --loyalty-shadow-overlay: 0 8px 30px rgb(0 0 0 / 55%);
+
   --docusaurus-highlighted-code-line-bg: rgb(123 188 99 / 18%);
 }
 
@@ -154,7 +174,7 @@
 .navbar-primary-button {
   background: var(--ifm-color-primary);
   color: #fff !important;
-  border-radius: 20px;
+  border-radius: var(--loyalty-radius-pill);
   padding: 0.35rem 1rem;
   font-weight: 600;
 }
@@ -167,18 +187,97 @@
 .menu__link--active {
   font-weight: 600;
   background: var(--loyalty-surface);
+  border-radius: var(--loyalty-radius);
 }
 
-.table-of-contents__link--active {
+.menu__link {
+  border-radius: var(--loyalty-radius);
+}
+
+/* Infima and the OpenAPI theme are both injected after this file, so these
+   shape rules carry an `html` prefix purely to win on specificity (0,1,1 vs
+   0,1,0) rather than relying on source order. */
+html code {
+  border-radius: var(--ifm-code-border-radius);
+}
+
+html .theme-code-block,
+html div[class^='codeBlockContainer'] {
+  border-radius: var(--loyalty-radius);
+}
+
+html table {
+  border-radius: var(--loyalty-radius);
+  overflow: hidden;
+}
+
+html .theme-admonition {
+  border-radius: var(--loyalty-radius-card);
+}
+
+html .pagination-nav__link {
+  border-radius: var(--loyalty-radius-card);
+}
+
+html .card {
+  border-radius: var(--loyalty-radius-card);
+  box-shadow: var(--loyalty-shadow-card);
+}
+
+html .button {
+  border-radius: var(--loyalty-radius-pill);
+}
+
+html .menu__link {
+  border-radius: var(--loyalty-radius);
+}
+
+html .navbar__search-input,
+html input,
+html select,
+html textarea {
+  border-radius: var(--loyalty-radius-input);
+}
+
+html .table-of-contents__link--active {
   font-weight: 600;
 }
 
-article header h1 {
+html article header h1 {
   font-family: var(--ifm-heading-font-family);
   font-size: 2.25rem;
   letter-spacing: -0.02em;
 }
 
-.footer--dark {
+html .footer--dark {
   --ifm-footer-background-color: #19352d;
+}
+
+/* ------------------------------------------------- openapi explorer theme */
+
+/* docusaurus-theme-openapi-docs hardcodes 4px on its form controls, which is
+   the one place the API playground drifts from the product's shapes. */
+html .openapi-explorer__form-item-input,
+html .openapi-explorer__select-input,
+html .openapi-explorer__multi-select-input,
+html .openapi-explorer__dropzone,
+html .openapi-explorer__dropzone-hover {
+  border-radius: var(--loyalty-radius-input);
+}
+
+html .openapi-explorer__delete-btn,
+html .openapi-explorer__response-code-tab,
+html button.openapi-explorer__request-btn {
+  border-radius: var(--loyalty-radius-pill);
+}
+
+html .openapi-explorer__code-block,
+html .openapi-explorer__response-container,
+html .openapi-tabs__code-item {
+  border-radius: var(--loyalty-radius);
+}
+
+/* Method badges in the API sidebar read as chips in the product, not squares. */
+html .api-method > .menu__link::before {
+  border-radius: var(--loyalty-radius-pill);
 }

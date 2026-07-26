@@ -128,7 +128,26 @@ palette:
 | Background | `#FBFBF9` | `#0E1512` |
 | Border | `#E9E9E4` | `#263230` |
 
-Mona Sans for text, Hubot Sans for headings, IBM Plex Mono for code. Mona and
+Shape scale, also copied verbatim from partners:
+
+| Token | Value | Used for |
+|-------|-------|----------|
+| `--loyalty-radius` | `0.75rem` | code blocks, tables, sidebar links |
+| `--loyalty-radius-card` | `20px` | cards, admonitions, accordions, examples |
+| `--loyalty-radius-input` | `16px` | inputs, API playground form controls |
+| `--loyalty-radius-pill` | `20px` | buttons, badges, method chips |
+| `--loyalty-radius-sheet` | `30px` | large surfaces |
+| `--loyalty-shadow-card` | `0 2px 12px rgb(0 0 0 / 3%)` | resting cards |
+| `--loyalty-shadow-overlay` | `0 8px 30px rgb(0 0 0 / 8%)` | hover / overlays |
+
+Infima's own `--ifm-*-radius` variables are mapped onto these, so built-in
+components inherit them. Rules that override Infima or the OpenAPI theme carry
+an `html` prefix — both are injected after `custom.css`, so the extra specificity
+(0,1,1 vs 0,1,0) is what makes them win, not source order. Removing that prefix
+silently reverts those elements to 4px.
+
+Mona Sans for text (400/500/600/700), Hubot Sans for headings (600/700), IBM
+Plex Mono for code — the exact weights partners declares, no italics. Mona and
 Hubot are self-hosted from `static/assets/`; IBM Plex Mono comes from Google
 Fonts, the same way `api.loyalty.lt` loads it.
 

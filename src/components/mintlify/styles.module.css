@@ -21,7 +21,7 @@
   display: block;
   padding: 1.25rem;
   border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: var(--ifm-card-border-radius, 8px);
+  border-radius: var(--loyalty-radius-card);
   background: var(--ifm-card-background-color, var(--ifm-background-surface-color));
   transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
 }
@@ -33,7 +33,7 @@
 
 .cardLink:hover {
   border-color: var(--ifm-color-primary);
-  box-shadow: 0 4px 16px rgb(0 0 0 / 8%);
+  box-shadow: var(--loyalty-shadow-overlay);
   text-decoration: none;
   color: inherit;
   transform: translateY(-1px);
@@ -74,7 +74,7 @@
 .accordion,
 .expandable {
   border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 8px;
+  border-radius: var(--loyalty-radius-card);
   margin: 0.5rem 0;
   background: var(--ifm-background-surface-color);
 }
@@ -165,7 +165,7 @@
   font-weight: 600;
   background: var(--ifm-code-background);
   padding: 0.15rem 0.4rem;
-  border-radius: 4px;
+  border-radius: var(--ifm-code-border-radius);
 }
 
 .fieldType {
@@ -182,7 +182,7 @@
   letter-spacing: 0.04em;
   font-weight: 700;
   padding: 0.1rem 0.4rem;
-  border-radius: 4px;
+  border-radius: var(--loyalty-radius-pill);
 }
 
 .fieldLocation {
@@ -221,7 +221,7 @@
 .codeGroup {
   margin: 1.25rem 0;
   border: 1px solid var(--ifm-color-emphasis-300);
-  border-radius: 8px;
+  border-radius: var(--loyalty-radius-card);
   overflow: hidden;
 }
 
@@ -250,7 +250,7 @@
 }
 
 .frame img {
-  border-radius: 8px;
+  border-radius: var(--loyalty-radius-card);
   border: 1px solid var(--ifm-color-emphasis-300);
 }
 
