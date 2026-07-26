@@ -1,0 +1,95 @@
+.container {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 2rem 1rem 3rem;
+}
+
+.messages {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 40vh;
+  margin-bottom: 1.25rem;
+}
+
+.empty {
+  color: var(--ifm-color-emphasis-600);
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.message {
+  border-radius: var(--loyalty-radius-card, 20px);
+  padding: 0.85rem 1.1rem;
+  max-width: 85%;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
+.user {
+  align-self: flex-end;
+  background: var(--ifm-color-primary);
+  color: #fff;
+}
+
+.assistant {
+  align-self: flex-start;
+  background: var(--ifm-background-surface-color);
+  border: 1px solid var(--ifm-color-emphasis-300);
+}
+
+.sources {
+  margin-top: 0.6rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+  font-size: 0.8rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.error {
+  align-self: stretch;
+  background: var(--ifm-color-danger-contrast-background, #fde8e8);
+  color: var(--ifm-color-danger-dark, #a61b1b);
+}
+
+.form {
+  display: flex;
+  gap: 0.6rem;
+  position: sticky;
+  bottom: 1rem;
+}
+
+.input {
+  flex: 1;
+  border-radius: var(--loyalty-radius-input, 16px);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  padding: 0.7rem 1rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  background: var(--ifm-background-surface-color);
+  color: var(--ifm-font-color-base);
+}
+
+.submit {
+  border-radius: var(--loyalty-radius-pill, 20px);
+  border: none;
+  padding: 0.7rem 1.4rem;
+  background: var(--ifm-color-primary);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.disclaimer {
+  margin-top: 0.75rem;
+  font-size: 0.78rem;
+  color: var(--ifm-color-emphasis-600);
+  text-align: center;
+}

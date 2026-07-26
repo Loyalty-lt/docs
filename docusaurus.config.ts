@@ -110,6 +110,7 @@ const config: Config = {
         { type: 'docSidebar', sidebarId: 'apiSidebar', position: 'left', label: 'API Reference' },
         { type: 'docSidebar', sidebarId: 'sdkSidebar', position: 'left', label: 'SDKs' },
         { type: 'docSidebar', sidebarId: 'apiExplorerSidebar', position: 'left', label: 'API Explorer' },
+        { to: '/chat', position: 'left', label: 'Ask AI' },
         {
           href: 'https://partners.loyalty.lt',
           label: 'Partners Portal',
@@ -119,7 +120,7 @@ const config: Config = {
       ],
     },
     footer: {
-      style: 'dark',
+      style: 'light',
       links: [
         {
           title: 'Documentation',

@@ -15,6 +15,12 @@ upstream docs_loyalty {
     keepalive 32;
 }
 
+# Ask AI page's proxy (server/chat-proxy.mjs). Separate process because it,
+# alone, holds the ai.loyalty.lt credential — never the browser.
+upstream docs_loyalty_chat {
+    server 127.0.0.1:3102;
+}
+
 server {
     listen 80;
     listen [::]:80;
@@ -59,6 +65,17 @@ server {
         add_header Access-Control-Allow-Origin "*";
         add_header Cache-Control "public, max-age=300";
         default_type application/json;
+    }
+
+    # --- chat proxy ---------------------------------------------------------
+    location /api/chat {
+        proxy_pass http://docs_loyalty_chat;
+        proxy_http_version 1.1;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 35s;
     }
 
     # --- app --------------------------------------------------------------

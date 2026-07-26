@@ -12,6 +12,7 @@
 set -euo pipefail
 
 APP_NAME="docs.loyalty.lt"
+CHAT_APP_NAME="docs.loyalty.lt-chat"
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_DIR"
@@ -50,6 +51,21 @@ else
   echo "    not registered yet, starting it"
   pm2 start ecosystem.config.cjs
   pm2 save
+fi
+
+# The chat proxy needs LITELLM_API_KEY in the environment (server/.env.example
+# documents it) before it will start — it refuses to boot without it, on
+# purpose, so a missing secret fails loudly instead of serving a broken chat.
+echo "==> Reloading pm2 app '$CHAT_APP_NAME'"
+if pm2 describe "$CHAT_APP_NAME" >/dev/null 2>&1; then
+  pm2 reload "$CHAT_APP_NAME" --update-env
+elif [ -n "${LITELLM_API_KEY:-}" ]; then
+  echo "    not registered yet, starting it"
+  pm2 start ecosystem.config.cjs --only "$CHAT_APP_NAME"
+  pm2 save
+else
+  echo "    skipped: LITELLM_API_KEY not set in this shell. Set it and re-run," \
+       "or 'pm2 start ecosystem.config.cjs --only $CHAT_APP_NAME' once it is."
 fi
 
 pm2 describe "$APP_NAME" | grep -E "status|uptime" || true
