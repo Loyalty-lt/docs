@@ -33,24 +33,12 @@ const config: Config = {
     locales: ['en'],
   },
 
-  // Mona Sans and Hubot Sans are self-hosted from static/assets (see custom.css).
-  // IBM Plex Mono is the code face used on api.loyalty.lt and is not vendored
-  // anywhere in the org, so it comes from Google Fonts.
+  // All three faces come from the org CDN as woff2 (see custom.css), so the only
+  // hint the browser needs is an early connection to it.
   headTags: [
     {
       tagName: 'link',
-      attributes: { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-    },
-    {
-      tagName: 'link',
-      attributes: { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: 'anonymous' },
-    },
-    {
-      tagName: 'link',
-      attributes: {
-        rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap',
-      },
+      attributes: { rel: 'preconnect', href: 'https://cdn.loyalty.lt', crossorigin: 'anonymous' },
     },
   ],
 
@@ -108,8 +96,13 @@ const config: Config = {
       title: 'Loyalty.lt',
       logo: {
         alt: 'Loyalty.lt',
-        src: 'logo/light.svg',
-        srcDark: 'logo/dark.svg',
+        // Served from the org CDN, same as the loyalty.lt navbar. `logo_light.png`
+        // is byte-identical to the wordmark in Downloads; `logo_dark.png` is the
+        // light-on-dark variant.
+        src: 'https://cdn.loyalty.lt/loyalty-public/logo/logo_light.png',
+        srcDark: 'https://cdn.loyalty.lt/loyalty-public/logo/logo_dark.png',
+        width: 140,
+        height: 30,
       },
       items: [
         { type: 'docSidebar', sidebarId: 'guidesSidebar', position: 'left', label: 'Guides' },

@@ -5,19 +5,24 @@
  * and `expo/theme/palette.ts`, which have converged on the same values:
  *
  *   primary green   #65A949   (both call it "app green")
- *   heading         #19352D
- *   light surface   #E8F3E1
+ *   body / heading  #0A0A0A   (partners' --foreground; expo's ink)
+ *   light bg        #E8F3E1   (partners' --loyalty-light-bg)
  *   warm canvas     #F7F7F5
  *   border          #E9E9E4
  *   muted text      #6B7280
+ *
+ * Headings deliberately carry no colour of their own: partners' `h1..h6` rule
+ * sets only font-family and letter-spacing, so they inherit the body colour.
+ * #19352D is partners' `--loyalty-heading`, but it is a local accent on two
+ * onboarding pages — not the global heading colour — so it is not used here.
  *
  * Note: the neon accent (#E6FD5A / #CFFF45) was deliberately retired across the
  * product — brand green replaced it everywhere — so it is not defined here.
  *
  * Typography follows the same stack: Mona Sans for text, Hubot Sans for
- * headings, IBM Plex Mono for code. The font files are copied from
- * partners.loyalty.lt into `static/assets/` and self-hosted, so the docs do not
- * depend on Google Fonts being reachable.
+ * headings, IBM Plex Mono for code — all served as woff2 from the org CDN at
+ * cdn.loyalty.lt/loyalty-public/fonts/v1, which is where the rest of the
+ * platform already loads them from.
  */
 
 /* --------------------------------------------------------------- webfonts */
@@ -27,7 +32,7 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/assets/mona-sans/fonts/MonaSans-Regular.ttf') format('truetype');
+  src: url('https://cdn.loyalty.lt/loyalty-public/fonts/v1/mona-sans/MonaSans-Regular.woff2') format('woff2');
 }
 
 @font-face {
@@ -35,7 +40,7 @@
   font-style: normal;
   font-weight: 500;
   font-display: swap;
-  src: url('/assets/mona-sans/fonts/MonaSans-Medium.ttf') format('truetype');
+  src: url('https://cdn.loyalty.lt/loyalty-public/fonts/v1/mona-sans/MonaSans-Medium.woff2') format('woff2');
 }
 
 @font-face {
@@ -43,7 +48,7 @@
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url('/assets/mona-sans/fonts/MonaSans-SemiBold.ttf') format('truetype');
+  src: url('https://cdn.loyalty.lt/loyalty-public/fonts/v1/mona-sans/MonaSans-SemiBold.woff2') format('woff2');
 }
 
 @font-face {
@@ -51,7 +56,7 @@
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url('/assets/mona-sans/fonts/MonaSans-Bold.ttf') format('truetype');
+  src: url('https://cdn.loyalty.lt/loyalty-public/fonts/v1/mona-sans/MonaSans-Bold.woff2') format('woff2');
 }
 
 @font-face {
@@ -59,7 +64,7 @@
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url('/assets/hubot-sans/fonts/HubotSans-SemiBold.ttf') format('truetype');
+  src: url('https://cdn.loyalty.lt/loyalty-public/fonts/v1/hubot-sans/HubotSans-SemiBold.woff2') format('woff2');
 }
 
 @font-face {
@@ -67,7 +72,23 @@
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url('/assets/hubot-sans/fonts/HubotSans-Bold.ttf') format('truetype');
+  src: url('https://cdn.loyalty.lt/loyalty-public/fonts/v1/hubot-sans/HubotSans-Bold.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('https://cdn.loyalty.lt/loyalty-public/fonts/v1/ibm-plex-mono/IBMPlexMono-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('https://cdn.loyalty.lt/loyalty-public/fonts/v1/ibm-plex-mono/IBMPlexMono-Medium.woff2') format('woff2');
 }
 
 /* ------------------------------------------------------------ light theme */
@@ -88,13 +109,13 @@
   --ifm-link-color: #4d903f;
   --ifm-link-hover-color: #477633;
 
-  --loyalty-heading: #19352d;
-  --loyalty-surface: #e8f3e1;
+  /* #E8F3E1 is partners' `--loyalty-light-bg`, used 60x. Their `--loyalty-surface`
+     (#EAF6E4) is declared but referenced nowhere, so it is not carried over. */
+  --loyalty-light-bg: #e8f3e1;
 
   --ifm-background-color: #fbfbf9;
   --ifm-background-surface-color: #ffffff;
   --ifm-font-color-base: #0a0a0a;
-  --ifm-heading-color: var(--loyalty-heading);
   --ifm-color-emphasis-300: #e9e9e4;
   --ifm-toc-border-color: #e9e9e4;
 
@@ -145,13 +166,11 @@
   --ifm-link-color: #7bbc63;
   --ifm-link-hover-color: #93c980;
 
-  --loyalty-heading: #f2f5f3;
-  --loyalty-surface: #1e3225;
+  --loyalty-light-bg: #1e3225;
 
   --ifm-background-color: #0e1512;
   --ifm-background-surface-color: #1b2622;
   --ifm-font-color-base: #f2f5f3;
-  --ifm-heading-color: var(--loyalty-heading);
   --ifm-color-emphasis-300: #263230;
   --ifm-toc-border-color: #263230;
   --ifm-code-background: #1b2622;
@@ -186,7 +205,7 @@
 
 .menu__link--active {
   font-weight: 600;
-  background: var(--loyalty-surface);
+  background: var(--loyalty-light-bg);
   border-radius: var(--loyalty-radius);
 }
 
@@ -243,14 +262,24 @@ html .table-of-contents__link--active {
   font-weight: 600;
 }
 
-html article header h1 {
-  font-family: var(--ifm-heading-font-family);
-  font-size: 2.25rem;
-  letter-spacing: -0.02em;
+/* partners applies this to h1..h6, not just the page title. */
+html h1,
+html h2,
+html h3,
+html h4,
+html h5,
+html h6 {
+  letter-spacing: -0.01em;
 }
 
+html article header h1 {
+  font-size: 2.25rem;
+}
+
+/* Partners has no footer of its own to copy, so this reuses the dark theme
+   background rather than inventing a colour. */
 html .footer--dark {
-  --ifm-footer-background-color: #19352d;
+  --ifm-footer-background-color: #0e1512;
 }
 
 /* ------------------------------------------------- openapi explorer theme */
@@ -280,4 +309,11 @@ html .openapi-tabs__code-item {
 /* Method badges in the API sidebar read as chips in the product, not squares. */
 html .api-method > .menu__link::before {
   border-radius: var(--loyalty-radius-pill);
+}
+
+/* The CDN wordmark is 700x150; without a height cap it blows out the navbar. */
+html .navbar__logo,
+html .navbar__logo img {
+  height: 30px;
+  width: auto;
 }
