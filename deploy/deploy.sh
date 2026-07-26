@@ -2,19 +2,16 @@
 #
 # Deploy docs.loyalty.lt.
 #
-# Builds into a timestamped release directory and flips a `current` symlink, so
-# the swap is atomic — visitors never see a half-written site — and rolling back
-# is one `ln -sfn` away.
+# Same shape as the other loyalty.lt front-ends: pull, install, build, reload
+# the pm2 app. The build is written to `build/` and served by `docusaurus serve`
+# under pm2 (see ecosystem.config.cjs), with nginx reverse-proxying to it.
 #
 # Usage on the server:
-#   cd /var/www/docs.loyalty.lt/repo && ./deploy/deploy.sh
+#   cd /var/www/vhosts/loyalty.lt/docs.loyalty.lt && ./deploy/deploy.sh
 #
 set -euo pipefail
 
-DEPLOY_ROOT="${DEPLOY_ROOT:-/var/www/docs.loyalty.lt}"
-RELEASES="$DEPLOY_ROOT/releases"
-CURRENT="$DEPLOY_ROOT/current"
-KEEP_RELEASES="${KEEP_RELEASES:-5}"
+APP_NAME="docs.loyalty.lt"
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_DIR"
@@ -27,33 +24,34 @@ echo "==> Installing dependencies"
 npm ci
 
 echo "==> Building (regenerates the API explorer from the OpenAPI spec)"
-npm run build
+# Build into a scratch dir first so a failure cannot leave `build/` half-written
+# while pm2 is serving out of it.
+rm -rf build.new
+npm run build -- --out-dir build.new
 
-if [ ! -f build/index.html ]; then
-  echo "!! build/index.html missing — refusing to deploy a broken build" >&2
+if [ ! -f build.new/index.html ]; then
+  echo "!! build.new/index.html missing — refusing to deploy a broken build" >&2
+  rm -rf build.new
   exit 1
 fi
 
-RELEASE="$RELEASES/$(date +%Y%m%d%H%M%S)"
-echo "==> Publishing to $RELEASE"
-mkdir -p "$RELEASE"
-cp -R build/. "$RELEASE/"
+echo "==> Swapping in the new build"
+rm -rf build.old
+[ -d build ] && mv build build.old
+mv build.new build
+rm -rf build.old
 
-ln -sfn "$RELEASE" "$CURRENT"
-echo "==> current -> $(readlink "$CURRENT")"
+mkdir -p logs
 
-echo "==> Pruning old releases (keeping $KEEP_RELEASES)"
-# `ls -1d` sorts lexicographically, which for these timestamps is chronological.
-ls -1d "$RELEASES"/*/ 2>/dev/null | head -n "-$KEEP_RELEASES" | while read -r old; do
-  echo "    removing $old"
-  rm -rf "$old"
-done
-
-echo "==> Reloading nginx"
-if command -v sudo >/dev/null 2>&1; then
-  sudo nginx -t && sudo systemctl reload nginx
+echo "==> Reloading pm2 app '$APP_NAME'"
+if pm2 describe "$APP_NAME" >/dev/null 2>&1; then
+  pm2 reload "$APP_NAME" --update-env
 else
-  nginx -t && systemctl reload nginx
+  echo "    not registered yet, starting it"
+  pm2 start ecosystem.config.cjs
+  pm2 save
 fi
+
+pm2 describe "$APP_NAME" | grep -E "status|uptime" || true
 
 echo "==> Done. https://docs.loyalty.lt"

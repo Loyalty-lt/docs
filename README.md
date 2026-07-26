@@ -89,14 +89,28 @@ script keeps the build green. It is idempotent.
 
 ## Deployment
 
-Static build served by nginx, deployed with an atomic symlink flip:
+Same shape as the other loyalty.lt front-ends: pm2 runs the app on a local port,
+nginx reverse-proxies to it.
+
+| Piece | Where |
+|-------|-------|
+| pm2 app `docs.loyalty.lt` | `ecosystem.config.cjs` — `docusaurus serve` on **:3098** |
+| nginx vhost | `deploy/nginx.conf.example` |
+| Deploy | `./deploy/deploy.sh` — pull, `npm ci`, build, `pm2 reload` |
 
 ```bash
+cd /var/www/vhosts/loyalty.lt/docs.loyalty.lt
 ./deploy/deploy.sh
 ```
 
-See `deploy/nginx.conf.example` for the vhost; first-time setup is in the
-comments at the top of that file.
+The build goes into `build.new/` first and is only swapped into `build/` once
+`index.html` exists, so a failed build cannot leave pm2 serving a half-written
+site. nginx serves `/assets/` and `/api-reference/openapi.json` straight off disk
+and proxies everything else, keeping the fingerprinted bundles off the node
+process.
+
+First-time setup (vhost, certbot, `pm2 save`) is in the comments at the top of
+`deploy/nginx.conf.example`.
 
 ## Known content gaps
 
