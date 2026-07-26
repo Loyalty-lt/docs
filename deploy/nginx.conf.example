@@ -1,0 +1,79 @@
+# nginx site config for docs.loyalty.lt
+#
+# Docusaurus emits a fully static site into `build/`, so nginx only has to serve
+# files — no node process, no pm2 entry, unlike api.loyalty.lt.
+#
+# Install:
+#   sudo cp deploy/nginx.conf.example /etc/nginx/sites-available/docs.loyalty.lt
+#   sudo ln -s /etc/nginx/sites-available/docs.loyalty.lt /etc/nginx/sites-enabled/
+#   sudo certbot --nginx -d docs.loyalty.lt
+#   sudo nginx -t && sudo systemctl reload nginx
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name docs.loyalty.lt;
+
+    # certbot rewrites this block; until then it just redirects.
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name docs.loyalty.lt;
+
+    # Managed by certbot.
+    ssl_certificate     /etc/letsencrypt/live/docs.loyalty.lt/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/docs.loyalty.lt/privkey.pem;
+
+    root /var/www/docs.loyalty.lt/current;
+    index index.html;
+
+    charset utf-8;
+
+    # --- security headers -------------------------------------------------
+    add_header X-Content-Type-Options    "nosniff"            always;
+    add_header X-Frame-Options           "SAMEORIGIN"         always;
+    add_header Referrer-Policy           "strict-origin-when-cross-origin" always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+    # --- caching ----------------------------------------------------------
+    # Docusaurus fingerprints its JS/CSS, so those are safe to cache forever.
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        access_log off;
+    }
+
+    location ~* \.(?:js|css|woff2?|ttf|otf|eot|svg|png|jpe?g|gif|webp|ico)$ {
+        expires 30d;
+        add_header Cache-Control "public";
+        access_log off;
+    }
+
+    # The OpenAPI spec is fetched by external tooling; keep it fresh and CORS-open.
+    location = /api-reference/openapi.json {
+        add_header Access-Control-Allow-Origin "*";
+        add_header Cache-Control "public, max-age=300";
+        default_type application/json;
+    }
+
+    # HTML must not be cached hard, or a deploy leaves stale pages behind.
+    location / {
+        add_header Cache-Control "public, max-age=0, must-revalidate";
+        # Docusaurus writes a directory-per-route with an index.html, so try the
+        # directory before falling back to the generated 404 page.
+        try_files $uri $uri/ $uri.html /404.html;
+    }
+
+    error_page 404 /404.html;
+
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_types text/plain text/css application/javascript application/json image/svg+xml;
+
+    access_log /var/log/nginx/docs.loyalty.lt.access.log;
+    error_log  /var/log/nginx/docs.loyalty.lt.error.log;
+}

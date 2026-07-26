@@ -1,0 +1,285 @@
+/* Styling for the Mintlify compatibility components. Everything keys off
+   Docusaurus's Infima variables so dark mode and the brand palette come along
+   for free — no hardcoded colours. */
+
+/* ------------------------------------------------------------------- cards */
+
+.cardGroup {
+  display: grid;
+  grid-template-columns: repeat(var(--mint-cols, 2), minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+@media (max-width: 768px) {
+  .cardGroup {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  display: block;
+  padding: 1.25rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--ifm-card-border-radius, 8px);
+  background: var(--ifm-card-background-color, var(--ifm-background-surface-color));
+  transition: border-color 200ms ease, box-shadow 200ms ease, transform 200ms ease;
+}
+
+.cardLink {
+  text-decoration: none;
+  color: inherit;
+}
+
+.cardLink:hover {
+  border-color: var(--ifm-color-primary);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 8%);
+  text-decoration: none;
+  color: inherit;
+  transform: translateY(-1px);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.cardIcon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.cardTitle {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.cardBody {
+  color: var(--ifm-color-emphasis-700);
+  font-size: 0.925rem;
+}
+
+.cardBody > :last-child {
+  margin-bottom: 0;
+}
+
+/* --------------------------------------------------------------- accordion */
+
+.accordionGroup {
+  margin: 1.5rem 0;
+}
+
+.accordion,
+.expandable {
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 8px;
+  margin: 0.5rem 0;
+  background: var(--ifm-background-surface-color);
+}
+
+.accordionSummary {
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  list-style: revert;
+}
+
+.accordionSummary:hover {
+  color: var(--ifm-color-primary);
+}
+
+.accordionBody,
+.expandableBody {
+  padding: 0 1rem 1rem;
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+  padding-top: 0.75rem;
+}
+
+.accordionBody > :last-child,
+.expandableBody > :last-child {
+  margin-bottom: 0;
+}
+
+.expandable {
+  margin-left: 1rem;
+}
+
+/* ------------------------------------------------------------------- steps */
+
+.steps {
+  counter-reset: mint-step;
+  margin: 1.5rem 0;
+  padding-left: 0;
+  border-left: 2px solid var(--ifm-color-emphasis-300);
+}
+
+.step {
+  counter-increment: mint-step;
+  position: relative;
+  padding: 0 0 1.5rem 2.25rem;
+}
+
+.step::before {
+  content: counter(mint-step);
+  position: absolute;
+  left: -1rem;
+  top: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--ifm-color-primary);
+  color: var(--ifm-color-white, #fff);
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stepTitle {
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.stepBody > :last-child {
+  margin-bottom: 0;
+}
+
+/* -------------------------------------------------------------- api fields */
+
+.field {
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+  padding: 0.85rem 0;
+}
+
+.fieldHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fieldName {
+  font-weight: 600;
+  background: var(--ifm-code-background);
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+.fieldType {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.8rem;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.fieldLocation,
+.fieldRequired,
+.fieldDeprecated {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+.fieldLocation {
+  background: var(--ifm-color-emphasis-200);
+  color: var(--ifm-color-emphasis-800);
+}
+
+.fieldRequired {
+  background: var(--ifm-color-danger-contrast-background);
+  color: var(--ifm-color-danger-dark);
+}
+
+.fieldDeprecated {
+  background: var(--ifm-color-warning-contrast-background);
+  color: var(--ifm-color-warning-dark);
+}
+
+.fieldDefault {
+  font-size: 0.8rem;
+  color: var(--ifm-color-emphasis-600);
+}
+
+.fieldBody {
+  margin-top: 0.4rem;
+  color: var(--ifm-color-emphasis-800);
+  font-size: 0.925rem;
+}
+
+.fieldBody > :last-child {
+  margin-bottom: 0;
+}
+
+/* ---------------------------------------------------------------- examples */
+
+.example,
+.codeGroup {
+  margin: 1.25rem 0;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.exampleLabel {
+  padding: 0.4rem 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--ifm-color-emphasis-100);
+  color: var(--ifm-color-emphasis-700);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+}
+
+.example > :not(.exampleLabel),
+.codeGroup > * {
+  margin: 0;
+  border-radius: 0;
+}
+
+/* -------------------------------------------------------------------- misc */
+
+.frame {
+  margin: 1.5rem 0;
+  text-align: center;
+}
+
+.frame img {
+  border-radius: 8px;
+  border: 1px solid var(--ifm-color-emphasis-300);
+}
+
+.frameCaption {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--ifm-color-emphasis-600);
+}
+
+.update {
+  border-left: 3px solid var(--ifm-color-primary);
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+}
+
+.updateLabel {
+  margin-bottom: 0.25rem;
+}
+
+.updateDescription {
+  color: var(--ifm-color-emphasis-700);
+}
+
+.tooltip {
+  border-bottom: 1px dotted var(--ifm-color-emphasis-600);
+  cursor: help;
+  text-decoration: none;
+}
+
+.latex {
+  font-style: italic;
+}

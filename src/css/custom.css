@@ -1,0 +1,63 @@
+/**
+ * Loyalty.lt palette, carried over from the Mintlify `docs.json`:
+ *   primary #29594B, dark #0C3A30, accent #CFFF45
+ */
+
+:root {
+  --ifm-color-primary: #29594b;
+  --ifm-color-primary-dark: #255045;
+  --ifm-color-primary-darker: #234c41;
+  --ifm-color-primary-darkest: #1c3e35;
+  --ifm-color-primary-light: #2d6251;
+  --ifm-color-primary-lighter: #2f6655;
+  --ifm-color-primary-lightest: #367462;
+
+  --ifm-code-font-size: 92%;
+  --ifm-heading-font-weight: 650;
+  --docusaurus-highlighted-code-line-bg: rgb(0 0 0 / 8%);
+
+  --loyalty-accent: #cfff45;
+}
+
+/* The brand green is too dark to read on a dark background, so dark mode leans
+   on the lighter end of the ramp instead of inverting the palette. */
+[data-theme='dark'] {
+  --ifm-color-primary: #7fbfa8;
+  --ifm-color-primary-dark: #6bb59a;
+  --ifm-color-primary-darker: #61b093;
+  --ifm-color-primary-darkest: #479c7c;
+  --ifm-color-primary-light: #93c9b6;
+  --ifm-color-primary-lighter: #9dcebd;
+  --ifm-color-primary-lightest: #bbddd1;
+
+  --ifm-background-color: #0c3a30;
+  --ifm-background-surface-color: #114438;
+  --docusaurus-highlighted-code-line-bg: rgb(255 255 255 / 10%);
+}
+
+/* Mintlify's navbar had a single filled CTA; reproduce it rather than letting it
+   render as a plain text link. */
+.navbar-primary-button {
+  background: var(--ifm-color-primary);
+  color: #fff !important;
+  border-radius: 6px;
+  padding: 0.35rem 0.9rem;
+  font-weight: 600;
+}
+
+.navbar-primary-button:hover {
+  background: var(--ifm-color-primary-dark);
+  text-decoration: none;
+}
+
+[data-theme='dark'] .navbar-primary-button {
+  color: #0c3a30 !important;
+}
+
+.menu__link--active {
+  font-weight: 600;
+}
+
+article header h1 {
+  font-size: 2.2rem;
+}
