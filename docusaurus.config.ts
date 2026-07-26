@@ -33,6 +33,27 @@ const config: Config = {
     locales: ['en'],
   },
 
+  // Mona Sans and Hubot Sans are self-hosted from static/assets (see custom.css).
+  // IBM Plex Mono is the code face used on api.loyalty.lt and is not vendored
+  // anywhere in the org, so it comes from Google Fonts.
+  headTags: [
+    {
+      tagName: 'link',
+      attributes: { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+    },
+    {
+      tagName: 'link',
+      attributes: { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: 'anonymous' },
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap',
+      },
+    },
+  ],
+
   presets: [
     [
       'classic',

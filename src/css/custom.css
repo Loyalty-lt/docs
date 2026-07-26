@@ -1,47 +1,161 @@
 /**
- * Loyalty.lt palette, carried over from the Mintlify `docs.json`:
- *   primary #29594B, dark #0C3A30, accent #CFFF45
+ * Loyalty.lt design system, matching partners.loyalty.lt and the Expo app.
+ *
+ * The tokens below are lifted from `partners.loyalty.lt/src/app/globals.css`
+ * and `expo/theme/palette.ts`, which have converged on the same values:
+ *
+ *   primary green   #65A949   (both call it "app green")
+ *   heading         #19352D
+ *   light surface   #E8F3E1
+ *   warm canvas     #F7F7F5
+ *   border          #E9E9E4
+ *   muted text      #6B7280
+ *
+ * Note: the neon accent (#E6FD5A / #CFFF45) was deliberately retired across the
+ * product — brand green replaced it everywhere — so it is not defined here.
+ *
+ * Typography follows the same stack: Mona Sans for text, Hubot Sans for
+ * headings, IBM Plex Mono for code. The font files are copied from
+ * partners.loyalty.lt into `static/assets/` and self-hosted, so the docs do not
+ * depend on Google Fonts being reachable.
  */
 
+/* --------------------------------------------------------------- webfonts */
+
+@font-face {
+  font-family: 'Mona Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/assets/mona-sans/fonts/MonaSans-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Mona Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/assets/mona-sans/fonts/MonaSans-Medium.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Mona Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/assets/mona-sans/fonts/MonaSans-SemiBold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Mona Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/assets/mona-sans/fonts/MonaSans-Bold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Hubot Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/assets/hubot-sans/fonts/HubotSans-SemiBold.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Hubot Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/assets/hubot-sans/fonts/HubotSans-Bold.ttf') format('truetype');
+}
+
+/* ------------------------------------------------------------ light theme */
+
 :root {
-  --ifm-color-primary: #29594b;
-  --ifm-color-primary-dark: #255045;
-  --ifm-color-primary-darker: #234c41;
-  --ifm-color-primary-darkest: #1c3e35;
-  --ifm-color-primary-light: #2d6251;
-  --ifm-color-primary-lighter: #2f6655;
-  --ifm-color-primary-lightest: #367462;
+  /* Brand green. The ramp is generated around #65A949 so Infima's hover and
+     active states stay on-brand instead of drifting to a generic tint. */
+  --ifm-color-primary: #65a949;
+  --ifm-color-primary-dark: #5b9942;
+  --ifm-color-primary-darker: #56903e;
+  --ifm-color-primary-darkest: #477633;
+  --ifm-color-primary-light: #74b45a;
+  --ifm-color-primary-lighter: #7cb864;
+  --ifm-color-primary-lightest: #96c783;
 
-  --ifm-code-font-size: 92%;
-  --ifm-heading-font-weight: 650;
-  --docusaurus-highlighted-code-line-bg: rgb(0 0 0 / 8%);
+  /* Links use the darker green so they clear contrast on the warm canvas —
+     #65A949 on near-white is only ~2.4:1. */
+  --ifm-link-color: #4d903f;
+  --ifm-link-hover-color: #477633;
 
-  --loyalty-accent: #cfff45;
+  --loyalty-heading: #19352d;
+  --loyalty-surface: #e8f3e1;
+
+  --ifm-background-color: #fbfbf9;
+  --ifm-background-surface-color: #ffffff;
+  --ifm-font-color-base: #0a0a0a;
+  --ifm-heading-color: var(--loyalty-heading);
+  --ifm-color-emphasis-300: #e9e9e4;
+  --ifm-toc-border-color: #e9e9e4;
+
+  --ifm-font-family-base: 'Mona Sans', system-ui, -apple-system, sans-serif;
+  --ifm-heading-font-family: 'Hubot Sans', 'Mona Sans', sans-serif;
+  --ifm-font-family-monospace: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --ifm-heading-font-weight: 600;
+  --ifm-code-font-size: 90%;
+  --ifm-code-background: #f7f7f5;
+
+  /* The product uses noticeably rounder corners than Infima's default 4px. */
+  --ifm-global-radius: 0.75rem;
+  --ifm-button-border-radius: 20px;
+  --ifm-card-border-radius: 20px;
+
+  --docusaurus-highlighted-code-line-bg: rgb(101 169 73 / 12%);
 }
 
-/* The brand green is too dark to read on a dark background, so dark mode leans
-   on the lighter end of the ramp instead of inverting the palette. */
+/* ------------------------------------------------------------- dark theme */
+
+/* Mirrors the `.dark` block in partners' globals.css. */
 [data-theme='dark'] {
-  --ifm-color-primary: #7fbfa8;
-  --ifm-color-primary-dark: #6bb59a;
-  --ifm-color-primary-darker: #61b093;
-  --ifm-color-primary-darkest: #479c7c;
-  --ifm-color-primary-light: #93c9b6;
-  --ifm-color-primary-lighter: #9dcebd;
-  --ifm-color-primary-lightest: #bbddd1;
+  --ifm-color-primary: #7bbc63;
+  --ifm-color-primary-dark: #6bb350;
+  --ifm-color-primary-darker: #63ae47;
+  --ifm-color-primary-darkest: #52913b;
+  --ifm-color-primary-light: #8bc576;
+  --ifm-color-primary-lighter: #93c980;
+  --ifm-color-primary-lightest: #aed69f;
 
-  --ifm-background-color: #0c3a30;
-  --ifm-background-surface-color: #114438;
-  --docusaurus-highlighted-code-line-bg: rgb(255 255 255 / 10%);
+  --ifm-link-color: #7bbc63;
+  --ifm-link-hover-color: #93c980;
+
+  --loyalty-heading: #f2f5f3;
+  --loyalty-surface: #1e3225;
+
+  --ifm-background-color: #0e1512;
+  --ifm-background-surface-color: #1b2622;
+  --ifm-font-color-base: #f2f5f3;
+  --ifm-heading-color: var(--loyalty-heading);
+  --ifm-color-emphasis-300: #263230;
+  --ifm-toc-border-color: #263230;
+  --ifm-code-background: #1b2622;
+
+  --docusaurus-highlighted-code-line-bg: rgb(123 188 99 / 18%);
 }
 
-/* Mintlify's navbar had a single filled CTA; reproduce it rather than letting it
-   render as a plain text link. */
+/* ----------------------------------------------------------------- chrome */
+
+.navbar {
+  border-bottom: 1px solid var(--ifm-color-emphasis-300);
+  box-shadow: none;
+}
+
+/* The product's single filled CTA. */
 .navbar-primary-button {
   background: var(--ifm-color-primary);
   color: #fff !important;
-  border-radius: 6px;
-  padding: 0.35rem 0.9rem;
+  border-radius: 20px;
+  padding: 0.35rem 1rem;
   font-weight: 600;
 }
 
@@ -50,14 +164,21 @@
   text-decoration: none;
 }
 
-[data-theme='dark'] .navbar-primary-button {
-  color: #0c3a30 !important;
+.menu__link--active {
+  font-weight: 600;
+  background: var(--loyalty-surface);
 }
 
-.menu__link--active {
+.table-of-contents__link--active {
   font-weight: 600;
 }
 
 article header h1 {
-  font-size: 2.2rem;
+  font-family: var(--ifm-heading-font-family);
+  font-size: 2.25rem;
+  letter-spacing: -0.02em;
+}
+
+.footer--dark {
+  --ifm-footer-background-color: #19352d;
 }
