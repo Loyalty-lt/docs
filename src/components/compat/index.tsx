@@ -23,7 +23,7 @@ import styles from './styles.module.css';
  * rather than a blank space, so a typo or a new icon a page starts using shows
  * up immediately instead of silently rendering nothing.
  */
-function MintlifyIcon({ slug }: { slug: string }) {
+function CompatIcon({ slug }: { slug: string }) {
   const Glyph = ICONS[slug];
   if (!Glyph) return <span className={styles.cardIcon}>{slug}</span>;
   return <Glyph className={styles.cardIconGlyph} aria-hidden="true" />;
@@ -103,7 +103,7 @@ export function Card({
     <>
       {(icon || title) && (
         <div className={styles.cardHeader}>
-          {typeof icon === 'string' ? <MintlifyIcon slug={icon} /> : icon}
+          {typeof icon === 'string' ? <CompatIcon slug={icon} /> : icon}
           {title && <span className={styles.cardTitle}>{title}</span>}
         </div>
       )}
@@ -282,7 +282,7 @@ export function Tooltip({ tip, children }: Kids & { tip?: string }) {
 
 export function Icon({ icon }: { icon?: string; color?: string; size?: number }) {
   if (!icon) return null;
-  return <MintlifyIcon slug={icon} />;
+  return <CompatIcon slug={icon} />;
 }
 
 /**

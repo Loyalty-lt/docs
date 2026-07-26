@@ -4,42 +4,42 @@
  * without importing anything.
  */
 import MDXComponents from '@theme-original/MDXComponents';
-import * as Mintlify from '@site/src/components/mintlify';
+import * as Compat from '@site/src/components/compat';
 
 export default {
   ...MDXComponents,
 
   // Callouts
-  Note: Mintlify.Note,
-  Info: Mintlify.Info,
-  Tip: Mintlify.Tip,
-  Warning: Mintlify.Warning,
-  Danger: Mintlify.Danger,
-  Check: Mintlify.Check,
+  Note: Compat.Note,
+  Info: Compat.Info,
+  Tip: Compat.Tip,
+  Warning: Compat.Warning,
+  Danger: Compat.Danger,
+  Check: Compat.Check,
 
   // Layout
-  Tabs: Mintlify.Tabs,
-  Tab: Mintlify.Tab,
-  CodeGroup: Mintlify.CodeGroup,
-  Card: Mintlify.Card,
-  CardGroup: Mintlify.CardGroup,
-  Columns: Mintlify.Columns,
-  Accordion: Mintlify.Accordion,
-  AccordionGroup: Mintlify.AccordionGroup,
-  Expandable: Mintlify.Expandable,
-  Steps: Mintlify.Steps,
-  Step: Mintlify.Step,
-  Frame: Mintlify.Frame,
+  Tabs: Compat.Tabs,
+  Tab: Compat.Tab,
+  CodeGroup: Compat.CodeGroup,
+  Card: Compat.Card,
+  CardGroup: Compat.CardGroup,
+  Columns: Compat.Columns,
+  Accordion: Compat.Accordion,
+  AccordionGroup: Compat.AccordionGroup,
+  Expandable: Compat.Expandable,
+  Steps: Compat.Steps,
+  Step: Compat.Step,
+  Frame: Compat.Frame,
 
   // API reference
-  ParamField: Mintlify.ParamField,
-  ResponseField: Mintlify.ResponseField,
-  RequestExample: Mintlify.RequestExample,
-  ResponseExample: Mintlify.ResponseExample,
+  ParamField: Compat.ParamField,
+  ResponseField: Compat.ResponseField,
+  RequestExample: Compat.RequestExample,
+  ResponseExample: Compat.ResponseExample,
 
   // Misc
-  Update: Mintlify.Update,
-  Tooltip: Mintlify.Tooltip,
-  Icon: Mintlify.Icon,
-  Latex: Mintlify.Latex,
+  Update: Compat.Update,
+  Tooltip: Compat.Tooltip,
+  Icon: Compat.Icon,
+  Latex: Compat.Latex,
 };
