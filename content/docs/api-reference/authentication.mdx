@@ -1,0 +1,210 @@
+---
+title: "Authentication"
+description: "How to authenticate against the Loyalty.lt Shop API"
+---
+
+# API Authentication
+
+The Loyalty.lt Shop API uses two authentication schemes, for different parts of an
+integration. All requests are made over HTTPS to `https://api.loyalty.lt` (or
+`https://staging-api.loyalty.lt` for testing), and every path is locale-prefixed:
+`{base}/{locale}/shop/...` where `{locale}` is `lt` or `en`.
+
+<Info>
+**QR Code login is the primary way customers sign in** — a desktop/POS screen shows
+a QR code, the customer scans it in the Loyalty.lt mobile app, and the browser
+receives the session token over a WebSocket in real time.
+</Info>
+
+## Authentication schemes
+
+| Scheme | Header(s) | Used for |
+|--------|-----------|----------|
+| **API credentials** | `X-API-Key` + `X-API-Secret` | Server-to-server / POS calls, and generating & polling QR-login sessions |
+| **JWT** | `Authorization: Bearer <token>` | Customer-scoped endpoints such as `GET /{locale}/shop/auth/me` |
+
+API credentials are issued in the Partner Dashboard and must stay on your server.
+The JWT is the token a customer receives after completing QR login; send it as a
+Bearer token on customer-scoped requests.
+
+---
+
+## API credentials
+
+**Best for:** e-commerce backends, POS systems, server-to-server integrations.
+
+Include both headers on every request:
+
+```bash
+curl -X GET "https://staging-api.loyalty.lt/en/shop/loyalty-cards" \
+  -H "X-API-Key: your_api_key_here" \
+  -H "X-API-Secret: your_api_secret_here" \
+  -H "Content-Type: application/json"
+```
+
+**Required headers**
+- `X-API-Key` — your public API key
+- `X-API-Secret` — your private API secret
+- `Content-Type: application/json` for requests with a body
+
+Generate credentials in the [Partner Dashboard](https://partners.loyalty.lt) →
+**API Credentials**, and store them as environment variables — never in frontend code.
+
+---
+
+## QR Code login
+
+**Best for:** desktop/web/POS sign-in via the mobile app.
+
+<Steps>
+<Step title="Generate a session">
+  Your server calls the generate endpoint with your API credentials.
+
+  ```bash
+  curl -X POST "https://staging-api.loyalty.lt/en/shop/auth/qr-login/generate" \
+    -H "X-API-Key: your_api_key" \
+    -H "X-API-Secret: your_api_secret" \
+    -H "Content-Type: application/json" \
+    -d '{"device_name": "Desktop Browser"}'
+  ```
+</Step>
+
+<Step title="Display the QR code and wait for the result">
+  Show the returned QR code, then either poll or (preferred) subscribe to the
+  realtime channel for the outcome.
+
+  ```bash
+  curl -X POST "https://staging-api.loyalty.lt/en/shop/auth/qr-login/poll/{session_id}" \
+    -H "X-API-Key: your_api_key" \
+    -H "X-API-Secret: your_api_secret"
+  ```
+</Step>
+
+<Step title="Customer scans & confirms">
+  The customer scans the QR code in the Loyalty.lt app and confirms the login.
+</Step>
+
+<Step title="Receive the token">
+  On success the browser/POS receives the customer's JWT (over the realtime channel,
+  or from the poll response). Use it as `Authorization: Bearer <token>` on
+  customer-scoped endpoints.
+</Step>
+</Steps>
+
+### Realtime (WebSocket) delivery
+
+Instead of polling, subscribe to the QR-login channel over Laravel Reverb (Pusher
+protocol). Fetch connection details from `GET /{locale}/shop/realtime/config`:
+
+```javascript
+// 1. Fetch Reverb connection details
+const response = await fetch('https://staging-api.loyalty.lt/en/shop/realtime/config', {
+  headers: {
+    'X-API-Key': 'your_api_key',
+    'X-API-Secret': 'your_api_secret'
+  }
+});
+const { data: config } = await response.json();
+
+// 2. Connect to Reverb (Pusher protocol)
+const pusher = new Pusher(config.key, {
+  wsHost: config.host,
+  wsPort: config.port,
+  wssPort: config.port,
+  forceTLS: config.scheme === 'https',
+  enabledTransports: ['ws', 'wss'],
+  cluster: '',        // Reverb has no clusters, but pusher-js throws without this option
+  disableStats: true
+});
+
+// 3. Subscribe to the public QR login channel
+const channel = pusher.subscribe(`qr-login.${session_id}`);
+
+// 4. Listen for status updates
+channel.bind('status_update', (payload) => {
+  if (payload.status === 'authenticated') {
+    console.log('User:', payload.user);
+    console.log('Token:', payload.token);
+  }
+});
+```
+
+<Note>
+The `qr-login.{session_id}` channel is public — the unguessable session ID is the
+secret, so no channel authorization is needed. Sessions expire after 5 minutes.
+</Note>
+
+---
+
+## JWT (customer session)
+
+The JWT returned by QR login authenticates customer-scoped requests. Send it as a
+Bearer token:
+
+```bash
+curl -X GET "https://staging-api.loyalty.lt/en/shop/auth/me" \
+  -H "Authorization: Bearer your_jwt_token"
+```
+
+The Shop API does not expose password login / refresh / logout endpoints — the JWT
+is obtained through QR login. (Partner-account authentication, a separate flow, lives
+under `/{locale}/partners/auth/...`.)
+
+---
+
+## Environments
+
+| Environment | Base URL |
+|-------------|----------|
+| Staging | `https://staging-api.loyalty.lt` |
+| Production | `https://api.loyalty.lt` |
+
+Staging is safe to test against with any data. Production operations affect real
+customer data — use production credentials carefully.
+
+```bash
+# Staging — API credentials
+curl -X GET "https://staging-api.loyalty.lt/en/shop/loyalty-cards" \
+  -H "X-API-Key: test_api_key" -H "X-API-Secret: test_api_secret"
+
+# Production — API credentials
+curl -X GET "https://api.loyalty.lt/en/shop/loyalty-cards" \
+  -H "X-API-Key: live_api_key" -H "X-API-Secret: live_api_secret"
+```
+
+---
+
+## Errors
+
+Failed requests return the standard envelope with a numeric `code`, a `message`, and
+a `request_id`:
+
+```json
+{
+  "success": false,
+  "code": 1004,
+  "message": "API key and secret are required.",
+  "request_id": "7a2e4ab5-ded5-4bcc-83d8-45e95ad806d2"
+}
+```
+
+Common auth outcomes: **401** when credentials/token are missing or invalid, **403**
+when the credential lacks access, **429** when throttled. See
+[Error Handling](/docs/api-reference/error-handling) for the full envelope.
+
+## Testing your setup
+
+```bash
+# API credentials reach a protected endpoint (401 if missing/invalid)
+curl -X GET "https://staging-api.loyalty.lt/en/shop/system/health" \
+  -H "X-API-Key: your_key" -H "X-API-Secret: your_secret"
+
+# JWT identifies the customer
+curl -X GET "https://staging-api.loyalty.lt/en/shop/auth/me" \
+  -H "Authorization: Bearer your_jwt_token"
+```
+
+<Note>
+Authentication is handled for you when using the official SDKs — the manual examples
+above are for custom integrations and debugging.
+</Note>

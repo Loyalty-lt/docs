@@ -1,0 +1,44 @@
+{
+  "name": "loyalty-lt-docs-next",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "predev": "npm run gen:openapi",
+    "dev": "next dev --port 3098",
+    "prebuild": "npm run gen:openapi",
+    "build": "next build",
+    "start": "next start --port 3098 --hostname 0.0.0.0",
+    "gen:openapi": "node scripts/scope-openapi.mjs",
+    "types:check": "next typegen && tsc --noEmit"
+  },
+  "dependencies": {
+    "@scalar/api-client-react": "^2.0.20",
+    "cnfast": "^0.1.0",
+    "fumadocs-core": "^16.14.0",
+    "fumadocs-mdx": "^15.2.1",
+    "fumadocs-openapi": "^11.2.2",
+    "fumadocs-ui": "^16.14.0",
+    "json-schema-typed": "^8.0.1",
+    "lucide-react": "^1.27.0",
+    "next": "16.2.12",
+    "openai": "^7.2.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/mdx": "^2.0.14",
+    "@types/node": "^26.1.2",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "postcss": "^8.5.24",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6.0.3"
+  },
+  "engines": {
+    "node": ">=20.0"
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
+}

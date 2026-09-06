@@ -1,44 +1,46 @@
-# Mintlify Starter Kit
+# Loyalty.lt Docs (Fumadocs)
 
-Use the starter kit to get your docs deployed and ready to customize.
+Next.js + [Fumadocs](https://fumadocs.dev) rebuild of `docs.loyalty.lt`
+(replacing the old Docusaurus site). Runs on port **3098**.
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+## Structure
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+- `content/docs/**` — hand-written guides & SDK docs (MDX). Sidebar order via `meta.json`.
+- API Reference — **not** committed as files. Generated virtually at runtime from
+  `openapi/loyalty.json` (fumadocs-openapi `staticSource`), grouped by tag.
+- `openapi/loyalty.json` — the **public** spec, built by `scripts/scope-openapi.mjs`
+  from the upstream `api.loyalty.lt` spec. Scope = `shop` + `sms` + `partners`
+  paths + the `Public Partners` tag; everything under `/admin/` is dropped.
+  `openapi/full.json` is the cached upstream spec (delete it to refetch).
+- `components/mintlify.tsx` — thin aliases mapping the imported docs' Mintlify
+  components (`<Info>`, `<Card>`, `<Steps>`, `<Tabs>`, …) onto Fumadocs equivalents.
+- `app/api/proxy` — same-origin proxy for the endpoint "try it" playground.
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
+## Commands
 
-## Development
-
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
-
+```bash
+npm install
+npm run gen:openapi   # refresh openapi/loyalty.json from upstream (needs network)
+npm run dev           # http://localhost:3098 (predev regenerates the spec)
+npm run build         # prebuild regenerates the spec, then next build
+npm run start         # serve the production build on 3098
 ```
-npm i -g mint
+
+## Deploy
+
+Production checkout is `/var/www/vhosts/loyalty.lt/docs.loyalty.lt` (git clone of
+this repo, branch `main`). Deploy = push to `main`, then on the server:
+
+```bash
+cd /var/www/vhosts/loyalty.lt/docs.loyalty.lt && ./deploy/deploy.sh
 ```
 
-Run the following command at the root of your documentation, where your `docs.json` is located:
+(`git pull`, `npm ci`, `npm run build`, pm2 reload — see `deploy/deploy.sh`.)
+`.env` holds the AI gateway credentials (see `.env.example`). Nginx config for
+Plesk: `deploy/plesk-additional-nginx-directives.conf`.
 
-```
-mint dev
-```
+## Updating the API reference
 
-View your local preview at `http://localhost:3000`.
-
-## Publishing changes
-
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
-
-## Need help?
-
-### Troubleshooting
-
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
-
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
-- [Mintlify community](https://mintlify.com/community)
+Endpoints track the upstream spec automatically — rerun `npm run build` (or
+`npm run gen:openapi`) to pull the latest. Adjust the public scope in
+`scripts/scope-openapi.mjs` (`PUBLIC_PREFIXES` / `PUBLIC_TAGS`).

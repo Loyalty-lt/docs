@@ -1,0 +1,106 @@
+---
+title: "API Overview"
+description: "Loyalty.lt REST APIs for loyalty program integrations"
+---
+
+# API Overview
+
+Loyalty.lt provides REST APIs for different integration scenarios. Every endpoint is
+locale-prefixed — `https://api.loyalty.lt/{locale}/...` with `{locale}` being `lt` or
+`en`. Browse the full, testable reference in the **API Reference** section of the
+sidebar.
+
+## Available APIs
+
+<CardGroup cols={3}>
+  <Card title="Shop API" icon="store" href="/docs/shop-points/shopGetCardBalance">
+    For e-commerce platforms and POS systems. Award points, manage loyalty cards, process transactions, run games and offers.
+  </Card>
+
+  <Card title="SMS API" icon="message" href="/docs/external-sms-api/sendSmsExternal">
+    Send SMS messages programmatically with delivery tracking and GDPR-compliant consent management.
+  </Card>
+
+  <Card title="Partner API" icon="building" href="/docs/partners/listPartners">
+    For partner management systems. Partners, customers, transactions and partner-owned games.
+  </Card>
+</CardGroup>
+
+## Shop API
+
+Enables e-commerce platforms and POS systems to integrate with the Loyalty.lt loyalty
+system.
+
+- **Loyalty cards** — look up cards, check balances, get card info
+- **Transactions** — create purchases, award points, view history
+- **QR authentication** — QR Login and QR Card Scan for POS
+- **Offers & coupons** — retrieve promotions, verify and redeem coupons
+- **Games** — stamp cards and other loyalty games
+- **XML import** — bulk import offers from XML feeds
+
+## SMS API
+
+Send SMS messages programmatically with delivery tracking and webhook notifications.
+
+- **Send SMS** — single or scheduled messages
+- **Delivery tracking** — status via webhooks
+- **Marketing consent** — GDPR-compliant consent management
+
+## Partner API
+
+Manage partner accounts, their customers and transactions, and partner-owned games.
+
+## Response format
+
+All APIs share one JSON envelope.
+
+### Success
+```json
+{
+  "success": true,
+  "code": 200,
+  "message": "Operation completed successfully",
+  "data": { }
+}
+```
+
+### Error
+```json
+{
+  "success": false,
+  "code": 1004,
+  "message": "API key and secret are required.",
+  "request_id": "abc-123-def"
+}
+```
+
+`code` is a numeric application code. Validation failures (HTTP 422) add an `errors`
+object keyed by field. See [Error Handling](/docs/api-reference/error-handling).
+
+## HTTP status codes
+
+| Code | Description |
+|------|-------------|
+| `200` / `201` | Success |
+| `401` | Unauthorized — invalid credentials |
+| `403` | Forbidden — access denied |
+| `404` | Not found |
+| `422` | Validation failed |
+| `429` | Too many requests |
+| `500` | Server error |
+
+## Need help?
+
+<CardGroup cols={2}>
+  <Card title="Authentication" icon="key" href="/docs/api-reference/authentication">
+    API credentials, JWT and QR login
+  </Card>
+
+  <Card title="SDKs" icon="puzzle-piece" href="/docs/sdk/overview">
+    Official SDK libraries
+  </Card>
+
+  <Card title="Partners Portal" icon="users" href="https://partners.loyalty.lt">
+    Manage your integration
+  </Card>
+</CardGroup>

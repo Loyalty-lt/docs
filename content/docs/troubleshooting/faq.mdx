@@ -1,0 +1,187 @@
+---
+title: "Frequently Asked Questions"
+description: "Common questions and solutions for Loyalty.lt integration"
+---
+
+# Frequently Asked Questions
+
+Answers to common questions about integrating with the Loyalty.lt platform.
+
+## General
+
+<AccordionGroup>
+
+<Accordion title="What is Loyalty.lt?">
+Loyalty.lt is a loyalty program platform for businesses: points, loyalty cards,
+offers and coupons, gamified stamp cards, and QR-based customer identification. It
+exposes REST APIs and official SDKs so you can integrate loyalty into your store,
+POS or app.
+</Accordion>
+
+<Accordion title="Which platforms are supported?">
+Official SDKs:
+
+- **JavaScript / TypeScript** (`@loyaltylt/sdk`) — Node.js 16+, and browser/React
+- **PHP** (`loyaltylt/sdk`) — PHP 8.1+
+- **Python** (`loyaltylt-sdk`) — Python 3.8+
+
+Any language can call the REST API directly over HTTPS.
+</Accordion>
+
+<Accordion title="What API surfaces are there?">
+- **Shop API** — for stores and POS: loyalty cards, points, transactions, offers,
+  coupons, games, QR login and QR card scan. Authenticated with API credentials
+  (`X-API-Key` + `X-API-Secret`); customer-scoped calls use the JWT from QR login.
+- **Partner API** — manage partner accounts, their customers and transactions, and
+  partner-owned games. Authenticated with a partner JWT (`/{locale}/partners/auth/...`).
+- **SMS API** — send SMS with delivery receipts and consent management.
+</Accordion>
+
+</AccordionGroup>
+
+## Getting started
+
+<AccordionGroup>
+
+<Accordion title="How do I start integrating?">
+1. Create an account at [partners.loyalty.lt](https://partners.loyalty.lt).
+2. Generate API credentials (API Key + API Secret).
+3. Install an [SDK](/docs/sdk/overview) or call the REST API directly.
+4. Build and test against **staging** first, then switch to production.
+</Accordion>
+
+<Accordion title="Staging vs production?">
+| | Staging | Production |
+|---|---|---|
+| Base URL | `https://staging-api.loyalty.lt` | `https://api.loyalty.lt` |
+| Data | Test data, reset periodically | Real customer data |
+| Credentials | Staging only | Production only |
+
+Every path is locale-prefixed: `{base}/{locale}/...` with `{locale}` being `lt` or
+`en`. See the [Staging Environment](/docs/api-reference/staging) guide.
+</Accordion>
+
+</AccordionGroup>
+
+## Authentication & errors
+
+<AccordionGroup>
+
+<Accordion title="How do I authenticate?">
+Two schemes (see [Authentication](/docs/api-reference/authentication)):
+
+- **API credentials** — send `X-API-Key` and `X-API-Secret` headers. Used for
+  server-to-server / POS calls and to generate & poll QR-login sessions.
+- **JWT** — the token a customer receives after QR login; send it as
+  `Authorization: Bearer <token>` on customer-scoped endpoints such as
+  `GET /{locale}/shop/auth/me`.
+
+Never expose credentials in client-side code; keep them in environment variables.
+</Accordion>
+
+<Accordion title="Why do I get 401 / invalid-credentials errors?">
+- Verify you are using **staging** credentials against the staging URL (and
+  production against production) — they are not interchangeable.
+- Check `X-API-Key` and `X-API-Secret` are both present and correct.
+- Confirm the credential is active in the [Partners Portal](https://partners.loyalty.lt).
+</Accordion>
+
+<Accordion title="What does an error response look like?">
+The standard envelope with a numeric `code`, a `message`, and a `request_id`:
+
+```json
+{
+  "success": false,
+  "code": 1004,
+  "message": "API key and secret are required.",
+  "request_id": "550e8400-e29b-41d4-a716-446655440000"
+}
+```
+
+Validation failures (HTTP 422) add an `errors` object keyed by field. Retry `429`
+and `5xx` with exponential backoff; do not retry other `4xx`. See
+[Error Handling](/docs/api-reference/error-handling).
+</Accordion>
+
+<Accordion title="What data formats are used?">
+JSON everywhere. Timestamps are ISO 8601 (`2024-01-15T10:30:00Z`); monetary amounts
+are numeric with 2 decimals; currencies use ISO 4217 codes.
+</Accordion>
+
+</AccordionGroup>
+
+## SDK usage
+
+<AccordionGroup>
+
+<Accordion title="How do I award points for a purchase?">
+Create a transaction — points are awarded automatically per the shop's rules:
+
+```javascript
+const { data: card } = await sdk.getLoyaltyCardInfo({ card_number: '900-001-001' });
+
+await sdk.createTransaction({
+  card_id: card.id,
+  amount: 25.50,
+  type: 'earn',
+  description: 'Purchase',
+});
+
+const balance = await sdk.getPointsBalance(card.id);
+```
+</Accordion>
+
+<Accordion title="How do I identify a loyalty card by QR scan?">
+Card scanning is exposed as SDK methods (there is no standalone scan component):
+
+```javascript
+const session = await sdk.generateQrCardSession('POS');
+sdk.subscribeToQrCardScan(session.session_id, (payload) => {
+  // payload.card_data — the identified card
+});
+// or poll:
+const status = await sdk.pollQrCardStatus(session.session_id);
+```
+
+See [QR Card Scan](/docs/sdk/javascript/qr-card-scan). For customer login, use
+[QR Login](/docs/sdk/javascript/qr-login) and the `QRLogin` React component.
+</Accordion>
+
+</AccordionGroup>
+
+## Support
+
+<AccordionGroup>
+
+<Accordion title="How do I get help or report a bug?">
+- Read the docs at [docs.loyalty.lt](https://docs.loyalty.lt) and browse the
+  interactive **API Reference**.
+- Email technical questions to developers@loyalty.lt with the `request_id`, endpoint,
+  and request/response bodies (excluding secrets).
+- SDK issues: [github.com/Loyalty-lt](https://github.com/Loyalty-lt).
+- Check [status.loyalty.lt](https://status.loyalty.lt) for incidents.
+</Accordion>
+
+</AccordionGroup>
+
+---
+
+## Still need help?
+
+<CardGroup cols={2}>
+<Card title="API Reference" href="/docs/api-reference/overview">
+  Endpoints, authentication and examples
+</Card>
+
+<Card title="SDKs" href="/docs/sdk/overview">
+  JavaScript, PHP and Python libraries
+</Card>
+
+<Card title="Partners Portal" href="https://partners.loyalty.lt">
+  Credentials, settings and usage
+</Card>
+
+<Card title="Technical Support" href="mailto:developers@loyalty.lt">
+  Integration help
+</Card>
+</CardGroup>

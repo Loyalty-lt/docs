@@ -1,0 +1,106 @@
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
+@import 'fumadocs-openapi/css/preset.css';
+
+/* Brand fonts — Mona Sans (body) + Hubot Sans (headings), served from the org
+   CDN, same as partners.loyalty.lt / the mobile app. */
+@font-face {
+  font-family: 'Mona Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('https://cdn.loyalty.lt/loyalty-public/fonts/v1/mona-sans/MonaSans-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Mona Sans';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('https://cdn.loyalty.lt/loyalty-public/fonts/v1/mona-sans/MonaSans-Medium.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Mona Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('https://cdn.loyalty.lt/loyalty-public/fonts/v1/mona-sans/MonaSans-SemiBold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Mona Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('https://cdn.loyalty.lt/loyalty-public/fonts/v1/mona-sans/MonaSans-Bold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Hubot Sans';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('https://cdn.loyalty.lt/loyalty-public/fonts/v1/hubot-sans/HubotSans-SemiBold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Hubot Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('https://cdn.loyalty.lt/loyalty-public/fonts/v1/hubot-sans/HubotSans-Bold.woff2') format('woff2');
+}
+
+/* Loyalty.lt palette, mirrored from partners.loyalty.lt globals.css.
+   No neon accent — brand green #65A949 is used for fills/links, near-black for
+   text. Values in HSL to match the source. */
+:root {
+  --color-fd-background: hsl(60, 20%, 98%); /* #FCFCFB warm canvas */
+  --color-fd-foreground: hsl(0, 0%, 4%);
+  --color-fd-muted: hsl(0, 0%, 98%);
+  --color-fd-muted-foreground: hsl(220, 9%, 46%); /* #6B7280 */
+  --color-fd-popover: hsl(0, 0%, 100%);
+  --color-fd-popover-foreground: hsl(0, 0%, 4%);
+  --color-fd-card: hsl(0, 0%, 100%);
+  --color-fd-card-foreground: hsl(0, 0%, 4%);
+  --color-fd-border: hsl(60, 8%, 93%); /* #EEEEEB */
+  --color-fd-primary: hsl(110, 39%, 41%); /* #4D903F readable green */
+  --color-fd-primary-foreground: hsl(0, 0%, 100%);
+  --color-fd-secondary: hsl(100, 50%, 93%); /* #EAF6E4 */
+  --color-fd-secondary-foreground: hsl(0, 0%, 9%);
+  --color-fd-accent: hsl(97, 43%, 92%); /* #E8F3E1 light green */
+  --color-fd-accent-foreground: hsl(0, 0%, 9%);
+  --color-fd-ring: hsl(102, 40%, 47%); /* #65A949 */
+}
+
+.dark {
+  --color-fd-background: hsl(154, 20%, 7%); /* #0E1512 */
+  --color-fd-foreground: hsl(140, 13%, 96%);
+  --color-fd-muted: hsl(156, 19%, 11%);
+  --color-fd-muted-foreground: hsl(155, 6%, 63%); /* #9AA6A1 */
+  --color-fd-popover: hsl(156, 19%, 11%);
+  --color-fd-popover-foreground: hsl(140, 13%, 96%);
+  --color-fd-card: hsl(156, 19%, 11%);
+  --color-fd-card-foreground: hsl(140, 13%, 96%);
+  --color-fd-border: hsl(170, 14%, 17%); /* #263230 */
+  --color-fd-primary: hsl(104, 40%, 56%); /* #7BBC63 */
+  --color-fd-primary-foreground: hsl(154, 20%, 7%);
+  --color-fd-secondary: hsl(141, 25%, 16%);
+  --color-fd-secondary-foreground: hsl(140, 13%, 96%);
+  --color-fd-accent: hsl(141, 25%, 16%); /* #1E3225 */
+  --color-fd-accent-foreground: hsl(140, 13%, 96%);
+  --color-fd-ring: hsl(104, 40%, 56%);
+}
+
+body {
+  font-family: 'Mona Sans', system-ui, sans-serif;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Hubot Sans', 'Mona Sans', sans-serif;
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+html > body[data-scroll-locked] {
+  margin-right: 0px !important;
+  --removed-body-scroll-bar-size: 0px !important;
+}

@@ -1,0 +1,208 @@
+---
+title: 'Staging Environment'
+description: 'Test your integration safely with our staging environment'
+---
+
+# Staging Environment
+
+The Loyalty.lt API provides a dedicated staging environment for testing your integrations before going live with production data.
+
+## Staging vs Production
+
+| Feature | Staging | Production |
+|---------|---------|------------|
+| Base URL | `https://staging-api.loyalty.lt` | `https://api.loyalty.lt` |
+| Data | Demo/test data | Real customer data |
+| API Credentials | Staging credentials only | Production credentials only |
+| Weekly reset | Yes (Sundays) | No |
+
+## Getting Staging API Credentials
+
+1. Log in to the [Partners Portal](https://partners.loyalty.lt)
+2. Navigate to **API Credentials** in the sidebar menu
+3. Click **Create New Credential**
+4. Select **Environment: Staging**
+5. Save your API Key and Secret (shown only once!)
+
+<Warning>
+  Staging credentials only work with the staging API (`staging-api.loyalty.lt`).
+  Production credentials only work with the production API (`api.loyalty.lt`).
+</Warning>
+
+## Demo Test Data
+
+The staging environment includes pre-configured demo data for testing:
+
+### Demo Loyalty Cards
+
+Card numbers use the format `XXX-XXX-XXX`. Demo cards start with `900-`:
+
+| Card Number | Phone | Email | Points |
+|-------------|-------|-------|--------|
+| `900-001-001` | +37060000001 | demo1@loyalty.lt | 1000 |
+| `900-002-001` | +37060000002 | demo2@loyalty.lt | 2500 |
+| `900-003-001` | +37060000003 | demo3@loyalty.lt | 500 |
+| `900-004-001` | +37060000004 | demo4@loyalty.lt | 10000 |
+| `900-005-001` | +37060000005 | demo5@loyalty.lt | 150 |
+
+<Info>
+  Card number format: `900-{user_id}-{partner_id}` where IDs are zero-padded to 3 digits.
+</Info>
+
+### Demo Staff Accounts
+
+Staff members log in to the Staff App using their **Barcode** (numbers only):
+
+| Barcode | Name | Role |
+|---------|------|------|
+| `100000001` | Demo Manager | Manager |
+| `100000002` | Demo Cashier | Cashier |
+
+<Info>
+  Barcode format: `{partner_id}{user_id}` where user_id is zero-padded to 8 digits.
+  
+  Example: For partner ID 5 and user ID 123, barcode would be `500000123`.
+  
+  Staff accounts are created for each partner synced from production.
+</Info>
+
+## SDK Configuration
+
+### JavaScript SDK
+
+```javascript
+
+const sdk = new LoyaltySDK({
+  apiKey: 'your_staging_api_key',
+  apiSecret: 'your_staging_api_secret',
+  environment: 'staging', // Uses staging-api.loyalty.lt
+  locale: 'lt'
+});
+```
+
+### PHP SDK
+
+```php
+use LoyaltyLt\SDK\LoyaltySDK;
+
+$sdk = new LoyaltySDK([
+    'apiKey' => 'your_staging_api_key',
+    'apiSecret' => 'your_staging_api_secret',
+    'environment' => 'staging',
+]);
+```
+
+### Python SDK
+
+```python
+from loyalty_sdk import LoyaltySDK
+
+sdk = LoyaltySDK(
+    api_key='your_staging_api_key',
+    api_secret='your_staging_api_secret',
+    environment='staging'
+)
+```
+
+## Weekly Data Reset
+
+<Note>
+  The staging environment is reset every **Sunday at 05:00 EET**. 
+  All test transactions and temporary data are cleared.
+  Demo cards and partner catalog data are preserved.
+</Note>
+
+### What Gets Reset
+
+- Customer transactions
+- Point awards/redemptions
+- Game progress and sessions
+- Coupon redemptions
+- Activity logs
+
+### What Gets Preserved
+
+- Partner settings and catalog (products, games, offers)
+- Demo loyalty cards
+- Demo staff accounts
+- API credentials
+
+## Testing Recommendations
+
+### 1. Test the Full Flow
+
+```javascript
+// 1. Validate credentials
+await sdk.validateCredentials();
+
+// 2. Look up a card by number
+const { data: card } = await sdk.getLoyaltyCardInfo({ card_number: '900-001-001' });
+
+// 3. Create transaction (awards points automatically)
+await sdk.createTransaction({
+  card_id: card.id,
+  amount: 25.50,
+  type: 'earn',
+  description: 'Test purchase'
+});
+
+// 4. Check balance
+const balance = await sdk.getPointsBalance(card.id);
+```
+
+### 2. Test Error Handling
+
+Use invalid card numbers to test error handling:
+
+```javascript
+try {
+  await sdk.getLoyaltyCardInfo({ card_number: 'invalid-card' });
+} catch (error) {
+  console.log('Code:', error.code);
+  console.log('Message:', error.message);
+}
+```
+
+### 3. Test Games & Coupons
+
+```javascript
+// List available games
+const games = await sdk.listShopGames();
+
+// Get customer's games
+const cardGames = await sdk.getCardGames('900-001-001');
+
+// Get customer's coupons
+const coupons = await sdk.getCardCoupons('900-001-001');
+```
+
+## Troubleshooting
+
+### Common Issues
+
+<AccordionGroup>
+  <Accordion title="401 Unauthorized">
+    - Verify you're using staging credentials with staging API URL
+    - Check that credentials are active in the Partners Portal
+    - Ensure the API key and secret are correct
+  </Accordion>
+  
+  <Accordion title="404 Card Not Found">
+    - Use demo card numbers listed above
+    - Cards created in production don't exist in staging
+    - Wait for weekly sync if testing with specific partner data
+  </Accordion>
+  
+  <Accordion title="Connection Timeout">
+    - Staging server may have higher latency than production
+    - Increase timeout settings in your SDK configuration
+  </Accordion>
+</AccordionGroup>
+
+## Support
+
+If you encounter issues with the staging environment:
+
+- Email: [developers@loyalty.lt](mailto:developers@loyalty.lt)
+- Include your partner ID and error details
+

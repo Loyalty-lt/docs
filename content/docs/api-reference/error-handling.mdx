@@ -1,0 +1,169 @@
+---
+title: "Error Handling"
+description: "How the Loyalty.lt API reports errors and how to handle them"
+---
+
+# Error Handling
+
+The API uses conventional HTTP status codes: `2xx` for success, `4xx` for a request
+problem, `5xx` for a server problem. Every response — success or error — uses the same
+envelope, and every error carries a unique `request_id` for support.
+
+## Response envelope
+
+### Success
+```json
+{
+  "success": true,
+  "code": 200,
+  "message": "Operation completed successfully",
+  "data": { }
+}
+```
+
+### Error
+```json
+{
+  "success": false,
+  "code": 1004,
+  "message": "API key and secret are required.",
+  "request_id": "550e8400-e29b-41d4-a716-446655440000"
+}
+```
+
+<Note>
+`code` is a **numeric** application code (e.g. `1004`), not a string. Branch on the
+HTTP status for control flow and show `message` to developers; include `request_id`
+when contacting support.
+</Note>
+
+### Validation error (HTTP 422)
+When input fails validation the response includes an `errors` object keyed by field:
+
+```json
+{
+  "success": false,
+  "code": 422,
+  "message": "The given data was invalid.",
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  "errors": {
+    "email": ["The email field is required."],
+    "points": ["The points must be a positive integer."]
+  }
+}
+```
+
+## HTTP status codes
+
+| Code | Meaning |
+|------|---------|
+| 200 / 201 / 204 | Success (OK / Created / No Content) |
+| 400 | Malformed request |
+| 401 | Missing or invalid authentication |
+| 403 | Authenticated but not allowed |
+| 404 | Resource not found |
+| 422 | Validation failed (see `errors`) |
+| 429 | Too many requests — back off and retry |
+| 500 / 502 / 503 / 504 | Server-side error — retry with backoff |
+
+## Handling errors
+
+Branch on the HTTP status, read `message`/`errors`, and retry `429`/`5xx` with
+exponential backoff. Do not retry `4xx` client errors other than `429`.
+
+```javascript
+const axios = require('axios');
+
+async function makeAPICall() {
+  try {
+    const res = await axios.get('https://staging-api.loyalty.lt/en/shop/loyalty-cards', {
+      headers: {
+        'X-API-Key': process.env.LOYALTY_API_KEY,
+        'X-API-Secret': process.env.LOYALTY_API_SECRET,
+      },
+    });
+    return res.data;
+  } catch (error) {
+    const { status, data } = error.response ?? {};
+    switch (status) {
+      case 401:
+        console.error('Authentication failed:', data?.message);
+        break;
+      case 422:
+        for (const [field, messages] of Object.entries(data?.errors ?? {})) {
+          console.error(`- ${field}: ${messages.join(', ')}`);
+        }
+        break;
+      case 429:
+        // throttled — retry with exponential backoff
+        break;
+      default:
+        console.error('API error:', data?.message ?? error.message);
+    }
+    throw error;
+  }
+}
+```
+
+### Exponential backoff
+
+```javascript
+async function exponentialBackoff(fn, maxRetries = 3) {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      const status = error.response?.status;
+      const retryable = status === 429 || (status >= 500 && status <= 599);
+      if (!retryable || attempt === maxRetries) throw error;
+      const delay = Math.min(1000 * 2 ** attempt, 10000) + Math.random() * 1000;
+      await new Promise((r) => setTimeout(r, delay));
+    }
+  }
+}
+```
+
+### Log with context
+
+```javascript
+function logAPIError(error, context) {
+  console.error('API Error:', JSON.stringify({
+    timestamp: new Date().toISOString(),
+    context,
+    request_id: error.response?.data?.request_id,
+    status: error.response?.status,
+    message: error.response?.data?.message,
+    errors: error.response?.data?.errors,
+  }, null, 2));
+}
+```
+
+## Testing error responses
+
+```bash
+# 401 — missing credentials
+curl -X GET "https://staging-api.loyalty.lt/en/shop/loyalty-cards"
+
+# 401 — invalid key
+curl -X GET "https://staging-api.loyalty.lt/en/shop/loyalty-cards" \
+  -H "X-API-Key: invalid_key" -H "X-API-Secret: invalid_secret"
+```
+
+---
+
+## Support
+
+<CardGroup cols={2}>
+<Card title="Request ID" href="">
+  Always include the `request_id` from the error response when contacting support.
+</Card>
+
+<Card title="Status Page" href="https://status.loyalty.lt">
+  Check for known issues and maintenance windows.
+</Card>
+</CardGroup>
+
+<Tip>
+When reporting an error, include the `request_id`, timestamp, endpoint, and the
+request/response bodies (excluding secrets).
+</Tip>
