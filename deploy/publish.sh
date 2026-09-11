@@ -92,6 +92,15 @@ for repo in "$API_LOCAL" "$DOCS_LOCAL"; do
   if [[ -n "$(git -C "$repo" status --porcelain --untracked-files=no)" ]]; then
     die "$name has uncommitted tracked changes — commit or stash them first"
   fi
+  # api.loyalty.lt's auto-version workflow commits the bumped VERSION back to main,
+  # so the remote is routinely ahead of a laptop that has not fetched since.
+  run git -C "$repo" fetch --quiet origin main
+  behind=$(git -C "$repo" rev-list --count "main..origin/main" 2>/dev/null || echo 0)
+  if [[ "$behind" != "0" ]] && ! (( DRY_RUN )); then
+    echo "    $name: $behind commit(s) behind — rebasing"
+    git -C "$repo" pull --rebase --quiet origin main || die "$name: rebase hit a conflict, resolve it and re-run"
+  fi
+
   ahead=$(git -C "$repo" rev-list --count "origin/main..main" 2>/dev/null || echo 0)
   if [[ "$ahead" == "0" ]]; then
     echo "    $name: already pushed"
