@@ -16,6 +16,7 @@ Three endpoints:
 | `POST /{locale}/shop/xml-import/from-url` | Fetch a feed and import it |
 | `POST /{locale}/shop/xml-import/from-file` | Upload a file and import it |
 | `GET /{locale}/shop/xml-import/stats` | What the last imports did |
+| `GET /{locale}/shop/xml-import/field-mappings` | Every element name the parser accepts |
 
 ## Try it now
 
@@ -120,6 +121,15 @@ reported; the rest of the feed still imports.
 
 You do not have to rename anything in your feed — each field accepts several spellings.
 The first one present wins.
+
+The tables below are a snapshot. The live list is an endpoint, and it is the one worth
+reading from code — aliases get added as feeds in the wild need them:
+
+```bash
+curl -X GET "https://api.loyalty.lt/lt/shop/xml-import/field-mappings" \
+  -H "X-API-Key: $LOYALTY_API_KEY" \
+  -H "X-API-Secret: $LOYALTY_API_SECRET"
+```
 
 ### Product
 
