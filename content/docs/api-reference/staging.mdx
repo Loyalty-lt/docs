@@ -43,12 +43,15 @@ Each one holds a loyalty card for **every** partner, numbered
 
 <Warning>
 Do not hardcode a card number. The IDs change whenever staging is refreshed. Look the
-card up by the customer's email or phone instead:
+card up by the customer instead:
 
 ```bash
-curl -X GET "https://staging-api.loyalty.lt/lt/shop/loyalty-cards?per_page=50" \
+curl -X GET "https://staging-api.loyalty.lt/lt/shop/loyalty-cards/info?user_id=2" \
   -H "X-API-Key: $LOYALTY_API_KEY" -H "X-API-Secret: $LOYALTY_API_SECRET"
 ```
+
+`loyalty-cards/info` takes `card_number`, `card_id` or `user_id`. Note that plain
+`GET /shop/loyalty-cards` lists the partner's **card designs**, not customers' cards.
 </Warning>
 
 Two demo staff accounts exist for the POS staff app: `staff@loyalty.lt` (cashier) and
@@ -89,9 +92,8 @@ await sdk.createTransaction({
   shop_id: shopId,
 });
 
-// 4. Read the new balance — find the demo customer's card first
-const { data: cards } = await sdk.getLoyaltyCards({ per_page: 50 });
-const card = cards.find((c) => c.user?.email === 'demo@loyalty.lt');
+// 4. Read the new balance
+const card = await sdk.getLoyaltyCardInfo({ card_number: '900-002-001' });
 const balance = await sdk.getPointsBalance({ card_id: card.id });
 ```
 

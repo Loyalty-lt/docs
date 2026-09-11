@@ -60,7 +60,7 @@ history = sdk.get_transactions(page=1, per_page=20)
 ```python
 card    = sdk.get_loyalty_card_info(user_id=user_id)
 balance = sdk.get_points_balance(card_id=card['id'])
-cards   = sdk.get_loyalty_cards(per_page=50)
+designs = sdk.get_loyalty_cards(per_page=50)   # card designs, not customers
 ```
 
 `get_loyalty_card_info` also accepts `card_number` or `card_id`.

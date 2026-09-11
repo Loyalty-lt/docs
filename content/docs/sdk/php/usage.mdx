@@ -58,7 +58,7 @@ $history = $sdk->getTransactions(['page' => 1, 'per_page' => 20]);
 ```php
 $card    = $sdk->getLoyaltyCardInfo(['user_id' => $userId]);
 $balance = $sdk->getPointsBalance(['card_id' => $card['id']]);
-$cards   = $sdk->getLoyaltyCards(['per_page' => 50]);
+$designs = $sdk->getLoyaltyCards(['per_page' => 50]);   // card designs, not customers
 ```
 
 `getLoyaltyCardInfo` also accepts `card_number` or `card_id`.

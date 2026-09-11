@@ -76,6 +76,57 @@ export async function POST(request: Request) {
     });
   }
 
+  // --- open the live basket on the customer's phone ---------------------------
+  if (payload.action === 'open-basket') {
+    // The same flow the POS app runs: the customer's app opens its basket screen and
+    // follows along, and the points they choose to spend come back on the channel.
+    const { status, body } = await callApi('/shopping-sessions', {
+      method: 'POST',
+      body: JSON.stringify({
+        loyalty_card_id: payload.loyaltyCardId,
+        shop_id: SHOP_ID,
+        staff_name: 'Docs demo till',
+        purchase_amount: payload.purchaseAmount ?? 0,
+      }),
+    });
+
+    if (status !== 200) {
+      return NextResponse.json({ error: body?.message ?? 'could not open the basket' }, { status: 502 });
+    }
+
+    const data = body?.data ?? {};
+    return NextResponse.json({
+      sessionId: data.session_id,
+      channel: data.channel,
+      pointsRules: data.points_rules ?? null,
+    });
+  }
+
+  // --- push a basket change ---------------------------------------------------
+  if (payload.action === 'basket-update') {
+    const { sessionId, purchaseAmount, calculatedPoints, pointsToRedeem, paymentMethod, status: state } = payload;
+    const { status, body } = await callApi(`/shopping-sessions/${encodeURIComponent(sessionId)}/update`, {
+      method: 'POST',
+      body: JSON.stringify({
+        ...(purchaseAmount !== undefined ? { purchase_amount: purchaseAmount } : {}),
+        ...(calculatedPoints !== undefined ? { calculated_points: calculatedPoints } : {}),
+        ...(pointsToRedeem !== undefined ? { points_to_redeem: pointsToRedeem } : {}),
+        ...(paymentMethod ? { payment_method: paymentMethod } : {}),
+        ...(state ? { status: state } : {}),
+      }),
+    });
+    return NextResponse.json({ ok: status === 200, message: body?.message ?? null });
+  }
+
+  // --- put the basket screen away ---------------------------------------------
+  if (payload.action === 'close-basket') {
+    const { status } = await callApi(
+      `/shopping-sessions/${encodeURIComponent(payload.sessionId)}?user_id=${payload.userId}`,
+      { method: 'DELETE' },
+    );
+    return NextResponse.json({ ok: status === 200 });
+  }
+
   // --- take the money ---------------------------------------------------------
   if (payload.action === 'charge') {
     const { userId, orderTotal, pointsRedeemed, pointsDiscount, items, paymentMethod } = payload;

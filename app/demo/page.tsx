@@ -67,6 +67,7 @@ export default function Till() {
   } | null>(null);
   const [busy, setBusy] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
+  const [basketSession, setBasketSession] = useState<string | null>(null);
   const [log, setLog] = useState<{ at: string; event: string; payload: unknown }[]>([]);
 
   const pusherRef = useRef<Pusher | null>(null);
@@ -118,6 +119,14 @@ export default function Till() {
     setLines((prev) => prev.flatMap((l) => (l.id !== id ? [l] : l.qty + by <= 0 ? [] : [{ ...l, qty: l.qty + by }])));
 
   const newSale = () => {
+    if (basketSession && card?.user?.id) {
+      fetch('/api/demo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'close-basket', sessionId: basketSession, userId: card.user.id }),
+      }).catch(() => {});
+    }
+    setBasketSession(null);
     pusherRef.current?.disconnect();
     setStage('waiting');
     setLines([]);
@@ -153,6 +162,43 @@ export default function Till() {
     }
   };
 
+  // ---- the customer's phone follows the basket -----------------------------
+  // Same thing the POS app does: open a shopping session and the app puts its basket
+  // screen up. Whatever the customer chooses to spend comes back on the channel.
+  const openBasket = useCallback(
+    async (c: Card) => {
+      if (!c.loyalty_card_id) return;
+      try {
+        const r = await (
+          await fetch('/api/demo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'open-basket', loyaltyCardId: c.loyalty_card_id, purchaseAmount: subtotal }),
+          })
+        ).json();
+        if (!r.sessionId) throw new Error(r.error ?? 'could not open the basket');
+
+        setBasketSession(r.sessionId);
+        append('session_created → customer app', { session_id: r.sessionId, channel: r.channel });
+
+        const ch = pusherRef.current?.subscribe(`shopping-session.${r.sessionId}`);
+        ch?.bind('session_update', (p: Record<string, unknown>) => {
+          append('session_update ← customer', p);
+          // Only react to the customer's own edits; our own echo comes back too.
+          if (p.lastUpdatedBy !== 'customer') return;
+          const chosen = Number(p.pointsToRedeem ?? p.customerPointsInput ?? 0);
+          if (!Number.isNaN(chosen)) setSpendPoints(chosen);
+          if (typeof p.paymentMethod === 'string' && (p.paymentMethod === 'cash' || p.paymentMethod === 'card')) {
+            setPayment(p.paymentMethod);
+          }
+        });
+      } catch (e) {
+        append('basket error', String(e));
+      }
+    },
+    [append, subtotal],
+  );
+
   // ---- the code is up from the start ---------------------------------------
   // A customer walks up and scans before anything is rung through, so the till shows
   // the code the moment it is open rather than hiding it behind a basket.
@@ -187,10 +233,12 @@ export default function Till() {
       pusher.connection.bind('error', (e: unknown) => append('websocket error', e));
 
       const ch = pusher.subscribe(`qr-card.${s.sessionId}`);
-      ch.bind('card_identified', (p: { card_data?: Card }) => {
+      ch.bind('card_identified', async (p: { card_data?: Card }) => {
         append('card_identified', p);
-        setCard(p.card_data ?? {});
+        const c = p.card_data ?? {};
+        setCard(c);
         setStage('identified');
+        await openBasket(c);
       });
       ch.bind('status_update', (p: { status?: string }) => {
         append('status_update', p);
@@ -205,6 +253,25 @@ export default function Till() {
   useEffect(() => {
     if (realtime && stage === 'waiting' && !session) identify();
   }, [realtime, stage, session, identify]);
+
+  // Mirror the basket onto the customer's screen as it changes.
+  useEffect(() => {
+    if (!basketSession || stage !== 'identified') return;
+    const id = setTimeout(() => {
+      fetch('/api/demo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'basket-update',
+          sessionId: basketSession,
+          purchaseAmount: Number(subtotal.toFixed(2)),
+          pointsToRedeem: spendPoints,
+          status: 'editing',
+        }),
+      }).catch(() => {});
+    }, 300); // one call per pause, not one per tap
+    return () => clearTimeout(id);
+  }, [basketSession, stage, subtotal, spendPoints]);
 
   // countdown while the code is up
   useEffect(() => {

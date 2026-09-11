@@ -79,8 +79,8 @@ const card = await sdk.getLoyaltyCardInfo({ user_id: userId });
 // Points balance
 const balance = await sdk.getPointsBalance({ card_id: card.id });
 
-// All of the partner's cards
-const cards = await sdk.getLoyaltyCards({ per_page: 50 });
+// The partner's card designs — artwork and points rules, not customers' cards
+const designs = await sdk.getLoyaltyCards({ per_page: 50 });
 ```
 
 ## Coupons
