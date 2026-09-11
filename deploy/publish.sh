@@ -234,6 +234,10 @@ if (( DRY_RUN )); then
 else
   remote_node "set -e
     cd $REMOTE_ROOT/docs.loyalty.lt
+    # openapi/loyalty.json is tracked but the build regenerates it in place, so the
+    # working tree is always dirty here and --ff-only refuses. Discard the local copy;
+    # the build writes it again two lines down.
+    git checkout -- openapi/loyalty.json 2>/dev/null || true
     git pull --ff-only origin main
     npm ci --silent
     rm -f openapi/full.json
