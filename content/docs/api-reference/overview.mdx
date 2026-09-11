@@ -43,40 +43,78 @@ A handful of customer-scoped endpoints use a JWT instead. See
 
 ## Response format
 
-Every response — success or error — uses the same envelope.
+Every Shop and SMS API response uses the same envelope, and **every response carries a
+`request_id`** — successes included. Quote it when contacting support.
+
+### Success
 
 ```json
 {
   "success": true,
   "code": 200,
-  "message": "Operation completed successfully",
-  "data": { }
+  "request_id": "9a3368ab-e969-4e84-8589-76cc7b74474e",
+  "message": "Categories retrieved successfully",
+  "data": []
 }
 ```
+
+`message` and `data` are only present when there is something to put in them, so
+treat both as optional. `code` here mirrors the HTTP status.
+
+Paginated endpoints add `meta` between `message` and `data`:
+
+```json
+{
+  "success": true,
+  "code": 200,
+  "request_id": "9a3368ab-e969-4e84-8589-76cc7b74474e",
+  "message": "Partners retrieved successfully",
+  "meta": {
+    "current_page": 1,
+    "last_page": 3,
+    "per_page": 2,
+    "total": 5,
+    "from": 1,
+    "to": 2
+  },
+  "data": []
+}
+```
+
+### Error
 
 ```json
 {
   "success": false,
   "code": 1004,
   "message": "API key and secret are required.",
-  "request_id": "7a2e4ab5-ded5-4bcc-83d8-45e95ad806d2"
+  "request_id": "9eb5d278-2a64-44d1-a436-abb5ea7f668e"
 }
 ```
 
-`code` is a numeric application code. Branch your control flow on the **HTTP status**,
-show `message` to developers, and quote `request_id` when contacting support.
+On an error, `code` is **not** the HTTP status — it is a numeric application code that
+says precisely what went wrong. Branch your control flow on the HTTP status, and use
+`code` when you need to tell two failures with the same status apart.
 
-Paginated endpoints add a `meta` object alongside `data` with the page, page size and
-total count.
+| Range | Meaning |
+|-------|---------|
+| `1000`–`1009` | Authentication — invalid credentials, expired or blacklisted token |
+| `1010`–`1029` | API credentials — missing, malformed, unknown key, wrong secret, expired |
+| `1100`–`1199` | Validation |
+| `1200`–`1299` | Resource — not found, already exists, conflict, gone, expired |
+| `1300`–`1399` | Business rules — card blocked, insufficient points, limit exceeded |
+
+`1004` (missing or invalid credentials) and `1100` (validation failed) are the two you
+will meet while wiring up an integration.
 
 ### Validation errors
 
-HTTP 422 adds an `errors` object keyed by field name:
+HTTP 422 carries `code: 1100` and an `errors` object keyed by field name:
 
 ```json
 {
   "success": false,
-  "code": 422,
+  "code": 1100,
   "message": "The given data was invalid.",
   "request_id": "550e8400-e29b-41d4-a716-446655440000",
   "errors": {
@@ -85,6 +123,12 @@ HTTP 422 adds an `errors` object keyed by field name:
   }
 }
 ```
+
+<Note>
+`GET /{locale}/shop/system/health` is the one exception — it answers with a bare
+status object (`status`, `version`, `environment`, `services`) and no envelope, so it
+stays readable from an uptime monitor.
+</Note>
 
 ## HTTP status codes
 

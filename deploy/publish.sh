@@ -173,9 +173,27 @@ for (const [p, item] of Object.entries(paths)) {
   }
 }
 
+// The docs document one response envelope. Assert the live API still returns it,
+// rather than trusting the prose — this is exactly what drifted once already.
+const ok = await fetch('https://api.loyalty.lt/lt/site/partners/categories');
+const okBody = await ok.json();
+for (const k of ['success', 'code', 'request_id']) {
+  if (!(k in okBody)) { console.error(`    success envelope is missing "${k}"`); bad++; }
+}
+
+const err = await fetch('https://api.loyalty.lt/lt/shop/transactions');
+const errBody = await err.json();
+for (const k of ['success', 'code', 'message', 'request_id']) {
+  if (!(k in errBody)) { console.error(`    error envelope is missing "${k}"`); bad++; }
+}
+if (errBody.code === err.status) {
+  console.error(`    error "code" equals the HTTP status — the docs say it is a separate application code`);
+  bad++;
+}
+
 if (bad) process.exit(1);
 const n = Object.keys(paths).filter((p) => /^\/\{locale\}\/(shop|sms)\b/.test(p)).length;
-console.log(`    ok — ${n} public paths, no ghosts, credentials required together`);
+console.log(`    ok — ${n} public paths, no ghosts, credentials required together, envelope as documented`);
 NODE
 fi
 

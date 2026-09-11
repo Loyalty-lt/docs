@@ -102,8 +102,9 @@ confirm by calling `transactions/create` with that same `order_id`, or free them
 </Accordion>
 
 <Accordion title="Why is my request returning 422?">
-Read the `errors` object in the response — it names the field and the rule. The most
-common causes are a missing `order_id`, or neither `user_id` nor `user_email`.
+A 422 carries `code: 1100` and an `errors` object keyed by field name — read it, it
+names the field and the rule. The most common causes are a missing `order_id`, or
+neither `user_id` nor `user_email`.
 </Accordion>
 
 </AccordionGroup>
@@ -154,5 +155,5 @@ survive. See [Staging](/docs/api-reference/staging).
 ## Still stuck?
 
 Email [developers@loyalty.lt](mailto:developers@loyalty.lt) with your partner ID, the
-endpoint, and the `request_id` from the error response — every error carries one and
-it lets support find the exact request.
+endpoint, and the `request_id` from the response — every response carries one,
+successes included, and it lets support find the exact request.
