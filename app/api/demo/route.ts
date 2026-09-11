@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server';
 
 /**
- * Server side of the demo storefront at /demo.
+ * Server side of the POS demo at /demo.
  *
  * It exists to hold the staging API credentials. The browser never sees them —
- * exactly the split the docs recommend for a public site: the server opens the QR
- * session, the page subscribes to the public channel with the returned session id.
+ * exactly the split the docs recommend: the server opens the session, the page
+ * subscribes to the public channel with the returned session id.
  *
- * Staging only. `LOYALTY_DEMO_API_KEY` must be a staging pair; the base URL below is
- * hardcoded so a production credential could not be used here even by accident.
+ * Staging only. The base URL is hardcoded so a production credential could not be
+ * used here even by accident.
  */
 
 const BASE = 'https://staging-api.loyalty.lt/lt/shop';
@@ -31,52 +31,50 @@ async function callApi(path: string, init?: RequestInit) {
     cache: 'no-store',
   });
 
-  const body = await res.json().catch(() => null);
-  return { status: res.status, body };
+  return { status: res.status, body: await res.json().catch(() => null) };
 }
 
 export async function GET() {
-  if (!configured()) {
-    return NextResponse.json({ configured: false }, { status: 200 });
-  }
+  if (!configured()) return NextResponse.json({ configured: false });
 
-  const realtime = await callApi('/realtime/config');
-  if (realtime.status !== 200) {
-    return NextResponse.json({ configured: true, error: 'realtime config unavailable' }, { status: 502 });
-  }
+  const [realtime, shops] = await Promise.all([callApi('/realtime/config'), callApi('/shops')]);
+
+  const shop = (shops.body?.data ?? []).find((s: { id: number }) => s.id === SHOP_ID);
 
   // Only the public connection details cross to the browser — never the credentials.
   return NextResponse.json({
     configured: true,
     shopId: SHOP_ID,
+    shopName: shop?.name ?? 'Demo shop',
     realtime: realtime.body?.data ?? null,
   });
 }
 
 export async function POST(request: Request) {
-  if (!configured()) {
-    return NextResponse.json({ error: 'demo not configured' }, { status: 503 });
-  }
+  if (!configured()) return NextResponse.json({ error: 'demo not configured' }, { status: 503 });
 
   const { action } = await request.json().catch(() => ({ action: null }));
 
-  if (action === 'qr-login') {
-    const { status, body } = await callApi('/auth/qr-login/generate', {
-      method: 'POST',
-      body: JSON.stringify({ device_name: 'Docs demo storefront', shop_id: SHOP_ID }),
-    });
-
-    if (status !== 200) {
-      return NextResponse.json({ error: body?.message ?? 'could not open a session' }, { status: 502 });
-    }
-
-    const data = body?.data ?? {};
-    return NextResponse.json({
-      sessionId: data.session_id,
-      qrCode: data.qr_code,
-      expiresAt: data.expires_at,
-    });
+  if (action !== 'open-session') {
+    return NextResponse.json({ error: 'unknown action' }, { status: 400 });
   }
 
-  return NextResponse.json({ error: 'unknown action' }, { status: 400 });
+  // The till identifies whoever is standing in front of it — that is qr-card, not
+  // qr-login. It resolves with the card and its balance.
+  const { status, body } = await callApi('/qr-card/generate', {
+    method: 'POST',
+    body: JSON.stringify({ device_name: 'Docs demo till', shop_id: SHOP_ID }),
+  });
+
+  if (status !== 200) {
+    return NextResponse.json({ error: body?.message ?? 'could not open a session' }, { status: 502 });
+  }
+
+  const data = body?.data ?? {};
+  return NextResponse.json({
+    sessionId: data.session_id,
+    qrCode: data.qr_code,
+    manualCode: data.manual_code,
+    expiresAt: data.expires_at,
+  });
 }

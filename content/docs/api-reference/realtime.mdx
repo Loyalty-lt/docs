@@ -86,7 +86,9 @@ there is no token to manage.
 
 ### `qr-login.{session_id}`
 
-Opened by `POST /{locale}/shop/auth/qr-login/generate`. Carries one event.
+Opened by `POST /{locale}/shop/auth/qr-login/generate`, which returns the channel's
+`session_id` plus two ways in: `qr_code` to render, and `manual_code` — nine digits
+shown as `XXX-XXX-XXX` — for a customer who cannot scan. Both reach this same channel.
 
 | Event | When |
 |-------|------|
@@ -121,7 +123,8 @@ pusher.subscribe(`qr-login.${sessionId}`).bind('status_update', (p) => {
 ### `qr-card.{session_id}`
 
 Opened by `POST /{locale}/shop/qr-card/generate`. The till learns which customer is
-standing in front of it.
+standing in front of it. Like QR login it returns both a `qr_code` and a typable
+`manual_code`; either brings the customer onto this channel.
 
 | Event | When | Bind it? |
 |-------|------|----------|

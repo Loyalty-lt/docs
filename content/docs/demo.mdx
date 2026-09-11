@@ -5,9 +5,9 @@ description: "A working storefront on the staging API — watch the realtime fra
 
 # Live demo
 
-A real storefront wired to `staging-api.loyalty.lt`. Press **Sign in with Loyalty.lt**
-and it opens a QR login session, connects to the channel, and prints every frame as it
-lands.
+A till, wired to `staging-api.loyalty.lt`. It opens a QR card session the moment it
+loads — the way a real terminal sits waiting — connects to the channel, and prints
+every frame as it lands.
 
 <iframe
   src="/demo"
@@ -15,9 +15,9 @@ lands.
   style={{ width: '100%', height: 720, border: '1px solid var(--color-fd-border)', borderRadius: 12 }}
 />
 
-Scan the code with the Loyalty.lt app to complete the login. Without the app you still
-see the socket connect, and the `expired` frame arrive after five minutes — the session
-window is 5 minutes either way.
+Scan the code in the Loyalty.lt app, or type the nine digits underneath it — the app's
+entry sheet takes the same session either way. Without the app you still see the socket
+connect and the `expired` frame arrive when the five-minute window runs out.
 
 ## What it is doing
 
@@ -26,18 +26,25 @@ The page holds **no credentials**. That is the split every public site should us
 <Steps>
 <Step title="The server opens the session">
   A route holding the staging API key calls
-  `POST /{locale}/shop/auth/qr-login/generate` and returns only `session_id`, `qr_code`
-  and `expires_at`.
+  `POST /{locale}/shop/qr-card/generate` and returns only `session_id`, `qr_code`,
+  `manual_code` and `expires_at`.
 </Step>
 
 <Step title="The browser subscribes">
-  With that `session_id` it joins `qr-login.{session_id}`. The channel is public — the
+  With that `session_id` it joins `qr-card.{session_id}`. The channel is public — the
   unguessable session ID is the secret — so the page needs nothing else.
 </Step>
 
+<Step title="The customer scans, or types">
+  Both land on the same session. `manual_code` is nine digits shown as `XXX-XXX-XXX`;
+  the app has an entry sheet for it, for when a camera will not focus or the till screen
+  is washed out under the lights.
+</Step>
+
 <Step title="The result arrives on the channel">
-  `status_update` fires on every state change. The demo prints the raw payload, which is
-  the same shape documented in [Realtime](/docs/api-reference/realtime).
+  `card_identified` carries the card, its balance and the customer. The demo prints the
+  raw payload, which is the shape documented in
+  [Realtime](/docs/api-reference/realtime).
 </Step>
 </Steps>
 

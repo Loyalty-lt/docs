@@ -58,8 +58,13 @@ page. You show a QR code, they scan it in the Loyalty.lt app, and you receive th
     -d '{"device_name": "Till 3", "shop_id": 1}'
   ```
 
-  The response carries `session_id`, the `qr_code` payload to render, and `expires_at`.
-  Sessions last **5 minutes**.
+  The response carries `session_id`, the `qr_code` payload to render, `manual_code`
+  and `expires_at`. Sessions last **5 minutes**.
+
+  Show `manual_code` next to the QR. It is nine digits, formatted `XXX-XXX-XXX`, and
+  the app has an entry sheet for it — a customer whose camera will not focus, or who is
+  standing under a light that washes the screen out, types it instead of being turned
+  away.
 </Step>
 
 <Step title="Render the code and subscribe">

@@ -58,6 +58,12 @@ on it, or the partner's plan does not include API access. Both are settings in t
 Partners Portal.
 </Accordion>
 
+<Accordion title="The customer cannot scan the QR code">
+Show `manual_code` beside it. Both QR endpoints return one — nine digits formatted
+`XXX-XXX-XXX` — and the Loyalty.lt app has an entry sheet for typing it. It opens the
+same session the QR would have, so everything downstream is identical.
+</Accordion>
+
 <Accordion title="How does a customer sign in?">
 Through QR login: you show a QR code, they scan it in the Loyalty.lt app, and you get
 a JWT. There is no password login, refresh or logout endpoint on the Shop API — when

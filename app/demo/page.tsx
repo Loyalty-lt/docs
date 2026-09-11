@@ -5,95 +5,72 @@ import Pusher from 'pusher-js';
 import { QRCodeSVG } from 'qrcode.react';
 
 /**
- * A working storefront wired to the staging API, embedded in the docs at
- * /docs/demo. It exists to show the realtime path end to end: the server opens a
- * QR login session, this page subscribes to the public channel, and every frame
- * that arrives is printed as it lands.
+ * A till, wired to the staging API, embedded in the docs at /docs/demo.
  *
- * Nothing here holds a credential — the session id from /api/demo is all the
- * browser needs, which is the whole point of a public channel.
+ * It opens a QR card session the moment it loads — the way a real terminal sits
+ * waiting — and shows the code two ways: scannable, and nine digits the customer can
+ * read out if their camera will not cooperate. Every frame that arrives on the channel
+ * is printed, so the realtime path is something you watch rather than read about.
+ *
+ * Nothing here holds a credential. The session id from /api/demo is all a public
+ * channel needs.
  */
 
 const BASKET = [
-  { name: 'Espresso, 250 g', price: 8.9 },
-  { name: 'Filter blend, 500 g', price: 14.5 },
-  { name: 'Ceramic mug', price: 12.0 },
+  { name: 'Espresso blend, 250 g', qty: 1, price: 8.9 },
+  { name: 'Filter blend, 500 g', qty: 1, price: 14.5 },
+  { name: 'Ceramic mug', qty: 2, price: 6.0 },
 ];
 
-const TOTAL = BASKET.reduce((sum, item) => sum + item.price, 0);
+const TOTAL = BASKET.reduce((sum, i) => sum + i.qty * i.price, 0);
 
-type Status = 'idle' | 'connecting' | 'waiting' | 'scanned' | 'authenticated' | 'expired' | 'failed' | 'error';
+type Status = 'booting' | 'waiting' | 'identified' | 'expired' | 'error';
 
-const LABEL: Record<Status, string> = {
-  idle: 'Ready',
-  connecting: 'Opening a session…',
-  waiting: 'Waiting for a scan',
-  scanned: 'Scanned — confirm in the app',
-  authenticated: 'Signed in',
-  expired: 'QR code expired',
-  failed: 'Login failed',
-  error: 'Something went wrong',
-};
-
-const TONE: Record<Status, string> = {
-  idle: '#6b7280',
-  connecting: '#6b7280',
-  waiting: '#0C3A30',
-  scanned: '#b45309',
-  authenticated: '#15803d',
-  expired: '#b91c1c',
-  failed: '#b91c1c',
-  error: '#b91c1c',
-};
-
-interface LogLine {
-  at: string;
-  event: string;
-  payload: unknown;
+interface Card {
+  loyalty_card_id?: number;
+  card_number?: string;
+  points?: number;
+  user?: { name?: string; email?: string };
 }
 
-export default function DemoStorefront() {
+export default function Till() {
   const [configured, setConfigured] = useState<boolean | null>(null);
-  const [status, setStatus] = useState<Status>('idle');
-  const [qr, setQr] = useState<{ sessionId: string; qrCode: string } | null>(null);
-  const [customer, setCustomer] = useState<{ name?: string; email?: string } | null>(null);
-  const [log, setLog] = useState<LogLine[]>([]);
+  const [shopName, setShopName] = useState('Demo shop');
+  const [status, setStatus] = useState<Status>('booting');
+  const [session, setSession] = useState<{ qrCode: string; manualCode: string; expiresAt: string } | null>(null);
+  const [card, setCard] = useState<Card | null>(null);
+  const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
+  const [log, setLog] = useState<{ at: string; event: string; payload: unknown }[]>([]);
   const pusherRef = useRef<Pusher | null>(null);
 
   const append = useCallback((event: string, payload: unknown) => {
-    setLog((prev) => [{ at: new Date().toISOString().slice(11, 19), event, payload }, ...prev].slice(0, 12));
+    setLog((prev) => [{ at: new Date().toTimeString().slice(0, 8), event, payload }, ...prev].slice(0, 8));
   }, []);
 
-  useEffect(() => {
-    fetch('/api/demo')
-      .then((r) => r.json())
-      .then((d) => setConfigured(Boolean(d.configured)))
-      .catch(() => setConfigured(false));
-
-    return () => pusherRef.current?.disconnect();
-  }, []);
-
-  const start = useCallback(async () => {
-    setStatus('connecting');
-    setCustomer(null);
-    setLog([]);
+  const open = useCallback(async () => {
+    setStatus('booting');
+    setCard(null);
+    setSession(null);
     pusherRef.current?.disconnect();
 
     try {
       const boot = await (await fetch('/api/demo')).json();
-      if (!boot.realtime) throw new Error('no realtime config');
+      setConfigured(Boolean(boot.configured));
+      if (!boot.configured) return;
+      setShopName(boot.shopName ?? 'Demo shop');
+      if (!boot.realtime) throw new Error('realtime config unavailable');
 
-      const session = await (
+      const s = await (
         await fetch('/api/demo', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'qr-login' }),
+          body: JSON.stringify({ action: 'open-session' }),
         })
       ).json();
-      if (!session.sessionId) throw new Error(session.error ?? 'no session');
+      if (!s.sessionId) throw new Error(s.error ?? 'could not open a session');
 
-      setQr({ sessionId: session.sessionId, qrCode: session.qrCode });
-      append('session opened', { session_id: session.sessionId, expires_at: session.expiresAt });
+      setSession({ qrCode: s.qrCode, manualCode: s.manualCode, expiresAt: s.expiresAt });
+      append('session opened', { session_id: s.sessionId, manual_code: s.manualCode });
 
       const { key, host, port, scheme } = boot.realtime;
       const pusher = new Pusher(key, {
@@ -111,18 +88,20 @@ export default function DemoStorefront() {
         append('websocket connected', { host, port });
         setStatus('waiting');
       });
-      pusher.connection.bind('error', (e: unknown) => append('websocket error', e));
+      pusher.connection.bind('error', (e: unknown) => {
+        append('websocket error', e);
+        setStatus('error');
+      });
 
-      pusher.subscribe(`qr-login.${session.sessionId}`).bind('status_update', (payload: Record<string, unknown>) => {
-        append('status_update', payload);
-        const next = String(payload.status ?? '');
-        if (next === 'scanned') setStatus('scanned');
-        if (next === 'expired') setStatus('expired');
-        if (next === 'failed') setStatus('failed');
-        if (next === 'authenticated') {
-          setStatus('authenticated');
-          setCustomer((payload.user as { name?: string; email?: string }) ?? {});
-        }
+      const channel = pusher.subscribe(`qr-card.${s.sessionId}`);
+      channel.bind('card_identified', (p: { card_data?: Card }) => {
+        append('card_identified', p);
+        setCard(p.card_data ?? {});
+        setStatus('identified');
+      });
+      channel.bind('status_update', (p: { status?: string }) => {
+        append('status_update', p);
+        if (p.status === 'expired') setStatus('expired');
       });
     } catch (error) {
       append('error', String(error));
@@ -130,126 +109,181 @@ export default function DemoStorefront() {
     }
   }, [append]);
 
-  if (configured === null) return <Shell><p style={{ color: '#6b7280' }}>Loading…</p></Shell>;
+  useEffect(() => {
+    open();
+    return () => pusherRef.current?.disconnect();
+  }, [open]);
 
-  if (!configured) {
+  // Countdown to the five-minute expiry, so the screen is honest about the window.
+  useEffect(() => {
+    if (!session?.expiresAt || status === 'identified') return;
+    const tick = () => {
+      const left = Math.max(0, Math.round((Date.parse(session.expiresAt) - Date.now()) / 1000));
+      setSecondsLeft(left);
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [session, status]);
+
+  if (configured === false) {
     return (
-      <Shell>
-        <p style={{ color: '#6b7280', margin: 0 }}>
-          The demo storefront is not configured on this deployment. It needs a{' '}
-          <strong>staging</strong> API key and secret in <code>LOYALTY_DEMO_API_KEY</code> and{' '}
-          <code>LOYALTY_DEMO_API_SECRET</code>.
+      <Frame shopName="Demo">
+        <p style={{ color: '#9aa8a2', margin: 0, fontSize: 13, lineHeight: 1.6 }}>
+          The demo till is not configured on this deployment. It needs a <strong>staging</strong>{' '}
+          API key and secret in <code>LOYALTY_DEMO_API_KEY</code> and <code>LOYALTY_DEMO_API_SECRET</code>.
         </p>
-      </Shell>
+      </Frame>
     );
   }
 
   return (
-    <Shell>
-      <div style={{ display: 'grid', gap: 20, gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
-        <section>
-          <h2 style={h2}>Basket</h2>
-          <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 12px' }}>
-            {BASKET.map((item) => (
-              <li key={item.name} style={row}>
-                <span>{item.name}</span>
-                <span>€{item.price.toFixed(2)}</span>
-              </li>
-            ))}
-          </ul>
-          <div style={{ ...row, fontWeight: 600, borderTop: '1px solid #e5e7eb', paddingTop: 8 }}>
+    <Frame shopName={shopName}>
+      <div style={{ display: 'grid', gap: 14, gridTemplateColumns: 'minmax(210px, 1fr) minmax(230px, 1.1fr)' }}>
+        {/* receipt */}
+        <section style={panel}>
+          <h2 style={label}>Basket</h2>
+          {BASKET.map((i) => (
+            <div key={i.name} style={line}>
+              <span style={{ color: '#DCEFF0' }}>
+                {i.qty > 1 ? `${i.qty} × ` : ''}
+                {i.name}
+              </span>
+              <span>€{(i.qty * i.price).toFixed(2)}</span>
+            </div>
+          ))}
+          <div style={{ ...line, borderTop: '1px solid #2c4d43', marginTop: 8, paddingTop: 8, fontSize: 18, fontWeight: 700 }}>
             <span>Total</span>
-            <span>€{TOTAL.toFixed(2)}</span>
+            <span style={{ color: '#E6FD5A' }}>€{TOTAL.toFixed(2)}</span>
           </div>
 
-          <button onClick={start} style={button} disabled={status === 'connecting'}>
-            {status === 'idle' ? 'Sign in with Loyalty.lt' : 'Start over'}
-          </button>
-
-          <p style={{ ...small, marginTop: 12 }}>
-            Scan with the Loyalty.lt app to complete it. Without the app you will still see the
-            socket connect, and the <code>expired</code> event arrive after five minutes.
-          </p>
-        </section>
-
-        <section>
-          <h2 style={h2}>
-            <span style={{ ...pill, background: TONE[status] }} />
-            {LABEL[status]}
-          </h2>
-
-          {qr && status !== 'authenticated' ? (
-            <div style={{ background: '#fff', padding: 12, borderRadius: 8, width: 'fit-content' }}>
-              <QRCodeSVG value={qr.qrCode} size={168} />
+          {card ? (
+            <div style={{ marginTop: 12, padding: 10, borderRadius: 8, background: '#0C3A30', border: '1px solid #E6FD5A55' }}>
+              <div style={{ ...label, marginBottom: 6 }}>Customer</div>
+              <div style={{ fontWeight: 600 }}>{card.user?.name ?? card.user?.email ?? 'Identified'}</div>
+              <div style={{ fontSize: 12, color: '#9aa8a2', marginTop: 2 }}>
+                Card {card.card_number} · {card.points ?? 0} points
+              </div>
+              <button style={charge} onClick={() => append('would call', { endpoint: 'POST /lt/shop/transactions/create', order_total: TOTAL, loyalty_card_id: card.loyalty_card_id })}>
+                Charge €{TOTAL.toFixed(2)}
+              </button>
             </div>
           ) : null}
+        </section>
 
-          {customer ? (
-            <p style={{ margin: '8px 0 0' }}>
-              Signed in as <strong>{customer.name ?? customer.email ?? 'customer'}</strong>. Points for
-              this order would be awarded with <code>POST /shop/transactions/create</code>.
-            </p>
+        {/* identify */}
+        <section style={{ ...panel, textAlign: 'center' }}>
+          <h2 style={{ ...label, justifyContent: 'center', display: 'flex', gap: 6, alignItems: 'center' }}>
+            <span style={{ width: 7, height: 7, borderRadius: 99, background: dot(status) }} />
+            {status === 'identified' ? 'Customer identified' : status === 'expired' ? 'Code expired' : status === 'error' ? 'Connection problem' : status === 'booting' ? 'Opening…' : 'Scan to collect points'}
+          </h2>
+
+          {session && status !== 'identified' ? (
+            <>
+              <div style={{ background: '#fff', padding: 10, borderRadius: 10, display: 'inline-block' }}>
+                <QRCodeSVG value={session.qrCode} size={150} />
+              </div>
+
+              <div style={{ ...label, marginTop: 12, justifyContent: 'center' }}>or type this in the app</div>
+              <div style={code}>{session.manualCode}</div>
+
+              <div style={{ fontSize: 11, color: '#9aa8a2', marginTop: 8 }}>
+                {secondsLeft !== null && secondsLeft > 0
+                  ? `Expires in ${Math.floor(secondsLeft / 60)}:${String(secondsLeft % 60).padStart(2, '0')}`
+                  : 'Expired'}
+              </div>
+            </>
+          ) : null}
+
+          {status === 'expired' || status === 'error' ? (
+            <button style={charge} onClick={open}>
+              New code
+            </button>
           ) : null}
         </section>
 
-        <section style={{ gridColumn: '1 / -1' }}>
-          <h2 style={h2}>Frames, as they arrive</h2>
-          {log.length === 0 ? (
-            <p style={small}>Nothing yet.</p>
-          ) : (
-            <pre style={pre}>
-              {log.map((l, i) => `${l.at}  ${l.event}\n${JSON.stringify(l.payload, null, 2)}`).join('\n\n')}
-            </pre>
-          )}
+        {/* frames */}
+        <section style={{ ...panel, gridColumn: '1 / -1' }}>
+          <h2 style={label}>Channel frames</h2>
+          <pre style={pre}>
+            {log.length === 0
+              ? 'waiting…'
+              : log.map((l) => `${l.at}  ${l.event}\n${JSON.stringify(l.payload)}`).join('\n\n')}
+          </pre>
         </section>
       </div>
-    </Shell>
+    </Frame>
   );
 }
 
-function Shell({ children }: { children: React.ReactNode }) {
+function Frame({ shopName, children }: { shopName: string; children: React.ReactNode }) {
   return (
-    <main
-      style={{
-        fontFamily: 'ui-sans-serif, system-ui, sans-serif',
-        padding: 20,
-        maxWidth: 880,
-        margin: '0 auto',
-        color: '#19352D',
-        background: '#EBF3EE',
-        minHeight: '100vh',
-        boxSizing: 'border-box',
-      }}
-    >
+    <main style={shell}>
+      <header style={header}>
+        <strong style={{ fontSize: 13 }}>{shopName}</strong>
+        <span style={{ fontSize: 11, color: '#9aa8a2' }}>Till 3 · staging</span>
+      </header>
       {children}
     </main>
   );
 }
 
-const h2: React.CSSProperties = { fontSize: 15, margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: 8 };
-const row: React.CSSProperties = { display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: 14 };
-const small: React.CSSProperties = { fontSize: 12, color: '#6B7280', margin: 0, lineHeight: 1.5 };
-const pill: React.CSSProperties = { width: 8, height: 8, borderRadius: 999, display: 'inline-block' };
-const button: React.CSSProperties = {
-  marginTop: 14,
+const dot = (s: Status) =>
+  s === 'identified' ? '#E6FD5A' : s === 'expired' || s === 'error' ? '#f87171' : '#4ade80';
+
+const shell: React.CSSProperties = {
+  fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+  background: '#19352D',
+  color: '#DCEFF0',
+  minHeight: '100vh',
+  padding: 14,
+  boxSizing: 'border-box',
+};
+const header: React.CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  paddingBottom: 10,
+  marginBottom: 12,
+  borderBottom: '1px solid #2c4d43',
+};
+const panel: React.CSSProperties = { background: '#14291F', borderRadius: 10, padding: 12, border: '1px solid #2c4d43' };
+const label: React.CSSProperties = {
+  fontSize: 10,
+  letterSpacing: 0.8,
+  textTransform: 'uppercase',
+  color: '#9aa8a2',
+  margin: '0 0 8px',
+  fontWeight: 600,
+};
+const line: React.CSSProperties = { display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '3px 0' };
+const code: React.CSSProperties = {
+  fontSize: 26,
+  fontWeight: 700,
+  letterSpacing: 3,
+  color: '#E6FD5A',
+  fontVariantNumeric: 'tabular-nums',
+};
+const charge: React.CSSProperties = {
+  marginTop: 10,
   width: '100%',
-  padding: '10px 14px',
+  padding: '9px 12px',
   borderRadius: 8,
   border: 'none',
-  background: '#0C3A30',
-  color: '#E6FD5A',
-  fontSize: 14,
-  fontWeight: 600,
+  background: '#E6FD5A',
+  color: '#0C3A30',
+  fontSize: 13,
+  fontWeight: 700,
   cursor: 'pointer',
 };
 const pre: React.CSSProperties = {
-  background: '#19352D',
-  color: '#DCEFF0',
-  padding: 12,
+  background: '#0d1f18',
+  color: '#9fd6c4',
+  padding: 10,
   borderRadius: 8,
-  fontSize: 11,
+  fontSize: 10.5,
   lineHeight: 1.5,
-  maxHeight: 260,
+  maxHeight: 150,
   overflow: 'auto',
   margin: 0,
 };
