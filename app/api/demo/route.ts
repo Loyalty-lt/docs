@@ -15,7 +15,19 @@ const BASE = 'https://staging-api.loyalty.lt/lt/shop';
 
 const KEY = process.env.LOYALTY_DEMO_API_KEY;
 const SECRET = process.env.LOYALTY_DEMO_API_SECRET;
-const SHOP_ID = Number(process.env.LOYALTY_DEMO_SHOP_ID ?? 1);
+// The credential decides the partner; the shop is picked from what that partner has,
+// so a stale LOYALTY_DEMO_SHOP_ID cannot point at someone else's shop.
+const SHOP_ID_HINT = process.env.LOYALTY_DEMO_SHOP_ID ? Number(process.env.LOYALTY_DEMO_SHOP_ID) : null;
+let resolvedShopId: number | null = null;
+
+async function shopId(): Promise<number> {
+  if (resolvedShopId) return resolvedShopId;
+  const { body } = await callApi('/shops');
+  const shops: { id: number }[] = body?.data ?? [];
+  const hinted = SHOP_ID_HINT ? shops.find((s) => s.id === SHOP_ID_HINT) : undefined;
+  resolvedShopId = (hinted ?? shops[0])?.id ?? SHOP_ID_HINT ?? 1;
+  return resolvedShopId;
+}
 
 const configured = () => Boolean(KEY && SECRET);
 
@@ -37,13 +49,13 @@ async function callApi(path: string, init?: RequestInit) {
 export async function GET() {
   if (!configured()) return NextResponse.json({ configured: false });
 
-  const [realtime, shops] = await Promise.all([callApi('/realtime/config'), callApi('/shops')]);
-  const shop = (shops.body?.data ?? []).find((s: { id: number }) => s.id === SHOP_ID);
+  const [realtime, shops, id] = await Promise.all([callApi('/realtime/config'), callApi('/shops'), shopId()]);
+  const shop = (shops.body?.data ?? []).find((s: { id: number }) => s.id === id);
 
   // Only the public connection details cross to the browser — never the credentials.
   return NextResponse.json({
     configured: true,
-    shopId: SHOP_ID,
+    shopId: id,
     shopName: shop?.name ?? 'Demo shop',
     realtime: realtime.body?.data ?? null,
   });
@@ -60,7 +72,7 @@ export async function POST(request: Request) {
     // the card, its balance and the redemption rules the discount is computed from.
     const { status, body } = await callApi('/qr-card/generate', {
       method: 'POST',
-      body: JSON.stringify({ device_name: 'Docs demo till', shop_id: SHOP_ID }),
+      body: JSON.stringify({ device_name: 'Docs demo till', shop_id: await shopId() }),
     });
 
     if (status !== 200) {
@@ -84,7 +96,7 @@ export async function POST(request: Request) {
       method: 'POST',
       body: JSON.stringify({
         loyalty_card_id: payload.loyaltyCardId,
-        shop_id: SHOP_ID,
+        shop_id: await shopId(),
         staff_name: 'Docs demo till',
         purchase_amount: payload.purchaseAmount ?? 0,
       }),
@@ -144,7 +156,7 @@ export async function POST(request: Request) {
         order_id: `DEMO-${Date.now()}`,
         order_total: Number(orderTotal.toFixed(2)),
         currency: 'EUR',
-        shop_id: SHOP_ID,
+        shop_id: await shopId(),
         description: `Docs demo till · ${paymentMethod ?? 'card'}`,
         ...(pointsRedeemed ? { points_redeemed: pointsRedeemed, points_discount_amount: pointsDiscount } : {}),
         cart_items: (items ?? []).map((i: { id: number; name: string; qty: number; price: number }) => ({
