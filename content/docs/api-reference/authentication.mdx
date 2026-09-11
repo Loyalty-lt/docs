@@ -62,19 +62,34 @@ page. You show a QR code, they scan it in the Loyalty.lt app, and you receive th
   Sessions last **5 minutes**.
 </Step>
 
-<Step title="Render the code and wait on the channel">
-  Subscribe to `qr-login.{session_id}` and bind `status_update`. The channel is public —
-  the unguessable session ID is the secret — so there is nothing to authorize.
+<Step title="Render the code and subscribe">
+  The result arrives on the session's channel. `qr-login.{session_id}` is public — the
+  unguessable session ID is the secret — so there is nothing to authorize.
 
-  Full payloads, status values and the connection snippet are in
-  [Realtime](/docs/api-reference/realtime). If you cannot hold a WebSocket open, poll
-  instead:
+  ```javascript
+  const { data: config } = await (await fetch(
+    'https://api.loyalty.lt/lt/shop/realtime/config',
+    { headers: { 'X-API-Key': apiKey, 'X-API-Secret': apiSecret } },
+  )).json();
 
-  ```bash
-  curl -X POST "https://api.loyalty.lt/lt/shop/auth/qr-login/poll/{session_id}" \
-    -H "X-API-Key: $LOYALTY_API_KEY" \
-    -H "X-API-Secret: $LOYALTY_API_SECRET"
+  const pusher = new Pusher(config.key, {
+    wsHost: config.host,
+    wsPort: config.port,
+    wssPort: config.port,
+    forceTLS: config.scheme === 'https',
+    enabledTransports: ['ws', 'wss'],
+    cluster: '',
+    disableStats: true,
+  });
+
+  pusher.subscribe(`qr-login.${session_id}`).bind('status_update', (p) => {
+    if (p.status === 'authenticated') signIn(p.token, p.user);
+    if (p.status === 'expired') regenerate();
+  });
   ```
+
+  Every status value and the full payload are in
+  [Realtime](/docs/api-reference/realtime).
 </Step>
 
 <Step title="Use the token">
@@ -92,6 +107,16 @@ curl -X POST "https://api.loyalty.lt/lt/shop/auth/send-app-link" \
   -H "X-API-Secret: $LOYALTY_API_SECRET" \
   -H "Content-Type: application/json" \
   -d '{"phone": "+37060000001", "shop_id": 1}'
+```
+
+### If you cannot open a WebSocket
+
+Only then, poll. It costs a request per second per session while the customer waits.
+
+```bash
+curl -X POST "https://api.loyalty.lt/lt/shop/auth/qr-login/poll/{session_id}" \
+  -H "X-API-Key: $LOYALTY_API_KEY" \
+  -H "X-API-Secret: $LOYALTY_API_SECRET"
 ```
 
 ## Customer JWT
