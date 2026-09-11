@@ -70,8 +70,14 @@ async function loadFull() {
 const spec = await loadFull();
 const before = Object.keys(spec.paths ?? {}).length;
 
+// Endpoints that match a public prefix but are not part of the integration surface.
+// `realtime/publish` only reaches the internal phone-to-desktop upload channel.
+const EXCLUDED_PATHS = ['/{locale}/shop/realtime/publish'];
+
 for (const path of Object.keys(spec.paths ?? {})) {
-  if (!PUBLIC_PREFIXES.includes(firstSegment(path))) delete spec.paths[path];
+  if (!PUBLIC_PREFIXES.includes(firstSegment(path)) || EXCLUDED_PATHS.includes(path)) {
+    delete spec.paths[path];
+  }
 }
 const kept = Object.keys(spec.paths).length;
 

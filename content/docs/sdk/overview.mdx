@@ -45,15 +45,42 @@ URL, unwraps the response envelope, and retries `429` and `5xx` for you.
 | Offers (read) | Yes | Yes | Yes |
 | XML product import | Yes | Yes | Yes |
 | QR login and QR card scan | Yes | Yes | Yes |
-| Realtime — connection details | Yes | Yes | Yes |
-| Realtime — subscribes for you | Yes | – | – |
+| Realtime — subscribes for you | Yes | Yes | Yes |
 | React components | Yes | – | – |
 
-QR results arrive over a realtime channel in every language — that is the path to
-build. The JavaScript SDK opens the subscription for you; in PHP and Python the
-subscription belongs in the browser, and the SDK gives you the connection details
-(`getRealtimeConfig`). Polling exists as a fallback for environments that cannot hold
+QR results arrive over a realtime channel, and every SDK subscribes for you — that is
+the path to build. Polling exists only as a fallback for environments that cannot hold
 a WebSocket open.
+
+<CodeGroup>
+```typescript JavaScript
+const session = await sdk.generateQrLogin('Till 3', shopId);
+await sdk.subscribeToQrLogin(session.session_id, ({ data }) => {
+  if (data.status === 'authenticated') signIn(data.token, data.user);
+});
+```
+
+```php PHP
+$session = $sdk->generateQrLogin('Till 3', $shopId);
+$result  = $sdk->subscribeQrLogin($session['session_id']);   // blocks until it resolves
+
+if (($result['status'] ?? null) === 'authenticated') {
+    $token = $result['token'];
+}
+```
+
+```python Python
+session = sdk.generate_qr_login(device_name='Till 3', shop_id=shop_id)
+result  = sdk.subscribe_qr_login(session['session_id'])      # blocks until it resolves
+
+if result and result['status'] == 'authenticated':
+    token = result['token']
+```
+</CodeGroup>
+
+The PHP and Python helpers block the calling process, so they suit a POS or a worker.
+In a web request, open the session on your server and let the **page** subscribe — see
+[Realtime](/docs/api-reference/realtime).
 
 ## Configuration
 

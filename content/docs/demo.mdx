@@ -1,0 +1,59 @@
+---
+title: "Live demo"
+description: "A working storefront on the staging API — watch the realtime frames arrive"
+---
+
+# Live demo
+
+A real storefront wired to `staging-api.loyalty.lt`. Press **Sign in with Loyalty.lt**
+and it opens a QR login session, connects to the channel, and prints every frame as it
+lands.
+
+<iframe
+  src="/demo"
+  title="Loyalty.lt demo storefront"
+  style={{ width: '100%', height: 720, border: '1px solid var(--color-fd-border)', borderRadius: 12 }}
+/>
+
+Scan the code with the Loyalty.lt app to complete the login. Without the app you still
+see the socket connect, and the `expired` frame arrive after five minutes — the session
+window is 5 minutes either way.
+
+## What it is doing
+
+The page holds **no credentials**. That is the split every public site should use:
+
+<Steps>
+<Step title="The server opens the session">
+  A route holding the staging API key calls
+  `POST /{locale}/shop/auth/qr-login/generate` and returns only `session_id`, `qr_code`
+  and `expires_at`.
+</Step>
+
+<Step title="The browser subscribes">
+  With that `session_id` it joins `qr-login.{session_id}`. The channel is public — the
+  unguessable session ID is the secret — so the page needs nothing else.
+</Step>
+
+<Step title="The result arrives on the channel">
+  `status_update` fires on every state change. The demo prints the raw payload, which is
+  the same shape documented in [Realtime](/docs/api-reference/realtime).
+</Step>
+</Steps>
+
+<Warning>
+This runs against **staging** with demo data. Never put production credentials behind a
+public page, and never ship an API secret to a browser.
+</Warning>
+
+## Build the same thing
+
+<CardGroup cols={2}>
+  <Card title="Realtime" icon="bolt" href="/docs/api-reference/realtime">
+    Channels, events and exact payloads
+  </Card>
+
+  <Card title="Authentication" icon="key" href="/docs/api-reference/authentication">
+    The QR login flow this demo runs
+  </Card>
+</CardGroup>

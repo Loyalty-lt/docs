@@ -150,19 +150,6 @@ standing in front of it.
 }
 ```
 
-### `upload-session.{session_code}`
-
-A phone handing a file to a desktop — the phone has no account to authorize with, so
-the channel is public and the session code is the secret.
-
-| Event | Payload |
-|-------|---------|
-| `mobile-joined` | whatever your server sent |
-| `image-upload` | whatever your server sent |
-| `mobile-left` | whatever your server sent |
-
-Your server publishes these with [`POST /{locale}/shop/realtime/publish`](#publishing-from-a-server).
-
 ## Private channels
 
 Anything tied to a real customer is private and must be signed.
@@ -295,29 +282,6 @@ channel.bind('session_update', (p) => renderBasket(p));
   `client-session_ended`.
 </Step>
 </Steps>
-
-## Publishing from a server
-
-`POST /{locale}/shop/realtime/publish` is deliberately narrow. It publishes to
-`upload-session.{session_code}` and nothing else, with three permitted events.
-
-```bash
-curl -X POST "https://api.loyalty.lt/lt/shop/realtime/publish" \
-  -H "X-API-Key: $LOYALTY_API_KEY" \
-  -H "X-API-Secret: $LOYALTY_API_SECRET" \
-  -H "Content-Type: application/json" \
-  -d '{"session_code": "abc123", "event": "image-upload", "data": {"url": "…"}}'
-```
-
-| Field | Rule |
-|-------|------|
-| `session_code` | Required, max 64 chars, `A-Za-z0-9_-` only |
-| `event` | Required, one of `image-upload`, `mobile-joined`, `mobile-left` |
-| `data` | Optional object, passed through untouched |
-
-It takes API credentials, so call it from your server, never from a page. Everything
-else is published by the platform: award points with `transactions/create` and the
-relevant channels emit on their own.
 
 ## Event naming
 

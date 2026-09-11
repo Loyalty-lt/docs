@@ -19,17 +19,29 @@ because the subscription belongs in the page, not on the server.
 
 ## Receiving the result
 
-The result arrives on a realtime channel, not in a response body. Your server opens the
-session and hands the `session_id` to the page; the page subscribes and receives the
-outcome the moment the customer confirms.
+The result arrives on a realtime channel, not in a response body. The SDK subscribes
+for you and blocks until the session resolves:
 
 ```python
-config = sdk.get_realtime_config()   # key, host, port, scheme
+session = sdk.generate_qr_login(device_name='Till 3', shop_id=shop_id)
+# render session['qr_code'], then wait on the channel
+result = sdk.subscribe_qr_login(session['session_id'])
+
+if result and result['status'] == 'authenticated':
+    token, user = result['token'], result['user']
 ```
 
-Pass those details to the browser and subscribe to `qr-login.{session_id}` or
-`qr-card.{session_id}`. Channels, events and exact payloads are in
-[Realtime](/docs/api-reference/realtime).
+Pass a callback to watch every frame instead of only the final one. The helper returns
+`None`/`null` if nothing resolved within the timeout — sessions last 5 minutes.
+
+<Note>
+The realtime helpers need a WebSocket client: `pip install websocket-client`. Without it the SDK still works;
+only these two methods raise.
+</Note>
+
+Because it blocks, use it from a POS, a CLI or a worker. In a web request, open the
+session on your server and let the page subscribe — channels, events and payloads are
+in [Realtime](/docs/api-reference/realtime).
 
 ## QR login
 

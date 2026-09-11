@@ -19,17 +19,31 @@ because the subscription belongs in the page, not on the server.
 
 ## Receiving the result
 
-The result arrives on a realtime channel, not in a response body. Your server opens the
-session and hands the `session_id` to the page; the page subscribes and receives the
-outcome the moment the customer confirms.
+The result arrives on a realtime channel, not in a response body. The SDK subscribes
+for you and blocks until the session resolves:
 
 ```php
-$config = $sdk->getRealtimeConfig();   // key, host, port, scheme
+$session = $sdk->generateQrLogin('Till 3', $shopId);
+// render $session['qr_code'], then wait on the channel
+$result = $sdk->subscribeQrLogin($session['session_id']);
+
+if (($result['status'] ?? null) === 'authenticated') {
+    $token = $result['token'];
+    $user  = $result['user'];
+}
 ```
 
-Pass those details to the browser and subscribe to `qr-login.{session_id}` or
-`qr-card.{session_id}`. Channels, events and exact payloads are in
-[Realtime](/docs/api-reference/realtime).
+Pass a callback to watch every frame instead of only the final one. The helper returns
+`None`/`null` if nothing resolved within the timeout — sessions last 5 minutes.
+
+<Note>
+The realtime helpers need a WebSocket client: `composer require phrity/websocket`. Without it the SDK still works;
+only these two methods raise.
+</Note>
+
+Because it blocks, use it from a POS, a CLI or a worker. In a web request, open the
+session on your server and let the page subscribe — channels, events and payloads are
+in [Realtime](/docs/api-reference/realtime).
 
 ## QR login
 
