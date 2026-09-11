@@ -19,7 +19,13 @@ git pull --ff-only origin main
 echo "==> Installing dependencies"
 npm ci
 
-echo "==> Building (prebuild refreshes openapi/loyalty.json from api.loyalty.lt)"
+# openapi/full.json is a local cache of the upstream spec, kept so local builds work
+# offline. On a deploy we always want the live one — a stale cache here silently
+# publishes an API Reference that no longer matches api.loyalty.lt.
+echo "==> Dropping the cached upstream spec so the build refetches it"
+rm -f openapi/full.json
+
+echo "==> Building (prebuild refetches the spec and rescopes openapi/loyalty.json)"
 npm run build
 
 mkdir -p logs

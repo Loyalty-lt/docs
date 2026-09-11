@@ -51,7 +51,13 @@ function deriveId(method, path) {
 }
 
 async function loadFull() {
-  if (existsSync(FULL)) return JSON.parse(readFileSync(FULL, 'utf8'));
+  // Cache hit keeps local builds offline-friendly. It is never used on a deploy —
+  // deploy/deploy.sh removes the file first — and `OPENAPI_REFRESH=1` forces a refetch.
+  if (existsSync(FULL) && !process.env.OPENAPI_REFRESH) {
+    const spec = JSON.parse(readFileSync(FULL, 'utf8'));
+    console.log(`using cached ${FULL} (set OPENAPI_REFRESH=1 to refetch)`);
+    return spec;
+  }
   console.log(`fetching full spec from ${SPEC_URL} ...`);
   const res = await fetch(SPEC_URL);
   if (!res.ok) throw new Error(`spec fetch failed: ${res.status}`);
