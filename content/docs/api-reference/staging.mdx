@@ -60,9 +60,12 @@ Every Sunday morning, in order:
 
 | Time (EET) | What happens |
 |------------|--------------|
-| 04:00 | Partner catalogue re-copied from production |
-| 05:00 | Transactions, point awards, game progress and coupon redemptions cleared |
+| 04:00 | The database is cleared |
+| 05:00 | Your partner record, shops, products, offers and games re-copied from production |
 | 06:00 | Demo customers, their cards and demo staff recreated |
+
+Cleaning first is deliberate: the clear cascades through users, so running it after the
+copy would discard what the copy just brought in.
 
 Your API credentials survive. Anything you created during the week does not — treat
 staging as disposable and make your tests recreate what they need.
@@ -86,8 +89,9 @@ await sdk.createTransaction({
   shop_id: shopId,
 });
 
-// 4. Read the new balance
-const card = await sdk.getLoyaltyCardInfo({ user_id: userId });
+// 4. Read the new balance — find the demo customer's card first
+const { data: cards } = await sdk.getLoyaltyCards({ per_page: 50 });
+const card = cards.find((c) => c.user?.email === 'demo@loyalty.lt');
 const balance = await sdk.getPointsBalance({ card_id: card.id });
 ```
 
@@ -102,35 +106,10 @@ await sdk.createTransaction({
 });
 ```
 
-## Common problems
+## When something does not work
 
-<AccordionGroup>
-  <Accordion title="401 Unauthorized">
-    Staging credentials only work against `staging-api.loyalty.lt`. Check the base URL,
-    that both `X-API-Key` and `X-API-Secret` are present, and that the credential is
-    still active in the Partners Portal.
-  </Accordion>
-
-  <Accordion title="404 card not found">
-    Production cards do not exist in staging, and demo card numbers change on every
-    refresh. Look the card up by email or phone rather than by a number you saved.
-  </Accordion>
-
-  <Accordion title="Everything I created last week is gone">
-    Expected — staging is cleared every Sunday at 05:00 EET. Only your API credentials
-    and the partner catalogue survive.
-  </Accordion>
-
-  <Accordion title="Staging behaves differently from production">
-    It should not; both run the same commit. Compare the two, and tell us if they
-    differ:
-
-    ```bash
-    curl -s https://staging-api.loyalty.lt/lt/shop/system/health | grep -o '"version":"[^"]*"'
-    curl -s https://api.loyalty.lt/lt/shop/system/health | grep -o '"version":"[^"]*"'
-    ```
-  </Accordion>
-</AccordionGroup>
+Staging-specific answers — expired credentials, missing demo cards, what survives the
+weekly refresh — are in the [FAQ](/docs/troubleshooting/faq).
 
 Stuck? [developers@loyalty.lt](mailto:developers@loyalty.lt) — include your partner ID
 and the `request_id` from the response.

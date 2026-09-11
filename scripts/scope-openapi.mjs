@@ -96,17 +96,18 @@ for (const [path, item] of Object.entries(spec.paths)) {
 // Sidebar groups: the order integrators meet them in, with descriptions written for
 // someone wiring up a shop rather than for whoever annotated the controller.
 const TAGS = [
-  ['Authentication', 'Sign a customer in from a desktop or POS screen with a QR code.'],
-  ['QR Card Scan', 'Identify a customer at the till by having them scan a QR code.'],
-  ['Loyalty Cards', 'Look up a card by number, phone or email and read its points balance.'],
   ['Transactions', 'Register purchases, award points, and reserve points during checkout.'],
+  ['Loyalty Cards', 'Look up a card by number, phone or email and read its points balance.'],
   ['Coupons', 'Verify a coupon at the till, hold it during checkout, then redeem it.'],
   ['Games', 'Stamp cards and other loyalty games: add stamps, read progress, issue rewards.'],
   ['Offers', 'Read the promotions available to customers.'],
-  ['Shops', "List the partner's shops and their IDs."],
+  ['Shops', "List the partner's shops — this is where shop_id comes from."],
   ['Products', 'Product categories and the status of the last catalogue sync.'],
   ['XML Import', 'Bulk-import a product catalogue from an XML feed.'],
-  ['System', 'Health check, credential validation and realtime connection details.'],
+  ['Authentication', 'Sign a customer in from a desktop or POS screen with a QR code.'],
+  ['QR Card Scan', 'Identify a customer at the till by having them scan a QR code.'],
+  ['Realtime', 'Connection details for the channels that carry QR results and live session updates.'],
+  ['System', 'Health check and credential validation.'],
   ['External SMS API', 'Send transactional SMS and record marketing consent.'],
 ];
 

@@ -15,7 +15,8 @@ POS — and the official SDKs that wrap it.
 <Steps>
   <Step title="Get API credentials">
     Sign in to the [Partners Portal](https://partners.loyalty.lt) → **API Credentials**
-    and create a **staging** pair. You get an API key (`lty_...`) and a secret, shown once.
+    and create a **staging** pair. You get an API key (`lty_...`) and a secret, shown
+    once — see [Staging](/docs/api-reference/staging).
   </Step>
   <Step title="Install an SDK">
     `npm install @loyaltylt/sdk`, `composer require loyaltylt/sdk`, or
@@ -70,6 +71,10 @@ set the amount yourself, or `type: "cancellation"` / `"refund"` with the same
     Show a QR code on screen; the customer scans it in the app to sign in or to
     identify their card at the POS.
   </Card>
+
+  <Card title="Realtime" icon="bolt">
+    Scans and live basket updates arrive over a WebSocket channel, not by polling.
+  </Card>
 </CardGroup>
 
 ## Where to go next
@@ -81,6 +86,10 @@ set the amount yourself, or `type: "cancellation"` / `"refund"` with the same
 
   <Card title="Authentication" icon="key" href="/docs/api-reference/authentication">
     API credentials, JWT and QR login.
+  </Card>
+
+  <Card title="Realtime" icon="bolt" href="/docs/api-reference/realtime">
+    Channels, events and payloads.
   </Card>
 
   <Card title="SDKs" icon="puzzle-piece" href="/docs/sdk/overview">

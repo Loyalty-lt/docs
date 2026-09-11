@@ -36,7 +36,9 @@ sdk.create_transaction(
 
 ### Reverse a transaction
 
-Same `order_id`, with `transaction_type` set to `cancellation` or `refund`:
+Same `order_id`, with `transaction_type` set to `cancellation` or `refund`. The SDK
+names the argument `transaction_type` because `type` is a Python builtin; it is sent to
+the API as `type`, the same field the other SDKs use.
 
 ```python
 sdk.create_transaction(
@@ -56,12 +58,12 @@ history = sdk.get_transactions(page=1, per_page=20)
 ## Loyalty cards
 
 ```python
-card    = sdk.get_loyalty_card_info(card_number='900-001-001')
-balance = sdk.get_points_balance(card_number='900-001-001')
+card    = sdk.get_loyalty_card_info(user_id=user_id)
+balance = sdk.get_points_balance(card_id=card['id'])
 cards   = sdk.get_loyalty_cards(per_page=50)
 ```
 
-`get_loyalty_card_info` also accepts `card_id` or `user_id`.
+`get_loyalty_card_info` also accepts `card_number` or `card_id`.
 
 ## Coupons
 

@@ -142,29 +142,24 @@ stays readable from an uptime monitor.
 | `429` | Throttled | Retry with exponential backoff |
 | `5xx` | Server error | Retry with exponential backoff |
 
-Retry only `429` and `5xx`. Never retry other `4xx` responses — they will fail again.
-The official SDKs already retry these for you.
+Retry only `429` and `5xx`. Never retry other `4xx` responses — they will fail the same
+way. The official SDKs already do this for you, with exponential backoff.
 
-```javascript
-async function withRetry(fn, maxRetries = 3) {
-  for (let attempt = 0; ; attempt++) {
-    try {
-      return await fn();
-    } catch (error) {
-      const status = error.response?.status;
-      const retryable = status === 429 || (status >= 500 && status <= 599);
-      if (!retryable || attempt === maxRetries) throw error;
-      await new Promise((r) => setTimeout(r, 2 ** attempt * 1000 + Math.random() * 1000));
-    }
-  }
-}
-```
+## Realtime
+
+Not everything arrives as a reply. A QR code being scanned, a till updating the basket
+the customer is watching — those reach you over a WebSocket channel, not a response
+body. See [Realtime](/docs/api-reference/realtime).
 
 ## Next
 
 <CardGroup cols={3}>
   <Card title="Authentication" icon="key" href="/docs/api-reference/authentication">
     API credentials, JWT and QR login
+  </Card>
+
+  <Card title="Realtime" icon="bolt" href="/docs/api-reference/realtime">
+    Channels, events and payloads
   </Card>
 
   <Card title="Staging" icon="flask" href="/docs/api-reference/staging">

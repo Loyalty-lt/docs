@@ -24,8 +24,9 @@ Renders the QR code a customer scans to sign in.
 ```tsx
 <QRLogin
   config={{
+    // Both values reach the browser. Only ever ship them to a terminal you control.
     apiKey: process.env.NEXT_PUBLIC_LOYALTY_KEY!,
-    apiSecret: process.env.LOYALTY_SECRET!,
+    apiSecret: process.env.NEXT_PUBLIC_LOYALTY_SECRET!,
     locale: 'lt',
     shopId: 1,
     deviceName: 'Till 3',
@@ -43,8 +44,10 @@ Renders the QR code a customer scans to sign in.
 ```
 
 <Warning>
-This component sends the API secret from wherever it runs. Render it only on a
-terminal you control, or behind a server-side proxy — never on a public website.
+**This component sends your API secret from the browser.** There is no way around it:
+the component opens the QR session itself. Render it only on a POS terminal you
+control. For a public website, open the session on your server and render the returned
+`qr_code` yourself — see [Building your own](#building-your-own).
 </Warning>
 
 | Prop | Type | Description |

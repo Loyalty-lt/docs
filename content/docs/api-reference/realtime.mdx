@@ -1,24 +1,35 @@
 ---
 title: "Realtime"
-description: "Channels, subscription and peer events between a POS, a storefront and the customer app"
+description: "Channels, events and payloads — how a result reaches the screen that is waiting for it"
 ---
 
 # Realtime
 
-Anything where one screen has to react to something that happened on another screen
-runs over a realtime channel: a QR code being scanned, a till updating the basket the
-customer is watching in the app, points landing on a card.
+Whenever one screen has to react to something that happened on another — a QR code
+being scanned, a till updating the basket the customer is watching in the app, points
+landing on a card — the result arrives over a realtime channel.
 
-Never poll for these. Polling is a fallback for an environment that cannot hold a
-WebSocket open, and it costs a request per second per session while the customer
-stands and waits.
+**This is the path to build.** Polling exists as a fallback for an environment that
+cannot hold a WebSocket open; it costs a request per second per session while the
+customer stands at the till waiting.
 
 The channel speaks the Pusher protocol, so any Pusher client library works —
-`pusher-js` in a browser, or a raw WebSocket if you prefer.
+`pusher-js` in a browser, `laravel-echo`, or a raw WebSocket.
+
+<Steps>
+<Step title="Fetch the connection details">
+  `GET /{locale}/shop/realtime/config`, with your API credentials.
+</Step>
+<Step title="Subscribe">
+  Public channels need nothing. Private channels are signed by
+  `POST /{locale}/broadcasting/auth` using a customer JWT.
+</Step>
+<Step title="Bind the event">
+  Each channel below lists its event names and exact payload.
+</Step>
+</Steps>
 
 ## Connecting
-
-`GET /{locale}/shop/realtime/config` returns the connection details.
 
 ```bash
 curl -X GET "https://api.loyalty.lt/lt/shop/realtime/config" \
@@ -31,101 +42,264 @@ curl -X GET "https://api.loyalty.lt/lt/shop/realtime/config" \
   "success": true,
   "code": 200,
   "request_id": "…",
-  "data": { "key": "…", "host": "…", "port": 443, "scheme": "https" }
+  "message": "Realtime configuration",
+  "data": {
+    "key": "…",
+    "host": "…",
+    "port": 443,
+    "scheme": "https",
+    "channel_prefix": { "qr_login": "qr-login.", "qr_card": "qr-card." },
+    "event": "status_update"
+  }
 }
 ```
 
+`channel_prefix` and `event` are there so you can build channel names without
+hardcoding the strings in this page.
+
 <Warning>
-Read the host from this endpoint. Do not hardcode it — it is infrastructure, and an
-integration that pins it breaks the day it moves.
+Read `host` from this endpoint. Do not pin it — it is infrastructure, and an
+integration that hardcodes it breaks the day it moves.
 </Warning>
 
-## Public channels
-
-QR sessions are public. The unguessable session ID in the channel name is the secret,
-so there is nothing to authorize and no token to manage.
-
-| Channel | Event | Carries |
-|---------|-------|---------|
-| `qr-login.{session_id}` | `status_update` | `status`, and on `authenticated` the customer's `token` and `user` |
-| `qr-card.{session_id}` | `card_identified` | `card_data` — card ID, number, points, user |
-| `upload-session.{session_code}` | `image-upload`, `mobile-joined`, `mobile-left` | phone-to-desktop file handoff |
-
 ```javascript
-pusher.subscribe(`qr-login.${sessionId}`).bind('status_update', ({ status, token, user }) => {
-  if (status === 'authenticated') signIn(token, user);
-});
-```
+const { data: config } = await (await fetch(
+  'https://api.loyalty.lt/lt/shop/realtime/config',
+  { headers: { 'X-API-Key': apiKey, 'X-API-Secret': apiSecret } },
+)).json();
 
-## Private channels
-
-Everything tied to a real customer, card, shop or till is private and must be
-authorized. Subscribe with a customer JWT and point your client at the auth endpoint:
-
-```javascript
 const pusher = new Pusher(config.key, {
   wsHost: config.host,
   wsPort: config.port,
   wssPort: config.port,
   forceTLS: config.scheme === 'https',
   enabledTransports: ['ws', 'wss'],
-  cluster: '',
+  cluster: '',        // unused, but pusher-js requires the option
   disableStats: true,
+});
+```
+
+## Public channels
+
+No authorization step. The unguessable session ID in the channel name is the secret, so
+there is no token to manage.
+
+### `qr-login.{session_id}`
+
+Opened by `POST /{locale}/shop/auth/qr-login/generate`. Carries one event.
+
+| Event | When |
+|-------|------|
+| `status_update` | Every time the session changes state |
+
+```json
+{
+  "session_id": "a3f1…",
+  "timestamp": "2026-09-11T10:04:12.000000Z",
+  "status": "authenticated",
+  "user": { "id": 42, "name": "…", "email": "…", "phone": "+3706…" },
+  "token": "eyJ0eXAi…",
+  "refresh_token": "…",
+  "loyalty_card": { "id": 91, "card_number": "900-042-003", "points": 1500, "partner_id": 3 }
+}
+```
+
+| `status` | Meaning | Extra fields |
+|----------|---------|--------------|
+| `scanned` | Customer scanned; waiting for them to confirm in the app | — |
+| `authenticated` | Done | `user`, `token`, `refresh_token`, and `loyalty_card` when a partner is bound |
+| `failed` | The app could not complete the login | — |
+| `expired` | The 5-minute window elapsed; generate a new session | — |
+
+```javascript
+pusher.subscribe(`qr-login.${sessionId}`).bind('status_update', (p) => {
+  if (p.status === 'authenticated') signIn(p.token, p.user);
+  if (p.status === 'expired') regenerate();
+});
+```
+
+### `qr-card.{session_id}`
+
+Opened by `POST /{locale}/shop/qr-card/generate`. The till learns which customer is
+standing in front of it.
+
+| Event | When | Bind it? |
+|-------|------|----------|
+| `card_identified` | The customer scanned | **Yes** |
+| `status_update` | Same moment, overlapping body | Legacy — bind one or the other, not both |
+
+```json
+{
+  "session_id": "b7c2…",
+  "status": "authenticated",
+  "timestamp": "2026-09-11T10:07:45.000000Z",
+  "card_data": {
+    "loyalty_card_id": 91,
+    "card_number": "900-042-003",
+    "points": 1500,
+    "user": { "id": 42, "name": "…", "email": "…", "phone": "+3706…" },
+    "redemption": {
+      "enabled": true,
+      "points_per_currency": 100,
+      "currency_amount": 1,
+      "min_points": 100,
+      "max_points": 5000
+    },
+    "scanned_at": "2026-09-11T10:07:45.000000Z"
+  }
+}
+```
+
+### `upload-session.{session_code}`
+
+A phone handing a file to a desktop — the phone has no account to authorize with, so
+the channel is public and the session code is the secret.
+
+| Event | Payload |
+|-------|---------|
+| `mobile-joined` | whatever your server sent |
+| `image-upload` | whatever your server sent |
+| `mobile-left` | whatever your server sent |
+
+Your server publishes these with [`POST /{locale}/shop/realtime/publish`](#publishing-from-a-server).
+
+## Private channels
+
+Anything tied to a real customer is private and must be signed.
+
+### Authorizing
+
+```
+POST /{locale}/broadcasting/auth
+Authorization: Bearer <customer JWT>
+
+socket_id=<from pusher:connection_established>
+channel_name=private-<channel>
+```
+
+Answers `{"auth": "<app_key>:<hmac_sha256>"}`, or `403` when the channel is not yours.
+Your Pusher client calls it for you:
+
+```javascript
+const pusher = new Pusher(config.key, {
+  // …transport options as above
   authEndpoint: 'https://api.loyalty.lt/lt/broadcasting/auth',
   auth: { headers: { Authorization: `Bearer ${token}` } },
 });
 ```
 
-`POST /{locale}/broadcasting/auth` takes `socket_id` and `channel_name`, and answers
-with the subscription signature. Your Pusher client calls it for you. Authorization is
-per channel: a customer only ever reaches their own, and a staff account only reaches
-its partner's.
+Authorization is per channel and strict: a customer reaches only their own channels.
 
-| Channel | Who may subscribe | Used for |
-|---------|-------------------|----------|
-| `shopping-session.{session_id}` | both sides of a till session | the live basket — see below |
-| `loyalty-card.{card_id}` | the card's owner, or the partner | balance and card changes |
-| `transaction.{transaction_id}` | the customer, or the partner | a transaction's progress |
-| `shop.{shop_id}` | the shop's partner and staff | shop-wide events |
-| `partner.{partner_id}` | the partner and its staff | partner-wide events |
-| `user.{id}` | that customer | their own session and card events |
-| `user.{id}.notifications` | that customer | notifications |
+### `shopping-session.{session_id}`
 
-## A till and the customer app, live
+The live basket, shared by the till and the customer's app. Both sides subscribe, and
+both sides send — see [client events](#client-events) below.
 
-This is the pattern behind the POS staff app driving what the customer sees in the
-Loyalty.lt app while the basket is being scanned.
+| Event | Sent by |
+|-------|---------|
+| `session_update` | Either side, as a client event |
 
-Both sides subscribe to `shopping-session.{session_id}`, and the till sends
-**client events** — peer-to-peer messages that go straight to the other subscriber
-rather than through your server:
+```json
+{
+  "sessionId": "…",
+  "lastUpdatedBy": "staff",
+  "timestamp": "2026-09-11T10:09:02.000000Z",
+  "purchaseAmount": "25.50",
+  "pointsToRedeem": "500",
+  "customerPointsInput": "500",
+  "calculatedPoints": 255,
+  "paymentMethod": "card",
+  "description": "…",
+  "status": "editing"
+}
+```
+
+Only `sessionId`, `lastUpdatedBy` and `timestamp` are always present; send whichever of
+the rest changed.
+
+### `user.{id}`
+
+The customer's own channel. `{id}` is their user ID — a customer can only subscribe to
+their own.
+
+| Event | Sent by | Payload |
+|-------|---------|---------|
+| `card_scan_progress` | Server | `scan_id`, `step`, `percent`, `message` |
+| `session_created` | Till | Full session: `sessionId`, `cardId`, `shopId`, `staffId`, `customerInfo{…}`, `staffInfo{…}`, `shopInfo{…}`, `pointsRules`, `status: "editing"` |
+| `session_ended` | Till | `session_ended: true`, `sessionId`, `timestamp`, and the basket fields reset |
+| `transaction_completed` | Till | `transaction_id`, `amount`, `currency`, `points_awarded`, `points_redeemed`, `points_discount_amount`, `final_amount` |
+
+### `user.{id}.notifications`
+
+| Event | Payload |
+|-------|---------|
+| `notification:received` | `notification_id`, `title`, `body`, `type`, `timestamp`, `unread_count_delta` |
+
+<Note>
+Other channel names appear in the platform's authorization rules —
+`loyalty-card.{id}`, `transaction.{id}`, `shop.{id}`, `partner.{id}`, `payment.{ref}`.
+Nothing publishes to them today. Subscribing is harmless but you will never receive
+anything; use the events above instead.
+</Note>
+
+## Client events
+
+A client event is a message sent **by one subscriber to the others**, without passing
+through your server. It is how the till drives the customer's screen with no
+round-trip.
+
+Three rules:
+
+1. The event name must start with `client-`. Receivers bind the name **without** the
+   prefix — `trigger('client-session_update', …)` arrives as `session_update`.
+2. The sender must already be **subscribed to that exact channel**. Sending to a
+   channel you have not joined returns `pusher:error` code `4009`.
+3. Both parties must be subscribed before either sends — there is no replay.
 
 ```javascript
 const channel = pusher.subscribe(`shopping-session.${sessionId}`);
 
-// the till pushes the basket as it changes
-channel.trigger('client-session_update', { items, total, points_earned });
+channel.bind('pusher:subscription_succeeded', () => {
+  channel.trigger('client-session_update', {
+    sessionId,
+    lastUpdatedBy: 'staff',
+    timestamp: new Date().toISOString(),
+    purchaseAmount: '25.50',
+    calculatedPoints: 255,
+  });
+});
 
-// the customer app reacts
-channel.bind('session_update', (payload) => renderBasket(payload));
+channel.bind('session_update', (p) => renderBasket(p));
 ```
 
-Client events require a private channel, which is why the session channel is
-authorized. Both parties must be subscribed before either can send.
+## A till and the customer app, end to end
 
-<Note>
-The event name is `client-session_update` when sending and `session_update` when
-binding — the Pusher protocol strips the `client-` prefix on delivery.
-</Note>
+<Steps>
+<Step title="Identify the customer">
+  The till opens a QR card session and renders the code. The customer scans it in the
+  app; `card_identified` arrives on `qr-card.{session_id}` with their card and balance.
+</Step>
+<Step title="Open the session">
+  The till sends `client-session_created` on the customer's `user.{id}` channel. The app
+  switches to the live basket screen.
+</Step>
+<Step title="Scan the basket">
+  Each change goes out as `client-session_update` on
+  `shopping-session.{session_id}`. The customer watches the total and the points they
+  are about to earn. If they enter points to redeem, their app sends the same event back
+  with `lastUpdatedBy: "customer"`.
+</Step>
+<Step title="Take payment and close">
+  The till calls `POST /{locale}/shop/transactions/create` — that is what actually
+  awards the points — then sends `client-transaction_completed` and
+  `client-session_ended`.
+</Step>
+</Steps>
 
 ## Publishing from a server
 
-`POST /{locale}/shop/realtime/publish` is narrow on purpose: it publishes to
-`upload-session.{session_code}` only, and only the events `image-upload`,
-`mobile-joined` and `mobile-left`. It exists because a browser cannot publish to a
-channel it did not open, and a phone handing a photo to a desktop needs exactly that.
-
-It takes API credentials, so call it from your server, never from a page.
+`POST /{locale}/shop/realtime/publish` is deliberately narrow. It publishes to
+`upload-session.{session_code}` and nothing else, with three permitted events.
 
 ```bash
 curl -X POST "https://api.loyalty.lt/lt/shop/realtime/publish" \
@@ -135,17 +309,45 @@ curl -X POST "https://api.loyalty.lt/lt/shop/realtime/publish" \
   -d '{"session_code": "abc123", "event": "image-upload", "data": {"url": "…"}}'
 ```
 
-For everything else, the events come from the platform: award points with
-`transactions/create` and the card's channel emits on its own.
+| Field | Rule |
+|-------|------|
+| `session_code` | Required, max 64 chars, `A-Za-z0-9_-` only |
+| `event` | Required, one of `image-upload`, `mobile-joined`, `mobile-left` |
+| `data` | Optional object, passed through untouched |
+
+It takes API credentials, so call it from your server, never from a page. Everything
+else is published by the platform: award points with `transactions/create` and the
+relevant channels emit on their own.
+
+## Event naming
+
+Two conventions coexist. Neither is a typo — copy the name exactly as listed.
+
+| Style | Examples |
+|-------|----------|
+| `snake_case` | `status_update`, `session_update`, `card_identified`, `card_scan_progress` |
+| `colon:separated` | `notification:received` |
+| `kebab-case` | `image-upload`, `mobile-joined`, `mobile-left` |
+
+Channel **names** never contain `:` — the Pusher protocol forbids it.
 
 ## Fallback: polling
 
 Only when a WebSocket is genuinely impossible.
 
-| Flow | Poll endpoint |
-|------|---------------|
+| Flow | Endpoint |
+|------|----------|
 | QR login | `POST /{locale}/shop/auth/qr-login/poll/{session_id}` |
 | QR card scan | `GET /{locale}/shop/qr-card/status/{session_id}` |
 
-Once a second is enough; sessions expire after 5 minutes either way. There is no
-polling equivalent for the live basket — that one is realtime or nothing.
+Both are plain reads; QR login's is a `POST` for historical reasons, not because it
+changes anything. Once a second is enough — sessions expire after 5 minutes either way.
+
+<Note>
+The QR login poll predates the shared response envelope: it answers
+`{success, data:{session_id, status, expires_at}}`, and on a missing session a `404`
+with a **string** `code` (`QR_SESSION_NOT_FOUND`) rather than the numeric application
+code used everywhere else. Handle it on the HTTP status.
+</Note>
+
+There is no polling equivalent for the live basket. That one is realtime or nothing.

@@ -256,7 +256,9 @@ const MUST_EXIST = [
   '/docs',
   '/docs/api-reference/overview',
   '/docs/api-reference/authentication',
+  '/docs/api-reference/realtime',
   '/docs/transactions/postShopTransactionsCreate',
+  '/docs/realtime/shopRealtimeConfig',
   '/docs/external-sms-api/sendSmsExternal',
   '/docs/mcp-server',
 ];
@@ -270,6 +272,18 @@ for (const p of MUST_EXIST) {
 const llms = await (await fetch('https://docs.loyalty.lt/llms.txt')).text();
 if (/logout|game-sessions|points\/summary/.test(llms)) {
   console.error('    llms.txt still lists removed endpoints — the build used a stale spec');
+  bad++;
+}
+
+// Staging must not fall behind production, or the docs' "test here first" is a lie.
+// It may be a patch ahead: the auto-version workflow bumps VERSION after a deploy.
+const weight = (v) => (v ?? '0').split('.').map(Number).reduce((a, n) => a * 1000 + n, 0);
+const [prodHealth, stagingHealth] = await Promise.all([
+  fetch('https://api.loyalty.lt/lt/shop/system/health').then((r) => r.json()),
+  fetch('https://staging-api.loyalty.lt/lt/shop/system/health').then((r) => r.json()),
+]);
+if (weight(stagingHealth.version) < weight(prodHealth.version)) {
+  console.error(`    staging is behind: ${stagingHealth.version} vs production ${prodHealth.version}`);
   bad++;
 }
 

@@ -130,6 +130,15 @@ and `games/{id}/restart` exist for closing and restarting a round by hand.
 
 <AccordionGroup>
 
+<Accordion title="My WebSocket will not connect — what do I check?">
+Read `host`, `port` and `scheme` from `GET /{locale}/shop/realtime/config` rather than
+hardcoding them. For a **private** channel you also need `authEndpoint` pointing at
+`POST /{locale}/broadcasting/auth` with a customer JWT — a `403` there means the channel
+does not belong to that customer. If you send a client event and get `pusher:error`
+code `4009`, you are not subscribed to the channel you are sending on. See
+[Realtime](/docs/api-reference/realtime).
+</Accordion>
+
 <Accordion title="What should I retry?">
 `429` and `5xx`, with exponential backoff. Never retry other `4xx` — they will fail
 the same way. The SDKs already do this for you.
@@ -140,10 +149,17 @@ Yes; exceeding it returns `429`. Back off and retry rather than tightening a loo
 Contact support if you need a higher limit for a bulk job.
 </Accordion>
 
+<Accordion title="404 card not found on staging">
+Production cards do not exist in staging, and the demo card numbers change on every
+weekly refresh. Look a card up by the customer's email or phone rather than by a number
+you saved.
+</Accordion>
+
 <Accordion title="When does staging reset?">
-Every Sunday at 05:00 EET. Transactions, point awards, game progress and coupon
-redemptions are cleared; partner settings, catalogue, demo cards and API credentials
-survive. See [Staging](/docs/api-reference/staging).
+Sunday morning: the database is cleared at 04:00 EET, your catalogue is re-copied from
+production at 05:00, and the demo customers and their cards are recreated at 06:00. Your
+API credentials survive; the demo card IDs change. See
+[Staging](/docs/api-reference/staging).
 </Accordion>
 
 <Accordion title="Where do I get shop_id?">

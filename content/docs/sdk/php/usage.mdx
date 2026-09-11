@@ -56,12 +56,12 @@ $history = $sdk->getTransactions(['page' => 1, 'per_page' => 20]);
 ## Loyalty cards
 
 ```php
-$card    = $sdk->getLoyaltyCardInfo(['card_number' => '900-001-001']);
-$balance = $sdk->getPointsBalance(['card_number' => '900-001-001']);
+$card    = $sdk->getLoyaltyCardInfo(['user_id' => $userId]);
+$balance = $sdk->getPointsBalance(['card_id' => $card['id']]);
 $cards   = $sdk->getLoyaltyCards(['per_page' => 50]);
 ```
 
-`getLoyaltyCardInfo` also accepts `card_id` or `user_id`.
+`getLoyaltyCardInfo` also accepts `card_number` or `card_id`.
 
 ## Coupons
 

@@ -73,11 +73,11 @@ wrap them yet.
 ## Loyalty cards
 
 ```typescript
-// Look up one card by number, card ID or user ID
-const card = await sdk.getLoyaltyCardInfo({ card_number: '900-001-001' });
+// Look up one card by user ID, card ID or card number
+const card = await sdk.getLoyaltyCardInfo({ user_id: userId });
 
 // Points balance
-const balance = await sdk.getPointsBalance({ card_number: '900-001-001' });
+const balance = await sdk.getPointsBalance({ card_id: card.id });
 
 // All of the partner's cards
 const cards = await sdk.getLoyaltyCards({ per_page: 50 });
@@ -147,42 +147,23 @@ try {
 
 ## Points calculator
 
-Utilities for showing "you will earn N points" and "N points = €X" before the call:
-
-```typescript
-import {
-  calculatePointsFromAmount,
-  calculateAmountFromPoints,
-  calculateFinalAmount,
-  calculateMaxRedeemablePoints,
-  validatePointsRedemption,
-} from '@loyaltylt/sdk';
-
-const rules = {
-  points_per_currency: 10,               // 10 points per 1 EUR
-  currency_amount: 1,
-  points_redemption_enabled: true,
-  points_per_currency_redemption: 100,   // 100 points = 1 EUR
-  currency_amount_redemption: 1,
-  min_points_for_redemption: 100,
-  max_points_per_redemption: 5000,
-};
-
-calculatePointsFromAmount(25.00, rules);          // 250
-calculateAmountFromPoints(500, rules);            // 5.00
-calculateFinalAmount(50.00, 500, rules);          // 45.00
-calculateMaxRedeemablePoints(30.00, 5000, rules); // 3000
-validatePointsRedemption(500, 1000, rules);       // { isValid: true }
-```
+Pure helpers for showing "you will earn N points" before you call the API:
+`calculatePointsFromAmount`, `calculateAmountFromPoints`, `calculateFinalAmount`,
+`calculateMaxRedeemablePoints`, `validatePointsRedemption`. All take the partner's
+points rules as their second argument.
 
 ## Next
 
-<CardGroup cols={2}>
+<CardGroup cols={3}>
   <Card title="QR login" icon="qrcode" href="/docs/sdk/javascript/qr-login">
     Sign a customer in from a screen
   </Card>
 
   <Card title="QR card scan" icon="credit-card" href="/docs/sdk/javascript/qr-card-scan">
     Identify a customer at the POS
+  </Card>
+
+  <Card title="Examples" icon="code" href="/docs/sdk/javascript/examples">
+    A full checkout and a full till
   </Card>
 </CardGroup>

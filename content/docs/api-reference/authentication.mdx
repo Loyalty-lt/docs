@@ -15,14 +15,13 @@ The Shop API has two authentication schemes.
 ## API credentials
 
 Generate a key/secret pair in the [Partners Portal](https://partners.loyalty.lt) →
-**API Credentials**. Pick the environment when you create them: staging credentials
-only work against `staging-api.loyalty.lt`, production ones only against
-`api.loyalty.lt`.
+**API Credentials**. Pick the environment when you create them: staging credentials only
+work against `staging-api.loyalty.lt`, production ones only against `api.loyalty.lt`.
 
-Send both headers on every request:
+Both headers are required on every request — sending one without the other is a `401`.
 
 ```bash
-curl -X GET "https://staging-api.loyalty.lt/en/shop/loyalty-cards" \
+curl -X GET "https://api.loyalty.lt/lt/shop/loyalty-cards" \
   -H "X-API-Key: $LOYALTY_API_KEY" \
   -H "X-API-Secret: $LOYALTY_API_SECRET" \
   -H "Content-Type: application/json"
@@ -33,103 +32,66 @@ The secret is shown once and must stay on your server. Never ship it in frontend
 or a mobile app bundle.
 </Warning>
 
-You can check a pair without touching real data:
+Check a pair without touching real data:
 
 ```bash
-curl -X POST "https://staging-api.loyalty.lt/en/shop/validate-credentials" \
+curl -X POST "https://api.loyalty.lt/lt/shop/validate-credentials" \
   -H "X-API-Key: $LOYALTY_API_KEY" \
   -H "X-API-Secret: $LOYALTY_API_SECRET"
 ```
 
-A credential can also be restricted to specific IP addresses. Calls from anywhere
-else return `403`.
+A credential can also be restricted to specific IP addresses. Calls from anywhere else
+return `403`.
 
 ## QR login
 
-QR login is how a customer signs in on a screen that has no keyboard — a POS terminal
-or a checkout page. You show a QR code, they scan it in the Loyalty.lt app, and you
-get back a JWT for that customer.
+QR login signs a customer in on a screen with no keyboard — a POS terminal or a checkout
+page. You show a QR code, they scan it in the Loyalty.lt app, and you receive their JWT.
 
 <Steps>
-<Step title="Generate a session">
+<Step title="Open a session">
   ```bash
-  curl -X POST "https://staging-api.loyalty.lt/en/shop/auth/qr-login/generate" \
+  curl -X POST "https://api.loyalty.lt/lt/shop/auth/qr-login/generate" \
     -H "X-API-Key: $LOYALTY_API_KEY" \
     -H "X-API-Secret: $LOYALTY_API_SECRET" \
     -H "Content-Type: application/json" \
-    -d '{"device_name": "Till 3"}'
+    -d '{"device_name": "Till 3", "shop_id": 1}'
   ```
 
-  The response carries a `session_id` and the QR payload to render. Sessions expire
-  after 5 minutes.
+  The response carries `session_id`, the `qr_code` payload to render, and `expires_at`.
+  Sessions last **5 minutes**.
 </Step>
 
-<Step title="Show the QR code and subscribe">
-  Render the returned QR code and subscribe to the session's realtime channel. The
-  result arrives the moment the customer confirms — see below.
+<Step title="Render the code and wait on the channel">
+  Subscribe to `qr-login.{session_id}` and bind `status_update`. The channel is public —
+  the unguessable session ID is the secret — so there is nothing to authorize.
+
+  Full payloads, status values and the connection snippet are in
+  [Realtime](/docs/api-reference/realtime). If you cannot hold a WebSocket open, poll
+  instead:
+
+  ```bash
+  curl -X POST "https://api.loyalty.lt/lt/shop/auth/qr-login/poll/{session_id}" \
+    -H "X-API-Key: $LOYALTY_API_KEY" \
+    -H "X-API-Secret: $LOYALTY_API_SECRET"
+  ```
 </Step>
 
 <Step title="Use the token">
-  Once the customer confirms in the app, the channel delivers their JWT. Send it as
-  `Authorization: Bearer <token>` on customer-scoped endpoints.
+  On `status: "authenticated"` the payload carries the customer's `token` and `user`.
+  Send the token as `Authorization: Bearer <token>` on customer-scoped endpoints.
 </Step>
 </Steps>
 
-If the customer does not have the app yet, text them the download link instead of
+If the customer does not have the app yet, text them the download link rather than
 leaving them stuck at the till:
 
 ```bash
-curl -X POST "https://staging-api.loyalty.lt/en/shop/auth/send-app-link" \
+curl -X POST "https://api.loyalty.lt/lt/shop/auth/send-app-link" \
   -H "X-API-Key: $LOYALTY_API_KEY" \
   -H "X-API-Secret: $LOYALTY_API_SECRET" \
   -H "Content-Type: application/json" \
-  -d '{"phone": "+37060000001"}'
-```
-
-### Receiving the result
-
-Subscribe to the session's channel — `qr-login.{session_id}` is public, so there is
-nothing to authorize. Connection details come from `GET /{locale}/shop/realtime/config`;
-read them from the endpoint rather than hardcoding a host. See
-[Realtime](/docs/api-reference/realtime) for the full channel list.
-
-```javascript
-const res = await fetch('https://staging-api.loyalty.lt/en/shop/realtime/config', {
-  headers: { 'X-API-Key': apiKey, 'X-API-Secret': apiSecret },
-});
-const { data: config } = await res.json();
-
-const pusher = new Pusher(config.key, {
-  wsHost: config.host,
-  wsPort: config.port,
-  wssPort: config.port,
-  forceTLS: config.scheme === 'https',
-  enabledTransports: ['ws', 'wss'],
-  cluster: '',        // not used, but pusher-js requires the option
-  disableStats: true,
-});
-
-pusher.subscribe(`qr-login.${sessionId}`).bind('status_update', (payload) => {
-  if (payload.status === 'authenticated') {
-    console.log(payload.user, payload.token);
-  }
-});
-```
-
-<Note>
-The `qr-login.{session_id}` channel is public — the unguessable session ID is the
-secret — so there is no channel authorization step and no token to manage.
-</Note>
-
-### Fallback: polling
-
-Only if your environment cannot hold a WebSocket open. It is slower for the customer
-standing at the till and costs a request per second per session.
-
-```bash
-curl -X POST "https://staging-api.loyalty.lt/en/shop/auth/qr-login/poll/{session_id}" \
-  -H "X-API-Key: $LOYALTY_API_KEY" \
-  -H "X-API-Secret: $LOYALTY_API_SECRET"
+  -d '{"phone": "+37060000001", "shop_id": 1}'
 ```
 
 ## Customer JWT
@@ -137,9 +99,12 @@ curl -X POST "https://staging-api.loyalty.lt/en/shop/auth/qr-login/poll/{session
 The token from QR login identifies one customer:
 
 ```bash
-curl -X GET "https://staging-api.loyalty.lt/en/shop/auth/me" \
+curl -X GET "https://api.loyalty.lt/lt/shop/auth/me" \
   -H "Authorization: Bearer $TOKEN"
 ```
+
+It is also what signs a private realtime channel — see
+[Realtime](/docs/api-reference/realtime).
 
 The Shop API has no password login, refresh or logout endpoint. A token comes from QR
 login; when it expires, run QR login again. Partner-account sign-in for the Partners
@@ -150,8 +115,20 @@ Shop API.
 
 | Status | Cause |
 |--------|-------|
-| `401` | Header missing, wrong key/secret, wrong environment, or expired credential |
+| `401` | A header missing, wrong key/secret, wrong environment, or an expired credential |
 | `403` | IP not allowlisted, or the partner's plan does not include API access |
 
-Both return the standard envelope with a `request_id` — quote it when contacting
-support. See [API Overview](/docs/api-reference/overview#response-format).
+Both return the standard envelope with a `request_id` — see
+[API Overview](/docs/api-reference/overview).
+
+## Next
+
+<CardGroup cols={2}>
+  <Card title="Realtime" icon="bolt" href="/docs/api-reference/realtime">
+    Channels, events and payloads — where QR results actually arrive
+  </Card>
+
+  <Card title="Staging" icon="flask" href="/docs/api-reference/staging">
+    Test credentials and demo data
+  </Card>
+</CardGroup>
