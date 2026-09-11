@@ -1,0 +1,77 @@
+---
+title: "MCP Server"
+description: "Give your AI coding assistant the Loyalty.lt docs and API contract"
+---
+
+# MCP Server
+
+`@loyaltylt/docs-mcp` is an [MCP](https://modelcontextprotocol.io) server that hands
+your AI assistant this documentation and the full Shop API contract — endpoint paths,
+field names, requiredness, auth headers. With it, the assistant writes a working
+integration instead of inventing plausible-looking field names.
+
+## Install
+
+<CodeGroup>
+```bash Claude Code
+claude mcp add loyaltylt-docs -- npx -y @loyaltylt/docs-mcp
+```
+
+```bash npx
+npx @loyaltylt/docs-mcp
+```
+</CodeGroup>
+
+For Claude Desktop, add this to `claude_desktop_config.json`
+(`~/Library/Application Support/Claude/` on macOS, `%APPDATA%\Claude\` on Windows):
+
+```json
+{
+  "mcpServers": {
+    "loyaltylt-docs": {
+      "command": "npx",
+      "args": ["-y", "@loyaltylt/docs-mcp"]
+    }
+  }
+}
+```
+
+Cursor, Windsurf and other MCP clients take the same command over stdio.
+
+## What it exposes
+
+| Tool | Returns |
+|------|---------|
+| `search_docs` | Keyword hits across guides **and** endpoints |
+| `get_page` | A guide in full, as Markdown |
+| `list_topics` | Guide sections and API reference groups |
+| `list_endpoints` | The API surface, grouped, filterable by auth scheme |
+| `get_endpoint` | One endpoint: parameters, body fields, responses, auth, a ready curl |
+
+## Example
+
+Ask your assistant:
+
+> Award loyalty points for order `ORD-1` (€25.50) in my Laravel checkout.
+
+It looks up `postShopTransactionsCreate`, sees that `order_id` is required and that
+the customer needs `user_id` or `user_email`, reads the PHP SDK guide, and writes:
+
+```php
+$sdk->createTransaction([
+    'user_email'  => $order->customer_email,
+    'order_id'    => 'ORD-1',
+    'order_total' => 25.50,
+    'currency'    => 'EUR',
+    'shop_id'     => $shopId,
+]);
+```
+
+## How it stays correct
+
+The index is generated from this site's own source — the guide MDX and the scoped
+OpenAPI spec — at publish time, not scraped from rendered HTML. Everything the server
+reports therefore matches what you see here. It makes no network calls and needs no
+API key.
+
+Source: [github.com/Loyalty-lt/docs](https://github.com/Loyalty-lt/docs/tree/main/mcp).

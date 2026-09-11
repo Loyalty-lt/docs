@@ -1,338 +1,132 @@
 ---
 title: "Examples"
-description: "Complete code examples for the Loyalty.lt JavaScript SDK"
+description: "Two complete integrations: an online shop and a POS till"
 ---
 
 # Examples
 
-Complete working examples demonstrating various SDK features.
+## Online shop checkout
 
-## Live Examples
-
-The SDK includes several HTML examples you can run locally:
-
-| Example | Description | File |
-|---------|-------------|------|
-| **QR Login** | Customer authentication via QR | `examples/qr-login-example.html` |
-| **QR Card Scan** | POS customer identification | `examples/qr-card-scan-example.html` |
-| **Full POS System** | Complete POS simulation | `examples/pos-full-example.html` |
-
-### Running Examples
-
-```bash
-# Clone the repository
-git clone https://github.com/Loyalty-lt/sdk-javascript.git
-cd sdk-javascript
-
-# Install dependencies & build
-yarn install
-yarn build
-
-# Open examples in browser
-open examples/qr-login-example.html
-```
-
-## POS System Example
-
-A complete Point of Sale implementation with customer identification, cart management, and points processing.
-
-### Features
-
-- Split-screen layout (Customer Display + POS Interface)
-- QR code customer identification
-- Real-time Reverb (WebSocket) updates
-- Product catalog
-- Cart with points earning preview
-- Points redemption
-- Manual card lookup
-- Send app download link
-
-### Key Code
+Award points when an order is paid, and take them back when it is refunded. Two
+rules matter: use your own order ID as `order_id`, and never let a loyalty failure
+block the order.
 
 ```typescript
-
-
-class POSSystem {
-  private sdk: LoyaltySDK;
-  private currentCustomer: Customer | null = null;
-  private cart: CartItem[] = [];
-  
-  constructor(apiKey: string, apiSecret: string) {
-    this.sdk = new LoyaltySDK({
-      apiKey,
-      apiSecret,
-      environment: 'production'
-    });
-  }
-  
-  // Start customer identification
-  async startIdentification() {
-    const session = await this.sdk.generateQrCardSession('POS');
-    this.displayQR(session.qr_code);
-    
-    // Fetch Reverb connection details
-    const config = await this.sdk.getRealtimeConfig();
-    
-    // Connect to Reverb (Pusher protocol)
-    const pusher = new Pusher(config.key, {
-      wsHost: config.host,
-      wsPort: config.port,
-      wssPort: config.port,
-      forceTLS: config.scheme === 'https',
-      enabledTransports: ['ws', 'wss'],
-      cluster: '',        // Reverb has no clusters, but pusher-js throws without this option
-      disableStats: true
-    });
-    
-    const channel = pusher.subscribe(
-      `${config.channel_prefix.qr_card}${session.session_id}`
-    );
-    
-    channel.bind('card_identified', (payload) => {
-      this.handleCustomerIdentified(payload.card_data);
-    });
-  }
-  
-  // Process checkout
-  async checkout() {
-    const total = this.calculateTotal();
-    const pointsToEarn = Math.floor(total * 10);
-    
-    await this.sdk.createTransaction({
-      card_id: this.currentCustomer.cardId,
-      amount: total,
-      points: pointsToEarn,
-      type: 'earn',
-      description: 'Purchase',
-      reference: `POS-${Date.now()}`
-    });
-    
-    this.showSuccess(`+${pointsToEarn} points earned!`);
-    this.clearCart();
-    this.clearCustomer();
-  }
-}
-```
-
-## Points Calculation
-
-Use the SDK's built-in calculation functions for accurate points math:
-
-```typescript
-import { 
-  calculateAmountFromPoints,
-  calculatePointsFromAmount,
-  calculateFinalAmount 
-} from '@loyaltylt/sdk';
-
-// Points rules from card_identified event
-const pointsRules = cardData.redemption;
-
-// Calculate discount value
-const discount = calculateAmountFromPoints(500, pointsRules);
-// 500 points = 5.00 EUR
-
-// Calculate points to earn
-const pointsToEarn = calculatePointsFromAmount(cartTotal, pointsRules);
-// 25.00 EUR = 250 points
-
-// Calculate final amount after discount
-const finalAmount = calculateFinalAmount(cartTotal, pointsToRedeem, pointsRules);
-// 50.00 EUR - 5.00 EUR = 45.00 EUR
-```
-
-<Tip>
-  Always use the `pointsRules` from the backend instead of hardcoding values.
-  Rules can vary per partner and may change.
-</Tip>
-
-## React Integration
-
-### Next.js App Router
-
-```tsx
-// app/loyalty/page.tsx
-'use client';
-
-import { useState, useEffect } from 'react';
-
-
-export default function LoyaltyPage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userToken, setUserToken] = useState<string | null>(null);
-  
-  useEffect(() => {
-    const token = localStorage.getItem('loyalty_token');
-    if (token) {
-      setUserToken(token);
-      setIsLoggedIn(true);
-    }
-  }, []);
-  
-  if (!isLoggedIn) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <QRLogin
-          apiKey={process.env.NEXT_PUBLIC_LOYALTY_API_KEY!}
-          apiSecret={process.env.NEXT_PUBLIC_LOYALTY_API_SECRET!}
-          onAuthenticated={(user, token) => {
-            localStorage.setItem('loyalty_token', token);
-            setUserToken(token);
-            setIsLoggedIn(true);
-          }}
-        />
-      </div>
-    );
-  }
-  
-  return (
-    <div className="container mx-auto p-8">
-      <h1 className="text-2xl font-bold mb-6">Your Loyalty Card</h1>
-      <QRCardDisplay
-        apiKey={process.env.NEXT_PUBLIC_LOYALTY_API_KEY!}
-        apiSecret={process.env.NEXT_PUBLIC_LOYALTY_API_SECRET!}
-        userToken={userToken!}
-        showPoints
-        showUserInfo
-      />
-    </div>
-  );
-}
-```
-
-### Environment Variables
-
-```bash
-# .env.local
-NEXT_PUBLIC_LOYALTY_API_KEY=lty_your_api_key
-NEXT_PUBLIC_LOYALTY_API_SECRET=your_api_secret
-```
-
-## Node.js Backend
-
-### Express.js Integration
-
-```typescript
-// server.ts
-import express from 'express';
-
-const app = express();
-app.use(express.json());
+import { LoyaltySDK, LoyaltySDKError } from '@loyaltylt/sdk';
 
 const sdk = new LoyaltySDK({
   apiKey: process.env.LOYALTY_API_KEY!,
   apiSecret: process.env.LOYALTY_API_SECRET!,
-  environment: 'production'
+  environment: process.env.NODE_ENV === 'production' ? 'production' : 'staging',
 });
 
-// Award points after purchase
-app.post('/api/orders/complete', async (req, res) => {
-  const { orderId, cardNumber, amount } = req.body;
-  
+export async function onOrderPaid(order) {
   try {
-    // Find customer's card
-    const cards = await sdk.getLoyaltyCards({ card_number: cardNumber });
-    
-    if (!cards.data.length) {
-      return res.status(404).json({ error: 'Card not found' });
-    }
-    
-    const card = cards.data[0];
-    const pointsToAward = Math.floor(amount * 10);
-    
-    // Award points
-    const transaction = await sdk.createTransaction({
-      card_id: card.id,
-      amount,
-      points: pointsToAward,
-      type: 'earn',
-      description: `Order #${orderId}`,
-      reference: orderId
+    await sdk.createTransaction({
+      user_email: order.customerEmail,
+      order_id: order.id,
+      order_total: order.total,
+      currency: order.currency,
+      shop_id: SHOP_ID,
+      points_redeemed: order.pointsSpent,
+      points_discount_amount: order.pointsDiscount,
+      cart_items: order.lines.map((l) => ({
+        product_id: l.productId,
+        product_name: l.name,
+        sku: l.sku,
+        quantity: l.quantity,
+        unit_price: l.price,
+        total_price: l.price * l.quantity,
+      })),
     });
-    
-    res.json({
-      success: true,
-      points_awarded: pointsToAward,
-      new_balance: card.points_balance + pointsToAward
-    });
-    
   } catch (error) {
-    console.error('Error awarding points:', error);
-    res.status(500).json({ error: 'Failed to award points' });
+    if (error instanceof LoyaltySDKError) log.warn({ err: error }, 'loyalty award failed');
+    else throw error;
   }
-});
+}
 
-// Get customer info by card number
-app.get('/api/customers/lookup', async (req, res) => {
-  const { card_number } = req.query;
-  
-  try {
-    const cards = await sdk.getLoyaltyCards({ card_number: String(card_number) });
-    
-    if (!cards.data.length) {
-      return res.status(404).json({ error: 'Card not found' });
-    }
-    
-    const card = cards.data[0];
-    res.json({
-      name: card.user?.name,
-      card_number: card.card_number,
-      points: card.points_balance,
-      status: card.status
-    });
-    
-  } catch (error) {
-    res.status(500).json({ error: 'Lookup failed' });
-  }
-});
-
-app.listen(3000, () => {
-  console.log('Server running on port 3000');
-});
+export async function onOrderRefunded(order) {
+  await sdk.createTransaction({
+    user_email: order.customerEmail,
+    order_id: order.id,          // the same order_id
+    type: 'refund',
+    order_total: order.total,
+  });
+}
 ```
 
-## Webhooks Integration
+### Show the points before checkout
 
 ```typescript
-// Handle loyalty webhooks
-app.post('/api/webhooks/loyalty', async (req, res) => {
-  const { event, data } = req.body;
-  
-  switch (event) {
-    case 'points.awarded':
-      console.log(`Customer ${data.customer_id} earned ${data.points} points`);
-      // Update your database, send notification, etc.
-      break;
-      
-    case 'points.redeemed':
-      console.log(`Customer ${data.customer_id} redeemed ${data.points} points`);
-      break;
-      
-    case 'offer.claimed':
-      console.log(`Customer claimed offer: ${data.offer_id}`);
-      break;
-  }
-  
-  res.json({ received: true });
-});
+import { calculatePointsFromAmount, calculateMaxRedeemablePoints } from '@loyaltylt/sdk';
+
+const card = await sdk.getLoyaltyCardInfo({ card_number: cardNumber });
+const balance = await sdk.getPointsBalance({ card_number: cardNumber });
+
+const willEarn = calculatePointsFromAmount(cartTotal, rules);
+const canSpend = calculateMaxRedeemablePoints(cartTotal, balance.current_points, rules);
 ```
 
-## GitHub Repository
+<Note>
+While the customer is on the checkout page, hold their points with
+`POST /{locale}/shop/points/reserve` so a second tab cannot spend them, then release
+with `points/release` if checkout is abandoned. The SDKs do not wrap these yet.
+</Note>
 
-All examples are available in the SDK repository:
+## POS till
 
-<Card title="GitHub Repository" icon="github" href="https://github.com/Loyalty-lt/sdk-javascript">
-  View complete source code and examples
-</Card>
+Identify the customer with a QR scan, apply their coupons, then register the sale.
 
-## Next Steps
+```typescript
+class Till {
+  constructor(private sdk: LoyaltySDK, private shopId: number) {}
 
-<CardGroup cols={2}>
-  <Card title="API Reference" icon="book" href="/docs/sdk/javascript/usage">
-    Complete SDK API documentation
-  </Card>
-  
-  <Card title="Shop API Docs" icon="store" href="/docs/api-reference/overview">
-    Backend API documentation
-  </Card>
-</CardGroup>
+  /** Show a QR code and resolve once the customer has scanned it. */
+  async identifyCustomer() {
+    const session = await this.sdk.generateQrCardSession('Till 3', this.shopId);
+    renderQr(session.qr_code);
+
+    return new Promise((resolve) => {
+      this.sdk.subscribeToQrCardScan(session.session_id, ({ data }) => resolve(data.card_data));
+    });
+  }
+
+  async applyCoupon(code: string, cartTotal: number) {
+    const check = await this.sdk.verifyCoupon(code, this.shopId);
+    const { discount } = await this.sdk.calculateCouponDiscount(code, cartTotal);
+
+    await this.sdk.setCouponPending(check.coupon.id, this.shopId);
+    return { couponId: check.coupon.id, discount };
+  }
+
+  async completeSale(card, total: number, couponId?: number) {
+    await this.sdk.createTransaction({
+      user_id: card.user.id,
+      order_id: `POS-${Date.now()}`,
+      order_total: total,
+      currency: 'EUR',
+      shop_id: this.shopId,
+    });
+
+    if (couponId) await this.sdk.redeemCoupon(couponId, this.shopId);
+
+    // Stamp cards, if the shop runs any
+    for (const game of await this.sdk.getCardGames(card.loyalty_card_id, this.shopId)) {
+      await this.sdk.addStamps(game.id, card.loyalty_card_id, this.shopId, 1);
+    }
+  }
+
+  async cancelSale(couponId?: number) {
+    if (couponId) await this.sdk.cancelCouponPending(couponId, this.shopId);
+  }
+}
+```
+
+Order matters: **verify** the coupon before showing a discount, mark it **pending**
+while the sale is open, and **redeem** it only once payment succeeds. If the sale
+falls through, cancel the pending state so the customer keeps the coupon.
+
+## Test it
+
+Both examples run against staging with the demo cards — see
+[Staging](/docs/api-reference/staging).

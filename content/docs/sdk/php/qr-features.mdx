@@ -1,274 +1,109 @@
 ---
 title: "QR Features"
-description: "QR Login and QR Card Scan with PHP SDK"
+description: "QR login and QR card scan in PHP"
 ---
 
 # QR Features
 
-Implement QR-based authentication and customer identification.
+Two QR flows, both driven from your server:
 
-## QR Login
+- **QR login** — the customer scans to sign in, and you get their JWT.
+- **QR card scan** — the customer scans at the till, and you get their loyalty card.
 
-Allow customers to authenticate by scanning a QR code with their Loyalty.lt mobile app.
+Sessions expire after 5 minutes. The PHP SDK polls; realtime subscription helpers are
+JavaScript-only.
 
-### Generate QR Session
-
-```php
-$session = $sdk->generateQrLogin('POS Terminal #1', $shopId);
-
-echo $session['session_id'];   // Unique session ID
-echo $session['qr_code'];      // Deep link for QR code
-echo $session['expires_at'];   // Expiration time (5 min)
-```
-
-### Display QR Code
+## QR login
 
 ```php
-// Generate QR image URL using Loyalty.lt API
-$qrImageUrl = "https://api.loyalty.lt/qr?data=" 
-    . urlencode($session['qr_code']) . "&size=250";
+// 1. Open a session and render $session['qr_code'] as a QR image
+$session = $sdk->generateQrLogin('Till 3', $shopId);
 
-echo "<img src='{$qrImageUrl}' alt='Scan to login'>";
-```
-
-### Poll for Status
-
-```php
-// Poll every 2 seconds until authenticated or expired
-$maxAttempts = 150; // 5 minutes
-$attempt = 0;
-
-while ($attempt < $maxAttempts) {
+// 2. Poll until the customer confirms
+$deadline = time() + 300;
+while (time() < $deadline) {
     $status = $sdk->pollQrLogin($session['session_id']);
-    
-    switch ($status['status']) {
-        case 'authenticated':
-            $user = $status['user'];
-            $token = $status['token'];
-            echo "Welcome, " . $user['name'];
-            break 2;
-            
-        case 'scanned':
-            echo "QR scanned, waiting for confirmation...";
-            break;
-            
-        case 'expired':
-            echo "Session expired";
-            break 2;
+
+    if ($status['status'] === 'authenticated') {
+        $token = $status['token'];
+        $user  = $status['user'];
+        break;
     }
-    
-    sleep(2);
-    $attempt++;
+    if (in_array($status['status'], ['expired', 'cancelled'], true)) {
+        break;
+    }
+    sleep(1);
 }
 ```
 
-### Real-time with Laravel Reverb
-
-The PHP SDK is server-side, so it does not open the WebSocket itself. Fetch the Reverb
-connection details and hand them to your frontend, which connects with `pusher-js`:
+In a web app, poll from the browser against your own endpoint rather than blocking a
+PHP worker:
 
 ```php
-// Get Reverb connection details (no arguments — the config is not session-specific)
-$config = $sdk->getRealtimeConfig();
-
-// e.g. return it to the browser as JSON
-return response()->json([
-    'realtime' => $config,
-    'channel'  => $config['channel_prefix']['qr_login'] . $session['session_id'],
-]);
-```
-
-In the browser:
-
-```javascript
-
-// 1. Reverb connection details fetched from your backend
-const config = realtime;
-
-// 2. Connect to Reverb (Pusher protocol)
-const pusher = new Pusher(config.key, {
-  wsHost: config.host,
-  wsPort: config.port,
-  wssPort: config.port,
-  forceTLS: config.scheme === 'https',
-  enabledTransports: ['ws', 'wss'],
-  cluster: '',        // Reverb has no clusters, but pusher-js throws without this option
-  disableStats: true
-});
-
-// 3. Subscribe to the public session channel
-const channel = pusher.subscribe(`${config.channel_prefix.qr_login}${sessionId}`);
-
-// 4. Listen for events
-channel.bind(config.event, (payload) => {
-  console.log('Status:', payload.status);
-});
-```
-
-<Note>
-  `getRealtimeConfig()` maps to
-  [`GET /{locale}/shop/realtime/config`](/docs/system/shopRealtimeConfig) and uses
-  the same `X-API-Key` / `X-API-Secret` headers as every other Shop endpoint. QR channels are
-  public — the unguessable session ID is the secret — so no realtime tokens are involved.
-  Server-side polling (above) remains the fallback if you cannot run a WebSocket client.
-</Note>
-
-## QR Card Scan (POS)
-
-Identify customers by displaying a QR code that they scan with their app.
-
-### Generate Session
-
-```php
-$session = $sdk->generateQrCardSession('POS Terminal', $shopId);
-
-echo $session['session_id'];
-echo $session['qr_code'];
-echo $session['expires_at'];
-```
-
-### Display & Poll
-
-```php
-// Display QR using Loyalty.lt API
-$qrUrl = "https://api.loyalty.lt/qr?data=" 
-    . urlencode($session['qr_code']) . "&size=250";
-
-// Poll for customer identification
-while (true) {
-    $result = $sdk->pollQrCardStatus($session['session_id']);
-    
-    if ($result['status'] === 'completed') {
-        $card = $result['card_data'];
-        
-        echo "Customer: " . $card['user']['name'];
-        echo "Card: " . $card['card_number'];
-        echo "Points: " . $card['points_balance'];
-        
-        // Process transaction
-        $sdk->createTransaction([
-            'card_id' => $card['id'],
-            'amount' => $orderTotal,
-            'points' => (int) $orderTotal,
-            'type' => 'earn',
-        ]);
-        
-        break;
-    }
-    
-    if ($result['status'] === 'expired') {
-        // Regenerate QR
-        break;
-    }
-    
-    sleep(2);
-}
-```
-
-## Send App Link
-
-Send app download link if customer doesn't have the app:
-
-```php
-$sdk->sendAppLink(
-    '+37060000000',  // Phone number
-    $shopId,         // Shop ID (required)
-    'Jonas',         // Optional customer name
-    'lt'             // Language (lt/en)
+// routes/web.php
+Route::get('/loyalty/qr-status/{sessionId}', fn (string $sessionId) =>
+    response()->json($sdk->pollQrLogin($sessionId))
 );
 ```
 
-## Complete POS Example
+| Status | Meaning |
+|--------|---------|
+| `pending` | Waiting for the customer to scan |
+| `scanned` | Scanned; waiting for confirmation in the app |
+| `confirmed` | Confirmed; the token is being issued |
+| `authenticated` | Done — `token` and `user` are present |
+| `cancelled` | The customer declined |
+| `expired` | Generate a new session |
+
+### If the customer has no app
 
 ```php
-<?php
+$sdk->sendAppLink('+37060000001', $shopId);
+```
 
-use LoyaltyLt\SDK\LoyaltySDK;
-use LoyaltyLt\SDK\Exceptions\LoyaltySDKException;
+## QR card scan
 
-class POSController
-{
-    private LoyaltySDK $sdk;
-    private ?array $currentCustomer = null;
-    private ?array $qrSession = null;
-    
-    public function __construct()
-    {
-        $this->sdk = new LoyaltySDK([
-            'apiKey' => env('LOYALTY_API_KEY'),
-            'apiSecret' => env('LOYALTY_API_SECRET'),
-        ]);
-    }
-    
-    public function startCustomerIdentification(): array
-    {
-        $this->qrSession = $this->sdk->generateQrCardSession('POS');
-        
-        return [
-            'qr_url' => "https://api.loyalty.lt/qr?data=" 
-                . urlencode($this->qrSession['qr_code']) . "&size=300",
-            'session_id' => $this->qrSession['session_id'],
-            'expires_at' => $this->qrSession['expires_at'],
-        ];
-    }
-    
-    public function checkCustomerStatus(): ?array
-    {
-        if (!$this->qrSession) return null;
-        
-        $result = $this->sdk->pollQrCardStatus($this->qrSession['session_id']);
-        
-        if ($result['status'] === 'completed') {
-            $this->currentCustomer = $result['card_data'];
-            return $this->currentCustomer;
-        }
-        
-        return null;
-    }
-    
-    public function processCheckout(float $total): array
-    {
-        if (!$this->currentCustomer) {
-            throw new \Exception('No customer identified');
-        }
-        
-        $pointsToAward = (int) ($total * 10); // 10 points per €1
-        
-        $transaction = $this->sdk->createTransaction([
-            'card_id' => $this->currentCustomer['id'],
-            'amount' => $total,
-            'points' => $pointsToAward,
-            'type' => 'earn',
-            'description' => 'Purchase',
-            'reference' => 'POS-' . time(),
-        ]);
-        
-        return [
-            'transaction_id' => $transaction['id'],
-            'points_awarded' => $pointsToAward,
-            'customer' => $this->currentCustomer['user']['name'],
-        ];
-    }
+The POS flow: identify the card without asking for a phone number.
+
+```php
+$session = $sdk->generateQrCardSession('Till 3', $shopId);
+// render $session['qr_code']
+
+$status = $sdk->pollQrCardStatus($session['session_id']);
+
+if ($status['status'] === 'authenticated') {
+    $card = $status['card_data'];
+    // $card['loyalty_card_id'], $card['card_number'], $card['points'], $card['user']
 }
 ```
 
-## Realtime Events Reference
+## Finishing the sale
 
-| Channel | Event | Description |
-|---------|-------|-------------|
-| `qr-login.{session_id}` | `status_update` | QR Login status changed |
-| `qr-card.{session_id}` | `card_identified` | Customer scanned QR Card |
-| `qr-card.{session_id}` | `status_update` | QR Card session status changed |
+```php
+$coupons = $sdk->getCardCoupons($shopId, $card['loyalty_card_id']);
+$games   = $sdk->getCardGames($card['loyalty_card_id'], $shopId);
 
-Both channels are public — the unguessable session ID is the secret — so no channel
-authentication is required.
+$sdk->createTransaction([
+    'user_id'     => $card['user']['id'],
+    'order_id'    => 'POS-' . time(),
+    'order_total' => $total,
+    'currency'    => 'EUR',
+    'shop_id'     => $shopId,
+]);
 
-### Status Values
+foreach ($games as $game) {
+    $sdk->addStamps($game['id'], $card['loyalty_card_id'], $shopId, 1);
+}
+```
 
-| Status | Description |
-|--------|-------------|
-| `pending` | Waiting for scan |
-| `scanned` | QR scanned, waiting confirmation |
-| `authenticated` | Login successful |
-| `completed` | Card identified |
-| `expired` | Session expired |
+## Realtime
+
+To avoid polling, connect to Laravel Reverb (Pusher protocol) from the browser. Read
+the connection details from the API rather than hardcoding a host:
+
+```php
+$config = $sdk->getRealtimeConfig();   // key, host, port, scheme
+```
+
+Then subscribe in the browser to `qr-login.{session_id}` or `qr-card.{session_id}` —
+see [Authentication](/docs/api-reference/authentication#realtime-instead-of-polling).

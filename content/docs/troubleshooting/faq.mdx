@@ -1,187 +1,158 @@
 ---
-title: "Frequently Asked Questions"
-description: "Common questions and solutions for Loyalty.lt integration"
+title: "FAQ"
+description: "Common questions and fixes"
 ---
 
-# Frequently Asked Questions
-
-Answers to common questions about integrating with the Loyalty.lt platform.
-
-## General
-
-<AccordionGroup>
-
-<Accordion title="What is Loyalty.lt?">
-Loyalty.lt is a loyalty program platform for businesses: points, loyalty cards,
-offers and coupons, gamified stamp cards, and QR-based customer identification. It
-exposes REST APIs and official SDKs so you can integrate loyalty into your store,
-POS or app.
-</Accordion>
-
-<Accordion title="Which platforms are supported?">
-Official SDKs:
-
-- **JavaScript / TypeScript** (`@loyaltylt/sdk`) — Node.js 16+, and browser/React
-- **PHP** (`loyaltylt/sdk`) — PHP 8.1+
-- **Python** (`loyaltylt-sdk`) — Python 3.8+
-
-Any language can call the REST API directly over HTTPS.
-</Accordion>
-
-<Accordion title="What API surfaces are there?">
-- **Shop API** — for stores and POS: loyalty cards, points, transactions, offers,
-  coupons, games, QR login and QR card scan. Authenticated with API credentials
-  (`X-API-Key` + `X-API-Secret`); customer-scoped calls use the JWT from QR login.
-- **Partner API** — manage partner accounts, their customers and transactions, and
-  partner-owned games. Authenticated with a partner JWT (`/{locale}/partners/auth/...`).
-- **SMS API** — send SMS with delivery receipts and consent management.
-</Accordion>
-
-</AccordionGroup>
+# FAQ
 
 ## Getting started
 
 <AccordionGroup>
 
-<Accordion title="How do I start integrating?">
+<Accordion title="How do I start?">
 1. Create an account at [partners.loyalty.lt](https://partners.loyalty.lt).
-2. Generate API credentials (API Key + API Secret).
-3. Install an [SDK](/docs/sdk/overview) or call the REST API directly.
-4. Build and test against **staging** first, then switch to production.
+2. Generate **staging** API credentials under **API Credentials**.
+3. Install an [SDK](/docs/sdk/overview), or call the REST API directly.
+4. Build against staging, then create production credentials and change the base URL.
 </Accordion>
 
-<Accordion title="Staging vs production?">
-| | Staging | Production |
-|---|---|---|
-| Base URL | `https://staging-api.loyalty.lt` | `https://api.loyalty.lt` |
-| Data | Test data, reset periodically | Real customer data |
-| Credentials | Staging only | Production only |
+<Accordion title="Which languages have an SDK?">
+- **JavaScript / TypeScript** — `@loyaltylt/sdk`, Node.js 16+, with React components
+- **PHP** — `loyaltylt/sdk`, PHP 8.1+
+- **Python** — `loyaltylt-sdk`, Python 3.8+
 
-Every path is locale-prefixed: `{base}/{locale}/...` with `{locale}` being `lt` or
-`en`. See the [Staging Environment](/docs/api-reference/staging) guide.
+Anything else can call the REST API over HTTPS.
+</Accordion>
+
+<Accordion title="What is in the API?">
+The **Shop API** (`/{locale}/shop/...`) is what stores and POS systems use: loyalty
+cards, transactions and points, coupons, games, offers, XML product import, QR login
+and QR card scan.
+
+The **SMS API** (`/{locale}/sms/...`) sends transactional SMS with delivery receipts
+and consent records.
+
+Both use the same credentials and the same response envelope.
 </Accordion>
 
 </AccordionGroup>
 
-## Authentication & errors
+## Authentication
 
 <AccordionGroup>
 
-<Accordion title="How do I authenticate?">
-Two schemes (see [Authentication](/docs/api-reference/authentication)):
+<Accordion title="Why am I getting 401?">
+In order of likelihood:
 
-- **API credentials** — send `X-API-Key` and `X-API-Secret` headers. Used for
-  server-to-server / POS calls and to generate & poll QR-login sessions.
-- **JWT** — the token a customer receives after QR login; send it as
-  `Authorization: Bearer <token>` on customer-scoped endpoints such as
-  `GET /{locale}/shop/auth/me`.
+1. Staging credentials against `api.loyalty.lt`, or production credentials against
+   `staging-api.loyalty.lt`. They are not interchangeable.
+2. Only one of the two headers sent — both `X-API-Key` and `X-API-Secret` are required.
+3. The credential was revoked or expired in the Partners Portal.
 
-Never expose credentials in client-side code; keep them in environment variables.
+Check a pair with `POST /{locale}/shop/validate-credentials`.
 </Accordion>
 
-<Accordion title="Why do I get 401 / invalid-credentials errors?">
-- Verify you are using **staging** credentials against the staging URL (and
-  production against production) — they are not interchangeable.
-- Check `X-API-Key` and `X-API-Secret` are both present and correct.
-- Confirm the credential is active in the [Partners Portal](https://partners.loyalty.lt).
+<Accordion title="Why am I getting 403 with valid credentials?">
+Either the credential is restricted to a set of IP addresses and your server is not
+on it, or the partner's plan does not include API access. Both are settings in the
+Partners Portal.
 </Accordion>
 
-<Accordion title="What does an error response look like?">
-The standard envelope with a numeric `code`, a `message`, and a `request_id`:
-
-```json
-{
-  "success": false,
-  "code": 1004,
-  "message": "API key and secret are required.",
-  "request_id": "550e8400-e29b-41d4-a716-446655440000"
-}
-```
-
-Validation failures (HTTP 422) add an `errors` object keyed by field. Retry `429`
-and `5xx` with exponential backoff; do not retry other `4xx`. See
-[Error Handling](/docs/api-reference/error-handling).
-</Accordion>
-
-<Accordion title="What data formats are used?">
-JSON everywhere. Timestamps are ISO 8601 (`2024-01-15T10:30:00Z`); monetary amounts
-are numeric with 2 decimals; currencies use ISO 4217 codes.
+<Accordion title="How does a customer sign in?">
+Through QR login: you show a QR code, they scan it in the Loyalty.lt app, and you get
+a JWT. There is no password login, refresh or logout endpoint on the Shop API — when
+a token expires, run QR login again. See
+[Authentication](/docs/api-reference/authentication).
 </Accordion>
 
 </AccordionGroup>
 
-## SDK usage
+## Points and transactions
 
 <AccordionGroup>
 
 <Accordion title="How do I award points for a purchase?">
-Create a transaction — points are awarded automatically per the shop's rules:
+One call:
 
-```javascript
-const { data: card } = await sdk.getLoyaltyCardInfo({ card_number: '900-001-001' });
-
-await sdk.createTransaction({
-  card_id: card.id,
-  amount: 25.50,
-  type: 'earn',
-  description: 'Purchase',
-});
-
-const balance = await sdk.getPointsBalance(card.id);
+```bash
+POST /{locale}/shop/transactions/create
+{
+  "user_email": "customer@example.com",
+  "order_id": "ORD-2024-001",
+  "order_total": 25.50,
+  "currency": "EUR",
+  "shop_id": 1
+}
 ```
+
+`order_id` is required, and so is one of `user_id` / `user_email`. Points are
+calculated from `order_total` using the partner's rules; pass `points` to set the
+number yourself.
 </Accordion>
 
-<Accordion title="How do I identify a loyalty card by QR scan?">
-Card scanning is exposed as SDK methods (there is no standalone scan component):
+<Accordion title="A customer returned an order — how do I take the points back?">
+Send the same `order_id` again with `"type": "cancellation"` or `"refund"`. Earned
+points are reversed and any points they spent are returned.
+</Accordion>
 
-```javascript
-const session = await sdk.generateQrCardSession('POS');
-sdk.subscribeToQrCardScan(session.session_id, (payload) => {
-  // payload.card_data — the identified card
-});
-// or poll:
-const status = await sdk.pollQrCardStatus(session.session_id);
-```
+<Accordion title="How do I stop points being spent twice during checkout?">
+Reserve them: `POST /{locale}/shop/points/reserve` with the `order_id`, then either
+confirm by calling `transactions/create` with that same `order_id`, or free them with
+`points/release` if checkout is abandoned.
+</Accordion>
 
-See [QR Card Scan](/docs/sdk/javascript/qr-card-scan). For customer login, use
-[QR Login](/docs/sdk/javascript/qr-login) and the `QRLogin` React component.
+<Accordion title="Why is my request returning 422?">
+Read the `errors` object in the response — it names the field and the rule. The most
+common causes are a missing `order_id`, or neither `user_id` nor `user_email`.
 </Accordion>
 
 </AccordionGroup>
 
-## Support
+## Coupons and games
 
 <AccordionGroup>
 
-<Accordion title="How do I get help or report a bug?">
-- Read the docs at [docs.loyalty.lt](https://docs.loyalty.lt) and browse the
-  interactive **API Reference**.
-- Email technical questions to developers@loyalty.lt with the `request_id`, endpoint,
-  and request/response bodies (excluding secrets).
-- SDK issues: [github.com/Loyalty-lt](https://github.com/Loyalty-lt).
-- Check [status.loyalty.lt](https://status.loyalty.lt) for incidents.
+<Accordion title="What is the right order for redeeming a coupon?">
+`coupons/verify` before showing a discount → `coupons/pending` while the sale is open
+→ `coupons/redeem` once payment succeeds. If the sale falls through, call
+`coupons/cancel-pending` so the customer keeps the coupon. Redemption is final.
+</Accordion>
+
+<Accordion title="Do I have to issue the stamp-card reward myself?">
+No. When a stamp card fills up, the reward is issued automatically. `games/{id}/complete`
+and `games/{id}/restart` exist for closing and restarting a round by hand.
 </Accordion>
 
 </AccordionGroup>
 
----
+## Operations
 
-## Still need help?
+<AccordionGroup>
 
-<CardGroup cols={2}>
-<Card title="API Reference" href="/docs/api-reference/overview">
-  Endpoints, authentication and examples
-</Card>
+<Accordion title="What should I retry?">
+`429` and `5xx`, with exponential backoff. Never retry other `4xx` — they will fail
+the same way. The SDKs already do this for you.
+</Accordion>
 
-<Card title="SDKs" href="/docs/sdk/overview">
-  JavaScript, PHP and Python libraries
-</Card>
+<Accordion title="Is there a rate limit?">
+Yes; exceeding it returns `429`. Back off and retry rather than tightening a loop.
+Contact support if you need a higher limit for a bulk job.
+</Accordion>
 
-<Card title="Partners Portal" href="https://partners.loyalty.lt">
-  Credentials, settings and usage
-</Card>
+<Accordion title="When does staging reset?">
+Every Sunday at 05:00 EET. Transactions, point awards, game progress and coupon
+redemptions are cleared; partner settings, catalogue, demo cards and API credentials
+survive. See [Staging](/docs/api-reference/staging).
+</Accordion>
 
-<Card title="Technical Support" href="mailto:developers@loyalty.lt">
-  Integration help
-</Card>
-</CardGroup>
+<Accordion title="Where do I get shop_id?">
+`GET /{locale}/shop/shops`, or `sdk.getShops()`. Many calls are scoped to a shop.
+</Accordion>
+
+</AccordionGroup>
+
+## Still stuck?
+
+Email [developers@loyalty.lt](mailto:developers@loyalty.lt) with your partner ID, the
+endpoint, and the `request_id` from the error response — every error carries one and
+it lets support find the exact request.

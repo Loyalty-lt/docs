@@ -1,102 +1,113 @@
 ---
 title: "SDK Overview"
-description: "Official Loyalty.lt SDKs for Shop API integration"
+description: "Official JavaScript, PHP and Python libraries for the Shop API"
 ---
 
-# Loyalty.lt SDKs
+# SDKs
 
-Official SDKs for integrating with the Loyalty.lt Shop API. Choose your preferred language:
+Each SDK wraps the Shop API: it adds the credential headers, builds the locale-prefixed
+URL, unwraps the response envelope, and retries `429` and `5xx` for you.
 
 <CardGroup cols={3}>
   <Card title="JavaScript / TypeScript" icon="js" href="/docs/sdk/javascript/installation">
-    Full-featured SDK with React components. Perfect for web apps, Node.js backends, and POS systems.
-    
+    Node.js backends, POS front ends, and React components.
+
     ```bash
     npm install @loyaltylt/sdk
     ```
   </Card>
-  
+
   <Card title="PHP" icon="php" href="/docs/sdk/php/installation">
-    Native PHP SDK for Laravel, Symfony, and custom PHP applications.
-    
+    Laravel, Symfony, WooCommerce and plain PHP.
+
     ```bash
     composer require loyaltylt/sdk
     ```
   </Card>
-  
+
   <Card title="Python" icon="python" href="/docs/sdk/python/installation">
-    Python SDK for Django, Flask, FastAPI, and data processing pipelines.
-    
+    Django, Flask and FastAPI.
+
     ```bash
     pip install loyaltylt-sdk
     ```
   </Card>
 </CardGroup>
 
-## Features
+## What they cover
 
-All SDKs provide access to:
+| | JavaScript | PHP | Python |
+|---|---|---|---|
+| Transactions and points | Yes | Yes | Yes |
+| Loyalty card lookup | Yes | Yes | Yes |
+| Coupons | Yes | Yes | Yes |
+| Games and stamp cards | Yes | Yes | Yes |
+| Offers (read) | Yes | Yes | Yes |
+| XML product import | Yes | Yes | Yes |
+| QR login and QR card scan | Yes | Yes | Yes |
+| Realtime subscription helpers | Yes | – | – |
+| React components | Yes | – | – |
 
-<AccordionGroup>
-  <Accordion title="QR Login" icon="qrcode">
-    Allow customers to authenticate on your website or POS by scanning a QR code with their Loyalty.lt mobile app.
-  </Accordion>
-  
-  <Accordion title="QR Card Scan" icon="credit-card">
-    Identify customers at POS terminals. Display a QR code, customer scans it, and you receive their loyalty card data instantly.
-  </Accordion>
-  
-  <Accordion title="Points & Transactions" icon="coins">
-    Award points for purchases, deduct points for redemptions, and track transaction history.
-  </Accordion>
-  
-  <Accordion title="Offers Management" icon="tag">
-    Create, update, and manage promotional offers. Import offers from XML feeds.
-  </Accordion>
-  
-  <Accordion title="Real-time Updates" icon="bolt">
-    Use the Laravel Reverb WebSocket integration (Pusher protocol) for instant notifications when customers scan QR codes. Connection details come from the `realtime/config` endpoint — the SDK's `getRealtimeConfig()` — not a fixed host.
-  </Accordion>
-</AccordionGroup>
+The PHP and Python SDKs poll for QR results; the JavaScript SDK can also subscribe to
+the realtime channel for you.
 
-## Quick Comparison
+## Configuration
 
-| Feature | JavaScript | PHP | Python |
-|---------|------------|-----|--------|
-| QR Login | Yes | Yes | Yes |
-| QR Card Scan | Yes | Yes | Yes |
-| Transactions | Yes | Yes | Yes |
-| Offers | Yes | Yes | Yes |
-| XML Import | Yes | Yes | Yes |
-| React Components | Yes | - | - |
-| TypeScript | Yes | - | Yes (types) |
-
-## Authentication
-
-All SDKs use API credentials:
+Every SDK takes the same four things:
 
 ```
-X-API-Key: lty_xxxxxxxxxxxx
-X-API-Secret: your_api_secret
+apiKey       your API key,  lty_...
+apiSecret    your API secret
+environment  'production' (default) or 'staging'
+locale       'lt' (default) or 'en'
 ```
 
-Get your credentials from [Partners Portal](https://partners.loyalty.lt) → API Credentials.
+Credentials come from the [Partners Portal](https://partners.loyalty.lt) →
+**API Credentials**. Keep the secret server-side — these SDKs are for backends and
+POS software, not for browser or mobile bundles.
 
-## API Environments
+## The call most integrations start with
 
-| Environment | Base URL |
-|-------------|----------|
-| **Production** | `https://api.loyalty.lt` |
-| **Staging** | `https://staging-api.loyalty.lt` |
+<CodeGroup>
+```typescript JavaScript
+await sdk.createTransaction({
+  user_email: 'customer@example.com',
+  order_id: 'ORD-2024-001',
+  order_total: 25.50,
+  currency: 'EUR',
+  shop_id: 1,
+});
+```
 
-## Need Help?
+```php PHP
+$sdk->createTransaction([
+    'user_email'  => 'customer@example.com',
+    'order_id'    => 'ORD-2024-001',
+    'order_total' => 25.50,
+    'currency'    => 'EUR',
+    'shop_id'     => 1,
+]);
+```
+
+```python Python
+sdk.create_transaction(
+    user_email='customer@example.com',
+    order_id='ORD-2024-001',
+    order_total=25.50,
+    currency='EUR',
+    shop_id=1,
+)
+```
+</CodeGroup>
+
+## Next
 
 <CardGroup cols={2}>
-  <Card title="API Reference" icon="book" href="/docs/api-reference/overview">
-    Complete REST API documentation
+  <Card title="API Overview" icon="book" href="/docs/api-reference/overview">
+    Response format, errors, base URLs
   </Card>
-  
+
   <Card title="Support" icon="envelope" href="mailto:developers@loyalty.lt">
-    Contact our developer support team
+    developers@loyalty.lt
   </Card>
 </CardGroup>

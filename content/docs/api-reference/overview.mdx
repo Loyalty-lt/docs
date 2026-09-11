@@ -1,60 +1,50 @@
 ---
 title: "API Overview"
-description: "Loyalty.lt REST APIs for loyalty program integrations"
+description: "Base URLs, request format, responses and errors"
 ---
 
 # API Overview
 
-Loyalty.lt provides REST APIs for different integration scenarios. Every endpoint is
-locale-prefixed — `https://api.loyalty.lt/{locale}/...` with `{locale}` being `lt` or
-`en`. Browse the full, testable reference in the **API Reference** section of the
-sidebar.
+The Shop API is a REST API over HTTPS. It is what an e-commerce platform or POS calls
+to award points, look up cards, handle coupons and run loyalty games.
 
-## Available APIs
+The **SMS API** (`/{locale}/sms/...`) is a separate, smaller surface for sending
+transactional SMS; it uses the same credentials and the same response envelope.
 
-<CardGroup cols={3}>
-  <Card title="Shop API" icon="store" href="/docs/shop-points/shopGetCardBalance">
-    For e-commerce platforms and POS systems. Award points, manage loyalty cards, process transactions, run games and offers.
-  </Card>
+Everything else on `api.loyalty.lt` — the admin dashboard, the Partners Portal
+backend, the marketing site feeds — is internal and not part of this documentation.
 
-  <Card title="SMS API" icon="message" href="/docs/external-sms-api/sendSmsExternal">
-    Send SMS messages programmatically with delivery tracking and GDPR-compliant consent management.
-  </Card>
+## Base URL and locale
 
-  <Card title="Partner API" icon="building" href="/docs/partners/listPartners">
-    For partner management systems. Partners, customers, transactions and partner-owned games.
-  </Card>
-</CardGroup>
+| Environment | Base URL |
+|-------------|----------|
+| Production | `https://api.loyalty.lt` |
+| Staging | `https://staging-api.loyalty.lt` |
 
-## Shop API
+Every path carries a locale segment, `lt` or `en`, which selects the language of
+`message` strings and any localised content in the response:
 
-Enables e-commerce platforms and POS systems to integrate with the Loyalty.lt loyalty
-system.
+```
+https://api.loyalty.lt/{locale}/shop/...
+https://api.loyalty.lt/lt/shop/transactions/create
+```
 
-- **Loyalty cards** — look up cards, check balances, get card info
-- **Transactions** — create purchases, award points, view history
-- **QR authentication** — QR Login and QR Card Scan for POS
-- **Offers & coupons** — retrieve promotions, verify and redeem coupons
-- **Games** — stamp cards and other loyalty games
-- **XML import** — bulk import offers from XML feeds
+## Authentication
 
-## SMS API
+Server-to-server calls use two headers:
 
-Send SMS messages programmatically with delivery tracking and webhook notifications.
+```
+X-API-Key: lty_xxxxxxxxxxxxxxxx
+X-API-Secret: your_api_secret
+```
 
-- **Send SMS** — single or scheduled messages
-- **Delivery tracking** — status via webhooks
-- **Marketing consent** — GDPR-compliant consent management
-
-## Partner API
-
-Manage partner accounts, their customers and transactions, and partner-owned games.
+A handful of customer-scoped endpoints use a JWT instead. See
+[Authentication](/docs/api-reference/authentication).
 
 ## Response format
 
-All APIs share one JSON envelope.
+Every response — success or error — uses the same envelope.
 
-### Success
 ```json
 {
   "success": true,
@@ -64,43 +54,80 @@ All APIs share one JSON envelope.
 }
 ```
 
-### Error
 ```json
 {
   "success": false,
   "code": 1004,
   "message": "API key and secret are required.",
-  "request_id": "abc-123-def"
+  "request_id": "7a2e4ab5-ded5-4bcc-83d8-45e95ad806d2"
 }
 ```
 
-`code` is a numeric application code. Validation failures (HTTP 422) add an `errors`
-object keyed by field. See [Error Handling](/docs/api-reference/error-handling).
+`code` is a numeric application code. Branch your control flow on the **HTTP status**,
+show `message` to developers, and quote `request_id` when contacting support.
+
+Paginated endpoints add a `meta` object alongside `data` with the page, page size and
+total count.
+
+### Validation errors
+
+HTTP 422 adds an `errors` object keyed by field name:
+
+```json
+{
+  "success": false,
+  "code": 422,
+  "message": "The given data was invalid.",
+  "request_id": "550e8400-e29b-41d4-a716-446655440000",
+  "errors": {
+    "order_id": ["The order id field is required."],
+    "points": ["The points must be at least 0."]
+  }
+}
+```
 
 ## HTTP status codes
 
-| Code | Description |
-|------|-------------|
-| `200` / `201` | Success |
-| `401` | Unauthorized — invalid credentials |
-| `403` | Forbidden — access denied |
-| `404` | Not found |
-| `422` | Validation failed |
-| `429` | Too many requests |
-| `500` | Server error |
+| Code | Meaning | What to do |
+|------|---------|------------|
+| `200` / `201` | Success | — |
+| `401` | Missing or invalid credentials | Check the key/secret pair and the environment |
+| `403` | Authenticated but not allowed | Credential lacks access, IP not allowlisted, or API not in plan |
+| `404` | Not found | — |
+| `422` | Validation failed | Read `errors` and fix the request |
+| `429` | Throttled | Retry with exponential backoff |
+| `5xx` | Server error | Retry with exponential backoff |
 
-## Need help?
+Retry only `429` and `5xx`. Never retry other `4xx` responses — they will fail again.
+The official SDKs already retry these for you.
 
-<CardGroup cols={2}>
+```javascript
+async function withRetry(fn, maxRetries = 3) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      const status = error.response?.status;
+      const retryable = status === 429 || (status >= 500 && status <= 599);
+      if (!retryable || attempt === maxRetries) throw error;
+      await new Promise((r) => setTimeout(r, 2 ** attempt * 1000 + Math.random() * 1000));
+    }
+  }
+}
+```
+
+## Next
+
+<CardGroup cols={3}>
   <Card title="Authentication" icon="key" href="/docs/api-reference/authentication">
     API credentials, JWT and QR login
   </Card>
 
-  <Card title="SDKs" icon="puzzle-piece" href="/docs/sdk/overview">
-    Official SDK libraries
+  <Card title="Staging" icon="flask" href="/docs/api-reference/staging">
+    Test environment and demo data
   </Card>
 
-  <Card title="Partners Portal" icon="users" href="https://partners.loyalty.lt">
-    Manage your integration
+  <Card title="Endpoints" icon="code" href="/docs/transactions/postShopTransactionsCreate">
+    Full reference, testable in the browser
   </Card>
 </CardGroup>

@@ -1,89 +1,67 @@
 ---
 title: "Installation"
-description: "Install the official Loyalty.lt PHP SDK"
+description: "Install and configure the PHP SDK"
 ---
 
 # Installation
-
-The official Loyalty.lt PHP SDK for Shop API integration.
-
-## Composer
 
 ```bash
 composer require loyaltylt/sdk
 ```
 
-## Requirements
+Requires PHP 8.1 or newer and `ext-json`. Guzzle 7 is pulled in as a dependency.
 
-- PHP 8.1 or higher
-- ext-json
-- Guzzle HTTP client (installed automatically)
-
-## Quick Start
+## Configure
 
 ```php
-<?php
-
-require_once 'vendor/autoload.php';
-
 use LoyaltyLt\SDK\LoyaltySDK;
 
 $sdk = new LoyaltySDK([
-    'apiKey' => 'lty_your_api_key',
-    'apiSecret' => 'your_api_secret',
-    'environment' => 'production', // or 'staging'
-    'locale' => 'lt',
+    'apiKey'      => getenv('LOYALTY_API_KEY'),
+    'apiSecret'   => getenv('LOYALTY_API_SECRET'),
+    'environment' => 'staging',
+    'locale'      => 'lt',
 ]);
 
-// Test connection
-$shops = $sdk->getShops();
-print_r($shops['data']);
+$sdk->validateCredentials();
 ```
 
-## Configuration Options
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `apiKey` | `string` | — | API key, `lty_...` (required) |
+| `apiSecret` | `string` | — | API secret (required) |
+| `environment` | `string` | `'production'` | `production` or `staging` |
+| `locale` | `string` | `'lt'` | `lt` or `en` |
+| `timeout` | `int` | `30` | Request timeout, seconds |
+| `retries` | `int` | `3` | Retry attempts for `429` and `5xx` |
+| `debug` | `bool` | `false` | Log each request and response |
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `apiKey` | string | required | API Key |
-| `apiSecret` | string | required | API Secret |
-| `environment` | string | `production` | `production` or `staging` |
-| `locale` | string | `lt` | API locale (`lt`, `en`) |
-| `timeout` | int | `30` | Request timeout in seconds |
-| `retries` | int | `3` | Number of retry attempts |
-| `debug` | bool | `false` | Enable debug logging |
+The base URL follows `environment` and cannot be set directly.
 
-## Getting API Credentials
+Get credentials from the [Partners Portal](https://partners.loyalty.lt) →
+**API Credentials**. Staging and production credentials are separate.
 
-<Steps>
-  <Step title="Access Partners Portal">
-    Go to [partners.loyalty.lt](https://partners.loyalty.lt) and log in.
-  </Step>
-  
-  <Step title="Navigate to API Credentials">
-    Click **API Credentials** in the sidebar.
-  </Step>
-  
-  <Step title="Generate Credentials">
-    Click **Generate New Credentials**.
-  </Step>
-  
-  <Step title="Copy Credentials">
-    Copy API Key (`lty_...`) and API Secret. **Store securely!**
-  </Step>
-</Steps>
+## Laravel
 
-<Warning>
-Never expose your API Secret in client-side code. The SDK is designed for server-to-server communication.
-</Warning>
+Register it as a singleton:
 
-## Next Steps
+```php
+// app/Providers/AppServiceProvider.php
+$this->app->singleton(LoyaltySDK::class, fn () => new LoyaltySDK([
+    'apiKey'      => config('services.loyalty.key'),
+    'apiSecret'   => config('services.loyalty.secret'),
+    'environment' => config('services.loyalty.env', 'production'),
+]));
+```
+
+## Next
 
 <CardGroup cols={2}>
-  <Card title="Basic Usage" icon="code" href="/docs/sdk/php/usage">
-    Learn common SDK operations
+  <Card title="Basic usage" icon="code" href="/docs/sdk/php/usage">
+    Points, cards, coupons, games
   </Card>
-  
-  <Card title="QR Features" icon="qrcode" href="/docs/sdk/php/qr-features">
-    QR Login and Card Scan
+
+  <Card title="QR features" icon="qrcode" href="/docs/sdk/php/qr-features">
+    QR login and QR card scan
   </Card>
 </CardGroup>

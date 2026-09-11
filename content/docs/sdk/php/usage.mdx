@@ -1,214 +1,147 @@
 ---
 title: "Basic Usage"
-description: "Learn how to use the Loyalty.lt PHP SDK"
+description: "Awarding points, looking up cards, coupons and games in PHP"
 ---
 
 # Basic Usage
 
-Common operations with the PHP SDK.
+## Award points for a purchase
 
-## Initialization
-
-```php
-<?php
-
-use LoyaltyLt\SDK\LoyaltySDK;
-
-$sdk = new LoyaltySDK([
-    'apiKey' => 'lty_your_api_key',
-    'apiSecret' => 'your_api_secret',
-    'environment' => 'production',
-    'locale' => 'lt',
-    'debug' => true, // Enable for development
-]);
-```
-
-## Shops
-
-```php
-// Get all shops
-$shops = $sdk->getShops();
-print_r($shops['data']); // Array of shops
-print_r($shops['meta']); // Pagination
-
-// Filter shops
-$activeShops = $sdk->getShops([
-    'is_active' => true,
-    'is_virtual' => false,
-]);
-```
-
-## Loyalty Cards
-
-```php
-// Get all cards
-$cards = $sdk->getLoyaltyCards();
-
-// Get single card
-$card = $sdk->getLoyaltyCard(123);
-
-// Get card by number
-$cardInfo = $sdk->getLoyaltyCardInfo([
-    'card_number' => '123-456-789'
-]);
-
-// Get points balance
-$balance = $sdk->getPointsBalance(['card_id' => 123]);
-echo "Points: " . $balance['current_points'];
-```
-
-## Transactions & Points
-
-### Create Transaction (Award Points)
+One call registers the order and credits the points. Identify the customer by
+`user_email` or `user_id`; `order_id` is your own reference and is required.
 
 ```php
 $transaction = $sdk->createTransaction([
-    'card_id' => 123,
-    'amount' => 50.00,
-    'points' => 50,
-    'type' => 'earn',
-    'description' => 'Purchase reward',
-    'reference' => 'ORDER-12345',
+    'user_email'  => 'customer@example.com',
+    'order_id'    => 'ORD-2024-001',
+    'order_total' => 25.50,
+    'currency'    => 'EUR',
+    'shop_id'     => 1,
+    'description' => 'Online purchase',
 ]);
-
-echo "Transaction ID: " . $transaction['id'];
-echo "Points awarded: " . $transaction['points'];
 ```
 
-### Get Transactions
+Points come from `order_total` and the partner's rules. Pass `points` to set the
+amount yourself, and report any points the customer spent on the same order:
 
 ```php
-$transactions = $sdk->getTransactions([
-    'card_id' => 123,
-    'type' => 'earn',
-    'page' => 1,
-    'per_page' => 20,
+$sdk->createTransaction([
+    'user_email'             => 'customer@example.com',
+    'order_id'               => 'ORD-2024-003',
+    'order_total'            => 45.00,
+    'points_redeemed'        => 500,
+    'points_discount_amount' => 5.00,
 ]);
 ```
 
-## Offers
+### Reverse a transaction
+
+Same `order_id`, with `type` set to `cancellation` or `refund`:
 
 ```php
-// Get offers
-$offers = $sdk->getOffers(['is_active' => true]);
-
-// Get single offer
-$offer = $sdk->getOffer(456);
-
-// Create offer
-$newOffer = $sdk->createOffer([
-    'title' => 'Summer Sale',
-    'description' => '20% off all items',
-    'discount_type' => 'percentage',
-    'discount_value' => 20,
+$sdk->createTransaction([
+    'user_email'  => 'customer@example.com',
+    'order_id'    => 'ORD-2024-001',
+    'type'        => 'refund',
+    'order_total' => 25.50,
 ]);
-
-// Update offer
-$sdk->updateOffer(456, ['title' => 'Updated Title']);
-
-// Delete offer
-$sdk->deleteOffer(456);
-
-// Get categories
-$categories = $sdk->getCategories();
 ```
 
-## XML Import
+### History
 
 ```php
-// Import from URL
-$result = $sdk->importFromUrl('https://example.com/offers.xml', [
-    'auto_publish' => true,
-]);
-
-// Validate XML
-$validation = $sdk->validateXml('https://example.com/offers.xml');
-
-// Get import stats
-$stats = $sdk->getImportStats();
+$history = $sdk->getTransactions(['page' => 1, 'per_page' => 20]);
 ```
 
-## Error Handling
+## Loyalty cards
+
+```php
+$card    = $sdk->getLoyaltyCardInfo(['card_number' => '900-001-001']);
+$balance = $sdk->getPointsBalance(['card_number' => '900-001-001']);
+$cards   = $sdk->getLoyaltyCards(['per_page' => 50]);
+```
+
+`getLoyaltyCardInfo` also accepts `card_id` or `user_id`.
+
+## Coupons
+
+```php
+$check    = $sdk->verifyCoupon('SUMMER10', $shopId);
+$discount = $sdk->calculateCouponDiscount('SUMMER10', 50.00);
+
+$sdk->setCouponPending($check['coupon']['id'], $shopId);   // hold during checkout
+$sdk->redeemCoupon($check['coupon']['id'], $shopId);       // final
+// or, if the sale falls through:
+$sdk->cancelPendingCoupon($check['coupon']['id'], $shopId);
+
+$coupons = $sdk->getCardCoupons($shopId, $cardId);
+```
+
+## Games and stamp cards
+
+```php
+$games    = $sdk->listGames($shopId);
+$active   = $sdk->getCardGames($cardId, $shopId);
+
+$sdk->addStamps($gameId, $cardId, $shopId, 1);
+$progress = $sdk->getGameProgress($gameId, $cardId);
+```
+
+A full stamp card issues its reward automatically. `completeGame()` and
+`restartGame()` close and restart a round by hand.
+
+## Shops and offers
+
+```php
+$shops  = $sdk->getShops();      // shop_id values for the calls above
+$offers = $sdk->getOffers();
+```
+
+## Errors
 
 ```php
 use LoyaltyLt\SDK\Exceptions\LoyaltySDKException;
 
 try {
-    $result = $sdk->getLoyaltyCardInfo(['card_number' => 'INVALID']);
+    $sdk->createTransaction(['order_id' => 'ORD-1', 'user_email' => 'nobody@example.com']);
 } catch (LoyaltySDKException $e) {
-    echo "Error: " . $e->getMessage();
-    echo "Code: " . $e->getErrorCode();
-    echo "HTTP Status: " . $e->getHttpStatus();
-    
-    // Handle specific errors
-    switch ($e->getErrorCode()) {
-        case 'CARD_NOT_FOUND':
-            echo "Card not found!";
-            break;
-    }
+    match ($e->getHttpStatus()) {
+        422     => logger()->warning('Invalid request: ' . $e->getMessage()),
+        401     => logger()->error('Check your API credentials'),
+        default => logger()->error($e->getErrorCode() . ': ' . $e->getMessage()),
+    };
 }
 ```
 
-## Laravel Integration
+`getHttpStatus()` is the HTTP status; `getErrorCode()` is the API's numeric
+application code. `429` and `5xx` are retried automatically.
 
-### Service Provider
-
-```php
-// config/services.php
-'loyalty' => [
-    'api_key' => env('LOYALTY_API_KEY'),
-    'api_secret' => env('LOYALTY_API_SECRET'),
-    'environment' => env('LOYALTY_ENVIRONMENT', 'production'),
-],
-```
+## Laravel example
 
 ```php
-// app/Providers/AppServiceProvider.php
-use LoyaltyLt\SDK\LoyaltySDK;
-
-public function register()
-{
-    $this->app->singleton(LoyaltySDK::class, function ($app) {
-        return new LoyaltySDK([
-            'apiKey' => config('services.loyalty.api_key'),
-            'apiSecret' => config('services.loyalty.api_secret'),
-            'environment' => config('services.loyalty.environment'),
-        ]);
-    });
-}
-```
-
-### Controller Usage
-
-```php
-use LoyaltyLt\SDK\LoyaltySDK;
-
-class LoyaltyController extends Controller
+class LoyaltyService
 {
     public function __construct(private LoyaltySDK $loyalty) {}
-    
-    public function processTransaction(Request $request)
+
+    public function awardForOrder(Order $order): void
     {
-        $transaction = $this->loyalty->createTransaction([
-            'card_id' => $request->card_id,
-            'amount' => $request->amount,
-            'shop_id' => $request->shop_id,
-            'description' => 'Purchase',
-        ]);
-        
-        return response()->json($transaction);
+        try {
+            $this->loyalty->createTransaction([
+                'user_email'  => $order->customer_email,
+                'order_id'    => (string) $order->id,
+                'order_total' => $order->total,
+                'currency'    => $order->currency,
+                'shop_id'     => $order->shop_id,
+            ]);
+        } catch (LoyaltySDKException $e) {
+            report($e);   // never block the order on a loyalty failure
+        }
     }
 }
 ```
 
-## Next Steps
+## Next
 
-<CardGroup cols={2}>
-  <Card title="QR Features" icon="qrcode" href="/docs/sdk/php/qr-features">
-    QR Login and Card Scan
-  </Card>
-  
-  <Card title="API Reference" icon="book" href="/docs/api-reference/overview">
-    Full API documentation
-  </Card>
-</CardGroup>
+<Card title="QR features" icon="qrcode" href="/docs/sdk/php/qr-features">
+  QR login and QR card scan
+</Card>

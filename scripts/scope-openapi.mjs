@@ -2,20 +2,17 @@
 /**
  * Build the PUBLIC OpenAPI spec that the API Reference is generated from.
  *
- * api.loyalty.lt's own /docs endpoint serves the WHOLE platform spec — 254
- * paths, every route the Laravel app annotates regardless of which guard
- * protects it (admin staff JWT, subscriptions, users, audit logs, SIP call
- * control). None of that is for third-party integrators.
+ * api.loyalty.lt's /docs endpoint serves the whole platform spec — every route the
+ * Laravel app annotates, including the admin dashboard, the partner portal backend
+ * (billing, Stripe payouts, staff, campaigns) and the marketing site's content feeds.
+ * None of that is a third-party integration surface.
  *
- * The public integrator surface is exactly:
- *   - path prefix `shop`      (Shop APIs — points, cards, games, offers, ...)
- *   - path prefix `sms`       (External SMS API)
- *   - path prefix `partners`  (Partner APIs — partner-owned games, customers)
- *   - tag "Public Partners"   (site partner/shop directory, prefix `site`)
- * and never anything under `/admin/`.
+ * What integrators actually call is two prefixes:
+ *   - `shop`  — Shop API: points, transactions, cards, coupons, games, offers, QR
+ *   - `sms`   — External SMS API
  *
- * Source of truth is upstream. We cache the full spec to openapi/full.json so
- * builds are reproducible offline; delete that file to refetch.
+ * Source of truth is upstream. The full spec is cached to openapi/full.json so builds
+ * are reproducible offline; delete that file to refetch.
  */
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -28,8 +25,7 @@ const SPEC_URL = process.env.OPENAPI_URL || 'https://api.loyalty.lt/docs?api-doc
 
 const METHODS = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options'];
 const HASH_ID = /^[0-9a-f]{24,}$/;
-const PUBLIC_PREFIXES = ['shop', 'sms', 'partners'];
-const PUBLIC_TAGS = ['Public Partners'];
+const PUBLIC_PREFIXES = ['shop', 'sms'];
 
 function firstSegment(path) {
   const s = path.split('/').filter(Boolean);
@@ -38,17 +34,7 @@ function firstSegment(path) {
   return s[0];
 }
 
-function isPublic(path, item) {
-  if (/\/admin\//.test(path)) return false;
-  if (PUBLIC_PREFIXES.includes(firstSegment(path))) return true;
-  for (const m of Object.keys(item)) {
-    if (!METHODS.includes(m.toLowerCase())) continue;
-    for (const t of item[m].tags ?? []) if (PUBLIC_TAGS.includes(t)) return true;
-  }
-  return false;
-}
-
-/** `/{locale}/shop/realtime/publish` + post -> `postShopRealtimePublish` */
+/** `/{locale}/shop/coupons/verify` + post -> `postShopCouponsVerify` */
 function deriveId(method, path) {
   const camel = path
     .split('/')
@@ -63,8 +49,6 @@ function deriveId(method, path) {
     .join('');
   return method + camel[0].toUpperCase() + camel.slice(1);
 }
-
-const cleanTag = (t) => t.replace(/\\/g, ' / ').replace(/\s+/g, ' ').trim();
 
 async function loadFull() {
   if (existsSync(FULL)) return JSON.parse(readFileSync(FULL, 'utf8'));
@@ -81,7 +65,7 @@ const spec = await loadFull();
 const before = Object.keys(spec.paths ?? {}).length;
 
 for (const path of Object.keys(spec.paths ?? {})) {
-  if (!isPublic(path, spec.paths[path])) delete spec.paths[path];
+  if (!PUBLIC_PREFIXES.includes(firstSegment(path))) delete spec.paths[path];
 }
 const kept = Object.keys(spec.paths).length;
 
@@ -100,17 +84,47 @@ for (const [path, item] of Object.entries(spec.paths)) {
     while (used.has(id)) id = `${deriveId(m.toLowerCase(), path)}${n++}`;
     used.add(id);
     op.operationId = id;
-    // clean tags (Admin\System style namespaces) — harmless for public tags
-    if (Array.isArray(op.tags)) op.tags = op.tags.map(cleanTag);
   }
 }
 
-// keep only tag definitions still in use, in their original order
+// Sidebar groups: the order integrators meet them in, with descriptions written for
+// someone wiring up a shop rather than for whoever annotated the controller.
+const TAGS = [
+  ['Authentication', 'Sign a customer in from a desktop or POS screen with a QR code.'],
+  ['QR Card Scan', 'Identify a customer at the till by having them scan a QR code.'],
+  ['Loyalty Cards', 'Look up a card by number, phone or email and read its points balance.'],
+  ['Transactions', 'Register purchases, award points, and reserve points during checkout.'],
+  ['Coupons', 'Verify a coupon at the till, hold it during checkout, then redeem it.'],
+  ['Games', 'Stamp cards and other loyalty games: add stamps, read progress, issue rewards.'],
+  ['Offers', 'Read the promotions available to customers.'],
+  ['Shops', "List the partner's shops and their IDs."],
+  ['Products', 'Product categories and the status of the last catalogue sync.'],
+  ['XML Import', 'Bulk-import a product catalogue from an XML feed.'],
+  ['System', 'Health check, credential validation and realtime connection details.'],
+  ['External SMS API', 'Send transactional SMS and record marketing consent.'],
+];
+
 const usedTags = new Set();
 for (const item of Object.values(spec.paths))
   for (const [m, op] of Object.entries(item))
     if (METHODS.includes(m.toLowerCase())) for (const t of op.tags ?? []) usedTags.add(t);
-if (Array.isArray(spec.tags)) spec.tags = spec.tags.map((t) => ({ ...t, name: cleanTag(t.name) })).filter((t) => usedTags.has(t.name));
+
+const known = new Set(TAGS.map(([name]) => name));
+for (const t of usedTags) if (!known.has(t)) console.warn(`warning: untitled tag "${t}" — add it to TAGS`);
+spec.tags = TAGS.filter(([name]) => usedTags.has(name)).map(([name, description]) => ({ name, description }));
+
+// Production first — that is the URL most readers copy out of the "Try it" panel.
+spec.servers = [
+  { url: 'https://api.loyalty.lt', description: 'Production' },
+  { url: 'https://staging-api.loyalty.lt', description: 'Staging' },
+];
+spec.info = {
+  ...spec.info,
+  title: 'Loyalty.lt Shop API',
+  description:
+    'REST API for awarding loyalty points, managing cards, coupons and games from an e-commerce platform or POS. ' +
+    'Every path is locale-prefixed with `lt` or `en`.',
+};
 
 mkdirSync(dirname(OUT), { recursive: true });
 writeFileSync(OUT, JSON.stringify(spec, null, 2) + '\n');

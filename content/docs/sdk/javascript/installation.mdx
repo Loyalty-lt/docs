@@ -1,132 +1,74 @@
 ---
 title: "Installation"
-description: "Install the official Loyalty.lt JavaScript SDK"
+description: "Install and configure the JavaScript SDK"
 ---
 
 # Installation
 
-The official Loyalty.lt JavaScript SDK is available on npm and can be used in Node.js, React, Vue, and any JavaScript environment.
-
-## NPM / Yarn
-
-<CodeGroup>
-```bash npm
+```bash
 npm install @loyaltylt/sdk
 ```
 
-```bash yarn
-yarn add @loyaltylt/sdk
-```
+Requires Node.js 16 or newer. TypeScript definitions ship with the package.
 
-```bash pnpm
-pnpm add @loyaltylt/sdk
-```
-</CodeGroup>
-
-## CDN (Browser)
-
-For browser-based applications without a build system:
+For the browser, without a build step:
 
 ```html
 <script src="https://unpkg.com/@loyaltylt/sdk@latest/dist/index.umd.js"></script>
-<script>
-  const sdk = new LoyaltySDK.LoyaltySDK({
-    apiKey: 'lty_xxxxxxxxxxxx',
-    apiSecret: 'your_api_secret',
-    environment: 'production'
-  });
-</script>
 ```
 
-## Requirements
+<Warning>
+Loading the SDK in a browser means putting your API secret in the page. Only do this
+on a POS terminal you control, never on a public website.
+</Warning>
 
-<CardGroup cols={2}>
-  <Card title="Node.js" icon="node-js">
-    Node.js 16.0.0 or higher
-  </Card>
-  
-  <Card title="TypeScript" icon="code">
-    TypeScript 4.0+ (optional, types included)
-  </Card>
-</CardGroup>
-
-### For React Components
-
-If you plan to use the React components (`QRLogin`, `QRCardDisplay`), you also need:
+The React components (`QRLogin`, `QRCardDisplay`) need three peers:
 
 ```bash
 npm install react react-dom qrcode.react
 ```
 
-## Quick Start
+## Configure
 
 ```typescript
+import { LoyaltySDK } from '@loyaltylt/sdk';
 
-// Initialize SDK with API credentials
 const sdk = new LoyaltySDK({
-  apiKey: 'lty_your_api_key',
-  apiSecret: 'your_api_secret',
-  environment: 'production', // or 'staging'
-  locale: 'lt'
+  apiKey: process.env.LOYALTY_API_KEY,
+  apiSecret: process.env.LOYALTY_API_SECRET,
+  environment: 'staging',
+  locale: 'lt',
 });
 
-// Test connection
-const shops = await sdk.getShops();
-console.log('Connected! Shops:', shops.data);
+await sdk.validateCredentials();
 ```
-
-## Configuration Options
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `apiKey` | `string` | - | Your API Key (required) |
-| `apiSecret` | `string` | - | Your API Secret (required) |
-| `environment` | `'production'` \| `'staging'` | `'production'` | API environment |
-| `locale` | `string` | `'lt'` | API locale (`lt`, `en`) |
-| `timeout` | `number` | `30000` | Request timeout in ms |
-| `debug` | `boolean` | `false` | Enable debug logging |
-| `retries` | `number` | `3` | Number of retry attempts |
+| `apiKey` | `string` | — | API key, `lty_...` (required) |
+| `apiSecret` | `string` | — | API secret (required) |
+| `environment` | `'production' \| 'staging'` | `'production'` | Which API to talk to |
+| `locale` | `string` | `'lt'` | `lt` or `en` |
+| `timeout` | `number` | `30000` | Request timeout, ms |
+| `retries` | `number` | `3` | Retry attempts for `429` and `5xx` |
+| `debug` | `boolean` | `false` | Log each request and response |
 
-## Getting API Credentials
+Get credentials from the [Partners Portal](https://partners.loyalty.lt) →
+**API Credentials**. Staging and production credentials are separate and not
+interchangeable.
 
-<Steps>
-  <Step title="Access Partners Portal">
-    Go to [partners.loyalty.lt](https://partners.loyalty.lt) and log in to your account.
-  </Step>
-  
-  <Step title="Navigate to API Credentials">
-    Click **API Credentials** in the sidebar.
-  </Step>
-  
-  <Step title="Generate Credentials">
-    Click **Generate New Credentials** to create your API Key and Secret.
-  </Step>
-  
-  <Step title="Copy Credentials">
-    Copy both the API Key (`lty_...`) and API Secret. **Store them securely!**
-  </Step>
-</Steps>
+## Next
 
-<Warning>
-Never expose your API Secret in client-side code. The SDK is designed for server-to-server communication or secure backend integrations.
-</Warning>
-
-## Next Steps
-
-<CardGroup cols={2}>
-  <Card title="Basic Usage" icon="code" href="/docs/sdk/javascript/usage">
-    Learn how to use the SDK for common operations
+<CardGroup cols={3}>
+  <Card title="Basic usage" icon="code" href="/docs/sdk/javascript/usage">
+    Points, cards, coupons, games
   </Card>
-  
-  <Card title="QR Login" icon="qrcode" href="/docs/sdk/javascript/qr-login">
-    Implement QR code-based login
+
+  <Card title="QR login" icon="qrcode" href="/docs/sdk/javascript/qr-login">
+    Sign a customer in
   </Card>
-  
-  <Card title="QR Card Scan" icon="credit-card" href="/docs/sdk/javascript/qr-card-scan">
-    Customer identification via QR code
-  </Card>
-  
-  <Card title="React Components" icon="react" href="/docs/sdk/javascript/react-components">
-    Pre-built React components
+
+  <Card title="QR card scan" icon="credit-card" href="/docs/sdk/javascript/qr-card-scan">
+    Identify a customer at the POS
   </Card>
 </CardGroup>

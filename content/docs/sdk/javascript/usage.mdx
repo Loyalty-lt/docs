@@ -1,258 +1,188 @@
 ---
 title: "Basic Usage"
-description: "Learn how to use the Loyalty.lt JavaScript SDK"
+description: "Awarding points, looking up cards, coupons and games"
 ---
 
 # Basic Usage
 
-This guide covers the most common SDK operations for Shop API integration.
+## Award points for a purchase
 
-## Initialization
-
-```typescript
-
-const sdk = new LoyaltySDK({
-  apiKey: 'lty_your_api_key',
-  apiSecret: 'your_api_secret',
-  environment: 'production',
-  locale: 'lt',
-  debug: true // Enable for development
-});
-```
-
-## Shops
-
-### List Partner Shops
-
-```typescript
-// Get all shops
-const shops = await sdk.getShops();
-console.log(shops.data); // Array of shops
-console.log(shops.meta); // Pagination info
-
-// Filter shops
-const activeShops = await sdk.getShops({ 
-  is_active: true,
-  is_virtual: false 
-});
-```
-
-## Loyalty Cards
-
-### List Cards
-
-```typescript
-// Get all partner's loyalty cards
-const cards = await sdk.getLoyaltyCards();
-
-// Filter by card number
-const card = await sdk.getLoyaltyCards({ 
-  card_number: '123-456-789' 
-});
-```
-
-### Get Card Details
-
-```typescript
-const card = await sdk.getLoyaltyCard(123);
-console.log(card.card_number);
-console.log(card.points_balance);
-console.log(card.user); // Customer info
-```
-
-## Points & Transactions
-
-### Create Transaction (Award Points)
+One call registers the order and credits the points. Identify the customer by
+`user_email` or `user_id`; `order_id` is your own reference and is required.
 
 ```typescript
 const transaction = await sdk.createTransaction({
-  card_id: 123,
-  amount: 50.00,        // Purchase amount in EUR
-  points: 50,           // Points to award
-  type: 'earn',
-  description: 'Purchase reward',
-  reference: 'ORDER-12345'
-});
-
-console.log('Transaction ID:', transaction.id);
-console.log('Points awarded:', transaction.points);
-```
-
-### Get Points Balance
-
-```typescript
-const balance = await sdk.getPointsBalance(123);
-console.log('Current points:', balance.current_points);
-console.log('Lifetime earned:', balance.total_earned);
-```
-
-### Transaction History
-
-```typescript
-const history = await sdk.getTransactions({
-  card_id: 123,
-  type: 'earn',
-  page: 1,
-  per_page: 20
+  user_email: 'customer@example.com',
+  order_id: 'ORD-2024-001',
+  order_total: 25.50,
+  currency: 'EUR',
+  shop_id: 1,
+  description: 'Online purchase',
 });
 ```
 
-## Offers
-
-### List Available Offers
+Points come from `order_total` and the partner's rules. Override them with `points`:
 
 ```typescript
-const offers = await sdk.getOffers();
-
-// Filter by category
-const diningOffers = await sdk.getOffers({ 
-  category: 'dining',
-  is_active: true 
+await sdk.createTransaction({
+  user_email: 'customer@example.com',
+  order_id: 'ORD-2024-002',
+  order_total: 25.50,
+  points: 500,          // award exactly 500 instead of calculating
 });
 ```
 
-### Get a Single Offer
+If the customer also spent points on the order, report that in the same call:
 
 ```typescript
-const offer = await sdk.getOffer(offerId);
+await sdk.createTransaction({
+  user_email: 'customer@example.com',
+  order_id: 'ORD-2024-003',
+  order_total: 45.00,
+  points_redeemed: 500,
+  points_discount_amount: 5.00,
+});
+```
+
+### Reverse a transaction
+
+Use the same `order_id` with `type: 'cancellation'` or `'refund'`. Earned points are
+taken back and redeemed points returned.
+
+```typescript
+await sdk.createTransaction({
+  user_email: 'customer@example.com',
+  order_id: 'ORD-2024-001',
+  type: 'refund',
+  order_total: 25.50,
+});
+```
+
+### Transaction history
+
+```typescript
+const history = await sdk.getTransactions({ page: 1, per_page: 20 });
+```
+
+<Note>
+To hold points while a customer is still on the checkout page, call
+`POST /{locale}/shop/points/reserve` and `points/release` directly — the SDKs do not
+wrap them yet.
+</Note>
+
+## Loyalty cards
+
+```typescript
+// Look up one card by number, card ID or user ID
+const card = await sdk.getLoyaltyCardInfo({ card_number: '900-001-001' });
+
+// Points balance
+const balance = await sdk.getPointsBalance({ card_number: '900-001-001' });
+
+// All of the partner's cards
+const cards = await sdk.getLoyaltyCards({ per_page: 50 });
 ```
 
 ## Coupons
 
-### List Coupons
+Verify before you discount, then redeem after the sale goes through.
 
 ```typescript
-const coupons = await sdk.listCoupons({ status: 'active' });
-```
-
-### Verify & Redeem a Coupon
-
-```typescript
-// Verify a coupon code for a shop
 const check = await sdk.verifyCoupon('SUMMER10', shopId);
+const discount = await sdk.calculateCouponDiscount('SUMMER10', 50.00);
 
-// Redeem it
-const result = await sdk.redeemCoupon(couponId, shopId);
+await sdk.setCouponPending(check.coupon.id, shopId);   // hold during checkout
+await sdk.redeemCoupon(check.coupon.id, shopId);       // final
+// or, if the sale falls through:
+await sdk.cancelCouponPending(check.coupon.id, shopId);
 ```
 
-## Error Handling
-
-The SDK uses custom error types for better error handling:
+A customer's own coupons:
 
 ```typescript
+const coupons = await sdk.getCardCoupons(shopId, cardId);
+```
+
+## Games and stamp cards
+
+```typescript
+const games = await sdk.listShopGames(shopId);
+const active = await sdk.getCardGames(cardId, shopId);
+
+await sdk.addStamps(gameId, cardId, shopId, 1);
+const progress = await sdk.getGameProgress(gameId, cardId);
+```
+
+When a stamp card fills up, the reward is issued automatically. `completeStampCard`
+and `restartGame` let you close and restart a round by hand.
+
+## Shops and offers
+
+```typescript
+const shops = await sdk.getShops();          // shop_id values for the calls above
+const offers = await sdk.getOffers();
+```
+
+## Errors
+
+The SDK throws `LoyaltySDKError`. `statusCode` is the HTTP status, `code` is the
+API's numeric application code (or a string like `NETWORK_ERROR` when the request
+never reached the API).
+
+```typescript
+import { LoyaltySDKError } from '@loyaltylt/sdk';
 
 try {
-  const result = await sdk.getLoyaltyCardInfo({ card_number: 'INVALID' });
+  await sdk.createTransaction({ order_id: 'ORD-1', user_email: 'nobody@example.com' });
 } catch (error) {
   if (error instanceof LoyaltySDKError) {
-    console.error('Error code:', error.code);
-    console.error('Message:', error.message);
-    console.error('Status:', error.status);
-    
-    switch (error.code) {
-      case 'CARD_NOT_FOUND':
-        alert('Loyalty card not found');
-        break;
-      case 'AUTH_FAILED':
-        alert('Authentication failed');
-        break;
-      default:
-        alert('An error occurred: ' + error.message);
-    }
+    if (error.statusCode === 422) console.error('Invalid request:', error.message);
+    else if (error.statusCode === 401) console.error('Check your API credentials');
+    else console.error(error.code, error.message);
   }
 }
 ```
 
-## Points Calculator
+`429` and `5xx` are retried automatically — see the `retries` option.
 
-The SDK includes utility functions for points calculations:
+## Points calculator
+
+Utilities for showing "you will earn N points" and "N points = €X" before the call:
 
 ```typescript
-import { 
-  calculateAmountFromPoints,
+import {
   calculatePointsFromAmount,
+  calculateAmountFromPoints,
   calculateFinalAmount,
   calculateMaxRedeemablePoints,
-  validatePointsRedemption
+  validatePointsRedemption,
 } from '@loyaltylt/sdk';
 
-// Points rules from backend
-const pointsRules = {
-  points_per_currency: 10,           // 10 points per 1 EUR
+const rules = {
+  points_per_currency: 10,               // 10 points per 1 EUR
   currency_amount: 1,
   points_redemption_enabled: true,
-  points_per_currency_redemption: 100, // 100 points = 1 EUR
+  points_per_currency_redemption: 100,   // 100 points = 1 EUR
   currency_amount_redemption: 1,
   min_points_for_redemption: 100,
-  max_points_per_redemption: 5000
+  max_points_per_redemption: 5000,
 };
 
-// Calculate discount from points
-const discount = calculateAmountFromPoints(500, pointsRules);
-// Result: 5.00 (500 points = 5 EUR)
-
-// Calculate points earned from purchase
-const pointsEarned = calculatePointsFromAmount(25.00, pointsRules);
-// Result: 250 (25 EUR = 250 points)
-
-// Calculate final amount after points discount
-const finalAmount = calculateFinalAmount(50.00, 500, pointsRules);
-// Result: 45.00 (50 EUR - 5 EUR discount)
-
-// Get max redeemable points for amount
-const maxPoints = calculateMaxRedeemablePoints(30.00, 5000, pointsRules);
-// Result: 3000 (enough to cover 30 EUR)
-
-// Validate redemption
-const validation = validatePointsRedemption(500, 1000, pointsRules);
-// Result: { isValid: true }
+calculatePointsFromAmount(25.00, rules);          // 250
+calculateAmountFromPoints(500, rules);            // 5.00
+calculateFinalAmount(50.00, 500, rules);          // 45.00
+calculateMaxRedeemablePoints(30.00, 5000, rules); // 3000
+validatePointsRedemption(500, 1000, rules);       // { isValid: true }
 ```
 
-## TypeScript Support
-
-The SDK is written in TypeScript and includes full type definitions:
-
-```typescript
-import { 
-  LoyaltySDK,
-  Shop,
-  LoyaltyCard,
-  PointsTransaction,
-  Offer,
-  PaginatedResponse,
-  LoyaltySDKError,
-  PointsRules
-} from '@loyaltylt/sdk';
-
-// Fully typed responses
-const shops: PaginatedResponse<Shop> = await sdk.getShops();
-const card: LoyaltyCard = await sdk.getLoyaltyCard(123);
-```
-
-## Debug Mode
-
-Enable debug mode to see detailed request/response logs:
-
-```typescript
-const sdk = new LoyaltySDK({
-  apiKey: 'lty_...',
-  apiSecret: '...',
-  debug: true
-});
-
-// Console output:
-// [SDK] GET https://api.loyalty.lt/lt/shop/shops
-// [SDK] Response: {"success":true,"data":[...],"meta":{...}}
-```
-
-## Next Steps
+## Next
 
 <CardGroup cols={2}>
-  <Card title="QR Login" icon="qrcode" href="/docs/sdk/javascript/qr-login">
-    Implement QR code authentication
+  <Card title="QR login" icon="qrcode" href="/docs/sdk/javascript/qr-login">
+    Sign a customer in from a screen
   </Card>
-  
-  <Card title="QR Card Scan" icon="credit-card" href="/docs/sdk/javascript/qr-card-scan">
-    POS customer identification
+
+  <Card title="QR card scan" icon="credit-card" href="/docs/sdk/javascript/qr-card-scan">
+    Identify a customer at the POS
   </Card>
 </CardGroup>

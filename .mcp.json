@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "loyaltylt-docs": {
+      "command": "node",
+      "args": ["./mcp/build/index.js"]
+    }
+  }
+}

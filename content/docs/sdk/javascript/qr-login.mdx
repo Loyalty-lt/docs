@@ -1,282 +1,90 @@
 ---
 title: "QR Login"
-description: "Implement QR code-based authentication with the SDK"
+description: "Sign a customer in by having them scan a QR code"
 ---
 
 # QR Login
 
-QR Login allows customers to authenticate on web/POS systems by scanning a QR code with their Loyalty.lt mobile app.
+QR login signs a customer in on a screen with no keyboard — a POS terminal or a
+checkout page. You generate a session, render the QR code, and the customer confirms
+in the Loyalty.lt mobile app. You get back a JWT for that customer.
 
-## How It Works
+Sessions expire after **5 minutes**.
 
-<Steps>
-  <Step title="Generate QR Session">
-    Your system generates a QR code with a unique session ID
-  </Step>
-  
-  <Step title="Display QR Code">
-    Customer sees the QR code on your website/POS display
-  </Step>
-  
-  <Step title="Customer Scans">
-    Customer scans the QR code with Loyalty.lt mobile app
-  </Step>
-  
-  <Step title="Confirm Login">
-    Customer confirms the login in their app
-  </Step>
-  
-  <Step title="Receive Authentication">
-    Your system receives the authentication token via real-time events
-  </Step>
-</Steps>
+## With the realtime subscription
 
-## Implementation
-
-### 1. Generate QR Login Session
+`subscribeToQrLogin` opens the Reverb channel for you and fires the callback when the
+status changes. Preferred over polling.
 
 ```typescript
-const session = await sdk.generateQrLogin('Web Browser');
+const session = await sdk.generateQrLogin('Till 3', shopId);
 
-console.log(session.session_id);  // Unique session ID
-console.log(session.qr_code);     // Deep link for QR code
-console.log(session.expires_at);  // Expiration time
-```
+// Render session.qr_code — for example with qrcode.react
+// <QRCodeSVG value={session.qr_code} size={256} />
 
-### 2. Display QR Code
-
-```typescript
-// Generate QR code image URL using Loyalty.lt API
-const qrImageUrl = `https://api.loyalty.lt/qr?data=${encodeURIComponent(session.qr_code)}&size=250`;
-
-// Or use qrcode.react for client-side rendering
-
-<QRCodeSVG value={session.qr_code} size={250} />
-```
-
-### 3. Subscribe to Real-time Events
-
-The simplest option is the SDK helper, which connects to Reverb for you:
-
-```typescript
-const unsubscribe = sdk.subscribeToQrLogin(session.session_id, (payload) => {
-  console.log('Status:', payload.status);
-});
-```
-
-If you prefer to drive the connection yourself, use `pusher-js` directly:
-
-```javascript
-
-// 1. Fetch Reverb connection details
-const config = await sdk.getRealtimeConfig();
-
-// 2. Connect to Reverb (Pusher protocol)
-const pusher = new Pusher(config.key, {
-  wsHost: config.host,
-  wsPort: config.port,
-  wssPort: config.port,
-  forceTLS: config.scheme === 'https',
-  enabledTransports: ['ws', 'wss'],
-  cluster: '',        // Reverb has no clusters, but pusher-js throws without this option
-  disableStats: true
-});
-
-// 3. Subscribe to the public session channel
-const channel = pusher.subscribe(`${config.channel_prefix.qr_login}${session.session_id}`);
-
-// 4. Listen for status updates
-channel.bind(config.event, (payload) => {
-  const { status, user, token } = payload;
-  
-  switch (status) {
-    case 'scanned':
-      showMessage('QR scanned! Please confirm on your phone...');
-      break;
-      
-    case 'authenticated':
-      showMessage('Login successful!');
-      handleLogin(user, token);
-      break;
-      
-    case 'cancelled':
-      showMessage('Login cancelled');
-      regenerateQR();
-      break;
-      
-    case 'failed':
-      showMessage('Login failed');
-      regenerateQR();
-      break;
+const subscription = await sdk.subscribeToQrLogin(session.session_id, ({ data }) => {
+  if (data.status === 'scanned') {
+    console.log('Customer scanned — waiting for confirmation');
+  }
+  if (data.status === 'authenticated') {
+    console.log('Token:', data.token);
+    console.log('User:', data.user);
   }
 });
 ```
 
-<Note>
-  There are no realtime tokens anymore. The QR login channel (`qr-login.{session_id}`) is a
-  public channel — the unguessable session ID is the secret — and `pusher-js` reconnects
-  automatically, so nothing has to be refreshed. Connection details come from
-  [`GET /{locale}/shop/realtime/config`](/docs/system/shopRealtimeConfig).
-</Note>
+Call `subscription.unsubscribe()` and `sdk.disconnectWebSocket()` when the screen unmounts.
 
-### 4. Polling Fallback
+## With polling
 
-If WebSocket is unavailable, use polling:
+If you cannot open a WebSocket, poll instead. Every second is enough.
 
 ```typescript
-async function pollLoginStatus(sessionId: string) {
-  const interval = setInterval(async () => {
-    try {
-      const status = await sdk.pollQrLoginStatus(sessionId);
-      
-      if (status.status === 'authenticated' && status.token) {
-        clearInterval(interval);
-        handleLogin(status.user, status.token);
-      } else if (status.status === 'expired') {
-        clearInterval(interval);
-        regenerateQR();
-      }
-    } catch (error) {
-      console.error('Polling error:', error);
-    }
-  }, 2000);
-  
-  // Stop polling after 5 minutes
-  setTimeout(() => clearInterval(interval), 5 * 60 * 1000);
-}
-```
+const session = await sdk.generateQrLogin('Till 3', shopId);
 
-## Complete Example
+const timer = setInterval(async () => {
+  const status = await sdk.pollQrLoginStatus(session.session_id);
 
-```typescript
-
-
-const sdk = new LoyaltySDK({
-  apiKey: 'lty_...',
-  apiSecret: '...',
-  environment: 'production'
-});
-
-let pusherClient: Pusher | null = null;
-let currentSession: any = null;
-
-async function startQRLogin() {
-  // Generate session
-  currentSession = await sdk.generateQrLogin('Web Browser');
-  
-  // Display QR code
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(currentSession.qr_code)}`;
-  document.getElementById('qr-image').src = qrUrl;
-  
-  // Fetch Reverb connection details
-  const config = await sdk.getRealtimeConfig();
-  
-  pusherClient = new Pusher(config.key, {
-    wsHost: config.host,
-    wsPort: config.port,
-    wssPort: config.port,
-    forceTLS: config.scheme === 'https',
-    enabledTransports: ['ws', 'wss'],
-    cluster: '',        // Reverb has no clusters, but pusher-js throws without this option
-    disableStats: true
-  });
-  
-  const channel = pusherClient.subscribe(
-    `${config.channel_prefix.qr_login}${currentSession.session_id}`
-  );
-  
-  channel.bind(config.event, handleStatusUpdate);
-}
-
-function handleStatusUpdate(payload: any) {
-  const { status, user, token } = payload;
-  
-  if (status === 'authenticated') {
-    // Store token, redirect user, etc.
-    localStorage.setItem('auth_token', token);
-    window.location.href = '/dashboard';
+  if (status.status === 'authenticated') {
+    clearInterval(timer);
+    console.log(status.token, status.user);
   }
-}
-
-// Start QR login when page loads
-startQRLogin();
+  if (status.status === 'expired') {
+    clearInterval(timer);
+    // generate a new session
+  }
+}, 1000);
 ```
 
-## Send App Download Link
+## Statuses
 
-If the customer doesn't have the app:
+| Status | Meaning |
+|--------|---------|
+| `pending` | Waiting for the customer to scan |
+| `scanned` | Scanned; waiting for them to confirm in the app |
+| `confirmed` | Confirmed in the app; the token is being issued |
+| `authenticated` | Done — `token` and `user` are in the payload |
+| `cancelled` | The customer declined in the app |
+| `expired` | The 5-minute window elapsed; generate a new session |
+
+## If the customer has no app
+
+Text them the download link rather than leaving them stuck:
 
 ```typescript
-await sdk.sendAppLink(
-  '+37060000000',    // Phone number
-  shopId,            // Shop ID (required)
-  'John',            // Optional customer name
-  'lt'               // Language (lt/en)
-);
+await sdk.sendAppLink('+37060000001', shopId);
 ```
 
-## React Component
+## Using the token
 
-For React applications, use the pre-built component:
+The token identifies that one customer. Send it as `Authorization: Bearer <token>` on
+customer-scoped endpoints such as `GET /{locale}/shop/auth/me`.
 
-```tsx
+The Shop API has no refresh or logout endpoint — when a token expires, run QR login
+again. See [Authentication](/docs/api-reference/authentication).
 
+## Next
 
-function LoginPage() {
-  return (
-    <QRLogin
-      apiKey="lty_..."
-      apiSecret="..."
-      onAuthenticated={(user, token) => {
-        console.log('Logged in:', user);
-        // Handle successful login
-      }}
-      onError={(error) => {
-        console.error('Login error:', error);
-      }}
-    />
-  );
-}
-```
-
-See [React Components](/docs/sdk/javascript/react-components) for more details.
-
-## Reverb Channel Events
-
-Channel: `qr-login.{session_id}` (public — no channel authentication needed).
-
-| Event | Description | Data |
-|-------|-------------|------|
-| `status_update` | Login status changed | `{ status, user?, token? }` |
-
-### Status Values
-
-| Status | Description |
-|--------|-------------|
-| `pending` | Waiting for scan |
-| `scanned` | QR scanned, waiting for confirmation |
-| `authenticated` | Login successful |
-| `cancelled` | User cancelled login |
-| `failed` | Login failed |
-| `expired` | Session expired |
-
-## Security Considerations
-
-<Warning>
-- QR sessions expire after 5 minutes
-- Each session can only be used once
-- Always validate tokens on your backend
-- Use HTTPS for all communications
-</Warning>
-
-## Next Steps
-
-<CardGroup cols={2}>
-  <Card title="QR Card Scan" icon="credit-card" href="/docs/sdk/javascript/qr-card-scan">
-    Customer identification for POS
-  </Card>
-  
-  <Card title="React Components" icon="react" href="/docs/sdk/javascript/react-components">
-    Pre-built UI components
-  </Card>
-</CardGroup>
+<Card title="React components" icon="react" href="/docs/sdk/javascript/react-components">
+  `<QRLogin />` does all of the above for you
+</Card>

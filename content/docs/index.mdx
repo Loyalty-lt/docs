@@ -1,84 +1,96 @@
 ---
 title: "Loyalty.lt Documentation"
-description: "Complete API documentation and integration guides for partner systems"
+description: "Integrate loyalty points, cards, coupons and games into your shop"
 ---
 
+# Loyalty.lt for developers
 
+Loyalty.lt runs loyalty programmes for shops: customers collect points on purchases,
+hold a digital card in the mobile app, and spend points or coupons at the till. This
+documentation covers the **Shop API** — what you call from your e-commerce backend or
+POS — and the official SDKs that wrap it.
 
-
-# Welcome to Loyalty.lt
-
-Loyalty.lt is a modern loyalty program platform that enables businesses to create and manage loyalty programs, reward customers with points, and offer personalized discounts.
-
-<Info>
-**Get started quickly** - integration takes just a few minutes with our SDK libraries and comprehensive documentation.
-</Info>
-
-## How to integrate Loyalty.lt?
+## Get started in four steps
 
 <Steps>
-  <Step title="1. Get API Keys">
-    Register at the [Partners Portal](https://partners.loyalty.lt) and get your unique API keys and sandbox environment for testing.
+  <Step title="Get API credentials">
+    Sign in to the [Partners Portal](https://partners.loyalty.lt) → **API Credentials**
+    and create a **staging** pair. You get an API key (`lty_...`) and a secret, shown once.
   </Step>
-  <Step title="2. Choose an SDK">
-    Use our ready-made libraries for JavaScript, PHP, or Python platforms.
+  <Step title="Install an SDK">
+    `npm install @loyaltylt/sdk`, `composer require loyaltylt/sdk`, or
+    `pip install loyaltylt-sdk`. Or call the REST API directly.
   </Step>
-  <Step title="3. Integrate the API">
-    Easily integrate the loyalty points system using our detailed step-by-step guides.
+  <Step title="Award your first points">
+    Send a purchase to `POST /{locale}/shop/transactions/create`. That single call
+    identifies the customer, records the order and credits the points.
   </Step>
-  <Step title="4. Test and Launch">
-    Verify your integration in the staging environment and switch to production in minutes.
+  <Step title="Switch to production">
+    Create production credentials in the same place and change the base URL from
+    `staging-api.loyalty.lt` to `api.loyalty.lt`.
   </Step>
 </Steps>
 
-## What can you do with Loyalty.lt API?
+## The one call most integrations need
+
+```bash
+curl -X POST "https://staging-api.loyalty.lt/lt/shop/transactions/create" \
+  -H "X-API-Key: $LOYALTY_API_KEY" \
+  -H "X-API-Secret: $LOYALTY_API_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user_email": "customer@example.com",
+    "order_id": "ORD-2024-001",
+    "order_total": 25.50,
+    "currency": "EUR",
+    "shop_id": 1
+  }'
+```
+
+Points are calculated from `order_total` using the partner's rules. Pass `points` to
+set the amount yourself, or `type: "cancellation"` / `"refund"` with the same
+`order_id` to reverse it later.
+
+## What else the Shop API does
 
 <CardGroup cols={2}>
-  <Card title="Points System" icon="coins">
-    Reward customers with points for purchases. Customers can use points as discounts.
+  <Card title="Loyalty cards" icon="credit-card">
+    Look up a card by number, phone or email and read its points balance.
   </Card>
-  
-  <Card title="Loyalty Cards" icon="credit-card">
-    Digital loyalty cards with QR codes - no plastic, right in the phone.
+
+  <Card title="Coupons" icon="ticket">
+    Verify a code at the till, hold it during checkout, then redeem it.
   </Card>
-  
-  <Card title="QR Login" icon="qrcode">
-    Fast customer identification via QR code scanning in POS systems.
+
+  <Card title="Games" icon="stamp">
+    Stamp cards and other loyalty games — add stamps, read progress, issue rewards.
   </Card>
-  
-  <Card title="Real-time Data" icon="bolt">
-    WebSocket (Laravel Reverb) integration for real-time notifications and updates.
-  </Card>
-  
-  <Card title="Transaction History" icon="history">
-    Complete purchase and points transaction history for customers and partners.
-  </Card>
-  
-  <Card title="Offers & Promotions" icon="tag">
-    Manage special offers and promotions via XML import or API.
+
+  <Card title="QR identification" icon="qrcode">
+    Show a QR code on screen; the customer scans it in the app to sign in or to
+    identify their card at the POS.
   </Card>
 </CardGroup>
 
-## Documentation
+## Where to go next
 
-<CardGroup cols={2}>
-  <Card title="API Reference" icon="code" href="/docs/api-reference/overview">
-    Complete REST API documentation with all endpoints, parameters, and examples.
+<CardGroup cols={3}>
+  <Card title="API overview" icon="book" href="/docs/api-reference/overview">
+    Base URLs, response format, error handling.
   </Card>
-  
+
+  <Card title="Authentication" icon="key" href="/docs/api-reference/authentication">
+    API credentials, JWT and QR login.
+  </Card>
+
   <Card title="SDKs" icon="puzzle-piece" href="/docs/sdk/overview">
-    Official SDK libraries for JavaScript, PHP, and Python.
+    JavaScript, PHP and Python libraries.
   </Card>
 </CardGroup>
 
-## Support
+<Tip>
+Building with an AI assistant? Install the [MCP server](/docs/mcp-server) — it gives
+Claude, Cursor or Windsurf the exact endpoint and field names instead of guesses.
+</Tip>
 
-<CardGroup cols={2}>
-  <Card title="Developer Support" icon="envelope" href="mailto:developers@loyalty.lt">
-    developers@loyalty.lt
-  </Card>
-  
-  <Card title="Partners Portal" icon="users" href="https://partners.loyalty.lt">
-    Manage your integration
-  </Card>
-</CardGroup>
+Questions: [developers@loyalty.lt](mailto:developers@loyalty.lt).

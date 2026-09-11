@@ -1,0 +1,50 @@
+{
+  "name": "@loyaltylt/docs-mcp",
+  "version": "1.0.0",
+  "description": "MCP server for the Loyalty.lt developer documentation and Shop API reference",
+  "type": "module",
+  "main": "./build/index.js",
+  "bin": {
+    "loyaltylt-docs-mcp": "./build/index.js"
+  },
+  "files": [
+    "build",
+    "README.md"
+  ],
+  "scripts": {
+    "build:index": "node scripts/build-index.mjs",
+    "build": "npm run build:index && tsc && node scripts/copy-data.mjs",
+    "prepublishOnly": "npm run build",
+    "start": "node build/index.js",
+    "dev": "npm run build:index && npx tsx src/index.ts",
+    "inspector": "npx @modelcontextprotocol/inspector build/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "loyalty",
+    "loyalty.lt",
+    "documentation",
+    "openapi",
+    "claude"
+  ],
+  "author": "Loyalty.lt",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Loyalty-lt/docs.git",
+    "directory": "mcp"
+  },
+  "homepage": "https://docs.loyalty.lt",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.22.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

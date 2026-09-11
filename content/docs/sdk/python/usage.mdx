@@ -1,268 +1,140 @@
 ---
 title: "Basic Usage"
-description: "Learn how to use the Loyalty.lt Python SDK"
+description: "Awarding points, looking up cards, coupons and games in Python"
 ---
 
 # Basic Usage
 
-Common operations with the Python SDK.
+## Award points for a purchase
 
-## Initialization
-
-```python
-from loyalty_sdk import LoyaltySDK
-
-sdk = LoyaltySDK(
-    api_key='lty_your_api_key',
-    api_secret='your_api_secret',
-    environment='production',
-    locale='lt',
-    debug=True  # Enable for development
-)
-```
-
-## Shops
-
-```python
-# Get all shops
-shops = sdk.get_shops()
-print(shops['data'])  # List of shops
-print(shops['meta'])  # Pagination info
-
-# Filter shops
-active_shops = sdk.get_shops(is_active=True, is_virtual=False)
-```
-
-## Loyalty Cards
-
-```python
-# Get all cards
-cards = sdk.get_loyalty_cards()
-
-# Get single card
-card = sdk.get_loyalty_card(123)
-
-# Get card by number
-card_info = sdk.get_loyalty_card_info(card_number='123-456-789')
-
-# Get points balance
-balance = sdk.get_points_balance(card_id=123)
-print(f"Points: {balance['current_points']}")
-```
-
-## Transactions & Points
-
-### Create Transaction (Award Points)
+One call registers the order and credits the points. Identify the customer by
+`user_email` or `user_id`; `order_id` is your own reference and is required.
 
 ```python
 transaction = sdk.create_transaction(
-    card_id=123,
-    amount=50.00,
-    points=50,
-    transaction_type='earn',
-    description='Purchase reward',
-    reference='ORDER-12345'
-)
-
-print(f"Transaction ID: {transaction['id']}")
-print(f"Points awarded: {transaction['points']}")
-```
-
-### Get Transactions
-
-```python
-transactions = sdk.get_transactions(
-    card_id=123,
-    type='earn',
-    page=1,
-    per_page=20
+    user_email='customer@example.com',
+    order_id='ORD-2024-001',
+    order_total=25.50,
+    currency='EUR',
+    shop_id=1,
+    description='Online purchase',
 )
 ```
 
-## Offers
+Points come from `order_total` and the partner's rules. Pass `points` to set the
+amount yourself, and report any points the customer spent on the same order:
 
 ```python
-# Get offers
-offers = sdk.get_offers(is_active=True)
-
-# Get single offer
-offer = sdk.get_offer(456)
-
-# Create offer
-new_offer = sdk.create_offer(
-    title='Summer Sale',
-    description='20% off all items',
-    discount_type='percentage',
-    discount_value=20
+sdk.create_transaction(
+    user_email='customer@example.com',
+    order_id='ORD-2024-003',
+    order_total=45.00,
+    points_redeemed=500,
+    points_discount_amount=5.00,
 )
-
-# Update offer
-sdk.update_offer(456, title='Updated Title')
-
-# Delete offer
-sdk.delete_offer(456)
-
-# Get categories
-categories = sdk.get_categories()
 ```
 
-## XML Import
+### Reverse a transaction
+
+Same `order_id`, with `transaction_type` set to `cancellation` or `refund`:
 
 ```python
-# Import from URL
-result = sdk.import_from_url(
-    'https://example.com/offers.xml',
-    auto_publish=True
+sdk.create_transaction(
+    user_email='customer@example.com',
+    order_id='ORD-2024-001',
+    transaction_type='refund',
+    order_total=25.50,
 )
-
-# Validate XML
-validation = sdk.validate_xml('https://example.com/offers.xml')
-
-# Get import stats
-stats = sdk.get_import_stats()
 ```
 
-## Error Handling
+### History
 
 ```python
-from loyalty_sdk import LoyaltySDKError, LoyaltyAPIError
+history = sdk.get_transactions(page=1, per_page=20)
+```
+
+## Loyalty cards
+
+```python
+card    = sdk.get_loyalty_card_info(card_number='900-001-001')
+balance = sdk.get_points_balance(card_number='900-001-001')
+cards   = sdk.get_loyalty_cards(per_page=50)
+```
+
+`get_loyalty_card_info` also accepts `card_id` or `user_id`.
+
+## Coupons
+
+```python
+check    = sdk.verify_coupon('SUMMER10', shop_id)
+discount = sdk.calculate_coupon_discount('SUMMER10', 50.00)
+
+sdk.set_coupon_pending(check['coupon']['id'], shop_id)     # hold during checkout
+sdk.redeem_coupon(check['coupon']['id'], shop_id)          # final
+# or, if the sale falls through:
+sdk.cancel_pending_coupon(check['coupon']['id'], shop_id)
+
+coupons = sdk.get_card_coupons(shop_id, card_id=card_id)
+```
+
+## Games and stamp cards
+
+```python
+games    = sdk.list_games(shop_id)
+active   = sdk.get_card_games(card_id, shop_id)
+
+sdk.add_stamps(game_id, card_id, shop_id, stamps_count=1)
+progress = sdk.get_game_progress(game_id, card_id)
+```
+
+A full stamp card issues its reward automatically. `complete_game()` and
+`restart_game()` close and restart a round by hand.
+
+## Shops and offers
+
+```python
+shops  = sdk.get_shops()      # shop_id values for the calls above
+offers = sdk.get_offers()
+```
+
+## Errors
+
+```python
+from loyalty_sdk.exceptions import LoyaltySDKError
 
 try:
-    result = sdk.get_loyalty_card_info(card_number='INVALID')
-except LoyaltyAPIError as e:
-    print(f"Error: {e.message}")
-    print(f"Code: {e.code}")
-    print(f"HTTP Status: {e.http_status}")
-    
-    # Handle specific errors
-    if e.code == 'CARD_NOT_FOUND':
-        print("Card not found!")
-        
+    sdk.create_transaction(order_id='ORD-1', user_email='nobody@example.com')
 except LoyaltySDKError as e:
-    print(f"SDK Error: {e}")
+    if e.http_status == 422:
+        logger.warning('Invalid request: %s', e.message)
+    elif e.http_status == 401:
+        logger.error('Check your API credentials')
+    else:
+        logger.error('%s: %s', e.code, e.message)
 ```
 
-## Django Integration
+`http_status` is the HTTP status; `code` is the API's numeric application code.
+`429` and `5xx` are retried automatically.
 
-### Settings
-
-```python
-# settings.py
-import os
-
-LOYALTY_API_KEY = os.environ.get('LOYALTY_API_KEY')
-LOYALTY_API_SECRET = os.environ.get('LOYALTY_API_SECRET')
-LOYALTY_ENVIRONMENT = os.environ.get('LOYALTY_ENVIRONMENT', 'production')
-```
-
-### Service
+## Django example
 
 ```python
-# services/loyalty.py
-from loyalty_sdk import LoyaltySDK
-from django.conf import settings
-
-def get_loyalty_sdk():
-    return LoyaltySDK(
-        api_key=settings.LOYALTY_API_KEY,
-        api_secret=settings.LOYALTY_API_SECRET,
-        environment=settings.LOYALTY_ENVIRONMENT
-    )
-```
-
-### View
-
-```python
-# views.py
-from django.http import JsonResponse
-from .services.loyalty import get_loyalty_sdk
-
-def award_points(request):
-    sdk = get_loyalty_sdk()
-    
-    transaction = sdk.create_transaction(
-        card_id=request.POST['card_id'],
-        amount=float(request.POST['amount']),
-        points=int(request.POST['amount']),
-        transaction_type='earn'
-    )
-    
-    return JsonResponse(transaction)
-```
-
-## Flask Integration
-
-```python
-from flask import Flask, jsonify, request
-from loyalty_sdk import LoyaltySDK
-import os
-
-app = Flask(__name__)
-
-sdk = LoyaltySDK(
-    api_key=os.environ['LOYALTY_API_KEY'],
-    api_secret=os.environ['LOYALTY_API_SECRET']
-)
-
-@app.route('/award-points', methods=['POST'])
-def award_points():
-    data = request.json
-    
-    transaction = sdk.create_transaction(
-        card_id=data['card_id'],
-        amount=data['amount'],
-        points=data['points'],
-        transaction_type='earn'
-    )
-    
-    return jsonify(transaction)
-
-if __name__ == '__main__':
-    app.run()
-```
-
-## FastAPI Integration
-
-```python
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from loyalty_sdk import LoyaltySDK, LoyaltyAPIError
-import os
-
-app = FastAPI()
-
-sdk = LoyaltySDK(
-    api_key=os.environ['LOYALTY_API_KEY'],
-    api_secret=os.environ['LOYALTY_API_SECRET']
-)
-
-class PointsRequest(BaseModel):
-    card_id: int
-    amount: float
-    points: int
-
-@app.post('/award-points')
-async def award_points(data: PointsRequest):
+def award_points(order):
     try:
-        transaction = sdk.create_transaction(
-            card_id=data.card_id,
-            amount=data.amount,
-            points=data.points,
-            transaction_type='earn'
+        sdk.create_transaction(
+            user_email=order.customer_email,
+            order_id=str(order.id),
+            order_total=float(order.total),
+            currency=order.currency,
+            shop_id=settings.LOYALTY_SHOP_ID,
         )
-        return transaction
-    except LoyaltyAPIError as e:
-        raise HTTPException(status_code=e.http_status, detail=e.message)
+    except LoyaltySDKError:
+        logger.exception('Loyalty award failed for order %s', order.id)
+        # never block the order on a loyalty failure
 ```
 
-## Next Steps
+## Next
 
-<CardGroup cols={2}>
-  <Card title="QR Features" icon="qrcode" href="/docs/sdk/python/qr-features">
-    QR Login and Card Scan
-  </Card>
-  
-  <Card title="API Reference" icon="book" href="/docs/api-reference/overview">
-    Full API documentation
-  </Card>
-</CardGroup>
+<Card title="QR features" icon="qrcode" href="/docs/sdk/python/qr-features">
+  QR login and QR card scan
+</Card>

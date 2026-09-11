@@ -1,4 +1,4 @@
 {
   "title": "Documentation",
-  "pages": ["index", "---Guides---", "api-reference", "sdk", "troubleshooting", "---API Reference---", "..."]
+  "pages": ["index", "---Guides---", "api-reference", "sdk", "mcp-server", "troubleshooting", "---API Reference---", "..."]
 }

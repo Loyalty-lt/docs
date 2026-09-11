@@ -1,257 +1,111 @@
 ---
 title: "React Components"
-description: "Pre-built React components for Loyalty.lt integration"
+description: "Drop-in QR login and card display components"
 ---
 
 # React Components
 
-The SDK includes pre-built React components for common loyalty features. These components handle all the complexity of QR generation, real-time updates, and user interaction.
-
-## Installation
+Two components ship with the JavaScript SDK. Both handle session generation, the
+realtime subscription, expiry and regeneration — you supply credentials and callbacks.
 
 ```bash
-npm install @loyaltylt/sdk react qrcode.react
+npm install @loyaltylt/sdk react react-dom qrcode.react
 ```
 
-## QRLogin Component
-
-A complete QR-based login component with automatic refresh, status updates, and app download link functionality.
-
-### Basic Usage
-
-```tsx
-
-
-function LoginPage() {
-  return (
-    <QRLogin
-      apiKey="lty_your_api_key"
-      apiSecret="your_api_secret"
-      onAuthenticated={(user, token) => {
-        console.log('User logged in:', user);
-        localStorage.setItem('token', token);
-        window.location.href = '/dashboard';
-      }}
-      onError={(error) => {
-        console.error('Login error:', error);
-      }}
-    />
-  );
-}
+```typescript
+import { QRLogin, QRCardDisplay } from '@loyaltylt/sdk/react';
+import '@loyaltylt/sdk/styles';
 ```
 
-### Props
+## `<QRLogin />`
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `apiKey` | `string` | required | API Key |
-| `apiSecret` | `string` | required | API Secret |
-| `environment` | `'production'` \| `'staging'` | `'production'` | API environment |
-| `locale` | `string` | `'lt'` | Language |
-| `shopId` | `number` | - | Optional shop ID |
-| `autoRegenerate` | `boolean` | `true` | Auto-regenerate expired QR |
-| `showSendLink` | `boolean` | `true` | Show "Send app link" option |
-| `onAuthenticated` | `(user, token) => void` | - | Called on successful login |
-| `onScanned` | `() => void` | - | Called when QR is scanned |
-| `onError` | `(error) => void` | - | Called on error |
-| `onExpired` | `() => void` | - | Called when session expires |
-| `className` | `string` | - | Additional CSS class |
-
-### Custom Styling
+Renders the QR code a customer scans to sign in.
 
 ```tsx
 <QRLogin
-  apiKey="lty_..."
-  apiSecret="..."
-  className="my-custom-qr-login"
-  onAuthenticated={handleLogin}
+  config={{
+    apiKey: process.env.NEXT_PUBLIC_LOYALTY_KEY!,
+    apiSecret: process.env.LOYALTY_SECRET!,
+    locale: 'lt',
+    shopId: 1,
+    deviceName: 'Till 3',
+  }}
+  callbacks={{
+    onScanned: () => setHint('Confirm on your phone'),
+    onAuthenticated: ({ token, user }) => signIn(token, user),
+    onExpired: () => setHint('QR code expired'),
+    onCancelled: () => setHint('Login cancelled'),
+    onError: (error) => console.error(error),
+  }}
+  showSendLink
+  autoRegenerate
 />
 ```
 
-```css
-.my-custom-qr-login {
-  /* Override default styles */
-  --loyalty-primary: #your-brand-color;
-}
+<Warning>
+This component sends the API secret from wherever it runs. Render it only on a
+terminal you control, or behind a server-side proxy — never on a public website.
+</Warning>
 
-.my-custom-qr-login .loyalty-qr-container {
-  background: #f5f5f5;
-  border-radius: 20px;
-}
-```
+| Prop | Type | Description |
+|------|------|-------------|
+| `config` | `QRLoginConfig` | `apiKey`, `apiSecret`, and optional `apiUrl`, `locale`, `shopId`, `deviceName` |
+| `callbacks` | `QRLoginCallbacks` | `onScanned`, `onAuthenticated`, `onCancelled`, `onExpired`, `onError` |
+| `texts` | `QRLoginTexts` | Override any of the built-in strings |
+| `showSendLink` | `boolean` | Show the "text me the app link" form |
+| `autoRegenerate` | `boolean` | Generate a fresh session when one expires |
+| `className` | `string` | Class applied to the wrapper |
 
-## QRCardDisplay Component
+`onAuthenticated` receives `{ token, user }` — the customer's JWT and profile.
 
-Displays a customer's loyalty card QR code for identification at POS.
+## `<QRCardDisplay />`
 
-### Basic Usage
-
-```tsx
-
-
-function LoyaltyCard({ userToken }) {
-  return (
-    <QRCardDisplay
-      apiKey="lty_your_api_key"
-      apiSecret="your_api_secret"
-      userToken={userToken}
-      showPoints={true}
-      showUserInfo={true}
-    />
-  );
-}
-```
-
-### Props
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `apiKey` | `string` | required | API Key |
-| `apiSecret` | `string` | required | API Secret |
-| `userToken` | `string` | required | User's JWT token |
-| `environment` | `'production'` \| `'staging'` | `'production'` | API environment |
-| `locale` | `string` | `'lt'` | Language |
-| `showPoints` | `boolean` | `true` | Display points balance |
-| `showUserInfo` | `boolean` | `false` | Display user name/info |
-| `autoRefresh` | `boolean` | `false` | Auto-refresh card data |
-| `refreshInterval` | `number` | `30000` | Refresh interval (ms) |
-| `onCardLoaded` | `(card) => void` | - | Called when card loads |
-| `onError` | `(error) => void` | - | Called on error |
-| `className` | `string` | - | Additional CSS class |
-
-## Complete Integration Example
+The customer-facing side: renders a signed-in customer's loyalty card as a QR code
+for staff to scan.
 
 ```tsx
-'use client';
-
-import { useState } from 'react';
-
-
-const API_KEY = 'lty_your_api_key';
-const API_SECRET = 'your_api_secret';
-
-function App() {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
-
-  const handleLogin = (userData, authToken) => {
-    setUser(userData);
-    setToken(authToken);
-    localStorage.setItem('auth_token', authToken);
-  };
-
-  const handleLogout = () => {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem('auth_token');
-  };
-
-  if (!user) {
-    return (
-      <div className="login-container">
-        <h1>Welcome to Our Store</h1>
-        <p>Scan to login with your loyalty account</p>
-        
-        <QRLogin
-          apiKey={API_KEY}
-          apiSecret={API_SECRET}
-          onAuthenticated={handleLogin}
-          onError={(error) => console.error('Login error:', error)}
-        />
-      </div>
-    );
-  }
-
-  return (
-    <div className="dashboard">
-      <h1>Welcome, {user.name}!</h1>
-      
-      <div className="loyalty-section">
-        <h2>Your Loyalty Card</h2>
-        <QRCardDisplay
-          apiKey={API_KEY}
-          apiSecret={API_SECRET}
-          userToken={token}
-          showPoints={true}
-          showUserInfo={true}
-          onCardLoaded={(card) => {
-            console.log('Card loaded:', card);
-          }}
-        />
-      </div>
-      
-      <button onClick={handleLogout}>
-        Logout
-      </button>
-    </div>
-  );
-}
-
-export default App;
+<QRCardDisplay
+  userToken={token}
+  showUserInfo
+  showPoints
+  autoRefresh
+  refreshInterval={30000}
+  size={256}
+  onError={(error) => console.error(error)}
+/>
 ```
 
-## Styling
+| Prop | Type | Description |
+|------|------|-------------|
+| `userToken` | `string` | The customer's JWT (required) |
+| `cardId` | `number` | Which card to show, when the customer has several |
+| `size` | `number` | QR code size in pixels |
+| `showUserInfo` | `boolean` | Show the customer's name |
+| `showPoints` | `boolean` | Show the points balance |
+| `autoRefresh` | `boolean` | Re-fetch the card periodically |
+| `refreshInterval` | `number` | Refresh period in ms |
+| `texts` | `QRCardDisplayTexts` | Override any of the built-in strings |
+| `config` | `QRCardDisplayConfig` | Optional `apiUrl` and `locale` |
+| `onError` | `(error: Error) => void` | Called on failures |
 
-### CSS Variables
+## Localisation
 
-The components use CSS variables for easy customization:
-
-```css
-:root {
-  --loyalty-primary: #29594B;
-  --loyalty-primary-dark: #19352D;
-  --loyalty-accent: #CFFF45;
-  --loyalty-text: #4B5563;
-  --loyalty-bg: #EDF1EE;
-  --loyalty-border-radius: 12px;
-  --loyalty-font-family: 'Inter', sans-serif;
-}
-```
-
-### Dark Mode
-
-Components automatically support dark mode:
-
-```css
-@media (prefers-color-scheme: dark) {
-  .loyalty-qr-login,
-  .loyalty-card-display {
-    --loyalty-bg: #1f2937;
-    --loyalty-text: #e5e7eb;
-  }
-}
-```
-
-## TypeScript Types
-
-```typescript
-import type { 
-  QRLoginProps, 
-  QRCardDisplayProps,
-  QRLoginUser,
-  LoyaltyCard 
-} from '@loyaltylt/docs/sdk/react';
-```
-
-## Server-Side Rendering
-
-Both components are client-only and use the `'use client'` directive. They will only render on the client side.
+Both components default to English. Pass `texts` to replace any string:
 
 ```tsx
-// Works with Next.js App Router
-'use client';
-
-
+<QRLogin
+  config={config}
+  texts={{
+    title: 'Prisijunkite su Loyalty.lt',
+    scanInstruction: 'Nuskaitykite su Loyalty.lt programėle',
+    expired: 'QR kodas nebegalioja',
+    regenerate: 'Sugeneruoti naują',
+  }}
+/>
 ```
 
-## Next Steps
+## Building your own
 
-<CardGroup cols={2}>
-  <Card title="Examples" icon="code" href="/docs/sdk/javascript/examples">
-    See complete code examples
-  </Card>
-  
-  <Card title="API Reference" icon="book" href="/docs/sdk/javascript/usage">
-    Full SDK API documentation
-  </Card>
-</CardGroup>
+Neither component is required. `generateQrLogin` + `subscribeToQrLogin` give you the
+same flow with your own markup — see
+[QR Login](/docs/sdk/javascript/qr-login).
