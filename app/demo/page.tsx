@@ -1,65 +1,138 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Pusher from 'pusher-js';
 import { QRCodeSVG } from 'qrcode.react';
 
 /**
- * A till, wired to the staging API, embedded in the docs at /docs/demo.
+ * A working till, wired to the staging API, embedded in the docs at /docs/demo.
  *
- * It opens a QR card session the moment it loads — the way a real terminal sits
- * waiting — and shows the code two ways: scannable, and nine digits the customer can
- * read out if their camera will not cooperate. Every frame that arrives on the channel
- * is printed, so the realtime path is something you watch rather than read about.
+ * The whole sale runs: ring items up, identify the customer with a QR code or the
+ * nine digits beside it, spend their points, take payment, and post the transaction
+ * that awards the new balance. Every frame the channel delivers is printed.
  *
- * Nothing here holds a credential. The session id from /api/demo is all a public
- * channel needs.
+ * The product list is local on purpose — a real till has its own catalogue, and
+ * Loyalty.lt does not supply one. Everything to do with loyalty is a live call.
+ *
+ * Nothing here holds a credential: /api/demo keeps them server-side.
  */
 
-const BASKET = [
-  { name: 'Espresso blend, 250 g', qty: 1, price: 8.9 },
-  { name: 'Filter blend, 500 g', qty: 1, price: 14.5 },
-  { name: 'Ceramic mug', qty: 2, price: 6.0 },
+const CATALOGUE = [
+  { id: 101, name: 'Espresso', price: 2.2 },
+  { id: 102, name: 'Flat white', price: 3.1 },
+  { id: 103, name: 'Filter coffee', price: 2.6 },
+  { id: 104, name: 'Croissant', price: 2.4 },
+  { id: 105, name: 'Cinnamon bun', price: 2.9 },
+  { id: 106, name: 'Beans 250 g', price: 8.9 },
+  { id: 107, name: 'Beans 500 g', price: 14.5 },
+  { id: 108, name: 'Ceramic mug', price: 6.0 },
 ];
 
-const TOTAL = BASKET.reduce((sum, i) => sum + i.qty * i.price, 0);
+type Stage = 'ringing' | 'identifying' | 'identified' | 'paid';
+type Line = { id: number; name: string; price: number; qty: number };
 
-type Status = 'booting' | 'waiting' | 'identified' | 'expired' | 'error';
-
+interface Redemption {
+  enabled?: boolean;
+  points_per_currency?: number;
+  currency_amount?: number;
+  min_points?: number;
+  max_points?: number;
+}
 interface Card {
   loyalty_card_id?: number;
   card_number?: string;
   points?: number;
-  user?: { name?: string; email?: string };
+  user?: { id?: number; name?: string; email?: string };
+  redemption?: Redemption;
 }
+
+const eur = (n: number) => `€${n.toFixed(2)}`;
 
 export default function Till() {
   const [configured, setConfigured] = useState<boolean | null>(null);
   const [shopName, setShopName] = useState('Demo shop');
-  const [status, setStatus] = useState<Status>('booting');
-  const [session, setSession] = useState<{ qrCode: string; manualCode: string; expiresAt: string } | null>(null);
+  const [realtime, setRealtime] = useState<Record<string, never> | null>(null);
+
+  const [stage, setStage] = useState<Stage>('ringing');
+  const [lines, setLines] = useState<Line[]>([]);
+  const [session, setSession] = useState<{ id: string; qrCode: string; manualCode: string; expiresAt: string } | null>(null);
   const [card, setCard] = useState<Card | null>(null);
+  const [spendPoints, setSpendPoints] = useState(0);
+  const [payment, setPayment] = useState<'card' | 'cash'>('card');
+  const [receipt, setReceipt] = useState<{
+    ok: boolean;
+    message?: string | null;
+    errors?: Record<string, string[]> | null;
+    data?: Record<string, unknown> | null;
+  } | null>(null);
+  const [busy, setBusy] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
   const [log, setLog] = useState<{ at: string; event: string; payload: unknown }[]>([]);
+
   const pusherRef = useRef<Pusher | null>(null);
 
-  const append = useCallback((event: string, payload: unknown) => {
-    setLog((prev) => [{ at: new Date().toTimeString().slice(0, 8), event, payload }, ...prev].slice(0, 8));
+  const append = useCallback((event: string, p: unknown) => {
+    setLog((prev) => [{ at: new Date().toTimeString().slice(0, 8), event, payload: p }, ...prev].slice(0, 8));
   }, []);
 
-  const open = useCallback(async () => {
-    setStatus('booting');
-    setCard(null);
-    setSession(null);
+  // ---- money ---------------------------------------------------------------
+  const subtotal = useMemo(() => lines.reduce((s, l) => s + l.qty * l.price, 0), [lines]);
+
+  const rules = card?.redemption;
+  const rate = (rules?.points_per_currency ?? 0) / (rules?.currency_amount || 1); // points per €1
+  const maxSpendable = useMemo(() => {
+    if (!rules?.enabled || !rate) return 0;
+    const byBalance = card?.points ?? 0;
+    const byBasket = Math.floor(subtotal * rate);
+    const byRule = rules.max_points ?? Infinity;
+    return Math.max(0, Math.min(byBalance, byBasket, byRule));
+  }, [rules, rate, card, subtotal]);
+
+  const discount = rate ? Math.min(subtotal, spendPoints / rate) : 0;
+  const total = Math.max(0, subtotal - discount);
+
+  // ---- boot ----------------------------------------------------------------
+  useEffect(() => {
+    fetch('/api/demo')
+      .then((r) => r.json())
+      .then((d) => {
+        setConfigured(Boolean(d.configured));
+        setShopName(d.shopName ?? 'Demo shop');
+        setRealtime(d.realtime ?? null);
+      })
+      .catch(() => setConfigured(false));
+    return () => pusherRef.current?.disconnect();
+  }, []);
+
+  // ---- basket --------------------------------------------------------------
+  const add = (p: (typeof CATALOGUE)[number]) =>
+    setLines((prev) => {
+      const at = prev.findIndex((l) => l.id === p.id);
+      if (at === -1) return [...prev, { ...p, qty: 1 }];
+      const next = [...prev];
+      next[at] = { ...next[at], qty: next[at].qty + 1 };
+      return next;
+    });
+
+  const bump = (id: number, by: number) =>
+    setLines((prev) => prev.flatMap((l) => (l.id !== id ? [l] : l.qty + by <= 0 ? [] : [{ ...l, qty: l.qty + by }])));
+
+  const newSale = () => {
     pusherRef.current?.disconnect();
+    setStage('ringing');
+    setLines([]);
+    setSession(null);
+    setCard(null);
+    setSpendPoints(0);
+    setReceipt(null);
+    setLog([]);
+  };
 
+  // ---- identify ------------------------------------------------------------
+  const identify = useCallback(async () => {
+    if (!realtime) return;
+    setStage('identifying');
     try {
-      const boot = await (await fetch('/api/demo')).json();
-      setConfigured(Boolean(boot.configured));
-      if (!boot.configured) return;
-      setShopName(boot.shopName ?? 'Demo shop');
-      if (!boot.realtime) throw new Error('realtime config unavailable');
-
       const s = await (
         await fetch('/api/demo', {
           method: 'POST',
@@ -69,14 +142,14 @@ export default function Till() {
       ).json();
       if (!s.sessionId) throw new Error(s.error ?? 'could not open a session');
 
-      setSession({ qrCode: s.qrCode, manualCode: s.manualCode, expiresAt: s.expiresAt });
+      setSession({ id: s.sessionId, qrCode: s.qrCode, manualCode: s.manualCode, expiresAt: s.expiresAt });
       append('session opened', { session_id: s.sessionId, manual_code: s.manualCode });
 
-      const { key, host, port, scheme } = boot.realtime;
-      const pusher = new Pusher(key, {
-        wsHost: host,
-        wsPort: port,
-        wssPort: port,
+      const { key, host, port, scheme } = realtime as unknown as Record<string, string | number>;
+      const pusher = new Pusher(String(key), {
+        wsHost: String(host),
+        wsPort: Number(port),
+        wssPort: Number(port),
         forceTLS: scheme === 'https',
         enabledTransports: ['ws', 'wss'],
         cluster: '',
@@ -84,139 +157,243 @@ export default function Till() {
       } as never);
       pusherRef.current = pusher;
 
-      pusher.connection.bind('connected', () => {
-        append('websocket connected', { host, port });
-        setStatus('waiting');
-      });
-      pusher.connection.bind('error', (e: unknown) => {
-        append('websocket error', e);
-        setStatus('error');
-      });
+      pusher.connection.bind('connected', () => append('websocket connected', { host, port }));
+      pusher.connection.bind('error', (e: unknown) => append('websocket error', e));
 
-      const channel = pusher.subscribe(`qr-card.${s.sessionId}`);
-      channel.bind('card_identified', (p: { card_data?: Card }) => {
+      const ch = pusher.subscribe(`qr-card.${s.sessionId}`);
+      ch.bind('card_identified', (p: { card_data?: Card }) => {
         append('card_identified', p);
         setCard(p.card_data ?? {});
-        setStatus('identified');
+        setStage('identified');
       });
-      channel.bind('status_update', (p: { status?: string }) => {
+      ch.bind('status_update', (p: { status?: string }) => {
         append('status_update', p);
-        if (p.status === 'expired') setStatus('expired');
+        if (p.status === 'expired') setStage('ringing');
       });
-    } catch (error) {
-      append('error', String(error));
-      setStatus('error');
+    } catch (e) {
+      append('error', String(e));
+      setStage('ringing');
     }
-  }, [append]);
+  }, [realtime, append]);
 
+  // countdown while the code is up
   useEffect(() => {
-    open();
-    return () => pusherRef.current?.disconnect();
-  }, [open]);
-
-  // Countdown to the five-minute expiry, so the screen is honest about the window.
-  useEffect(() => {
-    if (!session?.expiresAt || status === 'identified') return;
-    const tick = () => {
-      const left = Math.max(0, Math.round((Date.parse(session.expiresAt) - Date.now()) / 1000));
-      setSecondsLeft(left);
-    };
+    if (!session?.expiresAt || stage !== 'identifying') return;
+    const tick = () => setSecondsLeft(Math.max(0, Math.round((Date.parse(session.expiresAt) - Date.now()) / 1000)));
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, [session, status]);
+  }, [session, stage]);
+
+  // ---- charge --------------------------------------------------------------
+  const charge = async () => {
+    setBusy(true);
+    try {
+      const body = {
+        action: 'charge',
+        userId: card?.user?.id,
+        orderTotal: total,
+        pointsRedeemed: spendPoints || undefined,
+        pointsDiscount: spendPoints ? Number(discount.toFixed(2)) : undefined,
+        paymentMethod: payment,
+        items: lines,
+      };
+      append('POST /shop/transactions/create', { order_total: body.orderTotal, points_redeemed: body.pointsRedeemed });
+      const r = await (
+        await fetch('/api/demo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      ).json();
+      append(r.ok ? 'transaction created' : 'transaction failed', r.errors ?? r.message ?? r.data);
+      setReceipt(r);
+      if (r.ok) setStage('paid');
+    } finally {
+      setBusy(false);
+    }
+  };
 
   if (configured === false) {
     return (
-      <Frame shopName="Demo">
-        <p style={{ color: '#9aa8a2', margin: 0, fontSize: 13, lineHeight: 1.6 }}>
-          The demo till is not configured on this deployment. It needs a <strong>staging</strong>{' '}
-          API key and secret in <code>LOYALTY_DEMO_API_KEY</code> and <code>LOYALTY_DEMO_API_SECRET</code>.
+      <Shell shopName="Demo">
+        <p style={{ color: '#9aa8a2', fontSize: 13, lineHeight: 1.6, margin: 0 }}>
+          The demo till is not configured on this deployment. It needs a <strong>staging</strong> API
+          key and secret in <code>LOYALTY_DEMO_API_KEY</code> and <code>LOYALTY_DEMO_API_SECRET</code>.
         </p>
-      </Frame>
+      </Shell>
     );
   }
 
   return (
-    <Frame shopName={shopName}>
-      <div style={{ display: 'grid', gap: 14, gridTemplateColumns: 'minmax(210px, 1fr) minmax(230px, 1.1fr)' }}>
-        {/* receipt */}
+    <Shell shopName={shopName}>
+      <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'minmax(200px, 1fr) minmax(250px, 1.15fr)' }}>
+        {/* ------------------------------------------------ catalogue */}
         <section style={panel}>
-          <h2 style={label}>Basket</h2>
-          {BASKET.map((i) => (
-            <div key={i.name} style={line}>
-              <span style={{ color: '#DCEFF0' }}>
-                {i.qty > 1 ? `${i.qty} × ` : ''}
-                {i.name}
-              </span>
-              <span>€{(i.qty * i.price).toFixed(2)}</span>
-            </div>
-          ))}
-          <div style={{ ...line, borderTop: '1px solid #2c4d43', marginTop: 8, paddingTop: 8, fontSize: 18, fontWeight: 700 }}>
-            <span>Total</span>
-            <span style={{ color: '#E6FD5A' }}>€{TOTAL.toFixed(2)}</span>
+          <h2 style={label}>Products</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(86px, 1fr))', gap: 6 }}>
+            {CATALOGUE.map((p) => (
+              <button key={p.id} onClick={() => add(p)} disabled={stage === 'paid'} style={tile}>
+                <span style={{ fontSize: 11, lineHeight: 1.25 }}>{p.name}</span>
+                <span style={{ fontSize: 11, color: '#E6FD5A', fontWeight: 700 }}>{eur(p.price)}</span>
+              </button>
+            ))}
           </div>
 
-          {card ? (
-            <div style={{ marginTop: 12, padding: 10, borderRadius: 8, background: '#0C3A30', border: '1px solid #E6FD5A55' }}>
-              <div style={{ ...label, marginBottom: 6 }}>Customer</div>
-              <div style={{ fontWeight: 600 }}>{card.user?.name ?? card.user?.email ?? 'Identified'}</div>
-              <div style={{ fontSize: 12, color: '#9aa8a2', marginTop: 2 }}>
-                Card {card.card_number} · {card.points ?? 0} points
+          <h2 style={{ ...label, marginTop: 14 }}>Basket</h2>
+          {lines.length === 0 ? (
+            <p style={muted}>Tap a product to ring it up.</p>
+          ) : (
+            lines.map((l) => (
+              <div key={l.id} style={row}>
+                <span style={{ flex: 1, color: '#DCEFF0' }}>{l.name}</span>
+                <button style={qtyBtn} onClick={() => bump(l.id, -1)} disabled={stage === 'paid'}>
+                  −
+                </button>
+                <span style={{ width: 18, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>{l.qty}</span>
+                <button style={qtyBtn} onClick={() => bump(l.id, 1)} disabled={stage === 'paid'}>
+                  +
+                </button>
+                <span style={{ width: 52, textAlign: 'right' }}>{eur(l.qty * l.price)}</span>
               </div>
-              <button style={charge} onClick={() => append('would call', { endpoint: 'POST /lt/shop/transactions/create', order_total: TOTAL, loyalty_card_id: card.loyalty_card_id })}>
-                Charge €{TOTAL.toFixed(2)}
-              </button>
+            ))
+          )}
+
+          <div style={{ borderTop: '1px solid #2c4d43', marginTop: 10, paddingTop: 8 }}>
+            <div style={row}>
+              <span style={{ flex: 1 }}>Subtotal</span>
+              <span>{eur(subtotal)}</span>
             </div>
-          ) : null}
+            {discount > 0 && (
+              <div style={{ ...row, color: '#E6FD5A' }}>
+                <span style={{ flex: 1 }}>Points discount</span>
+                <span>−{eur(discount)}</span>
+              </div>
+            )}
+            <div style={{ ...row, fontSize: 18, fontWeight: 700, marginTop: 4 }}>
+              <span style={{ flex: 1 }}>Total</span>
+              <span style={{ color: '#E6FD5A' }}>{eur(total)}</span>
+            </div>
+          </div>
         </section>
 
-        {/* identify */}
-        <section style={{ ...panel, textAlign: 'center' }}>
-          <h2 style={{ ...label, justifyContent: 'center', display: 'flex', gap: 6, alignItems: 'center' }}>
-            <span style={{ width: 7, height: 7, borderRadius: 99, background: dot(status) }} />
-            {status === 'identified' ? 'Customer identified' : status === 'expired' ? 'Code expired' : status === 'error' ? 'Connection problem' : status === 'booting' ? 'Opening…' : 'Scan to collect points'}
-          </h2>
-
-          {session && status !== 'identified' ? (
+        {/* ------------------------------------------------ right column */}
+        <section style={panel}>
+          {stage === 'ringing' && (
             <>
-              <div style={{ background: '#fff', padding: 10, borderRadius: 10, display: 'inline-block' }}>
-                <QRCodeSVG value={session.qrCode} size={150} />
+              <h2 style={label}>Customer</h2>
+              <p style={muted}>
+                Ring the basket up, then identify the customer so their points apply and this sale
+                earns them more.
+              </p>
+              <button style={primary} onClick={identify} disabled={lines.length === 0}>
+                {lines.length === 0 ? 'Add something first' : 'Identify customer'}
+              </button>
+              <p style={{ ...muted, marginTop: 8 }}>
+                You can also charge without a customer — no points either way.
+              </p>
+            </>
+          )}
+
+          {stage === 'identifying' && session && (
+            <div style={{ textAlign: 'center' }}>
+              <h2 style={{ ...label, justifyContent: 'center', display: 'flex' }}>Scan to collect points</h2>
+              <div style={{ background: '#fff', padding: 9, borderRadius: 10, display: 'inline-block' }}>
+                <QRCodeSVG value={session.qrCode} size={132} />
               </div>
-
-              <div style={{ ...label, marginTop: 12, justifyContent: 'center' }}>or type this in the app</div>
+              <div style={{ ...label, marginTop: 10 }}>or type this in the app</div>
               <div style={code}>{session.manualCode}</div>
-
-              <div style={{ fontSize: 11, color: '#9aa8a2', marginTop: 8 }}>
+              <div style={{ fontSize: 11, color: '#9aa8a2', marginTop: 6 }}>
                 {secondsLeft !== null && secondsLeft > 0
                   ? `Expires in ${Math.floor(secondsLeft / 60)}:${String(secondsLeft % 60).padStart(2, '0')}`
                   : 'Expired'}
               </div>
-            </>
-          ) : null}
+              <button style={ghost} onClick={() => setStage('ringing')}>
+                Cancel
+              </button>
+            </div>
+          )}
 
-          {status === 'expired' || status === 'error' ? (
-            <button style={charge} onClick={open}>
-              New code
-            </button>
-          ) : null}
+          {stage === 'identified' && card && (
+            <>
+              <h2 style={label}>Customer</h2>
+              <div style={{ fontWeight: 700, fontSize: 15 }}>{card.user?.name ?? card.user?.email ?? 'Identified'}</div>
+              <div style={{ ...muted, marginTop: 2 }}>
+                Card {card.card_number} · balance <strong style={{ color: '#E6FD5A' }}>{card.points ?? 0}</strong> points
+              </div>
+
+              {maxSpendable > 0 ? (
+                <>
+                  <h2 style={{ ...label, marginTop: 14 }}>Spend points</h2>
+                  <input
+                    type="range"
+                    min={0}
+                    max={maxSpendable}
+                    step={rules?.min_points || 1}
+                    value={spendPoints}
+                    onChange={(e) => setSpendPoints(Number(e.target.value))}
+                    style={{ width: '100%', accentColor: '#E6FD5A' }}
+                  />
+                  <div style={{ ...row, fontSize: 12 }}>
+                    <span style={{ flex: 1, color: '#9aa8a2' }}>
+                      {spendPoints} of {maxSpendable} points
+                    </span>
+                    <span style={{ color: '#E6FD5A' }}>−{eur(discount)}</span>
+                  </div>
+                </>
+              ) : (
+                <p style={{ ...muted, marginTop: 10 }}>
+                  {rules?.enabled ? 'Not enough points to redeem on this basket.' : 'Redemption is off for this partner.'}
+                </p>
+              )}
+
+              <h2 style={{ ...label, marginTop: 14 }}>Payment</h2>
+              <div style={{ display: 'flex', gap: 6 }}>
+                {(['card', 'cash'] as const).map((m) => (
+                  <button key={m} onClick={() => setPayment(m)} style={m === payment ? chipOn : chip}>
+                    {m === 'card' ? 'Card' : 'Cash'}
+                  </button>
+                ))}
+              </div>
+
+              <button style={primary} onClick={charge} disabled={busy || total <= 0}>
+                {busy ? 'Posting…' : `Charge ${eur(total)}`}
+              </button>
+            </>
+          )}
+
+          {stage === 'paid' && (
+            <>
+              <h2 style={label}>{receipt?.ok ? 'Paid' : 'Failed'}</h2>
+              {receipt?.ok ? (
+                <>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: '#E6FD5A' }}>{eur(total)}</div>
+                  <p style={{ ...muted, marginTop: 6 }}>
+                    Paid by {payment}. {spendPoints > 0 ? `${spendPoints} points spent. ` : ''}
+                    The transaction is posted; the API awarded points from the order total using this
+                    partner&apos;s rules.
+                  </p>
+                  <pre style={pre}>{JSON.stringify(receipt.data, null, 2).slice(0, 600)}</pre>
+                </>
+              ) : (
+                <pre style={pre}>{JSON.stringify(receipt?.errors ?? receipt?.message, null, 2)}</pre>
+              )}
+              <button style={primary} onClick={newSale}>
+                New sale
+              </button>
+            </>
+          )}
         </section>
 
-        {/* frames */}
+        {/* ------------------------------------------------ frames */}
         <section style={{ ...panel, gridColumn: '1 / -1' }}>
-          <h2 style={label}>Channel frames</h2>
-          <pre style={pre}>
-            {log.length === 0
-              ? 'waiting…'
-              : log.map((l) => `${l.at}  ${l.event}\n${JSON.stringify(l.payload)}`).join('\n\n')}
+          <h2 style={label}>Channel frames and API calls</h2>
+          <pre style={{ ...pre, maxHeight: 140 }}>
+            {log.length === 0 ? 'waiting…' : log.map((l) => `${l.at}  ${l.event}\n${JSON.stringify(l.payload)}`).join('\n\n')}
           </pre>
         </section>
       </div>
-    </Frame>
+    </Shell>
   );
 }
 
-function Frame({ shopName, children }: { shopName: string; children: React.ReactNode }) {
+function Shell({ shopName, children }: { shopName: string; children: React.ReactNode }) {
   return (
     <main style={shell}>
       <header style={header}>
@@ -228,46 +405,59 @@ function Frame({ shopName, children }: { shopName: string; children: React.React
   );
 }
 
-const dot = (s: Status) =>
-  s === 'identified' ? '#E6FD5A' : s === 'expired' || s === 'error' ? '#f87171' : '#4ade80';
-
 const shell: React.CSSProperties = {
   fontFamily: 'ui-sans-serif, system-ui, sans-serif',
   background: '#19352D',
   color: '#DCEFF0',
   minHeight: '100vh',
-  padding: 14,
+  padding: 12,
   boxSizing: 'border-box',
 };
 const header: React.CSSProperties = {
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
-  paddingBottom: 10,
-  marginBottom: 12,
+  paddingBottom: 9,
+  marginBottom: 11,
   borderBottom: '1px solid #2c4d43',
 };
-const panel: React.CSSProperties = { background: '#14291F', borderRadius: 10, padding: 12, border: '1px solid #2c4d43' };
+const panel: React.CSSProperties = { background: '#14291F', borderRadius: 10, padding: 11, border: '1px solid #2c4d43' };
 const label: React.CSSProperties = {
   fontSize: 10,
   letterSpacing: 0.8,
   textTransform: 'uppercase',
   color: '#9aa8a2',
-  margin: '0 0 8px',
+  margin: '0 0 7px',
   fontWeight: 600,
 };
-const line: React.CSSProperties = { display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '3px 0' };
-const code: React.CSSProperties = {
-  fontSize: 26,
-  fontWeight: 700,
-  letterSpacing: 3,
-  color: '#E6FD5A',
-  fontVariantNumeric: 'tabular-nums',
+const muted: React.CSSProperties = { fontSize: 12, color: '#9aa8a2', margin: 0, lineHeight: 1.5 };
+const row: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, padding: '3px 0' };
+const tile: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 3,
+  padding: '8px 6px',
+  borderRadius: 8,
+  border: '1px solid #2c4d43',
+  background: '#0C3A30',
+  color: '#DCEFF0',
+  cursor: 'pointer',
+  textAlign: 'left',
 };
-const charge: React.CSSProperties = {
-  marginTop: 10,
+const qtyBtn: React.CSSProperties = {
+  width: 20,
+  height: 20,
+  borderRadius: 5,
+  border: '1px solid #2c4d43',
+  background: '#0C3A30',
+  color: '#DCEFF0',
+  cursor: 'pointer',
+  lineHeight: 1,
+};
+const primary: React.CSSProperties = {
+  marginTop: 12,
   width: '100%',
-  padding: '9px 12px',
+  padding: '10px 12px',
   borderRadius: 8,
   border: 'none',
   background: '#E6FD5A',
@@ -276,14 +466,43 @@ const charge: React.CSSProperties = {
   fontWeight: 700,
   cursor: 'pointer',
 };
+const ghost: React.CSSProperties = {
+  marginTop: 10,
+  width: '100%',
+  padding: '7px 12px',
+  borderRadius: 8,
+  border: '1px solid #2c4d43',
+  background: 'transparent',
+  color: '#9aa8a2',
+  fontSize: 12,
+  cursor: 'pointer',
+};
+const chip: React.CSSProperties = {
+  flex: 1,
+  padding: '7px 10px',
+  borderRadius: 8,
+  border: '1px solid #2c4d43',
+  background: 'transparent',
+  color: '#9aa8a2',
+  fontSize: 12,
+  cursor: 'pointer',
+};
+const chipOn: React.CSSProperties = { ...chip, background: '#0C3A30', color: '#E6FD5A', borderColor: '#E6FD5A55', fontWeight: 600 };
+const code: React.CSSProperties = {
+  fontSize: 24,
+  fontWeight: 700,
+  letterSpacing: 3,
+  color: '#E6FD5A',
+  fontVariantNumeric: 'tabular-nums',
+};
 const pre: React.CSSProperties = {
   background: '#0d1f18',
   color: '#9fd6c4',
-  padding: 10,
+  padding: 9,
   borderRadius: 8,
   fontSize: 10.5,
   lineHeight: 1.5,
-  maxHeight: 150,
+  maxHeight: 170,
   overflow: 'auto',
-  margin: 0,
+  margin: '8px 0 0',
 };

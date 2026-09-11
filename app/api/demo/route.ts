@@ -3,9 +3,9 @@ import { NextResponse } from 'next/server';
 /**
  * Server side of the POS demo at /demo.
  *
- * It exists to hold the staging API credentials. The browser never sees them —
- * exactly the split the docs recommend: the server opens the session, the page
- * subscribes to the public channel with the returned session id.
+ * It holds the staging API credentials so the browser never has to. That split is
+ * what the docs recommend for any public page: the server opens sessions and posts
+ * transactions, the page subscribes to the public channel with the session id.
  *
  * Staging only. The base URL is hardcoded so a production credential could not be
  * used here even by accident.
@@ -38,7 +38,6 @@ export async function GET() {
   if (!configured()) return NextResponse.json({ configured: false });
 
   const [realtime, shops] = await Promise.all([callApi('/realtime/config'), callApi('/shops')]);
-
   const shop = (shops.body?.data ?? []).find((s: { id: number }) => s.id === SHOP_ID);
 
   // Only the public connection details cross to the browser — never the credentials.
@@ -53,28 +52,69 @@ export async function GET() {
 export async function POST(request: Request) {
   if (!configured()) return NextResponse.json({ error: 'demo not configured' }, { status: 503 });
 
-  const { action } = await request.json().catch(() => ({ action: null }));
+  const payload = await request.json().catch(() => ({}));
 
-  if (action !== 'open-session') {
-    return NextResponse.json({ error: 'unknown action' }, { status: 400 });
+  // --- identify whoever is standing at the till -------------------------------
+  if (payload.action === 'open-session') {
+    // A till identifies a customer — that is qr-card, not qr-login. It resolves with
+    // the card, its balance and the redemption rules the discount is computed from.
+    const { status, body } = await callApi('/qr-card/generate', {
+      method: 'POST',
+      body: JSON.stringify({ device_name: 'Docs demo till', shop_id: SHOP_ID }),
+    });
+
+    if (status !== 200) {
+      return NextResponse.json({ error: body?.message ?? 'could not open a session' }, { status: 502 });
+    }
+
+    const data = body?.data ?? {};
+    return NextResponse.json({
+      sessionId: data.session_id,
+      qrCode: data.qr_code,
+      manualCode: data.manual_code,
+      expiresAt: data.expires_at,
+    });
   }
 
-  // The till identifies whoever is standing in front of it — that is qr-card, not
-  // qr-login. It resolves with the card and its balance.
-  const { status, body } = await callApi('/qr-card/generate', {
-    method: 'POST',
-    body: JSON.stringify({ device_name: 'Docs demo till', shop_id: SHOP_ID }),
-  });
+  // --- take the money ---------------------------------------------------------
+  if (payload.action === 'charge') {
+    const { userId, orderTotal, pointsRedeemed, pointsDiscount, items, paymentMethod } = payload;
 
-  if (status !== 200) {
-    return NextResponse.json({ error: body?.message ?? 'could not open a session' }, { status: 502 });
+    if (!userId || !orderTotal) {
+      return NextResponse.json({ error: 'userId and orderTotal are required' }, { status: 400 });
+    }
+
+    // The one call every integration makes. Points are awarded from order_total using
+    // the partner's rules; points_redeemed reports what the customer spent here.
+    const { status, body } = await callApi('/transactions/create', {
+      method: 'POST',
+      body: JSON.stringify({
+        user_id: userId,
+        order_id: `DEMO-${Date.now()}`,
+        order_total: Number(orderTotal.toFixed(2)),
+        currency: 'EUR',
+        shop_id: SHOP_ID,
+        description: `Docs demo till · ${paymentMethod ?? 'card'}`,
+        ...(pointsRedeemed ? { points_redeemed: pointsRedeemed, points_discount_amount: pointsDiscount } : {}),
+        cart_items: (items ?? []).map((i: { id: number; name: string; qty: number; price: number }) => ({
+          product_id: i.id,
+          product_name: i.name,
+          quantity: i.qty,
+          unit_price: i.price,
+          total_price: Number((i.qty * i.price).toFixed(2)),
+        })),
+      }),
+    });
+
+    // The request body is echoed back so the demo can show exactly what was sent.
+    return NextResponse.json({
+      ok: status === 200 || status === 201,
+      status,
+      message: body?.message ?? null,
+      errors: body?.errors ?? null,
+      data: body?.data ?? null,
+    });
   }
 
-  const data = body?.data ?? {};
-  return NextResponse.json({
-    sessionId: data.session_id,
-    qrCode: data.qr_code,
-    manualCode: data.manual_code,
-    expiresAt: data.expires_at,
-  });
+  return NextResponse.json({ error: 'unknown action' }, { status: 400 });
 }
