@@ -61,7 +61,7 @@ $balance = $sdk->getPointsBalance(['card_id' => $card['id']]);
 $designs = $sdk->getLoyaltyCards(['per_page' => 50]);   // card designs, not customers
 ```
 
-`getLoyaltyCardInfo` also accepts `card_number` or `card_id`.
+`getLoyaltyCardInfo` accepts `card_id`, `card_number`, `user_id` or `user_email`.
 
 ## Coupons
 

@@ -68,6 +68,9 @@ export default function Till() {
   const [busy, setBusy] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
   const [basketSession, setBasketSession] = useState<string | null>(null);
+  const [phone, setPhone] = useState<{ loyaltyCardId: number; cardNumber: string; name: string; points: number } | null>(null);
+  const [phoneBasket, setPhoneBasket] = useState<Record<string, unknown> | null>(null);
+  const [phonePoints, setPhonePoints] = useState(0);
   const [log, setLog] = useState<{ at: string; event: string; payload: unknown }[]>([]);
 
   const pusherRef = useRef<Pusher | null>(null);
@@ -102,6 +105,16 @@ export default function Till() {
         setRealtime(d.realtime ?? null);
       })
       .catch(() => setConfigured(false));
+
+    // Who the phone panel is playing.
+    fetch('/api/demo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'demo-customer' }),
+    })
+      .then((r) => r.json())
+      .then((d) => { if (d.loyaltyCardId) setPhone(d); })
+      .catch(() => {});
     return () => pusherRef.current?.disconnect();
   }, []);
 
@@ -162,6 +175,39 @@ export default function Till() {
     }
   };
 
+  // ---- the phone panel acts as the customer --------------------------------
+  const scanWithPhone = useCallback(async () => {
+    if (!session || !phone) return;
+    append('phone: scanning', { session_id: session.id, card: phone.cardNumber });
+    const r = await (
+      await fetch('/api/demo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'simulate-scan', sessionId: session.id, loyaltyCardId: phone.loyaltyCardId }),
+      })
+    ).json();
+    if (!r.ok) append('phone: scan failed', r.message);
+  }, [session, phone, append]);
+
+  // What the customer chooses to spend goes back on the session channel as theirs.
+  const phoneSpend = useCallback(
+    async (points: number) => {
+      setPhonePoints(points);
+      if (!basketSession) return;
+      await fetch('/api/demo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'basket-update',
+          sessionId: basketSession,
+          pointsToRedeem: points,
+          updatedBy: 'customer',
+        }),
+      }).catch(() => {});
+    },
+    [basketSession],
+  );
+
   // ---- the customer's phone follows the basket -----------------------------
   // Same thing the POS app does: open a shopping session and the app puts its basket
   // screen up. Whatever the customer chooses to spend comes back on the channel.
@@ -183,7 +229,8 @@ export default function Till() {
 
         const ch = pusherRef.current?.subscribe(`shopping-session.${r.sessionId}`);
         ch?.bind('session_update', (p: Record<string, unknown>) => {
-          append('session_update ← customer', p);
+          append(`session_update ← ${p.lastUpdatedBy}`, p);
+          if (p.lastUpdatedBy === 'staff') setPhoneBasket(p);   // the phone's screen
           // Only react to the customer's own edits; our own echo comes back too.
           if (p.lastUpdatedBy !== 'customer') return;
           const chosen = Number(p.pointsToRedeem ?? p.customerPointsInput ?? 0);
@@ -230,6 +277,7 @@ export default function Till() {
       pusherRef.current = pusher;
 
       pusher.connection.bind('connected', () => append('websocket connected', { host, port }));
+
       pusher.connection.bind('error', (e: unknown) => append('websocket error', e));
 
       const ch = pusher.subscribe(`qr-card.${s.sessionId}`);
@@ -447,6 +495,66 @@ export default function Till() {
               </button>
             </>
           )}
+        </section>
+
+        {/* ------------------------------------------------ the customer's phone */}
+        <section style={{ ...panel, gridColumn: '1 / -1', borderColor: '#E6FD5A33' }}>
+          <h2 style={label}>Customer&apos;s phone — the app, played by this page</h2>
+          {!phone ? (
+            <p style={muted}>Looking the demo customer up…</p>
+          ) : (
+            <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+              <div style={{ minWidth: 170 }}>
+                <div style={{ fontWeight: 700 }}>{phone.name}</div>
+                <div style={muted}>
+                  {phone.cardNumber} · {phone.points} points
+                </div>
+                {stage === 'waiting' && session && (
+                  <button style={primary} onClick={scanWithPhone}>
+                    Scan the code
+                  </button>
+                )}
+              </div>
+
+              {phoneBasket ? (
+                <div style={{ flex: 1, minWidth: 190 }}>
+                  <div style={label}>What the customer sees</div>
+                  <div style={{ ...row, fontSize: 15, fontWeight: 700 }}>
+                    <span style={{ flex: 1 }}>To pay</span>
+                    <span style={{ color: '#E6FD5A' }}>
+                      €{Number(phoneBasket.purchaseAmount ?? 0).toFixed(2)}
+                    </span>
+                  </div>
+                  {maxSpendable > 0 && (
+                    <>
+                      <div style={{ ...label, marginTop: 8 }}>Spend my points</div>
+                      <input
+                        type="range"
+                        min={0}
+                        max={maxSpendable}
+                        value={phonePoints}
+                        onChange={(e) => phoneSpend(Number(e.target.value))}
+                        style={{ width: '100%', accentColor: '#E6FD5A' }}
+                      />
+                      <div style={{ ...muted, fontSize: 11 }}>
+                        {phonePoints} points → the till updates as you drag
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <p style={{ ...muted, flex: 1, minWidth: 190 }}>
+                  Nothing yet. Scan, and the basket screen opens here the same way it opens in
+                  the app — over <code>user.{'{id}'}</code>.
+                </p>
+              )}
+            </div>
+          )}
+          <p style={{ ...muted, marginTop: 10, fontSize: 11 }}>
+            The real app talks to production and could not resolve a staging session, so this
+            panel plays the customer over the same staging channels using the staging-only
+            <code> qr-card/&#123;id&#125;/simulate-scan</code> endpoint.
+          </p>
         </section>
 
         {/* ------------------------------------------------ frames */}

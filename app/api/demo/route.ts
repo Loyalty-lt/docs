@@ -29,6 +29,10 @@ async function shopId(): Promise<number> {
   return resolvedShopId;
 }
 
+// Seeded by `php artisan staging:seed-demo`; the email is stable even though the
+// card ids change on every weekly refresh.
+const DEMO_CUSTOMER = 'demo@loyalty.lt';
+
 const configured = () => Boolean(KEY && SECRET);
 
 async function callApi(path: string, init?: RequestInit) {
@@ -125,6 +129,7 @@ export async function POST(request: Request) {
         ...(pointsToRedeem !== undefined ? { points_to_redeem: pointsToRedeem } : {}),
         ...(paymentMethod ? { payment_method: paymentMethod } : {}),
         ...(state ? { status: state } : {}),
+        ...(payload.updatedBy ? { updated_by: payload.updatedBy } : {}),
       }),
     });
     return NextResponse.json({ ok: status === 200, message: body?.message ?? null });
@@ -137,6 +142,34 @@ export async function POST(request: Request) {
       { method: 'DELETE' },
     );
     return NextResponse.json({ ok: status === 200 });
+  }
+
+  // --- the simulated customer phone -------------------------------------------
+  // The docs demo runs on staging; the app in a reader's hand talks to production and
+  // resolves QR codes against a different database on a different broker, so it can
+  // never complete this session. The phone panel plays the customer instead, over the
+  // same channels, using the staging-only simulate-scan endpoint.
+  if (payload.action === 'demo-customer') {
+    const { body } = await callApi(`/loyalty-cards/info?user_email=${encodeURIComponent(DEMO_CUSTOMER)}`);
+    const card = body?.data;
+    if (!card) return NextResponse.json({ error: 'demo customer has no card here' }, { status: 502 });
+
+    return NextResponse.json({
+      loyaltyCardId: card.id,
+      cardNumber: card.card_number,
+      points: card.points,
+      name: card.user?.name ?? DEMO_CUSTOMER,
+      userId: card.user?.id,
+      redemption: card.redemption ?? null,
+    });
+  }
+
+  if (payload.action === 'simulate-scan') {
+    const { status, body } = await callApi(
+      `/qr-card/${encodeURIComponent(payload.sessionId)}/simulate-scan`,
+      { method: 'POST', body: JSON.stringify({ loyalty_card_id: payload.loyaltyCardId }) },
+    );
+    return NextResponse.json({ ok: status === 200, message: body?.message ?? null, data: body?.data ?? null });
   }
 
   // --- take the money ---------------------------------------------------------
