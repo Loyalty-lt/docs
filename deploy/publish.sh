@@ -119,6 +119,9 @@ if (( DRY_RUN )); then
 else
   remote "set -e
     cd $REMOTE_ROOT/api.loyalty.lt
+    # l5-swagger rewrites this tracked file in place on every deploy, so the tree is
+    # permanently dirty here and --ff-only refuses. It is regenerated two lines down.
+    git checkout -- storage/api-docs/api-docs.json 2>/dev/null || true
     git pull --ff-only origin main
     php artisan route:clear
     php artisan config:clear
