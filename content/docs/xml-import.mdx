@@ -1,0 +1,249 @@
+---
+title: "XML product import"
+description: "Feed your catalogue in from an XML file or URL"
+---
+
+# XML product import
+
+Point the platform at your product feed and it pulls in products, prices, stock and
+categories. Run it on a schedule and the app always shows what you actually sell.
+
+Three endpoints:
+
+| | |
+|---|---|
+| `POST /{locale}/shop/xml-import/validate` | Parse and report, change nothing |
+| `POST /{locale}/shop/xml-import/from-url` | Fetch a feed and import it |
+| `POST /{locale}/shop/xml-import/from-file` | Upload a file and import it |
+| `GET /{locale}/shop/xml-import/stats` | What the last imports did |
+
+## Try it now
+
+There is a working feed at
+[`/demo-products.xml`](/demo-products.xml). Validate it against staging:
+
+```bash
+curl -X POST "https://staging-api.loyalty.lt/lt/shop/xml-import/validate" \
+  -H "X-API-Key: $LOYALTY_API_KEY" \
+  -H "X-API-Secret: $LOYALTY_API_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"xml_url": "https://docs.loyalty.lt/demo-products.xml"}'
+```
+
+Then import it for real by swapping the path to `from-url`.
+
+<Tip>
+Always validate first. `validate` parses the feed and tells you how many products it
+found and which ones it would skip, without touching your catalogue. Every import
+endpoint also takes `validate_only: true` if you prefer one code path.
+</Tip>
+
+## What the feed has to look like
+
+The parser looks for products at the first of these that matches, anywhere in the
+document:
+
+```
+product · item · products/product · items/item · offer · offers/offer
+```
+
+So all of these are fine:
+
+<CodeGroup>
+```xml products/product
+<products>
+  <product>…</product>
+</products>
+```
+
+```xml items/item
+<items>
+  <item>…</item>
+</items>
+```
+
+```xml offers/offer
+<offers>
+  <offer>…</offer>
+</offers>
+```
+</CodeGroup>
+
+A product needs **a name and a price**. Anything missing either is skipped and
+reported; the rest of the feed still imports.
+
+```xml
+<product>
+  <name>Ceramic mug</name>
+  <price>6.00</price>
+</product>
+```
+
+## A complete product
+
+```xml
+<product>
+  <id>SKU-1001</id>
+  <name>Espresso blend, 250 g</name>
+  <description>Dark roast, ground for espresso machines.</description>
+  <brand>KAVA virė</brand>
+  <model>EB-250</model>
+  <ean>4771234567890</ean>
+  <sku>SKU-1001</sku>
+  <image>https://cdn.example.com/espresso-250.jpg</image>
+  <url>https://example.com/shop/espresso-250</url>
+  <weight>0.25</weight>
+
+  <price>8.90</price>
+  <discounted_price>7.50</discounted_price>
+  <currency>EUR</currency>
+  <availability>in_stock</availability>
+  <stock>42</stock>
+  <delivery>1-2 working days</delivery>
+  <warranty>14-day returns</warranty>
+  <featured>true</featured>
+
+  <categories>
+    <category>Drinks</category>
+    <category>Coffee beans</category>
+  </categories>
+  <specifications>
+    <specification name="Roast">Dark</specification>
+  </specifications>
+  <features>
+    <feature>Ground for espresso</feature>
+  </features>
+</product>
+```
+
+## Field names
+
+You do not have to rename anything in your feed — each field accepts several spellings.
+The first one present wins.
+
+### Product
+
+| Stored as | Accepted element names |
+|-----------|------------------------|
+| `name` **(required)** | `name`, `title`, `product_name` |
+| `description` | `description`, `desc` |
+| `brand` | `brand`, `manufacturer` |
+| `model` | `model` |
+| `ean` | `ean`, `ean13`, `barcode` |
+| `sku` | `sku`, `code`, `id` |
+| `xml_id` | `id`, `xml_id`, `external_id` |
+| `image_url` | `image`, `image_url`, `picture` |
+| `external_url` | `url`, `link`, `product_url` |
+| `weight` | `weight` |
+| `color` | `color` |
+| `size` | `size` |
+
+### Price and stock
+
+| Stored as | Accepted element names |
+|-----------|------------------------|
+| `price` **(required)** | `price`, `regular_price` |
+| `discounted_price` | `discounted_price`, `sale_price`, `loyalty_program_item_price` |
+| `currency` | `currency` |
+| `availability` | `availability`, `in_stock` |
+| `stock_quantity` | `stock`, `quantity` |
+| `delivery_info` | `delivery`, `shipping` |
+| `warranty_info` | `warranty` |
+| `external_id` | `id`, `external_id` |
+| `featured` | `featured` |
+
+### Categories
+
+`<categories><category>…</category></categories>`, or a plain repeated `<category>`.
+Categories are created as needed, so you do not have to set them up first.
+
+## Importing
+
+<CodeGroup>
+```bash From a URL
+curl -X POST "https://api.loyalty.lt/lt/shop/xml-import/from-url" \
+  -H "X-API-Key: $LOYALTY_API_KEY" \
+  -H "X-API-Secret: $LOYALTY_API_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"xml_url": "https://example.com/feed.xml"}'
+```
+
+```bash From a file
+curl -X POST "https://api.loyalty.lt/lt/shop/xml-import/from-file" \
+  -H "X-API-Key: $LOYALTY_API_KEY" \
+  -H "X-API-Secret: $LOYALTY_API_SECRET" \
+  -F "xml_file=@products.xml"
+```
+</CodeGroup>
+
+<CodeGroup>
+```typescript JavaScript
+await sdk.xmlImportFromUrl('https://example.com/feed.xml');
+const stats = await sdk.getXmlImportStats();
+```
+
+```php PHP
+$sdk->importFromUrl('https://example.com/feed.xml');
+$stats = $sdk->getImportStats();
+```
+
+```python Python
+sdk.import_from_url('https://example.com/feed.xml')
+stats = sdk.get_import_stats()
+```
+</CodeGroup>
+
+Matching is by `sku` / `xml_id`, so re-importing the same feed updates the products
+already there rather than duplicating them. Run it as often as your prices change.
+
+<Warning>
+A feed URL must be publicly reachable over HTTP. Addresses on private networks are
+refused — the importer will not fetch `localhost`, `10.x`, `192.168.x` or similar.
+Upload the file instead if the feed is internal.
+</Warning>
+
+## What you get back
+
+```json
+{
+  "success": true,
+  "code": 200,
+  "request_id": "…",
+  "message": "Import completed",
+  "data": {
+    "products_created": 2,
+    "products_updated": 1,
+    "offers_created": 3,
+    "errors": ["Missing required fields for product"]
+  }
+}
+```
+
+`errors` lists the products that were skipped; the import itself still succeeded for
+everything else. `GET /{locale}/shop/xml-import/stats` returns the same counts for
+previous runs.
+
+## When it does not work
+
+<AccordionGroup>
+<Accordion title="No products found in XML">
+The parser did not recognise the element holding your products. Wrap them in one of the
+shapes above — `<products><product>` is the safest.
+</Accordion>
+
+<Accordion title="Products are skipped">
+Each skipped product is missing a name or a price. Check the aliases table: a feed using
+`<productName>` or `<cost>` will not be picked up, because those are not recognised
+spellings.
+</Accordion>
+
+<Accordion title="Prices import but products duplicate">
+The feed has no stable identifier. Add `<sku>` or `<id>` so re-imports can match what is
+already there.
+</Accordion>
+
+<Accordion title="The URL is refused">
+The importer blocks private and loopback addresses. Use a public URL, or upload the file
+with `from-file`.
+</Accordion>
+</AccordionGroup>

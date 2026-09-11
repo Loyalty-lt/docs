@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Pusher from 'pusher-js';
-import { QRCodeSVG } from 'qrcode.react';
 
 /**
  * A working till, wired to the staging API, embedded in the docs at /docs/demo.
@@ -401,7 +400,16 @@ export default function Till() {
               {session ? (
                 <>
                   <div style={{ background: '#fff', padding: 9, borderRadius: 10, display: 'inline-block' }}>
-                    <QRCodeSVG value={session.qrCode} size={132} />
+                    {/* Rendered by the platform's own GET /qr, not a third-party image
+                        service — a session id should not leave our infrastructure. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`https://api.loyalty.lt/qr?size=132&data=${encodeURIComponent(session.qrCode)}`}
+                      alt="Scan to collect points"
+                      width={132}
+                      height={132}
+                      style={{ display: 'block' }}
+                    />
                   </div>
                   <div style={{ ...label, marginTop: 10 }}>or type this in the app</div>
                   <div style={code}>{session.manualCode}</div>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  A working feed for https://docs.loyalty.lt/docs/xml-import
+
+  Import it as-is to see the shape the parser expects:
+
+    curl -X POST "https://staging-api.loyalty.lt/lt/shop/xml-import/from-url" \
+      -H "X-API-Key: $LOYALTY_API_KEY" \
+      -H "X-API-Secret: $LOYALTY_API_SECRET" \
+      -H "Content-Type: application/json" \
+      -d '{"xml_url": "https://docs.loyalty.lt/demo-products.xml", "validate_only": true}'
+-->
+<products>
+  <!-- Everything a product can carry. Only name and price are required. -->
+  <product>
+    <id>SKU-1001</id>
+    <name>Espresso blend, 250 g</name>
+    <description>Dark roast, ground for espresso machines.</description>
+    <brand>KAVA virė</brand>
+    <model>EB-250</model>
+    <ean>4771234567890</ean>
+    <sku>SKU-1001</sku>
+    <image>https://cdn.loyalty.lt/demo/espresso-250.jpg</image>
+    <url>https://example.com/shop/espresso-250</url>
+    <weight>0.25</weight>
+    <price>8.90</price>
+    <discounted_price>7.50</discounted_price>
+    <currency>EUR</currency>
+    <availability>in_stock</availability>
+    <stock>42</stock>
+    <delivery>1-2 working days</delivery>
+    <warranty>14-day returns</warranty>
+    <featured>true</featured>
+    <categories>
+      <category>Drinks</category>
+      <category>Coffee beans</category>
+    </categories>
+    <specifications>
+      <specification name="Roast">Dark</specification>
+      <specification name="Origin">Brazil</specification>
+    </specifications>
+    <features>
+      <feature>Ground for espresso</feature>
+      <feature>Resealable bag</feature>
+    </features>
+  </product>
+
+  <!-- The minimum that will import. -->
+  <product>
+    <name>Ceramic mug</name>
+    <price>6.00</price>
+  </product>
+
+  <!-- Aliases: title, manufacturer, barcode, sale_price and in_stock all work. -->
+  <product>
+    <title>Filter blend, 500 g</title>
+    <manufacturer>KAVA virė</manufacturer>
+    <barcode>4771234567906</barcode>
+    <code>SKU-1003</code>
+    <picture>https://cdn.loyalty.lt/demo/filter-500.jpg</picture>
+    <link>https://example.com/shop/filter-500</link>
+    <regular_price>14.50</regular_price>
+    <sale_price>12.90</sale_price>
+    <currency>EUR</currency>
+    <in_stock>true</in_stock>
+    <quantity>17</quantity>
+    <category>Coffee beans</category>
+  </product>
+</products>
