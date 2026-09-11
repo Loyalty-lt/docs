@@ -64,18 +64,13 @@ get back a JWT for that customer.
   after 5 minutes.
 </Step>
 
-<Step title="Show the QR code and wait">
-  Either subscribe to the realtime channel (preferred, below) or poll:
-
-  ```bash
-  curl -X POST "https://staging-api.loyalty.lt/en/shop/auth/qr-login/poll/{session_id}" \
-    -H "X-API-Key: $LOYALTY_API_KEY" \
-    -H "X-API-Secret: $LOYALTY_API_SECRET"
-  ```
+<Step title="Show the QR code and subscribe">
+  Render the returned QR code and subscribe to the session's realtime channel. The
+  result arrives the moment the customer confirms — see below.
 </Step>
 
 <Step title="Use the token">
-  Once the customer confirms in the app, the session returns their JWT. Send it as
+  Once the customer confirms in the app, the channel delivers their JWT. Send it as
   `Authorization: Bearer <token>` on customer-scoped endpoints.
 </Step>
 </Steps>
@@ -91,11 +86,12 @@ curl -X POST "https://staging-api.loyalty.lt/en/shop/auth/send-app-link" \
   -d '{"phone": "+37060000001"}'
 ```
 
-### Realtime instead of polling
+### Receiving the result
 
-`GET /{locale}/shop/realtime/config` returns the connection details for Laravel
-Reverb, which speaks the Pusher protocol. Do not hardcode the host — read it from
-this endpoint.
+Subscribe to the session's channel — `qr-login.{session_id}` is public, so there is
+nothing to authorize. Connection details come from `GET /{locale}/shop/realtime/config`;
+read them from the endpoint rather than hardcoding a host. See
+[Realtime](/docs/api-reference/realtime) for the full channel list.
 
 ```javascript
 const res = await fetch('https://staging-api.loyalty.lt/en/shop/realtime/config', {
@@ -109,7 +105,7 @@ const pusher = new Pusher(config.key, {
   wssPort: config.port,
   forceTLS: config.scheme === 'https',
   enabledTransports: ['ws', 'wss'],
-  cluster: '',        // Reverb has no clusters, but pusher-js requires the option
+  cluster: '',        // not used, but pusher-js requires the option
   disableStats: true,
 });
 
@@ -122,8 +118,19 @@ pusher.subscribe(`qr-login.${sessionId}`).bind('status_update', (payload) => {
 
 <Note>
 The `qr-login.{session_id}` channel is public — the unguessable session ID is the
-secret — so there is no channel authorization step.
+secret — so there is no channel authorization step and no token to manage.
 </Note>
+
+### Fallback: polling
+
+Only if your environment cannot hold a WebSocket open. It is slower for the customer
+standing at the till and costs a request per second per session.
+
+```bash
+curl -X POST "https://staging-api.loyalty.lt/en/shop/auth/qr-login/poll/{session_id}" \
+  -H "X-API-Key: $LOYALTY_API_KEY" \
+  -H "X-API-Secret: $LOYALTY_API_SECRET"
+```
 
 ## Customer JWT
 

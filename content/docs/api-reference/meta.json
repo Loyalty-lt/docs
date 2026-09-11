@@ -1,4 +1,4 @@
 {
   "title": "API Basics",
-  "pages": ["overview", "authentication", "staging"]
+  "pages": ["overview", "authentication", "realtime", "staging"]
 }

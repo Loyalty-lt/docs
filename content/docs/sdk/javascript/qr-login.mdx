@@ -11,10 +11,10 @@ in the Loyalty.lt mobile app. You get back a JWT for that customer.
 
 Sessions expire after **5 minutes**.
 
-## With the realtime subscription
+## Subscribe to the result
 
-`subscribeToQrLogin` opens the Reverb channel for you and fires the callback when the
-status changes. Preferred over polling.
+`subscribeToQrLogin` opens the session's realtime channel for you and fires the
+callback the moment the status changes. This is the way to do it.
 
 ```typescript
 const session = await sdk.generateQrLogin('Till 3', shopId);
@@ -35,9 +35,10 @@ const subscription = await sdk.subscribeToQrLogin(session.session_id, ({ data })
 
 Call `subscription.unsubscribe()` and `sdk.disconnectWebSocket()` when the screen unmounts.
 
-## With polling
+## Fallback: polling
 
-If you cannot open a WebSocket, poll instead. Every second is enough.
+Only if your environment cannot hold a WebSocket open. It is slower for the customer
+standing at the till and costs a request per second per session.
 
 ```typescript
 const session = await sdk.generateQrLogin('Till 3', shopId);

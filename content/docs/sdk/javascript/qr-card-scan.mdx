@@ -37,7 +37,9 @@ subscription.unsubscribe();
 
 Sessions expire after 5 minutes. `session.expires_at` carries the deadline.
 
-## Polling instead
+## Fallback: polling
+
+Only if your environment cannot hold a WebSocket open.
 
 ```typescript
 const session = await sdk.generateQrCardSession('Till 3', shopId);

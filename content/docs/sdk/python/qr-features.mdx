@@ -10,38 +10,51 @@ Two QR flows, both driven from your server:
 - **QR login** — the customer scans to sign in, and you get their JWT.
 - **QR card scan** — the customer scans at the till, and you get their loyalty card.
 
-Sessions expire after 5 minutes. The Python SDK polls; realtime subscription helpers
-are JavaScript-only.
+Sessions expire after 5 minutes.
+
+**Your server opens the session; the browser waits on the realtime channel.** That is
+the path to build — the result lands the instant the customer confirms, with no
+request per second and no lag at the till. The Python SDK has no subscription helper
+because the subscription belongs in the page, not on the server.
+
+## Receiving the result
+
+`GET /{locale}/shop/realtime/config` returns the connection details for the session's
+channel. Read them from the endpoint rather than hardcoding a host, so your
+integration keeps working when the infrastructure changes. The channel speaks the
+Pusher protocol, so any Pusher client library works in the browser:
+
+```python
+config = sdk.get_realtime_config()   # key, host, port, scheme
+```
+
+Then subscribe in the browser to `qr-login.{session_id}` or `qr-card.{session_id}` —
+see [Realtime](/docs/api-reference/realtime).
 
 ## QR login
 
+Open the session on your server, render the QR code, and let the page wait on the
+channel above.
+
 ```python
-import time
-
-# 1. Open a session and render session['qr_code'] as a QR image
 session = sdk.generate_qr_login(device_name='Till 3', shop_id=shop_id)
-
-# 2. Poll until the customer confirms
-deadline = time.time() + 300
-while time.time() < deadline:
-    status = sdk.poll_qr_login(session['session_id'])
-
-    if status['status'] == 'authenticated':
-        token, user = status['token'], status['user']
-        break
-    if status['status'] in ('expired', 'cancelled'):
-        break
-    time.sleep(1)
+# render session['qr_code'] as a QR image; the page subscribes to
+# qr-login.{session['session_id']} and receives the token there
 ```
 
-In a web app, poll from the browser against your own endpoint rather than blocking a
-worker:
+### Fallback: polling
+
+Only if the page cannot hold a WebSocket open. Never block a worker in a loop —
+expose the poll as your own endpoint and call it from the browser:
 
 ```python
 # Django
 def qr_status(request, session_id):
     return JsonResponse(sdk.poll_qr_login(session_id))
 ```
+
+The status is `authenticated` when the customer confirms, and the response then
+carries `token` and `user`.
 
 | Status | Meaning |
 |--------|---------|
@@ -64,14 +77,13 @@ The POS flow: identify the card without asking for a phone number.
 
 ```python
 session = sdk.generate_qr_card_session(device_name='Till 3', shop_id=shop_id)
-# render session['qr_code']
-
-status = sdk.poll_qr_card_status(session['session_id'])
-
-if status['status'] == 'authenticated':
-    card = status['card_data']
-    # card['loyalty_card_id'], card['card_number'], card['points'], card['user']
+# render session['qr_code']; the till subscribes to qr-card.{session['session_id']}
+# and receives card_data the moment the customer scans
 ```
+
+`card_data` carries `loyalty_card_id`, `card_number`, `points` and `user`. If the till
+cannot hold a WebSocket open, `sdk.poll_qr_card_status(session['session_id'])` returns
+the same thing, one request at a time.
 
 ## Finishing the sale
 
@@ -90,15 +102,3 @@ sdk.create_transaction(
 for game in games:
     sdk.add_stamps(game['id'], card['loyalty_card_id'], shop_id, stamps_count=1)
 ```
-
-## Realtime
-
-To avoid polling, connect to Laravel Reverb (Pusher protocol) from the browser. Read
-the connection details from the API rather than hardcoding a host:
-
-```python
-config = sdk.get_realtime_config()   # key, host, port, scheme
-```
-
-Then subscribe in the browser to `qr-login.{session_id}` or `qr-card.{session_id}` —
-see [Authentication](/docs/api-reference/authentication#realtime-instead-of-polling).

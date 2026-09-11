@@ -48,8 +48,11 @@ URL, unwraps the response envelope, and retries `429` and `5xx` for you.
 | Realtime subscription helpers | Yes | – | – |
 | React components | Yes | – | – |
 
-The PHP and Python SDKs poll for QR results; the JavaScript SDK can also subscribe to
-the realtime channel for you.
+QR results arrive over a realtime channel in every language — that is the path to
+build. The JavaScript SDK opens the subscription for you; in PHP and Python the
+subscription belongs in the browser, and the SDK gives you the connection details
+(`getRealtimeConfig`). Polling exists as a fallback for environments that cannot hold
+a WebSocket open.
 
 ## Configuration
 
