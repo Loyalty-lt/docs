@@ -28,7 +28,7 @@ const CATALOGUE = [
   { id: 108, name: 'Ceramic mug', price: 6.0 },
 ];
 
-type Stage = 'ringing' | 'identifying' | 'identified' | 'paid';
+type Stage = 'waiting' | 'identified' | 'paid';
 type Line = { id: number; name: string; price: number; qty: number };
 
 interface Redemption {
@@ -53,7 +53,7 @@ export default function Till() {
   const [shopName, setShopName] = useState('Demo shop');
   const [realtime, setRealtime] = useState<Record<string, never> | null>(null);
 
-  const [stage, setStage] = useState<Stage>('ringing');
+  const [stage, setStage] = useState<Stage>('waiting');
   const [lines, setLines] = useState<Line[]>([]);
   const [session, setSession] = useState<{ id: string; qrCode: string; manualCode: string; expiresAt: string } | null>(null);
   const [card, setCard] = useState<Card | null>(null);
@@ -119,7 +119,7 @@ export default function Till() {
 
   const newSale = () => {
     pusherRef.current?.disconnect();
-    setStage('ringing');
+    setStage('waiting');
     setLines([]);
     setSession(null);
     setCard(null);
@@ -128,10 +128,36 @@ export default function Till() {
     setLog([]);
   };
 
-  // ---- identify ------------------------------------------------------------
+  // ---- charge --------------------------------------------------------------
+  const charge = async () => {
+    setBusy(true);
+    try {
+      const body = {
+        action: 'charge',
+        userId: card?.user?.id,
+        orderTotal: total,
+        pointsRedeemed: spendPoints || undefined,
+        pointsDiscount: spendPoints ? Number(discount.toFixed(2)) : undefined,
+        paymentMethod: payment,
+        items: lines,
+      };
+      append('POST /shop/transactions/create', { order_total: body.orderTotal, points_redeemed: body.pointsRedeemed });
+      const r = await (
+        await fetch('/api/demo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      ).json();
+      append(r.ok ? 'transaction created' : 'transaction failed', r.errors ?? r.message ?? r.data);
+      setReceipt(r);
+      if (r.ok) setStage('paid');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // ---- the code is up from the start ---------------------------------------
+  // A customer walks up and scans before anything is rung through, so the till shows
+  // the code the moment it is open rather than hiding it behind a basket.
   const identify = useCallback(async () => {
     if (!realtime) return;
-    setStage('identifying');
     try {
       const s = await (
         await fetch('/api/demo', {
@@ -168,47 +194,26 @@ export default function Till() {
       });
       ch.bind('status_update', (p: { status?: string }) => {
         append('status_update', p);
-        if (p.status === 'expired') setStage('ringing');
+        if (p.status === 'expired') setSession(null);   // the effect opens a fresh one
       });
     } catch (e) {
       append('error', String(e));
-      setStage('ringing');
     }
   }, [realtime, append]);
 
+  // Open one as soon as we can, and again whenever a sale ends.
+  useEffect(() => {
+    if (realtime && stage === 'waiting' && !session) identify();
+  }, [realtime, stage, session, identify]);
+
   // countdown while the code is up
   useEffect(() => {
-    if (!session?.expiresAt || stage !== 'identifying') return;
+    if (!session?.expiresAt || stage !== 'waiting') return;
     const tick = () => setSecondsLeft(Math.max(0, Math.round((Date.parse(session.expiresAt) - Date.now()) / 1000)));
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
   }, [session, stage]);
-
-  // ---- charge --------------------------------------------------------------
-  const charge = async () => {
-    setBusy(true);
-    try {
-      const body = {
-        action: 'charge',
-        userId: card?.user?.id,
-        orderTotal: total,
-        pointsRedeemed: spendPoints || undefined,
-        pointsDiscount: spendPoints ? Number(discount.toFixed(2)) : undefined,
-        paymentMethod: payment,
-        items: lines,
-      };
-      append('POST /shop/transactions/create', { order_total: body.orderTotal, points_redeemed: body.pointsRedeemed });
-      const r = await (
-        await fetch('/api/demo', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-      ).json();
-      append(r.ok ? 'transaction created' : 'transaction failed', r.errors ?? r.message ?? r.data);
-      setReceipt(r);
-      if (r.ok) setStage('paid');
-    } finally {
-      setBusy(false);
-    }
-  };
 
   if (configured === false) {
     return (
@@ -275,38 +280,34 @@ export default function Till() {
 
         {/* ------------------------------------------------ right column */}
         <section style={panel}>
-          {stage === 'ringing' && (
-            <>
-              <h2 style={label}>Customer</h2>
-              <p style={muted}>
-                Ring the basket up, then identify the customer so their points apply and this sale
-                earns them more.
-              </p>
-              <button style={primary} onClick={identify} disabled={lines.length === 0}>
-                {lines.length === 0 ? 'Add something first' : 'Identify customer'}
-              </button>
-              <p style={{ ...muted, marginTop: 8 }}>
-                You can also charge without a customer — no points either way.
-              </p>
-            </>
-          )}
-
-          {stage === 'identifying' && session && (
+          {stage === 'waiting' && (
             <div style={{ textAlign: 'center' }}>
               <h2 style={{ ...label, justifyContent: 'center', display: 'flex' }}>Scan to collect points</h2>
-              <div style={{ background: '#fff', padding: 9, borderRadius: 10, display: 'inline-block' }}>
-                <QRCodeSVG value={session.qrCode} size={132} />
-              </div>
-              <div style={{ ...label, marginTop: 10 }}>or type this in the app</div>
-              <div style={code}>{session.manualCode}</div>
-              <div style={{ fontSize: 11, color: '#9aa8a2', marginTop: 6 }}>
-                {secondsLeft !== null && secondsLeft > 0
-                  ? `Expires in ${Math.floor(secondsLeft / 60)}:${String(secondsLeft % 60).padStart(2, '0')}`
-                  : 'Expired'}
-              </div>
-              <button style={ghost} onClick={() => setStage('ringing')}>
-                Cancel
-              </button>
+              {session ? (
+                <>
+                  <div style={{ background: '#fff', padding: 9, borderRadius: 10, display: 'inline-block' }}>
+                    <QRCodeSVG value={session.qrCode} size={132} />
+                  </div>
+                  <div style={{ ...label, marginTop: 10 }}>or type this in the app</div>
+                  <div style={code}>{session.manualCode}</div>
+                  <div style={{ fontSize: 11, color: '#9aa8a2', marginTop: 6 }}>
+                    {secondsLeft !== null && secondsLeft > 0
+                      ? `Expires in ${Math.floor(secondsLeft / 60)}:${String(secondsLeft % 60).padStart(2, '0')}`
+                      : 'Renewing…'}
+                  </div>
+                </>
+              ) : (
+                <p style={muted}>Opening a session…</p>
+              )}
+              <p style={{ ...muted, marginTop: 10 }}>
+                Ring items up while the customer scans — the order does not matter. Charging
+                without a customer works too; nobody earns points.
+              </p>
+              {lines.length > 0 && (
+                <button style={primary} onClick={charge} disabled={busy || total <= 0}>
+                  {busy ? 'Posting…' : `Charge ${eur(total)} without points`}
+                </button>
+              )}
             </div>
           )}
 
