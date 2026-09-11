@@ -5,45 +5,67 @@ description: 'Test your integration against demo data before going live'
 
 # Staging
 
-Staging is a full copy of the API with demo data. Build and test against it, then
-change one URL to go live.
+Staging runs the same code as production against its own database, seeded with demo
+customers. Build and test against it, then change one URL to go live.
 
 | | Staging | Production |
 |---|---------|------------|
 | Base URL | `https://staging-api.loyalty.lt` | `https://api.loyalty.lt` |
-| Data | Demo only | Real customers |
+| Code | The same commit as production | — |
+| Data | Your real catalogue, demo customers | Real customers |
 | Credentials | Staging pair only | Production pair only |
-| Reset | Every Sunday 05:00 EET | Never |
+| Refresh | Every Sunday morning | Never |
 
 Create a staging key/secret in the [Partners Portal](https://partners.loyalty.lt) →
 **API Credentials** → environment **Staging**. Staging credentials are rejected by the
 production API and vice versa.
 
-## Demo data
+```bash
+curl -X POST "https://staging-api.loyalty.lt/lt/shop/validate-credentials" \
+  -H "X-API-Key: $LOYALTY_API_KEY" \
+  -H "X-API-Secret: $LOYALTY_API_SECRET"
+```
 
-Demo loyalty cards, numbered `900-{user_id}-{partner_id}`:
+## What is in there
 
-| Card number | Phone | Email | Points |
-|-------------|-------|-------|--------|
-| `900-001-001` | +37060000001 | demo1@loyalty.lt | 1000 |
-| `900-002-001` | +37060000002 | demo2@loyalty.lt | 2500 |
-| `900-003-001` | +37060000003 | demo3@loyalty.lt | 500 |
-| `900-004-001` | +37060000004 | demo4@loyalty.lt | 10000 |
-| `900-005-001` | +37060000005 | demo5@loyalty.lt | 150 |
+Your partner record, shops, products, offers and games are copied from production, so
+the catalogue you test against is your own. Customers are not — those are demo
+accounts created fresh:
 
-Demo staff accounts for the Staff App, logging in by barcode
-(`{partner_id}{user_id}`, user ID padded to 8 digits):
+| Customer | Phone | Points |
+|----------|-------|--------|
+| `demo@loyalty.lt` | +37060000001 | 1500 |
+| `test@loyalty.lt` | +37060000002 | 500 |
+| `sdk@loyalty.lt` | +37060000003 | 2500 |
 
-| Barcode | Name | Role |
-|---------|------|------|
-| `100000001` | Demo Manager | Manager |
-| `100000002` | Demo Cashier | Cashier |
+Each one holds a loyalty card for **every** partner, numbered
+`900-{user_id}-{partner_id}` with both parts zero-padded to three digits.
 
-## Weekly reset
+<Warning>
+Do not hardcode a card number. The IDs change whenever staging is refreshed. Look the
+card up by the customer's email or phone instead:
 
-Sundays at 05:00 EET, staging clears transactions, point awards, game progress and
-coupon redemptions. Partner settings, the catalogue, demo cards, demo staff and your
-API credentials survive.
+```bash
+curl -X GET "https://staging-api.loyalty.lt/lt/shop/loyalty-cards?per_page=50" \
+  -H "X-API-Key: $LOYALTY_API_KEY" -H "X-API-Secret: $LOYALTY_API_SECRET"
+```
+</Warning>
+
+Two demo staff accounts exist for the POS staff app: `staff@loyalty.lt` (cashier) and
+`manager@loyalty.lt` (manager).
+
+## Weekly refresh
+
+Every Sunday morning, in order:
+
+| Time (EET) | What happens |
+|------------|--------------|
+| 04:00 | Partner catalogue re-copied from production |
+| 05:00 | Transactions, point awards, game progress and coupon redemptions cleared |
+| 06:00 | Demo customers, their cards and demo staff recreated |
+
+Your API credentials survive. Anything you created during the week does not — treat
+staging as disposable and make your tests recreate what they need.
 
 ## A first end-to-end test
 
@@ -51,27 +73,29 @@ API credentials survive.
 // 1. Credentials reach the API
 await sdk.validateCredentials();
 
-// 2. Look up a demo card
-const card = await sdk.getLoyaltyCardInfo({ card_number: '900-001-001' });
+// 2. Find a shop to work against
+const { data: shops } = await sdk.getShops();
+const shopId = shops[0].id;
 
 // 3. Register a purchase — this awards the points
 await sdk.createTransaction({
-  user_email: 'demo1@loyalty.lt',
+  user_email: 'demo@loyalty.lt',
   order_id: `TEST-${Date.now()}`,
   order_total: 25.50,
   currency: 'EUR',
-  shop_id: 1,
+  shop_id: shopId,
 });
 
 // 4. Read the new balance
-const balance = await sdk.getPointsBalance({ card_number: '900-001-001' });
+const card = await sdk.getLoyaltyCardInfo({ user_id: userId });
+const balance = await sdk.getPointsBalance({ card_id: card.id });
 ```
 
 Then reverse it, using the same `order_id`:
 
 ```javascript
 await sdk.createTransaction({
-  user_email: 'demo1@loyalty.lt',
+  user_email: 'demo@loyalty.lt',
   order_id: 'TEST-...',      // the same order_id as above
   type: 'refund',
   order_total: 25.50,
@@ -83,17 +107,28 @@ await sdk.createTransaction({
 <AccordionGroup>
   <Accordion title="401 Unauthorized">
     Staging credentials only work against `staging-api.loyalty.lt`. Check the base URL,
-    that both headers are present, and that the credential is still active in the
-    Partners Portal.
+    that both `X-API-Key` and `X-API-Secret` are present, and that the credential is
+    still active in the Partners Portal.
   </Accordion>
 
   <Accordion title="404 card not found">
-    Use the demo card numbers above. Production cards do not exist in staging.
+    Production cards do not exist in staging, and demo card numbers change on every
+    refresh. Look the card up by email or phone rather than by a number you saved.
   </Accordion>
 
-  <Accordion title="422 on transactions/create">
-    `order_id` is required, and so is one of `user_id` or `user_email`. Read the
-    `errors` object in the response — it names the field.
+  <Accordion title="Everything I created last week is gone">
+    Expected — staging is cleared every Sunday at 05:00 EET. Only your API credentials
+    and the partner catalogue survive.
+  </Accordion>
+
+  <Accordion title="Staging behaves differently from production">
+    It should not; both run the same commit. Compare the two, and tell us if they
+    differ:
+
+    ```bash
+    curl -s https://staging-api.loyalty.lt/lt/shop/system/health | grep -o '"version":"[^"]*"'
+    curl -s https://api.loyalty.lt/lt/shop/system/health | grep -o '"version":"[^"]*"'
+    ```
   </Accordion>
 </AccordionGroup>
 

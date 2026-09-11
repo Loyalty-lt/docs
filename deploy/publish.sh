@@ -137,6 +137,25 @@ if ! (( DRY_RUN )); then
   fi
 fi
 
+# ---------------------------------------------------- 3b. deploy staging
+
+bold "Deploying staging-api.loyalty.lt"
+
+# Staging ships the same commit as production, always. Integrators build against
+# staging; when it lags, they are testing an API that no longer exists. It sat
+# seven minor versions behind before this step existed.
+if (( DRY_RUN )); then
+  warn "would pull, composer install, migrate and clear caches on staging"
+else
+  if remote "test -d $REMOTE_ROOT/staging-api.loyalty.lt/.git"; then
+    remote "$REMOTE_ROOT/staging-api.loyalty.lt/deploy/staging-deploy.sh" 2>&1 | grep -E '==>|version|FAILED' | tail -8
+  else
+    warn "staging is not a git checkout yet — run deploy/staging-bootstrap.sh on the server once"
+    warn "  ssh -i ~/.ssh/id_ed25519 -p 29485 root@185.170.198.15"
+    warn "  cd $REMOTE_ROOT/staging-api.loyalty.lt && ./deploy/staging-bootstrap.sh"
+  fi
+fi
+
 # ------------------------------------------------------ 4. verify the API
 
 bold "Verifying the live spec"
