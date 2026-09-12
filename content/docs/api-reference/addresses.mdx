@@ -95,6 +95,95 @@ curl "https://api.loyalty.lt/lt/shop/addresses/156959662" \
 
 Returns the full hierarchy: street, locality, municipality, county and `valid_from`.
 
+## Validating an address
+
+Search returns the nearest candidates, which is right for a suggestion list and wrong
+for a checkout. Validation answers the other question: **is this address real?**
+
+```bash
+curl -X POST "https://api.loyalty.lt/lt/shop/addresses/validate" \
+  -H "X-API-Key: $LOYALTY_API_KEY" \
+  -H "X-API-Secret: $LOYALTY_API_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"address": "Gedimino pr 9, Vilnius"}'
+```
+
+```json
+{
+  "data": {
+    "results": [
+      {
+        "input": "Gedimino pr 9, Vilnius",
+        "status": "valid",
+        "match": { "code": 156959662, "full_address": "Gedimino pr. 9, Vilnius m.", "postal_code": "LT-01103" },
+        "alternatives": [],
+        "suggestion": null
+      }
+    ],
+    "summary": { "total": 1, "valid": 1, "ambiguous": 0, "not_found": 0 }
+  }
+}
+```
+
+Three statuses, because each needs a different thing from you:
+
+| Status | What it means | What to do |
+|---|---|---|
+| `valid` | Every word of the query matches one address | Use `match` |
+| `ambiguous` | Several addresses fit equally | Show `alternatives`, let the customer pick |
+| `not_found` | The register has no such address | Show `suggestion` as a correction, or ask again |
+
+A house number is compared as a whole word, so `9` never validates against `19`. A typo
+comes back as `not_found` **with** a `suggestion` — we will not confirm an address we
+had to guess at, but the nearest real one is worth offering.
+
+Send `addresses` instead of `address` to check up to 50 at once — that is how an existing
+customer list gets cleaned.
+
+## Searching with separate fields
+
+If your form already splits the address, keep it split:
+
+```bash
+curl -G "https://api.loyalty.lt/lt/shop/addresses/search" \
+  --data-urlencode "street=Gedimino" \
+  --data-urlencode "house_number=9" \
+  --data-urlencode "city=Vilnius" \
+  -H "X-API-Key: $LOYALTY_API_KEY" -H "X-API-Secret: $LOYALTY_API_SECRET"
+```
+
+`q` and the split fields are interchangeable; use whichever your form already produces.
+
+## Drop-in widget
+
+One input, suggestions, and the postal code and city filled from the chosen address —
+without writing the autocomplete yourself. No dependencies, about 6 KB.
+
+<Card title="Live demo" href="/demo/addresses">
+  Type an address and watch the fields fill.
+</Card>
+
+```html
+<input id="address"><input id="city"><input id="postal">
+
+<script src="https://docs.loyalty.lt/widget/loyalty-address.js"></script>
+<script>
+  LoyaltyAddress.attach('#address', {
+    endpoint: '/api/address-search',
+    fields: { city: '#city', postalCode: '#postal' },
+    onSelect: (address) => console.log(address.code, address.postal_code),
+  });
+</script>
+```
+
+<Warning>
+`endpoint` points at **your** server, not at us. A browser cannot hold an API secret —
+anything it holds is public — so your backend proxies the call and adds the headers.
+</Warning>
+
+The widget dispatches `input` and `change` events on the fields it fills, so React, Vue
+and Livewire forms pick the values up the same as if they had been typed.
+
 ## Browsing the hierarchy
 
 For dependent dropdowns — municipality, then locality, then street.
