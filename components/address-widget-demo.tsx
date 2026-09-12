@@ -26,6 +26,8 @@ declare global {
 
 type Selected = {
   code: number;
+  flats_count?: number;
+  coordinates?: { latitude: number; longitude: number; accuracy: string } | null;
   full_address: string;
   postal_code: string | null;
   street?: { name: string; display_name?: string } | null;
@@ -34,6 +36,7 @@ type Selected = {
 };
 
 const SNIPPET = `<input id="address" placeholder="Gatvė ir namo numeris">
+<input id="flat" placeholder="Butas" hidden>
 <input id="city" placeholder="Miestas">
 <input id="postal" placeholder="Pašto kodas">
 
@@ -42,7 +45,8 @@ const SNIPPET = `<input id="address" placeholder="Gatvė ir namo numeris">
   LoyaltyAddress.attach('#address', {
     // Gamyboje — tavo serverio proxy, kuris prideda X-API-Key ir X-API-Secret.
     endpoint: '/api/address-search',
-    fields: { city: '#city', postalCode: '#postal' },
+    flatsEndpoint: '/api/address-flats/{code}',
+    fields: { city: '#city', postalCode: '#postal', flat: '#flat' },
     onSelect: (a) => console.log(a.code, a.postal_code),
   });
 <\/script>`;
@@ -68,7 +72,13 @@ export function AddressWidgetDemo({ embedded = false }: { embedded?: boolean }) 
       window.LoyaltyAddress.attach('#demo-address', {
         endpoint: 'https://api.loyalty.lt/lt/addresses/search',
         credentials: 'omit',
-        fields: { city: '#demo-city', postalCode: '#demo-postal', municipality: '#demo-municipality' },
+        fields: {
+          city: '#demo-city',
+          postalCode: '#demo-postal',
+          municipality: '#demo-municipality',
+          flat: '#demo-flat',
+        },
+        flatsEndpoint: 'https://api.loyalty.lt/lt/addresses/{code}/flats',
         onSelect: (address: Selected) => {
           setSelected(address);
           if (started.at) setElapsed(Math.round(performance.now() - started.at));
@@ -97,6 +107,17 @@ export function AddressWidgetDemo({ embedded = false }: { embedded?: boolean }) 
           <input
             id="demo-address"
             placeholder="Gedimino pr 9"
+            className="w-full rounded-md border bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-fd-primary/40"
+          />
+        </div>
+
+        <div className="space-y-1.5">
+          <label htmlFor="demo-flat" className="text-sm font-medium">Flat</label>
+          {/* Rodom tik daugiabučiams — widget'as pats paslepia, kai name butų nėra. */}
+          <input
+            id="demo-flat"
+            hidden
+            placeholder="12"
             className="w-full rounded-md border bg-transparent px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-fd-primary/40"
           />
         </div>

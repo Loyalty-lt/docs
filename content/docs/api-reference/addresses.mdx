@@ -6,7 +6,8 @@ description: "Lithuanian addresses and postal codes from the state register"
 # Addresses
 
 Address search backed by the **Lithuanian Address Register** (Registrų centras): roughly
-1.1 million address points, 60 000 streets, 26 000 localities and every postal code.
+1.1 million address points, 1.15 million flats, 60 000 streets, 26 000 localities and
+every postal code.
 
 The data is a mirror of the state register, refreshed monthly. Nothing here is guessed —
 if an address is not in the register, the API returns nothing rather than inventing it.
@@ -47,7 +48,8 @@ curl -G "https://api.loyalty.lt/lt/shop/addresses/search" \
         "street": { "code": 1214286, "name": "Gedimino", "display_name": "Gedimino pr." },
         "locality": { "code": 31003, "name": "Vilnius", "type": "m." },
         "municipality": { "code": 13, "name": "Vilniaus miesto" },
-        "coordinates": null,
+        "coordinates": { "latitude": 54.6882696, "longitude": 25.2730505, "accuracy": "street" },
+        "flats_count": 0,
         "score": 0.692,
         "updated_at": "2026-09-12T11:02:14.000000Z"
       }
@@ -169,17 +171,23 @@ Try it here — this is the real widget calling the real API, not a recording:
 />
 
 ```html
-<input id="address"><input id="city"><input id="postal">
+<input id="address"><input id="flat" hidden><input id="city"><input id="postal">
 
 <script src="https://docs.loyalty.lt/widget/loyalty-address.js"></script>
 <script>
   LoyaltyAddress.attach('#address', {
     endpoint: '/api/address-search',
-    fields: { city: '#city', postalCode: '#postal' },
+    flatsEndpoint: '/api/address-flats/{code}',
+    fields: { city: '#city', postalCode: '#postal', flat: '#flat' },
     onSelect: (address) => console.log(address.code, address.postal_code),
   });
 </script>
 ```
+
+The flat field stays hidden until the chosen address is a block of flats, and then it
+fills with that building's real flat numbers — a `<select>` gets options, an `<input>`
+gets a datalist. `flatsEndpoint` is optional; leave it out and the widget skips flats
+entirely.
 
 <Warning>
 `endpoint` points at **your** server, not at us. A browser cannot hold an API secret —
@@ -188,6 +196,50 @@ anything it holds is public — so your backend proxies the call and adds the he
 
 The widget dispatches `input` and `change` events on the fields it fills, so React, Vue
 and Livewire forms pick the values up the same as if they had been typed.
+
+## Flats
+
+A block of flats needs the flat number before a parcel can be delivered. Every flat
+carries its own registry code.
+
+```bash
+curl "https://api.loyalty.lt/lt/shop/addresses/156959662/flats?q=12" \
+  -H "X-API-Key: $LOYALTY_API_KEY" \
+  -H "X-API-Secret: $LOYALTY_API_SECRET"
+```
+
+`flats_count` on any address tells you whether asking for a flat number makes sense
+at all — zero means a house, not a block.
+
+Validation reads the flat straight out of the address, in the forms people write it:
+`Gedimino pr. 9-12`, `Gedimino pr. 9, bt. 12`. The number is then checked against the
+building, so a flat that does not exist comes back `not_found` rather than confirmed:
+
+```json
+{
+  "input": "Gedimino pr. 9-88",
+  "status": "not_found",
+  "match": null,
+  "suggestion": { "code": 156959662, "full_address": "Gedimino pr. 9, Vilnius m." },
+  "flat": { "number": "88", "found": false }
+}
+```
+
+## Coordinates
+
+Where we have them, coordinates come with an honest `accuracy`:
+
+| `accuracy` | What the point is |
+|---|---|
+| `address` | The building itself |
+| `street` | The midpoint of the street — the house is somewhere along it |
+| `null` (no coordinates) | The register has no geometry for this street |
+
+The state register publishes an address-point dataset but it is currently empty, so
+today the points are computed from street geometry: about a third of streets, some
+450 000 addresses. Saying `street` is the point of the field — a street midpoint
+silently served as a house would put a pin on the wrong building and nobody would
+know.
 
 ## Browsing the hierarchy
 
@@ -198,6 +250,7 @@ For dependent dropdowns — municipality, then locality, then street.
 | `GET /{locale}/shop/addresses/municipalities` | All 60 municipalities |
 | `GET /{locale}/shop/addresses/municipalities/{code}/localities` | Localities in one municipality |
 | `GET /{locale}/shop/addresses/localities/{code}/streets` | Streets in one locality |
+| `GET /{locale}/shop/addresses/{code}/flats` | Flats in one building |
 
 Both list endpoints take `?q=` to filter by name prefix and paginate at 100 per page.
 

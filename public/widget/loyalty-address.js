@@ -13,7 +13,8 @@
  *   <script>
  *     LoyaltyAddress.attach('#address', {
  *       endpoint: '/api/address-search',   // your proxy
- *       fields: { city: '#city', postalCode: '#postal_code' },
+ *       flatsEndpoint: '/api/address-flats', // optional: {code} is replaced
+ *       fields: { city: '#city', postalCode: '#postal_code', flat: '#flat' },
  *       onSelect: (address) => console.log(address.code, address.postal_code),
  *     });
  *   </script>
@@ -120,6 +121,49 @@
       active = index;
     }
 
+    /**
+     * Butų sąrašas pasirinktam namui.
+     *
+     * Kviečiam tik daugiabučiams: `flats_count` iškart pasako, ar klausti buto
+     * prasminga, tad name gyvenantis žmogus nemato tuščio laukelio.
+     */
+    function loadFlats(row) {
+      var field = opts.fields && opts.fields.flat && resolve(opts.fields.flat);
+
+      if (!field) return;
+
+      if (!opts.flatsEndpoint || !row.flats_count) {
+        field.hidden = true;
+        return;
+      }
+
+      fetch(opts.flatsEndpoint.replace('{code}', row.code), {
+        headers: { Accept: 'application/json' },
+        credentials: opts.credentials || 'same-origin',
+      })
+        .then(function (res) { return res.ok ? res.json() : Promise.reject(res.status); })
+        .then(function (body) {
+          var flats = (body && body.data && body.data.flats) || body.flats || [];
+          if (!flats.length) { field.hidden = true; return; }
+
+          if (field.tagName === 'SELECT') {
+            field.innerHTML = '<option value="">—</option>' + flats.map(function (f) {
+              return '<option value="' + f.number + '">' + f.number + '</option>';
+            }).join('');
+          } else {
+            var id = 'la-flats-' + (input.id || 'default');
+            var dl = document.getElementById(id) || el('datalist');
+            dl.id = id;
+            dl.innerHTML = flats.map(function (f) { return '<option value="' + f.number + '">'; }).join('');
+            document.body.appendChild(dl);
+            field.setAttribute('list', id);
+          }
+
+          field.hidden = false;
+        })
+        .catch(function () { field.hidden = true; });
+    }
+
     function choose(row) {
       input.value = streetLine(row);
       close();
@@ -141,6 +185,8 @@
         field.dispatchEvent(new Event('input', { bubbles: true }));
         field.dispatchEvent(new Event('change', { bubbles: true }));
       });
+
+      loadFlats(row);
 
       if (typeof opts.onSelect === 'function') opts.onSelect(row);
     }
