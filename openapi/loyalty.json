@@ -3266,7 +3266,7 @@
                           },
                           "phone": {
                             "type": "string",
-                            "example": "+370 600 00000"
+                            "example": "+370 37 282595"
                           },
                           "email": {
                             "type": "string",
