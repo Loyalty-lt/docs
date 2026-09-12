@@ -159,9 +159,14 @@ curl -G "https://api.loyalty.lt/lt/shop/addresses/search" \
 One input, suggestions, and the postal code and city filled from the chosen address —
 without writing the autocomplete yourself. No dependencies, about 6 KB.
 
-<Card title="Live demo" href="/demo/addresses">
-  Type an address and watch the fields fill.
-</Card>
+Try it here — this is the real widget calling the real API, not a recording:
+
+<iframe
+  src="/demo/addresses?embed=1"
+  title="Address widget demo"
+  loading="lazy"
+  style={{ width: '100%', height: '520px', border: '1px solid var(--color-fd-border)', borderRadius: '12px', marginTop: '1rem' }}
+/>
 
 ```html
 <input id="address"><input id="city"><input id="postal">

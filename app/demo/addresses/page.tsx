@@ -46,7 +46,14 @@ const SNIPPET = `<input id="address" placeholder="Gatvė ir namo numeris">
 export default function AddressWidgetDemo() {
   const [selected, setSelected] = useState<Selected | null>(null);
   const [elapsed, setElapsed] = useState<number | null>(null);
+  const [embedded, setEmbedded] = useState(false);
   const attached = useRef(false);
+
+  // Įdėtas per iframe dokumentacijoje — antraštė ir įdėjimo pavyzdys ten jau yra
+  // puslapyje aplink, tad kartoti juos rėmelyje būtų triukšmas.
+  useEffect(() => {
+    setEmbedded(new URLSearchParams(window.location.search).has('embed'));
+  }, []);
 
   useEffect(() => {
     if (attached.current) return;
@@ -75,15 +82,19 @@ export default function AddressWidgetDemo() {
   }, []);
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-16">
-      <h1 className="text-3xl font-semibold tracking-tight">Address widget</h1>
-      <p className="mt-3 text-fd-muted-foreground">
-        One input, backed by the Lithuanian address register. Type a street — say{' '}
-        <code>Gedimino pr 9</code> or, with a typo, <code>Gedmino pr 9</code> — and pick a suggestion.
-        The postal code and city fill themselves.
-      </p>
+    <main className={embedded ? 'px-5 py-5' : 'mx-auto max-w-3xl px-6 py-16'}>
+      {!embedded && (
+        <>
+          <h1 className="text-3xl font-semibold tracking-tight">Address widget</h1>
+          <p className="mt-3 text-fd-muted-foreground">
+            One input, backed by the Lithuanian address register. Type a street — say{' '}
+            <code>Gedimino pr 9</code> or, with a typo, <code>Gedmino pr 9</code> — and pick a suggestion.
+            The postal code and city fill themselves.
+          </p>
+        </>
+      )}
 
-      <div className="mt-8 space-y-4 rounded-xl border p-6">
+      <div className={`space-y-4 rounded-xl border p-6 ${embedded ? '' : 'mt-8'}`}>
         <div className="space-y-1.5">
           <label htmlFor="demo-address" className="text-sm font-medium">Address</label>
           <input
@@ -130,18 +141,22 @@ export default function AddressWidgetDemo() {
         </div>
       )}
 
-      <h2 className="mt-12 text-lg font-semibold">Put it on your page</h2>
-      <pre className="mt-3 overflow-x-auto rounded-lg border bg-fd-muted/50 p-4 text-xs">{SNIPPET}</pre>
+      {!embedded && (
+        <>
+          <h2 className="mt-12 text-lg font-semibold">Put it on your page</h2>
+          <pre className="mt-3 overflow-x-auto rounded-lg border bg-fd-muted/50 p-4 text-xs">{SNIPPET}</pre>
 
-      <p className="mt-4 text-sm text-fd-muted-foreground">
-        The widget never holds a credential: anything a browser holds is public. Your server proxies the
-        call with <code>X-API-Key</code> and <code>X-API-Secret</code>. This demo page calls the open
-        endpoint that our own apps use, which is why it works without one.
-      </p>
+          <p className="mt-4 text-sm text-fd-muted-foreground">
+            The widget never holds a credential: anything a browser holds is public. Your server proxies the
+            call with <code>X-API-Key</code> and <code>X-API-Secret</code>. This demo page calls the open
+            endpoint that our own apps use, which is why it works without one.
+          </p>
 
-      <p className="mt-6 text-sm">
-        <a className="underline" href="/docs/api-reference/addresses">Address API reference →</a>
-      </p>
+          <p className="mt-6 text-sm">
+            <a className="underline" href="/docs/api-reference/addresses">Address API reference →</a>
+          </p>
+        </>
+      )}
     </main>
   );
 }
