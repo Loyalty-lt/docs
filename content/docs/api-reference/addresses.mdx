@@ -1,0 +1,136 @@
+---
+title: "Addresses"
+description: "Lithuanian addresses and postal codes from the state register"
+---
+
+# Addresses
+
+Address search backed by the **Lithuanian Address Register** (Registrų centras): roughly
+1.1 million address points, 60 000 streets, 26 000 localities and every postal code.
+
+The data is a mirror of the state register, refreshed monthly. Nothing here is guessed —
+if an address is not in the register, the API returns nothing rather than inventing it.
+That matters for a shipping address: a plausible-looking postal code that does not exist
+fails silently, days later, at the courier.
+
+<Info>
+Addresses are a paid add-on: **€2 / month** per partner. Enable it in the
+[Partners Portal](https://partners.loyalty.lt) → **Billing → Services**. Without it the
+endpoints answer `403` with `data.feature: "address_registry"`.
+</Info>
+
+## Free-form search
+
+What a person types, not what a form expects. Typos still match — the search runs on
+trigram similarity, so `Gedimino pr 9 Vilnius` and `gedimino prosp. 9 vilnius` find the
+same address.
+
+```bash
+curl -G "https://api.loyalty.lt/lt/shop/addresses/search" \
+  --data-urlencode "q=Gedimino pr 9 Vilnius" \
+  --data-urlencode "limit=5" \
+  -H "X-API-Key: $LOYALTY_API_KEY" \
+  -H "X-API-Secret: $LOYALTY_API_SECRET"
+```
+
+```json
+{
+  "success": true,
+  "data": {
+    "query": "Gedimino pr 9 Vilnius",
+    "results": [
+      {
+        "code": 156959662,
+        "full_address": "Gedimino pr. 9, Vilnius m.",
+        "number": "9",
+        "postal_code": "LT-01103",
+        "street": { "code": 1214286, "name": "Gedimino", "display_name": "Gedimino pr." },
+        "locality": { "code": 31003, "name": "Vilnius", "type": "m." },
+        "municipality": { "code": 13, "name": "Vilniaus miesto" },
+        "coordinates": null,
+        "score": 0.692,
+        "updated_at": "2026-09-12T11:02:14.000000Z"
+      }
+    ]
+  }
+}
+```
+
+`code` is the register's own address code (`aob_kodas`) — store it and you can always
+match your record back to the register. `score` is the similarity, 1.0 being exact.
+
+## Street suggestions
+
+For a field that completes as the user types. Pass a locality: without it `Vilniaus g.`
+alone matches hundreds of streets across the country and the list is useless.
+
+```bash
+curl -G "https://api.loyalty.lt/lt/shop/addresses/autocomplete" \
+  --data-urlencode "q=Gedim" \
+  --data-urlencode "locality_code=31003" \
+  -H "X-API-Key: $LOYALTY_API_KEY" \
+  -H "X-API-Secret: $LOYALTY_API_SECRET"
+```
+
+## Addresses by postal code
+
+Accepts `08106` and `LT-08106` alike.
+
+```bash
+curl "https://api.loyalty.lt/lt/shop/addresses/postal-code/LT-08106" \
+  -H "X-API-Key: $LOYALTY_API_KEY" \
+  -H "X-API-Secret: $LOYALTY_API_SECRET"
+```
+
+A code that does not exist in the register is a `404`, never an empty `200` — an empty
+list would read as "no addresses here", which is a different statement.
+
+## One address
+
+```bash
+curl "https://api.loyalty.lt/lt/shop/addresses/156959662" \
+  -H "X-API-Key: $LOYALTY_API_KEY" \
+  -H "X-API-Secret: $LOYALTY_API_SECRET"
+```
+
+Returns the full hierarchy: street, locality, municipality, county and `valid_from`.
+
+## Browsing the hierarchy
+
+For dependent dropdowns — municipality, then locality, then street.
+
+| Endpoint | Returns |
+|---|---|
+| `GET /{locale}/shop/addresses/municipalities` | All 60 municipalities |
+| `GET /{locale}/shop/addresses/municipalities/{code}/localities` | Localities in one municipality |
+| `GET /{locale}/shop/addresses/localities/{code}/streets` | Streets in one locality |
+
+Both list endpoints take `?q=` to filter by name prefix and paginate at 100 per page.
+
+## Limits
+
+| | |
+|---|---|
+| Rate limit | 120 requests per minute, counted per API key |
+| Page size | 100 for lists, 50 for search |
+| Data refresh | Monthly, from the Address Register |
+
+The rate limit is per key rather than per IP on purpose: an integrator usually calls from
+one server for many customers, and an IP-based limit would let one partner exhaust it for
+everyone else.
+
+## Errors
+
+| Status | Meaning |
+|---|---|
+| `401` | Missing or invalid API credentials |
+| `403` | The add-on is not enabled — `data.feature` says which one, `data.how_to_enable` where to turn it on |
+| `404` | No such postal code, address, municipality or locality in the register |
+| `422` | Query too short (search needs 3 characters, autocomplete 2) |
+| `429` | Rate limit exceeded |
+
+## What this is not
+
+It is not a geocoder. Coordinates come with an address only where the register carries
+them, and the API never estimates a point from a street name. If you need routing or
+distance, take the register code from here and geocode it with a mapping service.

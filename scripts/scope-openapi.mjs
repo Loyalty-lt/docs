@@ -113,6 +113,7 @@ const TAGS = [
   ['Authentication', 'Sign a customer in from a desktop or POS screen with a QR code.'],
   ['QR Card Scan', 'Identify a customer at the till by having them scan a QR code.'],
   ['Realtime', 'Connection details for the channels that carry QR results and live session updates.'],
+  ['Addresses', 'Lithuanian addresses and postal codes from the state register. Requires the Address registry add-on.'],
   ['System', 'Health check and credential validation.'],
   ['External SMS API', 'Send transactional SMS and record marketing consent.'],
 ];
