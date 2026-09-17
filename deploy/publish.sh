@@ -273,11 +273,22 @@ for entry in "${FRONTENDS[@]}"; do
 
   # npm ci pagal atsiųstą package-lock.json, tada build. Jei build'as lūžta,
   # senas .next lieka veikti, kol procesas neperkrautas — todėl reload tik po jo.
+  #
+  # Serveryje kartais atsiranda pakeistų sekamų failų (pvz. kas nors paleido
+  # `yarn install` ir perrašė lockfile'ą) — tada `git pull --ff-only` nutraukdavo
+  # visą deploy'ą. Tokius pakeitimus nusiunčiam į stash: deploy'as tęsiasi, o
+  # pakeitimai lieka atkuriami (`git stash list` serveryje).
   remote_node "set -e
     cd $dest
+    dirty=\$(git status --porcelain --untracked-files=no)
+    if [ -n \"\$dirty\" ]; then
+      echo \"    serveryje rasti vietiniai pakeitimai — keliami į stash:\"
+      echo \"\$dirty\" | sed 's/^/      /'
+      git stash push -m \"publish.sh \$(date -Iseconds)\" >/dev/null
+    fi
     git pull --ff-only origin main
     npm ci --silent
-    npm run build" 2>&1 | grep -iE 'compiled|error|failed|warn|files changed' | tail -4
+    npm run build" 2>&1 | grep -iE 'compiled|error|failed|warn|files changed|stash' | tail -6
 
   remote_node "cd $dest && pm2 reload ecosystem.config.cjs --update-env" >/dev/null
   echo "    pm2 reloaded $pm2_name"
@@ -305,10 +316,16 @@ else
     # working tree is always dirty here and --ff-only refuses. Discard the local copy;
     # the build writes it again two lines down.
     git checkout -- openapi/loyalty.json 2>/dev/null || true
+    dirty=\$(git status --porcelain --untracked-files=no)
+    if [ -n \"\$dirty\" ]; then
+      echo \"    serveryje rasti vietiniai pakeitimai — keliami į stash:\"
+      echo \"\$dirty\" | sed 's/^/      /'
+      git stash push -m \"publish.sh \$(date -Iseconds)\" >/dev/null
+    fi
     git pull --ff-only origin main
     npm ci --silent
     rm -f openapi/full.json
-    npm run build" 2>&1 | grep -E 'fetching|scoped|Compiled|Generating static|error' | tail -6
+    npm run build" 2>&1 | grep -E 'fetching|scoped|Compiled|Generating static|error|stash' | tail -8
 
   remote_node "cd $REMOTE_ROOT/docs.loyalty.lt && pm2 reload ecosystem.config.cjs --update-env && pm2 save" >/dev/null
   echo "    pm2 reloaded"
