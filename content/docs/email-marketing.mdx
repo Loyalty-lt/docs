@@ -58,6 +58,22 @@ The quota is checked once for the whole campaign before the first message goes o
 per message. A campaign that would cross a hard stop the partner enabled is refused with
 `402` and nothing is sent; see [Plan limits](/docs/api-reference/plan-limits).
 
+## A/B testing subject lines
+
+A campaign can carry a second subject line. When it does, an equal slice of the audience
+(10–30%, the partner chooses) gets each one and the rest wait. After the window — 1 to 48
+hours — the slice that collected more opens, or more clicks, decides which subject line
+goes to everyone else.
+
+The split is random, not by signup date: otherwise one branch gets the oldest customers
+and the result measures the audience rather than the wording. A tie goes to the original
+subject line. If the audience is too small for both branches to have recipients and still
+leave someone for the winner, the campaign is sent normally with the first subject line
+and no test is run.
+
+The branch each message belonged to is recorded with the message, so the report shows
+opens and clicks for both, not only for the metric that decided.
+
 ## Unsubscribe
 
 Every marketing email carries:
