@@ -85,6 +85,7 @@ rsync_app() {
     --exclude '.git' \
     --exclude 'node_modules' \
     --exclude '.next' \
+    --exclude '.next.backup*' \
     --exclude '.turbo' \
     --exclude '.env' \
     --exclude '.env.*' \
