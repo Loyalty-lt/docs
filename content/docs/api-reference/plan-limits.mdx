@@ -34,22 +34,61 @@ against production adds 5 000 active members to that month's bill. Use
 
 ## What happens at the limit
 
-Service does not stop. Going over a limit adds a line to the partner's monthly invoice at
-the per-unit rate, and the partner is warned in the Partners Portal at 80% and 100%.
+By default the service does not stop. Going over a limit adds a line to the partner's
+monthly invoice at the per-unit rate, and the partner is warned in the Partners Portal at
+80% and 100%.
 
-Two things behave differently, and neither is reachable from the Shop API:
+Two exceptions refuse the request outright:
 
-- **Push campaigns** are refused above twice the plan limit — the whole campaign, never
-  half of it.
-- **The address add-on** is a feature, not a quota: without it the endpoints answer `403`
-  with `data.feature: "address_registry"`. See [Addresses](/docs/api-reference/addresses).
+- **Push campaigns** above twice the plan limit — the whole campaign, never half of it.
+  Not reachable from the Shop API.
+- **A hard stop the partner switched on.** In **Settings → Notifications** a partner can
+  turn on a hard stop per metric. Where it is on, the action that would cross the limit is
+  refused instead of billed. It is off for every metric until the partner turns it on.
+
+### Telling a refusal apart
+
+Both answers are 4xx with the same envelope, and the status alone is enough to branch on:
+
+| Status | Means | `data` |
+|--------|-------|--------|
+| `402` | The partner has the feature but hit their own limit | `metric`, `used`, `quota`, `requested`, `projected`, `reason`, `how_to_resolve` |
+| `403` | The partner's plan does not include the feature | `feature`, `how_to_enable` |
+
+```json
+{
+  "success": false,
+  "code": 1322,
+  "message": "Plan quota exceeded for shops",
+  "data": {
+    "metric": "shops",
+    "used": 10,
+    "quota": 10,
+    "requested": 1,
+    "projected": 11,
+    "reason": "hard_stop",
+    "how_to_resolve": "https://partners.loyalty.lt/lt/billing/plan"
+  }
+}
+```
+
+`reason` is `hard_stop` when the partner switched it on, `push_ceiling` at the 2× push
+limit. Retrying does not help in either case — surface the message and the link to the
+person operating your integration, rather than a generic failure.
+
+**The address add-on** is a feature, not a quota: without it the Shop API endpoints answer
+`403` with `data.feature: "address_registry"`. See
+[Addresses](/docs/api-reference/addresses).
 
 API access itself is a plan feature. If the partner's plan does not include it, every
 request answers `403` — see [Authentication](/docs/api-reference/authentication).
 
+Requests are rate limited to 300 per minute per API key; over that the answer is `429`.
+
 ## Where the partner sees this
 
 The Partners Portal shows current usage against every limit under **Billing → Monthly
-plan**, and the per-unit rates under **Billing → Services**. If an integration is about to
+plan**, the per-unit rates under **Billing → Services**, and the hard-stop switches under
+**Settings → Notifications**. If an integration is about to
 change the shape of a partner's usage — a bulk import, a migration of historical
 transactions — tell them first, so the invoice is expected.
