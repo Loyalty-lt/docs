@@ -1,0 +1,55 @@
+---
+title: "Plan limits"
+description: "What your API calls cost the partner, and what happens at the limit"
+---
+
+# Plan limits
+
+Nothing you call is metered per request. What the partner pays for is the **activity your
+calls create**, measured once a month against the limits in their plan.
+
+This page exists so an integration does not surprise a partner with an invoice. It is not
+something you need to handle in code — no endpoint in the Shop API refuses a request
+because a limit was reached.
+
+## What counts
+
+| Metric | How it is counted | Which calls move it |
+|--------|-------------------|---------------------|
+| Active members | Distinct customers with at least one transaction that month | `transactions/create`, game sessions |
+| Emails | Messages sent from the partner's account | campaigns and automations in the Partners Portal |
+| Push notifications | Messages delivered | campaigns and automations in the Partners Portal |
+| Product impressions | Product views in the Loyalty.lt app | `products/*` feeds |
+| Locations | Active shops at the end of the month | created in the Partners Portal |
+
+**Active members is the one your integration drives directly.** It counts distinct
+customers, not transactions: a customer buying twenty times in a month is one active
+member. A customer who registered but never bought costs nothing.
+
+<Note>
+Test traffic counts. A load test that posts transactions for 5 000 distinct customers
+against production adds 5 000 active members to that month's bill. Use
+[staging](/docs/api-reference/staging) — it is a separate database and is never invoiced.
+</Note>
+
+## What happens at the limit
+
+Service does not stop. Going over a limit adds a line to the partner's monthly invoice at
+the per-unit rate, and the partner is warned in the Partners Portal at 80% and 100%.
+
+Two things behave differently, and neither is reachable from the Shop API:
+
+- **Push campaigns** are refused above twice the plan limit — the whole campaign, never
+  half of it.
+- **The address add-on** is a feature, not a quota: without it the endpoints answer `403`
+  with `data.feature: "address_registry"`. See [Addresses](/docs/api-reference/addresses).
+
+API access itself is a plan feature. If the partner's plan does not include it, every
+request answers `403` — see [Authentication](/docs/api-reference/authentication).
+
+## Where the partner sees this
+
+The Partners Portal shows current usage against every limit under **Billing → Monthly
+plan**, and the per-unit rates under **Billing → Services**. If an integration is about to
+change the shape of a partner's usage — a bulk import, a migration of historical
+transactions — tell them first, so the invoice is expected.

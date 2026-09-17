@@ -327,6 +327,7 @@ const MUST_EXIST = [
   '/docs',
   '/docs/api-reference/overview',
   '/docs/api-reference/authentication',
+  '/docs/api-reference/plan-limits',
   '/docs/api-reference/realtime',
   '/docs/transactions/postShopTransactionsCreate',
   '/docs/realtime/shopRealtimeConfig',

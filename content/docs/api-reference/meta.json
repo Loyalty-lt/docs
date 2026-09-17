@@ -3,6 +3,7 @@
   "pages": [
     "overview",
     "authentication",
+    "plan-limits",
     "realtime",
     "addresses",
     "staging"
