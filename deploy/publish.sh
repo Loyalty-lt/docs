@@ -13,8 +13,15 @@
 #   2. push api.loyalty.lt and docs.loyalty.lt
 #   3. deploy api.loyalty.lt, clear its caches, regenerate its spec
 #   4. verify the live spec: no ghost endpoints, credentials declared correctly
-#   5. deploy docs.loyalty.lt against that now-correct spec
-#   6. verify the published pages
+#   5. deploy the frontends (admin, partners, loyalty.lt) and reload them
+#   6. deploy docs.loyalty.lt against that now-correct spec
+#   7. verify the published pages and the frontends
+#
+# The three frontends are NOT git checkouts on the server, so they ship over
+# rsync from this laptop and are built there. Only their own pm2 processes are
+# reloaded: the box also runs unrelated projects (avitra, care, convylo,
+# manskin, meet), and `pm2 restart all` would take those down too. Pass
+# --restart-all if you really mean every process on the machine.
 #
 # Every step is idempotent — re-running it when nothing changed is a no-op.
 
@@ -28,8 +35,23 @@ REMOTE_ROOT="/var/www/vhosts/loyalty.lt"
 DOCS_LOCAL="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 API_LOCAL="$(cd "$DOCS_LOCAL/../api.loyalty.lt" && pwd)"
 
+# vietinis katalogas | nuotolinis katalogas | pm2 proceso vardas | viešas adresas
+# loyalty.lt serveryje gyvena `httpdocs`, ne to paties pavadinimo kataloge.
+FRONTENDS=(
+  "admin.loyalty.lt|admin.loyalty.lt|admin.loyalty.lt|https://admin.loyalty.lt"
+  "partners.loyalty.lt|partners.loyalty.lt|partners.loyalty.lt|https://partners.loyalty.lt"
+  "loyalty.lt|httpdocs|loyalty.lt|https://loyalty.lt"
+)
+
 DRY_RUN=0
-[[ "${1:-}" == "--dry-run" ]] && DRY_RUN=1
+RESTART_ALL=0
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run) DRY_RUN=1 ;;
+    --restart-all) RESTART_ALL=1 ;;
+    *) echo "unknown flag: $arg" >&2; exit 2 ;;
+  esac
+done
 
 bold() { printf '\n\033[1m==> %s\033[0m\n' "$1"; }
 warn() { printf '\033[33m    %s\033[0m\n' "$1"; }
@@ -51,6 +73,25 @@ run() {
   else
     "$@"
   fi
+}
+
+# Šaltinis keliauja rsync'u, nes serveryje šie katalogai nėra git checkout'ai.
+# node_modules, .next ir .env lieka serveryje: priklausomybės ir build'as
+# daromi ten, o .env yra tik ten ir jį perrašyti reikštų nutrūkusią produkciją.
+rsync_app() {
+  local src="$1" dest="$2"
+
+  rsync -az --delete \
+    --exclude '.git' \
+    --exclude 'node_modules' \
+    --exclude '.next' \
+    --exclude '.turbo' \
+    --exclude '.env' \
+    --exclude '.env.*' \
+    --exclude 'logs' \
+    --exclude '.DS_Store' \
+    -e "ssh -i $SSH_KEY -p $SSH_PORT -o BatchMode=yes" \
+    "$src/" "$SSH_HOST:$dest/"
 }
 
 # ---------------------------------------------------------------- preflight
@@ -228,7 +269,46 @@ console.log(`    ok — ${n} public paths, no ghosts, credentials required toget
 NODE
 fi
 
-# ------------------------------------------------------- 5. deploy docs
+# -------------------------------------------------- 5. deploy the frontends
+
+bold "Deploying the frontends"
+
+for entry in "${FRONTENDS[@]}"; do
+  IFS='|' read -r local_dir remote_dir pm2_name _url <<< "$entry"
+  src="$DOCS_LOCAL/../$local_dir"
+  dest="$REMOTE_ROOT/$remote_dir"
+
+  [[ -d "$src" ]] || die "$local_dir not found next to docs.loyalty.lt"
+
+  if (( DRY_RUN )); then
+    warn "would rsync $local_dir -> $dest, npm ci, build and reload pm2 '$pm2_name'"
+    continue
+  fi
+
+  echo "    $local_dir -> $remote_dir"
+  rsync_app "$src" "$dest"
+
+  # npm ci pagal atsiųstą package-lock.json, tada build. Jei build'as lūžta,
+  # senas .next lieka veikti, kol procesas neperkrautas — todėl reload tik po jo.
+  remote_node "set -e
+    cd $dest
+    npm ci --silent
+    npm run build" 2>&1 | grep -iE 'compiled|error|failed|warn' | tail -4
+
+  remote_node "cd $dest && pm2 reload ecosystem.config.cjs --update-env" >/dev/null
+  echo "    pm2 reloaded $pm2_name"
+done
+
+if (( RESTART_ALL )) && ! (( DRY_RUN )); then
+  warn "--restart-all: restarting EVERY pm2 process on the box, including unrelated projects"
+  remote_node "pm2 restart all" >/dev/null
+fi
+
+if ! (( DRY_RUN )); then
+  remote_node "pm2 save" >/dev/null
+fi
+
+# ------------------------------------------------------- 6. deploy docs
 
 bold "Deploying docs.loyalty.lt"
 
@@ -250,7 +330,7 @@ else
   echo "    pm2 reloaded"
 fi
 
-# ----------------------------------------------------- 6. verify the docs
+# ------------------------------------------- 7. verify the docs and frontends
 
 bold "Verifying the published docs"
 
@@ -297,6 +377,19 @@ if (weight(stagingHealth.version) < weight(prodHealth.version)) {
 if (bad) process.exit(1);
 console.log(`    ok — ${MUST_EXIST.length} pages serving, llms.txt clean`);
 NODE
+
+  # Frontendai: užtenka, kad atsakytų 2xx/3xx — 502 reikštų, kad build'as
+  # nulūžo arba pm2 procesas nepakilo po reload'o.
+  for entry in "${FRONTENDS[@]}"; do
+    IFS='|' read -r _local _remote pm2_name url <<< "$entry"
+    code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$url" || echo 000)
+
+    if [[ "$code" =~ ^(2|3) ]]; then
+      echo "    ok — $url ($code)"
+    else
+      die "$url returned $code — check 'pm2 logs $pm2_name'"
+    fi
+  done
 fi
 
 bold "Done"
