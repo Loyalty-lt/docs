@@ -17,10 +17,14 @@ because a limit was reached.
 | Metric | How it is counted | Which calls move it |
 |--------|-------------------|---------------------|
 | Active members | Distinct customers with at least one transaction that month | `transactions/create`, game sessions |
-| Emails | Messages sent from the partner's account | campaigns and automations in the Partners Portal |
+| Emails | Marketing messages sent from the partner's account | campaigns and automations under **Email marketing** in the Partners Portal |
 | Push notifications | Messages delivered | campaigns and automations in the Partners Portal |
 | Product impressions | Product views in the Loyalty.lt app | `products/*` feeds |
 | Locations | Active shops at the end of the month | created in the Partners Portal |
+
+Transactional mail — receipts, password resets, invoices — is never counted. Only
+messages a partner sends as marketing are, and each of those carries an unsubscribe link
+by law and by our own rules.
 
 **Active members is the one your integration drives directly.** It counts distinct
 customers, not transactions: a customer buying twenty times in a month is one active

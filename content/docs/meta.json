@@ -1,4 +1,16 @@
 {
   "title": "Documentation",
-  "pages": ["index", "demo", "---Guides---", "api-reference", "sdk", "xml-import", "mcp-server", "troubleshooting", "---API Reference---", "..."]
+  "pages": [
+    "index",
+    "demo",
+    "---Guides---",
+    "api-reference",
+    "sdk",
+    "xml-import",
+    "email-marketing",
+    "mcp-server",
+    "troubleshooting",
+    "---API Reference---",
+    "..."
+  ]
 }

@@ -1,0 +1,102 @@
+---
+title: "Email marketing"
+description: "How a partner's marketing email reaches a customer, and what it costs"
+---
+
+# Email marketing
+
+A partner writes a campaign in the Partners Portal, picks who gets it, and sends. This
+page describes what happens after that — useful if you are integrating, debugging a
+missing email, or explaining an invoice line.
+
+Nothing here is something your integration calls. Marketing email is sent from the
+Partners Portal, not over the Shop API.
+
+## What a partner gets
+
+**Campaigns** — one-off emails with a subject, HTML body, preview text and an audience
+filter. Saved as a draft, scheduled, or sent immediately.
+
+**Templates** — reusable emails. A partner sees their own plus the ones we prepare;
+ours are read-only for them.
+
+**Automations** — rules that fire on customer behaviour: inactivity, birthday, sign-up
+anniversary, no purchase in N days, points about to expire, N days after sign-up. Each
+rule has a frequency cap so the same person is not emailed twice for the same reason.
+
+**Consents and suppressions** — who may be emailed, and who may never be again.
+
+**Reports** — opens, clicks, bounces, unsubscribes, top links, devices, and opens by
+hour of day.
+
+## Who receives a campaign
+
+Every partner chooses one of two policies under **Email marketing → Consents**:
+
+| Policy | Audience |
+|--------|----------|
+| `consent_required` (default) | Only customers with a recorded marketing consent for that partner |
+| `opt_out` | Every customer of that partner who has an email address and has not unsubscribed |
+
+On top of the policy, three groups are always excluded, under both policies:
+
+- anyone who unsubscribed from that partner,
+- any address that hard-bounced or produced a spam complaint — this one is
+  platform-wide, because an address that does not exist does not exist for anyone,
+- anyone without an email address.
+
+The partner is the data controller for their customers. Choosing `opt_out` is a
+statement that they have a lawful basis to email those people.
+
+## What it costs
+
+Marketing email counts against the `marketing_email` quota in the partner's plan
+(Grow 10 000/month, Pro 50 000/month) and is billed per message above it. Transactional
+mail — receipts, password resets, invoices — never counts.
+
+The quota is checked once for the whole campaign before the first message goes out, not
+per message. A campaign that would cross a hard stop the partner enabled is refused with
+`402` and nothing is sent; see [Plan limits](/docs/api-reference/plan-limits).
+
+## Unsubscribe
+
+Every marketing email carries:
+
+- a visible unsubscribe link in the footer,
+- `List-Unsubscribe` and `List-Unsubscribe-Post: List-Unsubscribe=One-Click` headers, so
+  the recipient's mail client can offer its own one-click unsubscribe.
+
+An unsubscribe is immediate, applies to that partner, and also revokes any consent record
+— so a partner switching policy back to `consent_required` can never resurrect someone
+who opted out.
+
+## Bounces
+
+The return path of every marketing message is `bounce+{token}@…`, so a bounce identifies
+its original message without anyone parsing the body. Bounces are read from a dedicated
+mailbox every ten minutes and classified by their RFC 3463 status:
+
+| Status | Meaning | What happens |
+|--------|---------|--------------|
+| `5.x.x` | Permanent — no such address, blocked | Suppressed immediately, platform-wide |
+| `4.x.x` | Temporary — mailbox full, greylisting | Counted; suppressed after five in a row |
+| Feedback report | The recipient marked it as spam | Suppressed immediately |
+
+If a campaign's bounce rate passes 5%, sending stops and the partner is told. One bad
+address list should not cost everyone else their deliverability.
+
+## Tracking
+
+Opens are measured with a 1×1 pixel, clicks by rewriting links to a redirect. Both can be
+turned off per campaign. A click redirect only ever resolves a link that was in the
+campaign — the URL is never taken from the request, so the redirect cannot be borrowed to
+make a phishing link look like ours. IP addresses are stored hashed, never in the clear.
+
+Apple Mail Privacy Protection loads images for the recipient, so open rates are an
+approximation everywhere, including here.
+
+## Sending
+
+Messages go out in batches of 100 with a pause between batches, capped per hour and per
+recipient domain. This is deliberate: a burst from one IP is the fastest way into a spam
+folder, and the volumes involved do not need more speed.
