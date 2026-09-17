@@ -17,11 +17,10 @@
 #   6. deploy docs.loyalty.lt against that now-correct spec
 #   7. verify the published pages and the frontends
 #
-# The three frontends are NOT git checkouts on the server, so they ship over
-# rsync from this laptop and are built there. Only their own pm2 processes are
-# reloaded: the box also runs unrelated projects (avitra, care, convylo,
-# manskin, meet), and `pm2 restart all` would take those down too. Pass
-# --restart-all if you really mean every process on the machine.
+# Every app is a git checkout on the server, so deploys are `git pull` all the
+# way down. Only our own pm2 processes are reloaded: the box also runs unrelated
+# projects (avitra, care, convylo, manskin, meet), and `pm2 restart all` would
+# take those down too. Pass --restart-all if you really mean every process.
 #
 # Every step is idempotent — re-running it when nothing changed is a no-op.
 
@@ -75,36 +74,18 @@ run() {
   fi
 }
 
-# Šaltinis keliauja rsync'u, nes serveryje šie katalogai nėra git checkout'ai.
-# node_modules, .next ir .env lieka serveryje: priklausomybės ir build'as
-# daromi ten, o .env yra tik ten ir jį perrašyti reikštų nutrūkusią produkciją.
-#
-# SĄMONINGAI BE --delete. Šie katalogai neturi versijavimo, tad laptopas nėra
-# tiesos šaltinis: loyalty.lt serveryje šiandien turi 24 failus (public/google/*,
-# public/features/coupons.png ir kt.), kurių lokaliai nėra, ir --delete juos
-# nušluotų iš gyvos svetainės. Pasenę failai kaupiasi, bet niekas nelūžta.
-rsync_app() {
-  local src="$1" dest="$2"
-
-  rsync -az \
-    --exclude '.git' \
-    --exclude 'node_modules' \
-    --exclude '.next' \
-    --exclude '.next.backup*' \
-    --exclude '.turbo' \
-    --exclude '.env' \
-    --exclude '.env.*' \
-    --exclude 'logs' \
-    --exclude '.DS_Store' \
-    -e "ssh -i $SSH_KEY -p $SSH_PORT -o BatchMode=yes" \
-    "$src/" "$SSH_HOST:$dest/"
-}
-
 # ---------------------------------------------------------------- preflight
 
 bold "Preflight"
 
-for repo in "$API_LOCAL" "$DOCS_LOCAL"; do
+ALL_REPOS=("$API_LOCAL" "$DOCS_LOCAL")
+for entry in "${FRONTENDS[@]}"; do
+  IFS='|' read -r local_dir _rest <<< "$entry"
+  ALL_REPOS+=("$DOCS_LOCAL/../$local_dir")
+done
+
+for repo in "${ALL_REPOS[@]}"; do
+  [[ -d "$repo/.git" ]] || die "$(basename "$repo") is not a git checkout"
   branch=$(git -C "$repo" branch --show-current)
   [[ "$branch" == "main" ]] || die "$(basename "$repo") is on '$branch', not main"
   echo "    $(basename "$repo"): main @ $(git -C "$repo" log --oneline -1)"
@@ -134,7 +115,7 @@ fi
 
 bold "Pushing"
 
-for repo in "$API_LOCAL" "$DOCS_LOCAL"; do
+for repo in "${ALL_REPOS[@]}"; do
   name=$(basename "$repo")
   if [[ -n "$(git -C "$repo" status --porcelain --untracked-files=no)" ]]; then
     die "$name has uncommitted tracked changes — commit or stash them first"
@@ -281,25 +262,22 @@ bold "Deploying the frontends"
 
 for entry in "${FRONTENDS[@]}"; do
   IFS='|' read -r local_dir remote_dir pm2_name _url <<< "$entry"
-  src="$DOCS_LOCAL/../$local_dir"
   dest="$REMOTE_ROOT/$remote_dir"
 
-  [[ -d "$src" ]] || die "$local_dir not found next to docs.loyalty.lt"
-
   if (( DRY_RUN )); then
-    warn "would rsync $local_dir -> $dest, npm ci, build and reload pm2 '$pm2_name'"
+    warn "would git pull, npm ci, build and reload pm2 '$pm2_name' in $dest"
     continue
   fi
 
   echo "    $local_dir -> $remote_dir"
-  rsync_app "$src" "$dest"
 
   # npm ci pagal atsiųstą package-lock.json, tada build. Jei build'as lūžta,
   # senas .next lieka veikti, kol procesas neperkrautas — todėl reload tik po jo.
   remote_node "set -e
     cd $dest
+    git pull --ff-only origin main
     npm ci --silent
-    npm run build" 2>&1 | grep -iE 'compiled|error|failed|warn' | tail -4
+    npm run build" 2>&1 | grep -iE 'compiled|error|failed|warn|files changed' | tail -4
 
   remote_node "cd $dest && pm2 reload ecosystem.config.cjs --update-env" >/dev/null
   echo "    pm2 reloaded $pm2_name"
