@@ -127,6 +127,23 @@ PYCHECK
   fi
 done
 
+# Vertimų auditas prieš deploy'ą.
+#
+# Trys tokios klaidos jau buvo pasiekusios production ir visos praėjo pro `tsc`
+# bei `next build`: `navigation.email.*`, `environment.production`,
+# `{lead.status}` be t(). Tikrinam čia, laptope, o ne serveryje: serveryje
+# medis ateina per `git pull`, tad būtų per vėlu.
+for entry in "${FRONTENDS[@]}"; do
+  IFS='|' read -r local_dir _rest <<< "$entry"
+  repo="$DOCS_LOCAL/../$local_dir"
+  [[ -f "$repo/scripts/i18n-audit.mjs" ]] || continue
+  if ! out=$(cd "$repo" && node scripts/i18n-audit.mjs 2>&1); then
+    echo "$out" | tail -3
+    die "$local_dir: vertimų auditas rado naujų spragų"
+  fi
+  echo "    $local_dir — $(echo "$out" | tail -1)"
+done
+
 # ------------------------------------------------- 1. regenerate the spec
 
 bold "Regenerating the OpenAPI spec from the annotations"
