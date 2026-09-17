@@ -94,6 +94,39 @@ done
 remote 'echo ok' >/dev/null 2>&1 || die "cannot reach $SSH_HOST:$SSH_PORT — check the VPN and that $SSH_KEY is the right key"
 echo "    ssh: reachable"
 
+# Lockfile'ai generuojami macOS'e, o buildas sukasi Linux'e. npm į lock'ą įrašo
+# tik tos platformos optional binarus, todėl serveryje trūkdavo
+# lightningcss / @tailwindcss/oxide / @parcel/watcher — ir deploy'as lūždavo
+# viduryje. Trūkstamą binarą reikia deklaruoti `optionalDependencies`.
+for entry in "${FRONTENDS[@]}"; do
+  IFS='|' read -r local_dir _rest <<< "$entry"
+  repo="$DOCS_LOCAL/../$local_dir"
+  [[ -f "$repo/package-lock.json" ]] || continue
+  missing=$(python3 - "$repo/package-lock.json" <<'PYCHECK'
+import json, re, sys
+
+lock = json.load(open(sys.argv[1]))
+packages = lock.get("packages", {})
+names = {k[len("node_modules/"):] for k in packages if k.startswith("node_modules/")}
+
+missing = []
+for name in sorted(names):
+    m = re.match(r"^(.*)-darwin-(?:arm64|x64)$", name)
+    if not m:
+        continue
+    family = m.group(1)
+    if not any(n.startswith(f"{family}-linux-x64") for n in names):
+        missing.append(family)
+
+print("\n".join(missing))
+PYCHECK
+)
+  if [[ -n "$missing" ]]; then
+    warn "$local_dir: lock'e tik darwin binarai — $(echo "$missing" | tr '\n' ' ')"
+    warn "    jei buildas serveryje kris ties vienu iš jų, įrašyk *-linux-x64-* į package.json optionalDependencies ir paleisk 'npm install --package-lock-only'"
+  fi
+done
+
 # ------------------------------------------------- 1. regenerate the spec
 
 bold "Regenerating the OpenAPI spec from the annotations"
