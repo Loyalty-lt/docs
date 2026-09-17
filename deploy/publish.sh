@@ -78,10 +78,15 @@ run() {
 # Šaltinis keliauja rsync'u, nes serveryje šie katalogai nėra git checkout'ai.
 # node_modules, .next ir .env lieka serveryje: priklausomybės ir build'as
 # daromi ten, o .env yra tik ten ir jį perrašyti reikštų nutrūkusią produkciją.
+#
+# SĄMONINGAI BE --delete. Šie katalogai neturi versijavimo, tad laptopas nėra
+# tiesos šaltinis: loyalty.lt serveryje šiandien turi 24 failus (public/google/*,
+# public/features/coupons.png ir kt.), kurių lokaliai nėra, ir --delete juos
+# nušluotų iš gyvos svetainės. Pasenę failai kaupiasi, bet niekas nelūžta.
 rsync_app() {
   local src="$1" dest="$2"
 
-  rsync -az --delete \
+  rsync -az \
     --exclude '.git' \
     --exclude 'node_modules' \
     --exclude '.next' \
