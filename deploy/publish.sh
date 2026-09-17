@@ -256,6 +256,40 @@ console.log(`    ok — ${n} public paths, no ghosts, credentials required toget
 NODE
 fi
 
+# Serveris visada turi atitikti GitHub. Vietiniai serverio pakeitimai deploy'o
+# nestabdo: sekami failai keliauja į `git stash`, o nesekami, kuriuos parsiunčiamas
+# commit'as perrašytų, — į $REMOTE_ROOT/.deploy-backups/<app>/<laikas>/.
+# Niekas netrinama, viskas atkuriama, bet medis po šito sutampa su origin/main.
+sync_from_github() {
+  local dest="$1" app="$2"
+  # Nekintamas tekstas — kabutėse esantys $ turi likti nuotoliniam shell'ui,
+  # todėl heredoc'as cituotas, o vietos kintamieji įrašomi per sed.
+  cat <<'REMOTE' | sed -e "s#__DEST__#$dest#g" -e "s#__BACKUP__#$REMOTE_ROOT/.deploy-backups/$app#g"
+set -e
+cd __DEST__
+git fetch -q origin main
+dirty=$(git status --porcelain --untracked-files=no)
+if [ -n "$dirty" ]; then
+  echo "    pakeisti sekami failai — į stash:"
+  echo "$dirty" | sed 's/^/      /'
+  git stash push -m "publish.sh $(date -Iseconds)" >/dev/null
+fi
+blockers=$(git diff --name-only HEAD FETCH_HEAD | while read -r f; do
+  if [ -e "$f" ] && ! git ls-files --error-unmatch "$f" >/dev/null 2>&1; then printf '%s\n' "$f"; fi
+done)
+if [ -n "$blockers" ]; then
+  backup=__BACKUP__/$(date +%Y%m%d-%H%M%S)
+  echo "    nesekami failai, kuriuos perrašo GitHub — į $backup:"
+  echo "$blockers" | sed 's/^/      /'
+  echo "$blockers" | while read -r f; do
+    mkdir -p "$backup/$(dirname "$f")"
+    mv "$f" "$backup/$f"
+  done
+fi
+git merge --ff-only FETCH_HEAD
+REMOTE
+}
+
 # -------------------------------------------------- 5. deploy the frontends
 
 bold "Deploying the frontends"
@@ -265,30 +299,18 @@ for entry in "${FRONTENDS[@]}"; do
   dest="$REMOTE_ROOT/$remote_dir"
 
   if (( DRY_RUN )); then
-    warn "would git pull, npm ci, build and reload pm2 '$pm2_name' in $dest"
+    warn "would sync with GitHub, npm ci, build and reload pm2 '$pm2_name' in $dest"
     continue
   fi
 
   echo "    $local_dir -> $remote_dir"
 
-  # npm ci pagal atsiųstą package-lock.json, tada build. Jei build'as lūžta,
-  # senas .next lieka veikti, kol procesas neperkrautas — todėl reload tik po jo.
-  #
-  # Serveryje kartais atsiranda pakeistų sekamų failų (pvz. kas nors paleido
-  # `yarn install` ir perrašė lockfile'ą) — tada `git pull --ff-only` nutraukdavo
-  # visą deploy'ą. Tokius pakeitimus nusiunčiam į stash: deploy'as tęsiasi, o
-  # pakeitimai lieka atkuriami (`git stash list` serveryje).
-  remote_node "set -e
-    cd $dest
-    dirty=\$(git status --porcelain --untracked-files=no)
-    if [ -n \"\$dirty\" ]; then
-      echo \"    serveryje rasti vietiniai pakeitimai — keliami į stash:\"
-      echo \"\$dirty\" | sed 's/^/      /'
-      git stash push -m \"publish.sh \$(date -Iseconds)\" >/dev/null
-    fi
-    git pull --ff-only origin main
+  # Medis sulyginamas su GitHub (žr. sync_from_github), tada npm ci pagal
+  # atsiųstą package-lock.json ir build. Jei build'as lūžta, senas .next lieka
+  # veikti, kol procesas neperkrautas — todėl pm2 reload tik po jo.
+  remote_node "$(sync_from_github "$dest" "$remote_dir")
     npm ci --silent
-    npm run build" 2>&1 | grep -iE 'compiled|error|failed|warn|files changed|stash' | tail -6
+    npm run build" 2>&1 | grep -iE 'compiled|error|failed|warn|files changed|stash|backup|github' | tail -8
 
   remote_node "cd $dest && pm2 reload ecosystem.config.cjs --update-env" >/dev/null
   echo "    pm2 reloaded $pm2_name"
@@ -313,19 +335,13 @@ else
   remote_node "set -e
     cd $REMOTE_ROOT/docs.loyalty.lt
     # openapi/loyalty.json is tracked but the build regenerates it in place, so the
-    # working tree is always dirty here and --ff-only refuses. Discard the local copy;
-    # the build writes it again two lines down.
+    # working tree is always dirty here. Discard the local copy; the build writes it
+    # again two lines down — kitaip jis be reikalo atsidurtų stash'e.
     git checkout -- openapi/loyalty.json 2>/dev/null || true
-    dirty=\$(git status --porcelain --untracked-files=no)
-    if [ -n \"\$dirty\" ]; then
-      echo \"    serveryje rasti vietiniai pakeitimai — keliami į stash:\"
-      echo \"\$dirty\" | sed 's/^/      /'
-      git stash push -m \"publish.sh \$(date -Iseconds)\" >/dev/null
-    fi
-    git pull --ff-only origin main
+$(sync_from_github "$REMOTE_ROOT/docs.loyalty.lt" "docs.loyalty.lt")
     npm ci --silent
     rm -f openapi/full.json
-    npm run build" 2>&1 | grep -E 'fetching|scoped|Compiled|Generating static|error|stash' | tail -8
+    npm run build" 2>&1 | grep -E 'fetching|scoped|Compiled|Generating static|error|stash|backup|GitHub' | tail -8
 
   remote_node "cd $REMOTE_ROOT/docs.loyalty.lt && pm2 reload ecosystem.config.cjs --update-env && pm2 save" >/dev/null
   echo "    pm2 reloaded"
