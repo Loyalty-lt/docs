@@ -1,0 +1,81 @@
+---
+title: "Wallet passes"
+description: "Putting a loyalty card into Apple Wallet and Google Wallet, and what it takes to switch on"
+---
+
+# Wallet passes
+
+A customer can keep their loyalty card in the phone's own wallet instead of installing
+an app. The card lives next to their payment cards, updates itself when the balance or
+tier changes, and can be handed over at the counter with the phone they already have in
+their hand.
+
+This matters more than it sounds: installing an app is the single largest drop-off in
+onboarding a customer. A wallet pass removes it.
+
+## What the API gives you
+
+| Endpoint | Auth | Returns |
+|---|---|---|
+| `GET /{locale}/loyalty-cards/{id}/wallet` | customer token | Both links: an Apple `.pkpass` URL and a Google Wallet save URL |
+| `GET /{locale}/wallet/apple/{id}` | signed temporary URL | The `.pkpass` file itself |
+
+The `.pkpass` download deliberately uses a **signed, short-lived URL** rather than the
+bearer token: Safari and Chrome open the link without an `Authorization` header, so a
+token-protected URL would simply fail. The link's lifetime is
+`WALLET_LINK_TTL_MINUTES` (default 30).
+
+Implementation: `app/Http/Controllers/WalletPassController.php`,
+`app/Services/Wallet/{AppleWalletPassService,GoogleWalletPassService,WalletCardData}.php`.
+
+## Switching it on
+
+The code ships ready. It stays inert until the certificates exist — with no credentials
+configured, the endpoints return an error rather than a pass. These are the credentials,
+and they can only be obtained by a person with access to the developer accounts.
+
+### Apple Wallet
+
+1. Apple Developer Program membership (the same one the iOS app uses).
+2. A **Pass Type ID** in the developer portal, e.g. `pass.lt.loyalty.card`.
+3. The **Pass Type ID certificate** exported as `.p12`, with its password.
+4. The **Apple WWDR intermediate certificate** as `.pem`.
+
+```env
+APPLE_WALLET_PASS_TYPE_ID=pass.lt.loyalty.card
+APPLE_WALLET_TEAM_ID=XXXXXXXXXX
+APPLE_WALLET_CERTIFICATE_PATH=/var/www/.../storage/app/wallet/pass.p12
+APPLE_WALLET_CERTIFICATE_PASSWORD=…
+APPLE_WALLET_WWDR_PATH=/var/www/.../storage/app/wallet/wwdr.pem
+APPLE_WALLET_ORGANIZATION=Loyalty.lt
+```
+
+### Google Wallet
+
+1. An issuer account in the **Google Pay & Wallet Console** → the **Issuer ID**.
+2. A service account with Wallet API access, and its JSON key.
+3. The origins allowed to show the "Save to Google Wallet" button.
+
+```env
+GOOGLE_WALLET_ISSUER_ID=3388000000000000000
+GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL=wallet@project.iam.gserviceaccount.com
+GOOGLE_WALLET_SERVICE_ACCOUNT_JSON=/var/www/.../storage/app/wallet/google.json
+GOOGLE_WALLET_ORIGINS=https://loyalty.lt,https://partners.loyalty.lt
+```
+
+Keep both key files outside the web root and outside git. `storage/app/wallet/` is the
+right place; it is already private.
+
+## What changes for the customer
+
+- The card is added from the app or from a link — no install required for the link path.
+- Balance, tier and expiry updates are pushed to the pass, so the customer sees the
+  current state without opening anything.
+- On iOS 26 and later the pass can be handed over by tapping the phone against the
+  merchant's device, in the same tap that pays.
+
+## What it does not do
+
+A wallet pass is not a payment instrument and not an identity document. It carries the
+card number, the balance we put on it, and the branding — nothing else. Redemption still
+goes through the normal Shop API call from the till.
