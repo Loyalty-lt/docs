@@ -1,0 +1,104 @@
+---
+title: "AI agent for partners"
+description: "Point your own AI assistant at your Loyalty.lt account and let it run the day-to-day work"
+---
+
+# AI agent for partners
+
+A partner can hand their own AI assistant a key to their Loyalty.lt account. The
+assistant then does what the partner does in the portal: opens shops, issues cards,
+looks up a customer's balance, drafts a campaign, checks the invoice. No integration
+work, no API client to write — the assistant speaks [MCP](https://modelcontextprotocol.io)
+and the server translates.
+
+This is not the same thing as the [docs MCP server](/docs/mcp-server). That one gives a
+coding assistant the documentation. This one gives an assistant your live account.
+
+## Getting a key
+
+The partner creates it themselves, in the portal:
+**[partners.loyalty.lt → AI agentas (MCP)](https://partners.loyalty.lt/lt/mcp)**.
+
+- Only the account owner can create or revoke a key. Staff see the list.
+- The key looks like `lmcp_…` and is shown **once**. We store only its hash, so a
+  forgotten key is replaced, never recovered.
+- An optional expiry date is part of the form. A key with no expiry stays valid until
+  it is revoked.
+- A key can be revoked at any moment and stops working immediately.
+
+## Connecting
+
+The server speaks Streamable HTTP. One endpoint, one header:
+
+```
+POST https://mcp-partners.loyalty.lt/mcp
+Authorization: Bearer lmcp_…
+```
+
+For Claude Desktop and other MCP clients that read a JSON config:
+
+```json
+{
+  "mcpServers": {
+    "loyalty-lt": {
+      "url": "https://mcp-partners.loyalty.lt/mcp",
+      "headers": { "Authorization": "Bearer lmcp_…" }
+    }
+  }
+}
+```
+
+The token is resolved per request. Two partners hitting the same server never see each
+other's data: the key decides the partner, and every call is scoped to that partner by
+the API itself, not by the MCP server.
+
+## What the agent can do
+
+45 tools, grouped by what a partner actually does in a week:
+
+| Area | Tools |
+|---|---|
+| Overview | `dashboard_summary` |
+| Shops | `shops_list`, `shop_create`, `shop_update` |
+| Loyalty cards | `cards_list`, `card_detail`, `card_issue` |
+| Customers | `customers_search`, `customer_detail`, `customer_points_balance` |
+| Transactions | `transactions_list`, `transaction_detail` |
+| Coupons | `coupons_list`, `coupon_issue`, `coupon_verify`, `coupon_redeem`, `coupon_stats` |
+| Offers and products | `offers_list`, `offer_create`, `offer_stats`, `products_list`, `product_detail` |
+| Games | `games_list`, `game_stats` |
+| SMS | `sms_campaigns_list`, `sms_campaign_create`, `sms_stats`, `sms_usage` |
+| Email | `email_campaigns_list`, `email_campaign_create`, `email_campaign_send`, `email_campaign_test`, `email_stats` |
+| Push | `push_campaigns_list`, `push_campaign_create`, `push_campaign_send`, `push_campaign_estimate`, `push_stats` |
+| Billing | `billing_plan`, `billing_current_month`, `billing_invoices`, `billing_invoice_detail` |
+| Staff | `staff_list`, `staff_invite` |
+| API keys | `api_credentials_list` |
+
+`api_credentials_list` returns keys, never secrets — a secret is shown once, at creation,
+in the portal.
+
+## Things worth knowing before you let it loose
+
+**Writes are real.** `coupon_redeem` burns a coupon. `email_campaign_send` and
+`push_campaign_send` deliver to real customers and count against the plan quota.
+`sms_campaign_create` with `save_as_draft: false` **is** the send — it goes to moderation
+and then bills. Tool descriptions say so, but an agent acting unattended should be told
+which of these it may use.
+
+**Nothing is idempotent yet.** No partner endpoint accepts an idempotency key, so a
+retried send is a second send. Until that changes, let the agent send once and check
+`*_stats` rather than retrying blind.
+
+**Recording a purchase is not here.** Points are earned through the
+[Shop API](/docs/api-reference/overview) with `X-API-Key` / `X-API-Secret`, from the till
+or the webshop — not through an MCP token. The agent can read transactions, not create
+them.
+
+## Security model
+
+One key equals one partner account, with the same reach as the person who created it.
+Treat it like a password: not in email, not in a repository, not pasted into a chat with
+a third party. When an agent is retired, revoke its key — the list in the portal shows
+when each key was last used, which is the quickest way to spot one nobody needs any more.
+
+The key cannot manage keys. An agent calling the token endpoints with its own key gets
+`403` — issuing and revoking stays with a signed-in human.

@@ -14,6 +14,7 @@
 #   3. deploy api.loyalty.lt, clear its caches, regenerate its spec
 #   4. verify the live spec: no ghost endpoints, credentials declared correctly
 #   5. deploy the frontends (admin, partners, loyalty.lt) and reload them
+#   5b. deploy the MCP servers (sales agent + partner agents) and reload them
 #   6. deploy docs.loyalty.lt against that now-correct spec
 #   7. verify the published pages and the frontends
 #
@@ -40,6 +41,17 @@ FRONTENDS=(
   "admin.loyalty.lt|admin.loyalty.lt|admin.loyalty.lt|https://admin.loyalty.lt"
   "partners.loyalty.lt|partners.loyalty.lt|partners.loyalty.lt|https://partners.loyalty.lt"
   "loyalty.lt|httpdocs|loyalty.lt|https://loyalty.lt"
+)
+
+# MCP serveriai: tie patys git checkout'ai, tik node procesai be Next.js.
+# Pirmasis aptarnauja ElevenLabs pardavimų agentą, antrasis - partnerių AI
+# agentus, kurie veikia partnerio vardu su jo `lmcp_` raktu. Jie atskiri
+# sąmoningai: vienas turi mūsų servisinį raktą ir mato viską, kitas neturi
+# jokio rakto ir mato tik tiek, kiek duoda užklausą atsiuntęs partneris.
+# vietinis katalogas | nuotolinis katalogas | pm2 vardas | GitHub repo | sveikatos adresas
+MCP_SERVERS=(
+  "mcp.loyalty.lt|mcp.loyalty.lt|mcp.loyalty.lt|https://github.com/Loyalty-lt/mcp.git|https://mcp.loyalty.lt/health"
+  "mcp-partners.loyalty.lt|mcp-partners.loyalty.lt|mcp-partners.loyalty.lt|https://github.com/Loyalty-lt/mcp-partners.git|https://mcp-partners.loyalty.lt/health"
 )
 
 DRY_RUN=0
@@ -82,6 +94,19 @@ ALL_REPOS=("$API_LOCAL" "$DOCS_LOCAL")
 for entry in "${FRONTENDS[@]}"; do
   IFS='|' read -r local_dir _rest <<< "$entry"
   ALL_REPOS+=("$DOCS_LOCAL/../$local_dir")
+done
+
+# MCP serveris gali būti dar nesuklonuotas į šį laptopą - tada jo tiesiog
+# nedeployinam, o ne stabdom visą grandinę.
+MCP_PRESENT=()
+for entry in "${MCP_SERVERS[@]}"; do
+  IFS='|' read -r local_dir _rest <<< "$entry"
+  if [[ -d "$DOCS_LOCAL/../$local_dir/.git" ]]; then
+    MCP_PRESENT+=("$entry")
+    ALL_REPOS+=("$DOCS_LOCAL/../$local_dir")
+  else
+    warn "$local_dir: nėra vietinio checkout'o - praleidžiam"
+  fi
 done
 
 for repo in "${ALL_REPOS[@]}"; do
@@ -375,6 +400,57 @@ if ! (( DRY_RUN )); then
   remote_node "pm2 save" >/dev/null
 fi
 
+# --------------------------------------------------- 5b. deploy the MCPs
+
+bold "Deploying the MCP servers"
+
+# Tuščias masyvas su `set -u` bash 3.2 (macOS) laikomas neapibrėžtu, todėl sąlyga.
+for entry in ${MCP_PRESENT[@]+"${MCP_PRESENT[@]}"}; do
+  IFS='|' read -r local_dir remote_dir pm2_name repo_url health <<< "$entry"
+  dest="$REMOTE_ROOT/$remote_dir"
+
+  if (( DRY_RUN )); then
+    warn "would sync with GitHub, npm ci, build and reload pm2 '$pm2_name' in $dest"
+    continue
+  fi
+
+  echo "    $local_dir -> $remote_dir"
+
+  if ! remote "test -d $dest/.git"; then
+    if remote "test -d $dest"; then
+      # Katalogas buvo užkeltas rankomis, be git. Paverčiam jį checkout'u vietoje:
+      # `reset --hard` nesekamų failų netrina, tad .env, logs/ ir node_modules/
+      # lieka kaip buvę, o medis nuo šiol sutampa su GitHub.
+      echo "    ne git checkout'as - prijungiam prie $repo_url"
+      remote "set -e
+        cd $dest
+        git init -q
+        git remote add origin $repo_url
+        git fetch -q origin main
+        git reset -q --hard origin/main"
+    else
+      echo "    naujas serveris - klonuojam $repo_url"
+      remote "git clone -q $repo_url $dest"
+      warn "$remote_dir: .env serveryje dar nėra - nukopijuok jį prieš kitą deploy'ą"
+    fi
+  else
+    remote_node "$(sync_from_github "$dest" "$remote_dir")" 2>&1 | grep -iE 'stash|backup|failai' || true
+  fi
+
+  remote_node "set -e
+    cd $dest
+    npm ci --silent
+    npm run build" 2>&1 | grep -iE 'error|failed|warn' | tail -5 || true
+
+  # `startOrReload`, ne `reload`: pirmą kartą procesas dar neregistruotas.
+  remote_node "cd $dest && pm2 startOrReload ecosystem.config.cjs --update-env" >/dev/null
+  echo "    pm2 reloaded $pm2_name"
+done
+
+if ! (( DRY_RUN )) && [[ -n "${MCP_PRESENT[*]+x}" ]]; then
+  remote_node "pm2 save" >/dev/null
+fi
+
 # ------------------------------------------------------- 6. deploy docs
 
 bold "Deploying docs.loyalty.lt"
@@ -416,6 +492,7 @@ const MUST_EXIST = [
   '/docs/realtime/shopRealtimeConfig',
   '/docs/external-sms-api/sendSmsExternal',
   '/docs/mcp-server',
+  '/docs/partner-ai-agent',
 ];
 
 let bad = 0;
@@ -456,6 +533,23 @@ NODE
       echo "    ok — $url ($code)"
     else
       die "$url returned $code — check 'pm2 logs $pm2_name'"
+    fi
+  done
+fi
+
+# MCP serveriai atsako tik per /health - / ten nėra, o /mcp be JSON-RPC
+# užklausos grąžina 405. 000 reiškia, kad domenas dar nenukreiptas.
+if ! (( DRY_RUN )); then
+  for entry in ${MCP_PRESENT[@]+"${MCP_PRESENT[@]}"}; do
+    IFS='|' read -r _local _remote pm2_name _repo health <<< "$entry"
+    code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$health" || echo 000)
+
+    if [[ "$code" == "200" ]]; then
+      echo "    ok — $health"
+    elif [[ "$code" == "000" ]]; then
+      warn "$health neatsako - patikrink DNS ir nginx proxy į pm2 procesą '$pm2_name'"
+    else
+      die "$health returned $code — check 'pm2 logs $pm2_name'"
     fi
   done
 fi
