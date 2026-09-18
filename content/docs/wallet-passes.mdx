@@ -41,7 +41,7 @@ and they can only be obtained by a person with access to the developer accounts.
 3. The **Pass Type ID certificate** exported as `.p12`, with its password.
 4. The **Apple WWDR intermediate certificate** as `.pem`.
 
-```env
+```bash
 APPLE_WALLET_PASS_TYPE_ID=pass.lt.loyalty.card
 APPLE_WALLET_TEAM_ID=XXXXXXXXXX
 APPLE_WALLET_CERTIFICATE_PATH=/var/www/.../storage/app/wallet/pass.p12
@@ -56,7 +56,7 @@ APPLE_WALLET_ORGANIZATION=Loyalty.lt
 2. A service account with Wallet API access, and its JSON key.
 3. The origins allowed to show the "Save to Google Wallet" button.
 
-```env
+```bash
 GOOGLE_WALLET_ISSUER_ID=3388000000000000000
 GOOGLE_WALLET_SERVICE_ACCOUNT_EMAIL=wallet@project.iam.gserviceaccount.com
 GOOGLE_WALLET_SERVICE_ACCOUNT_JSON=/var/www/.../storage/app/wallet/google.json
