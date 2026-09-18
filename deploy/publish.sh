@@ -227,6 +227,9 @@ else
     # permanently dirty here and --ff-only refuses. It is regenerated two lines down.
     git checkout -- storage/api-docs/api-docs.json 2>/dev/null || true
     git pull --ff-only origin main
+    # Priklausomybės buvo diegiamos rankomis, tad po framework'o atnaujinimo
+    # serveris liktų su senu vendor/ ir kristų. Staging tai darė, production ne.
+    composer install --no-dev --no-interaction --optimize-autoloader --quiet
     php artisan route:clear
     php artisan config:clear
     php artisan l5-swagger:generate" | tail -4
