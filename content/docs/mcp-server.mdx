@@ -1,14 +1,27 @@
 ---
-title: "MCP Server"
-description: "Give your AI coding assistant the Loyalty.lt docs and API contract"
+title: "Docs MCP Server"
+description: "Give your AI coding assistant the Loyalty.lt docs and the full Shop API contract, offline"
 ---
 
-# MCP Server
+# Docs MCP Server
 
-`@loyaltylt/docs-mcp` is an [MCP](https://modelcontextprotocol.io) server that hands
-your AI assistant this documentation and the full Shop API contract — endpoint paths,
-field names, requiredness, auth headers. With it, the assistant writes a working
-integration instead of inventing plausible-looking field names.
+`@loyaltylt/docs-mcp` is an [MCP](https://modelcontextprotocol.io) server that hands your
+AI assistant this documentation and the full Shop API contract — endpoint paths, field
+names, requiredness, auth headers, response shapes. With it the assistant writes a
+working integration instead of inventing plausible-looking field names.
+
+It is a **read-only documentation** server. It never touches your account, never sends a
+request to our API, and needs no key. If you want an assistant that actually runs your
+loyalty programme — issues cards, drafts campaigns, checks invoices — that is the
+[AI agent for partners](/docs/partner-ai-agent), a different server with a different key.
+
+| | Docs MCP (this page) | [Partner AI agent](/docs/partner-ai-agent) |
+|---|---|---|
+| Endpoint | `npx @loyaltylt/docs-mcp` over stdio | `https://mcp.loyalty.lt/mcp` over HTTP |
+| Auth | none | `Authorization: Bearer lmcp_…` |
+| Sees | documentation and the OpenAPI contract | your live Loyalty.lt account |
+| Writes | nothing | shops, cards, coupons, campaigns |
+| For | developers writing the integration | partners running the programme |
 
 ## Install
 
@@ -22,8 +35,10 @@ npx @loyaltylt/docs-mcp
 ```
 </CodeGroup>
 
-For Claude Desktop, add this to `claude_desktop_config.json`
-(`~/Library/Application Support/Claude/` on macOS, `%APPDATA%\Claude\` on Windows):
+### Claude Desktop
+
+`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS,
+`%APPDATA%\Claude\claude_desktop_config.json` on Windows. Restart the app after editing.
 
 ```json
 {
@@ -36,26 +51,109 @@ For Claude Desktop, add this to `claude_desktop_config.json`
 }
 ```
 
-Cursor, Windsurf and other MCP clients take the same command over stdio.
+### Cursor and Windsurf
 
-## What it exposes
+The same object, in `.cursor/mcp.json` inside the project (or `~/.cursor/mcp.json` to
+have it everywhere). Windsurf reads `~/.codeium/windsurf/mcp_config.json`.
 
-| Tool | Returns |
-|------|---------|
-| `search_docs` | Keyword hits across guides **and** endpoints |
-| `get_page` | A guide in full, as Markdown |
-| `list_topics` | Guide sections and API reference groups |
-| `list_endpoints` | The API surface, grouped, filterable by auth scheme |
-| `get_endpoint` | One endpoint: parameters, body fields, responses, auth, a ready curl |
+### opencode
 
-## Example
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "loyaltylt-docs": {
+      "type": "local",
+      "command": ["npx", "-y", "@loyaltylt/docs-mcp"],
+      "enabled": true
+    }
+  }
+}
+```
+
+`opencode.json` in the project, or `~/.config/opencode/opencode.json` globally.
+
+## Tools
+
+Five tools. The assistant picks them itself; the parameters are here so you can tell it
+exactly what to call when you already know.
+
+### `search_docs`
+
+Keyword search across guides **and** endpoints. The right first call when neither the
+page path nor the endpoint id is known yet.
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `query` | string, required | — | `"award points"`, `"redeem coupon"`, `"qr login"` |
+| `kind` | `all` · `guides` · `endpoints` | `all` | Narrow to written guides or to the API surface |
+| `limit` | 1–30 | `10` | How many hits to return |
+
+### `get_page`
+
+One guide in full, as Markdown.
+
+| Parameter | Type | Meaning |
+|---|---|---|
+| `path` | string, required | `/docs/api-reference/authentication`, or just `sdk/php/usage` |
+
+For endpoint pages use `get_endpoint` — it reads the contract itself, not the rendered
+page.
+
+### `list_topics`
+
+Browse the shape of the documentation before diving in.
+
+| Parameter | Type | Meaning |
+|---|---|---|
+| `section` | string, optional | `api-reference`, `sdk`, `troubleshooting`. Omit for an overview |
+
+### `list_endpoints`
+
+The API surface, grouped by feature.
+
+| Parameter | Type | Meaning |
+|---|---|---|
+| `tag` | string, optional | `Transactions`, `Coupons`, `Games`, … Omit for every group |
+| `auth` | `api-credentials` · `customer-jwt` · `none` | Only endpoints using that scheme |
+
+### `get_endpoint`
+
+One endpoint in full: parameters, body fields, requiredness, responses, auth scheme and
+a ready-to-run curl.
+
+| Parameter | Type | Default | Meaning |
+|---|---|---|---|
+| `endpoint` | string, required | — | Id (`postShopTransactionsCreate`) or method and path (`POST /shop/transactions/create`) |
+| `environment` | `production` · `staging` | `staging` | Which base URL the example uses |
+
+The default is staging on purpose: an assistant that copies the example verbatim hits
+`https://staging-api.loyalty.lt`, not your live data.
+
+## What is indexed
+
+At the time of writing the index carries **22 guides** and **48 endpoints**, grouped as:
+
+```text
+Transactions        Loyalty Cards      Coupons         Games
+Offers              Shops              Products        XML Import
+Authentication      QR Card Scan       Realtime        System
+External SMS API
+```
+
+Guide sections: `api-reference`, `sdk`, `troubleshooting`, plus the top-level pages.
+Both servers from the spec are available to `get_endpoint` — `https://api.loyalty.lt`
+and `https://staging-api.loyalty.lt`.
+
+## A worked example
 
 Ask your assistant:
 
 > Award loyalty points for order `ORD-1` (€25.50) in my Laravel checkout.
 
-It looks up `postShopTransactionsCreate`, sees that `order_id` is required and that
-the customer needs `user_id` or `user_email`, reads the PHP SDK guide, and writes:
+It calls `search_docs` with `"award points"`, lands on `postShopTransactionsCreate`,
+calls `get_endpoint` to see that `order_id` is required and the customer needs
+`user_id` **or** `user_email`, reads the PHP SDK guide with `get_page`, and writes:
 
 ```php
 $sdk->createTransaction([
@@ -67,11 +165,59 @@ $sdk->createTransaction([
 ]);
 ```
 
+Other prompts that route cleanly through the tools:
+
+```text
+Which endpoints need X-API-Key and X-API-Secret rather than a customer token?
+Show me the request body for redeeming a coupon, with every required field.
+How does QR login work end to end? Give me the calls in order.
+What does the XML product import expect, and what happens to unknown fields?
+```
+
 ## How it stays correct
 
-The index is generated from this site's own source — the guide MDX and the scoped
-OpenAPI spec — at publish time, not scraped from rendered HTML. Everything the server
-reports therefore matches what you see here. It makes no network calls and needs no
-API key.
+The index is generated from this repository's own source — the guide MDX and the scoped
+`openapi.json` — by `scripts/build-index.mjs` at publish time. Nothing is scraped from
+rendered HTML, so the server cannot drift from the site you are reading; when a guide or
+an endpoint changes here, the next published package carries the change.
+
+The server runs entirely offline over stdio. No network calls, no API key, no telemetry.
+That also means it is only as fresh as the installed package — see below.
+
+## Troubleshooting
+
+**The assistant quotes an endpoint that no longer exists.** The package is cached. `npx`
+keeps a copy, so force the current one:
+
+```bash
+npx -y @loyaltylt/docs-mcp@latest
+```
+
+In Claude Code, re-add the server with the same flag:
+
+```bash
+claude mcp remove loyaltylt-docs
+claude mcp add loyaltylt-docs -- npx -y @loyaltylt/docs-mcp@latest
+```
+
+**The server does not appear in the client.** Check it starts on its own first — it
+should print nothing and wait, which is what a stdio MCP server looks like:
+
+```bash
+npx -y @loyaltylt/docs-mcp
+```
+
+Then inspect the tool list directly:
+
+```bash
+npx @modelcontextprotocol/inspector npx -y @loyaltylt/docs-mcp
+```
+
+**The assistant writes calls against production while testing.** Tell it the
+environment, or pass `environment: "production"` only when you mean it — `get_endpoint`
+defaults to staging.
+
+**It answers about the account, not the docs.** This server has no account access at
+all. What you want is the [AI agent for partners](/docs/partner-ai-agent).
 
 Source: [github.com/Loyalty-lt/docs](https://github.com/Loyalty-lt/docs/tree/main/mcp).
