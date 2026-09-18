@@ -35,7 +35,16 @@ POST https://mcp.loyalty.lt/mcp
 Authorization: Bearer lmcp_…
 ```
 
-For Claude Desktop and other MCP clients that read a JSON config:
+### Claude Code
+
+```bash
+claude mcp add --transport http loyalty-lt https://mcp.loyalty.lt/mcp --header "Authorization: Bearer lmcp_…"
+```
+
+### Claude Desktop and Claude.ai
+
+Claude Desktop reads `claude_desktop_config.json` — `~/Library/Application Support/Claude/`
+on macOS, `%APPDATA%\Claude\` on Windows. Restart the app after editing.
 
 ```json
 {
@@ -47,6 +56,38 @@ For Claude Desktop and other MCP clients that read a JSON config:
   }
 }
 ```
+
+On claude.ai the same server is added under **Settings → Connectors → Add custom
+connector**, with the address and the `Authorization` header.
+
+### Cursor
+
+The same JSON, in `.cursor/mcp.json` inside the project — or `~/.cursor/mcp.json` to
+have it everywhere.
+
+### opencode
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "loyalty-lt": {
+      "type": "remote",
+      "url": "https://mcp.loyalty.lt/mcp",
+      "enabled": true,
+      "headers": { "Authorization": "Bearer lmcp_…" }
+    }
+  }
+}
+```
+
+`opencode.json` in the project, or `~/.config/opencode/opencode.json` globally.
+
+### ChatGPT
+
+**Settings → Connectors → Create.** Enter the server address, pick API key
+authentication and paste the `lmcp_` key; ChatGPT sends it as the `Authorization`
+header.
 
 The token is resolved per request. Two partners hitting the same server never see each
 other's data: the key decides the partner, and every call is scoped to that partner by
@@ -75,6 +116,18 @@ the API itself, not by the MCP server.
 
 `api_credentials_list` returns keys, never secrets — a secret is shown once, at creation,
 in the portal.
+
+## Example prompts
+
+The agent reads plain language and picks the tools itself.
+
+```text
+How did this week go? Show new customers, transactions and points.
+Find the customer with the email jonas@pavyzdys.lt and tell me their points balance.
+Issue this customer a 10% discount coupon valid for two weeks and give me the code.
+Draft an SMS campaign for customers who haven't bought in 60 days and tell me what it will cost.
+How much has this month cost so far, and what plan am I on?
+```
 
 ## Things worth knowing before you let it loose
 
