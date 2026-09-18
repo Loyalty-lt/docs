@@ -44,14 +44,15 @@ FRONTENDS=(
 )
 
 # MCP serveriai: tie patys git checkout'ai, tik node procesai be Next.js.
-# Pirmasis aptarnauja ElevenLabs pardavimų agentą, antrasis - partnerių AI
-# agentus, kurie veikia partnerio vardu su jo `lmcp_` raktu. Jie atskiri
-# sąmoningai: vienas turi mūsų servisinį raktą ir mato viską, kitas neturi
-# jokio rakto ir mato tik tiek, kiek duoda užklausą atsiuntęs partneris.
+# `mcp.loyalty.lt` yra partnerių serveris - jį naudos visi partneriai, todėl jam
+# tenka trumpiausias vardas. `mcp-admin.loyalty.lt` - mūsų pačių pardavimų
+# agentas. Jie atskiri sąmoningai: administracinis turi mūsų servisinį raktą ir
+# mato viską, partnerių neturi jokio rakto ir mato tik tiek, kiek duoda
+# užklausą atsiuntęs partneris.
 # vietinis katalogas | nuotolinis katalogas | pm2 vardas | GitHub repo | sveikatos adresas
 MCP_SERVERS=(
   "mcp.loyalty.lt|mcp.loyalty.lt|mcp.loyalty.lt|https://github.com/Loyalty-lt/mcp.git|https://mcp.loyalty.lt/health"
-  "mcp-partners.loyalty.lt|mcp-partners.loyalty.lt|mcp-partners.loyalty.lt|https://github.com/Loyalty-lt/mcp-partners.git|https://mcp-partners.loyalty.lt/health"
+  "mcp-admin.loyalty.lt|mcp-admin.loyalty.lt|mcp-admin.loyalty.lt|https://github.com/Loyalty-lt/mcp-admin.git|https://mcp-admin.loyalty.lt/health"
 )
 
 DRY_RUN=0
