@@ -1,0 +1,211 @@
+---
+title: "Webhooks"
+description: "How Loyalty.lt tells your system that something happened, instead of you asking"
+---
+
+# Webhooks
+
+Without webhooks the only way to know that a customer just earned points is to ask us
+again and again. Every integration we have seen do that ends up polling every minute,
+finding nothing 99% of the time, and still being a minute late on the 1%.
+
+A webhook flips that around: you give us an HTTPS URL, we POST to it the moment
+something happens. No polling loop, no lag, no rate limit to budget for.
+
+Webhooks are configured per partner, in the Partners Portal or over the partner API.
+They are outbound only — nothing here changes how you call the Shop API.
+
+## Events
+
+| Event | Fires when |
+|-------|------------|
+| `transaction.created` | A transaction is recorded for the partner — a purchase, a manual adjustment, a points grant |
+| `tier.changed` | A customer moves between loyalty tiers, whether automatically, manually, or when a manual override expires |
+| `coupon.redeemed` | A coupon is marked used — in a shop, in the staff app, in the POS, or from a game reward |
+| `card.issued` | A loyalty card is created for a customer |
+
+Each of these fires from the data layer, not from one endpoint, so an event reaches you
+no matter which of our apps caused it. A coupon redeemed by a cashier in the staff app
+and one redeemed by the web widget produce the same `coupon.redeemed`.
+
+You subscribe per event. A webhook that only listens for `transaction.created` never
+sees the rest.
+
+## The envelope
+
+Every delivery has the same shape, so you write one parser and switch on `event`:
+
+```json
+{
+  "id": "0f3b2f1c-9a54-4d8e-9d51-3b4a8f0c1e77",
+  "event": "transaction.created",
+  "created_at": "2026-09-18T11:04:22+00:00",
+  "data": {
+    "transaction_id": 918273,
+    "user_id": 4412,
+    "loyalty_card_id": 8891,
+    "shop_id": 31,
+    "amount": 24.9,
+    "currency": "EUR",
+    "type": "purchase",
+    "status": "completed",
+    "reference_number": "R-2026-0918-31",
+    "transaction_date": "2026-09-18T11:04:21+00:00"
+  }
+}
+```
+
+Only `data` differs between events. `id` is the delivery id — the same value as the
+`X-Loyalty-Delivery` header, and the key you should deduplicate on (see
+[Retries](#retries-and-failures)).
+
+We add fields to `data` over time. Treat unknown keys as normal and do not fail on them.
+
+### Headers
+
+| Header | Value |
+|--------|-------|
+| `X-Loyalty-Event` | The event name, e.g. `coupon.redeemed` |
+| `X-Loyalty-Delivery` | UUID of this delivery. Stable across retries of the same event |
+| `X-Loyalty-Signature` | `sha256=` followed by the HMAC of the request body |
+| `Content-Type` | `application/json` |
+
+## Verifying the signature
+
+Your endpoint is a public URL. Anyone who finds it can POST to it, so verify every
+request before you act on it.
+
+The signature is `HMAC-SHA256` over the **raw request body** using your webhook secret.
+Sign the bytes you received — not a re-encoded version of the parsed JSON. Key order and
+whitespace differ after a JSON round-trip, and the signature will not match.
+
+Compare with a constant-time function. A plain `==` on a hash leaks timing information
+and is the one mistake worth being pedantic about here.
+
+### PHP
+
+```php
+$body = file_get_contents('php://input');
+$expected = 'sha256=' . hash_hmac('sha256', $body, $webhookSecret);
+
+if (! hash_equals($expected, $_SERVER['HTTP_X_LOYALTY_SIGNATURE'] ?? '')) {
+    http_response_code(401);
+    exit;
+}
+
+$payload = json_decode($body, true);
+// $payload['event'], $payload['data'], $payload['id']
+```
+
+### Node.js (Express)
+
+```js
+import crypto from 'node:crypto';
+import express from 'express';
+
+const app = express();
+
+// express.raw, not express.json — the parsed body is no longer the bytes we signed.
+app.post('/loyalty/webhook', express.raw({ type: 'application/json' }), (req, res) => {
+  const expected =
+    'sha256=' + crypto.createHmac('sha256', process.env.LOYALTY_WEBHOOK_SECRET)
+      .update(req.body)
+      .digest('hex');
+
+  const given = req.get('X-Loyalty-Signature') || '';
+
+  if (
+    expected.length !== given.length ||
+    !crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(given))
+  ) {
+    return res.sendStatus(401);
+  }
+
+  const payload = JSON.parse(req.body.toString('utf8'));
+  // handle payload.event / payload.data
+  res.sendStatus(200);
+});
+```
+
+## Responding
+
+Return any `2xx` status. Anything else — including a redirect — counts as a failure.
+
+Answer fast and do the work afterwards. We wait 10 seconds for a response, and a slow
+endpoint turns into a retried endpoint, which turns into duplicate work on your side.
+Queue the payload, return `200`, process it out of band.
+
+## Retries and failures
+
+A failed delivery is retried four times:
+
+| Attempt | Delay after the previous one |
+|---------|------------------------------|
+| 1 | — (immediate) |
+| 2 | 1 minute |
+| 3 | 5 minutes |
+| 4 | 30 minutes |
+| 5 | 2 hours |
+
+All five attempts carry the same `X-Loyalty-Delivery` id. Store the ids you have
+processed and ignore repeats: a delivery can arrive twice if your endpoint did the work
+but the response never reached us. This is the only reliable way to get
+exactly-once behaviour out of an at-least-once transport, and it is a few lines.
+
+After **5 consecutive failed deliveries** — five events that exhausted all their
+attempts, not five attempts — the webhook is disabled automatically and we email the
+partner's contact address. Nothing queues up while it is off; events that happen during
+that time are gone.
+
+One success anywhere in between resets the counter to zero, so an endpoint that blips
+during a deploy will not be disabled for it.
+
+Re-enable a disabled webhook in the Partners Portal, or by sending `is_active: true`
+over the API. That clears the failure counter too.
+
+Every attempt is recorded — status code, duration, and a short excerpt of your response
+body. Read them under **Deliveries** when you are debugging why nothing arrives.
+
+## Managing webhooks over the API
+
+All endpoints live under the partner API and use your partner session token. Replace
+`lt` with the locale you use.
+
+| Method | Path | Does |
+|--------|------|------|
+| `GET` | `/lt/partners/webhooks/events` | List the event names you can subscribe to |
+| `GET` | `/lt/partners/webhooks` | List your webhooks |
+| `POST` | `/lt/partners/webhooks` | Create one |
+| `PUT` | `/lt/partners/webhooks/{id}` | Change URL, events, description, or active state |
+| `DELETE` | `/lt/partners/webhooks/{id}` | Delete one |
+| `POST` | `/lt/partners/webhooks/{id}/rotate-secret` | Issue a new secret |
+| `GET` | `/lt/partners/webhooks/{id}/deliveries` | Recent delivery attempts |
+| `POST` | `/lt/partners/webhooks/{id}/test` | Send a test event to the URL |
+
+```bash
+curl -X POST "https://staging-api.loyalty.lt/lt/partners/webhooks" \
+  -H "Authorization: Bearer $PARTNER_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://shop.example.com/loyalty/webhook",
+    "events": ["transaction.created", "coupon.redeemed"],
+    "description": "Order sync"
+  }'
+```
+
+The response contains `secret`. **This is the only time we return it.** We store a copy
+to sign with, but the API never shows it again — copy it into your environment now. If
+you lose it, rotate it, which invalidates the old one immediately.
+
+The URL must be `https`. We will not deliver to plaintext HTTP; the payload contains
+customer identifiers.
+
+## Testing before you go live
+
+Build against `https://staging-api.loyalty.lt` first. Create the webhook there, point it
+at your staging endpoint, and use `POST /lt/partners/webhooks/{id}/test` to fire a
+delivery on demand — it travels the same queue, with the same signature and headers, as
+a real one, so if your verification code passes the test event it will pass production.
+
+If you need to see a payload before you have an endpoint, any request-capture service
+works as a temporary URL. Do not leave one configured: the payloads contain customer ids.
