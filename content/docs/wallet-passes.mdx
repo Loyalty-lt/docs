@@ -66,11 +66,51 @@ GOOGLE_WALLET_ORIGINS=https://loyalty.lt,https://partners.loyalty.lt
 Keep both key files outside the web root and outside git. `storage/app/wallet/` is the
 right place; it is already private.
 
+## Keeping the pass up to date
+
+A pass that shows last week's balance is worse than no pass, so the update path is part
+of the feature rather than a later addition.
+
+**Apple.** The pass carries a `webServiceURL` pointing at `https://api.loyalty.lt/wallet`
+and an `authenticationToken` derived from the card id and `APP_KEY` — nothing to store,
+nothing to rotate. iOS registers the device against that service, and every balance
+change wakes it with an empty APNs push; the device then fetches the new pass itself.
+The five endpoints Apple requires (`register`, `unregister`, `serials`, `pass`, `log`)
+live under `/wallet/v1/`, outside the locale prefix, because Apple knows nothing about
+our languages.
+
+The push needs an APNs key. The `.p8` already used for VoIP works — it is valid for the
+whole team — so these are optional and only needed if you want a separate key:
+
+```bash
+APPLE_WALLET_APNS_TEAM_ID=
+APPLE_WALLET_APNS_KEY_ID=
+APPLE_WALLET_APNS_KEY_PATH=
+APPLE_WALLET_APNS_PRODUCTION=true
+```
+
+**Google.** The "Save to Wallet" link only creates the object; after that it lives on
+Google's side, so a balance change sends a `PATCH` to the Wallet API using the same
+service account. A `404` back means the customer never added the card — not an error.
+
+Both run from the `SyncWalletPass` queue job, fired by the points ledger on **every**
+balance change, spending included. **The queue worker must be running** or passes will
+quietly stay stale.
+
+The back of the pass also shows the last five ledger entries and the update time, so a
+changed number has a reason next to it.
+
+## Only the Loyalty.lt card
+
+Scanned third-party cards are deliberately refused (`422`). Their pass would carry our
+branding and our card number, while the retailer's till expects their own code — a pass
+that looks like it works and fails at the counter is worse than no button at all.
+
 ## What changes for the customer
 
 - The card is added from the app or from a link — no install required for the link path.
-- Balance, tier and expiry updates are pushed to the pass, so the customer sees the
-  current state without opening anything.
+- Balance and expiry updates are pushed to the pass, so the customer sees the current
+  state without opening anything.
 - On iOS 26 and later the pass can be handed over by tapping the phone against the
   merchant's device, in the same tap that pays.
 
