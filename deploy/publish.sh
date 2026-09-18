@@ -3,7 +3,15 @@
 # Publish the API reference end to end, from a laptop, in one command.
 #
 #   ./deploy/publish.sh              # the whole chain
+#   ./deploy/publish.sh api          # API only — spec, push, deploy, verify
+#   ./deploy/publish.sh api docs     # several targets, in the chain's own order
+#   ./deploy/publish.sh --skip mcp   # everything except one target
+#   ./deploy/publish.sh --list       # what the target names are
 #   ./deploy/publish.sh --dry-run    # say what it would do, touch nothing
+#
+# Naming a target skips everything else, including its verification. The order
+# below never changes: `api docs` and `docs api` both deploy the API first,
+# because the docs build reads the live spec.
 #
 # The chain exists because the two halves are coupled and ordered: the docs site
 # builds its API Reference by fetching the live spec from api.loyalty.lt, so the
@@ -37,10 +45,11 @@ API_LOCAL="$(cd "$DOCS_LOCAL/../api.loyalty.lt" && pwd)"
 
 # vietinis katalogas | nuotolinis katalogas | pm2 proceso vardas | viešas adresas
 # loyalty.lt serveryje gyvena `httpdocs`, ne to paties pavadinimo kataloge.
+# vietinis katalogas | nuotolinis katalogas | pm2 vardas | adresas | taikinys
 FRONTENDS=(
-  "admin.loyalty.lt|admin.loyalty.lt|admin.loyalty.lt|https://admin.loyalty.lt"
-  "partners.loyalty.lt|partners.loyalty.lt|partners.loyalty.lt|https://partners.loyalty.lt"
-  "loyalty.lt|httpdocs|loyalty.lt|https://loyalty.lt"
+  "admin.loyalty.lt|admin.loyalty.lt|admin.loyalty.lt|https://admin.loyalty.lt|admin"
+  "partners.loyalty.lt|partners.loyalty.lt|partners.loyalty.lt|https://partners.loyalty.lt|partners"
+  "loyalty.lt|httpdocs|loyalty.lt|https://loyalty.lt|web"
 )
 
 # MCP serveriai: tie patys git checkout'ai, tik node procesai be Next.js.
@@ -55,15 +64,72 @@ MCP_SERVERS=(
   "mcp-admin.loyalty.lt|mcp-admin.loyalty.lt|mcp-admin.loyalty.lt|https://github.com/Loyalty-lt/mcp-admin.git|https://mcp-admin.loyalty.lt/health"
 )
 
+# Ką galima deployinti atskirai. `staging` visada eina su `api` - jie privalo
+# turėti tą patį commit'ą, kitaip integratoriai testuoja API, kurio nebėra.
+TARGETS_ALL=(api admin partners web mcp docs)
+
 DRY_RUN=0
 RESTART_ALL=0
-for arg in "$@"; do
-  case "$arg" in
+SELECTED=()
+SKIPPED=()
+
+target_exists() {
+  local needle="$1" item
+  for item in "${TARGETS_ALL[@]}"; do
+    [[ "$item" == "$needle" ]] && return 0
+  done
+  return 1
+}
+
+while (( $# )); do
+  case "$1" in
     --dry-run) DRY_RUN=1 ;;
     --restart-all) RESTART_ALL=1 ;;
-    *) echo "unknown flag: $arg" >&2; exit 2 ;;
+    --list)
+      printf 'Taikiniai: %s\n' "${TARGETS_ALL[*]}"
+      printf '  api      api.loyalty.lt + staging + OpenAPI spec\n'
+      printf '  admin    admin.loyalty.lt\n'
+      printf '  partners partners.loyalty.lt\n'
+      printf '  web      loyalty.lt\n'
+      printf '  mcp      mcp.loyalty.lt ir mcp-admin.loyalty.lt\n'
+      printf '  docs     docs.loyalty.lt\n'
+      exit 0
+      ;;
+    --skip)
+      shift
+      [[ $# -gt 0 ]] || { echo "--skip be taikinio" >&2; exit 2; }
+      target_exists "$1" || { echo "nežinomas taikinys: $1 (žr. --list)" >&2; exit 2; }
+      SKIPPED+=("$1")
+      ;;
+    -*) echo "unknown flag: $1" >&2; exit 2 ;;
+    *)
+      target_exists "$1" || { echo "nežinomas taikinys: $1 (žr. --list)" >&2; exit 2; }
+      SELECTED+=("$1")
+      ;;
   esac
+  shift
 done
+
+# Nieko nenurodyta - visa grandinė, kaip ir buvo.
+if [[ ${#SELECTED[@]} -eq 0 ]]; then
+  SELECTED=("${TARGETS_ALL[@]}")
+fi
+
+want() {
+  local needle="$1" item
+  for item in ${SKIPPED[@]+"${SKIPPED[@]}"}; do
+    [[ "$item" == "$needle" ]] && return 1
+  done
+  for item in "${SELECTED[@]}"; do
+    [[ "$item" == "$needle" ]] && return 0
+  done
+  return 1
+}
+
+# Ar deployinam bent vieną frontend'ą.
+want_any_frontend() {
+  want admin || want partners || want web
+}
 
 bold() { printf '\n\033[1m==> %s\033[0m\n' "$1"; }
 warn() { printf '\033[33m    %s\033[0m\n' "$1"; }
@@ -91,26 +157,32 @@ run() {
 
 bold "Preflight"
 
-ALL_REPOS=("$API_LOCAL" "$DOCS_LOCAL")
+# Tikrinam ir push'inam tik tai, ką deployinam - kitaip vieno švaraus taikinio
+# deploy'as krenta dėl kito repo nešvaraus medžio.
+ALL_REPOS=()
+want api && ALL_REPOS+=("$API_LOCAL")
+want docs && ALL_REPOS+=("$DOCS_LOCAL")
 for entry in "${FRONTENDS[@]}"; do
-  IFS='|' read -r local_dir _rest <<< "$entry"
-  ALL_REPOS+=("$DOCS_LOCAL/../$local_dir")
+  IFS='|' read -r local_dir _rest _pm2 _url target <<< "$entry"
+  want "$target" && ALL_REPOS+=("$DOCS_LOCAL/../$local_dir")
 done
 
 # MCP serveris gali būti dar nesuklonuotas į šį laptopą - tada jo tiesiog
 # nedeployinam, o ne stabdom visą grandinę.
 MCP_PRESENT=()
-for entry in "${MCP_SERVERS[@]}"; do
-  IFS='|' read -r local_dir _rest <<< "$entry"
-  if [[ -d "$DOCS_LOCAL/../$local_dir/.git" ]]; then
-    MCP_PRESENT+=("$entry")
-    ALL_REPOS+=("$DOCS_LOCAL/../$local_dir")
-  else
-    warn "$local_dir: nėra vietinio checkout'o - praleidžiam"
-  fi
-done
+if want mcp; then
+  for entry in "${MCP_SERVERS[@]}"; do
+    IFS='|' read -r local_dir _rest <<< "$entry"
+    if [[ -d "$DOCS_LOCAL/../$local_dir/.git" ]]; then
+      MCP_PRESENT+=("$entry")
+      ALL_REPOS+=("$DOCS_LOCAL/../$local_dir")
+    else
+      warn "$local_dir: nėra vietinio checkout'o - praleidžiam"
+    fi
+  done
+fi
 
-for repo in "${ALL_REPOS[@]}"; do
+for repo in ${ALL_REPOS[@]+"${ALL_REPOS[@]}"}; do
   [[ -d "$repo/.git" ]] || die "$(basename "$repo") is not a git checkout"
   branch=$(git -C "$repo" branch --show-current)
   [[ "$branch" == "main" ]] || die "$(basename "$repo") is on '$branch', not main"
@@ -125,7 +197,8 @@ echo "    ssh: reachable"
 # lightningcss / @tailwindcss/oxide / @parcel/watcher — ir deploy'as lūždavo
 # viduryje. Trūkstamą binarą reikia deklaruoti `optionalDependencies`.
 for entry in "${FRONTENDS[@]}"; do
-  IFS='|' read -r local_dir _rest <<< "$entry"
+  IFS='|' read -r local_dir _rest _pm2 _url target <<< "$entry"
+  want "$target" || continue
   repo="$DOCS_LOCAL/../$local_dir"
   [[ -f "$repo/package-lock.json" ]] || continue
   missing=$(python3 - "$repo/package-lock.json" <<'PYCHECK'
@@ -160,7 +233,8 @@ done
 # `{lead.status}` be t(). Tikrinam čia, laptope, o ne serveryje: serveryje
 # medis ateina per `git pull`, tad būtų per vėlu.
 for entry in "${FRONTENDS[@]}"; do
-  IFS='|' read -r local_dir _rest <<< "$entry"
+  IFS='|' read -r local_dir _rest _pm2 _url target <<< "$entry"
+  want "$target" || continue
   repo="$DOCS_LOCAL/../$local_dir"
   [[ -f "$repo/scripts/i18n-audit.mjs" ]] || continue
   if ! out=$(cd "$repo" && node scripts/i18n-audit.mjs 2>&1); then
@@ -172,6 +246,7 @@ done
 
 # ------------------------------------------------- 1. regenerate the spec
 
+if want api; then
 bold "Regenerating the OpenAPI spec from the annotations"
 
 if (( DRY_RUN )); then
@@ -186,12 +261,13 @@ else
     echo "    spec unchanged"
   fi
 fi
+fi
 
 # ------------------------------------------------------------- 2. push
 
 bold "Pushing"
 
-for repo in "${ALL_REPOS[@]}"; do
+for repo in ${ALL_REPOS[@]+"${ALL_REPOS[@]}"}; do
   name=$(basename "$repo")
   if [[ -n "$(git -C "$repo" status --porcelain --untracked-files=no)" ]]; then
     die "$name has uncommitted tracked changes — commit or stash them first"
@@ -216,6 +292,7 @@ done
 
 # -------------------------------------------------------- 3. deploy api
 
+if want api; then
 bold "Deploying api.loyalty.lt"
 
 if (( DRY_RUN )); then
@@ -246,9 +323,11 @@ if ! (( DRY_RUN )); then
     warn "$pending migration(s) pending on production — run 'php artisan migrate' there yourself"
   fi
 fi
+fi
 
 # ---------------------------------------------------- 3b. deploy staging
 
+if want api; then
 bold "Deploying staging-api.loyalty.lt"
 
 # Staging ships the same commit as production, always. Integrators build against
@@ -265,9 +344,11 @@ else
     warn "  cd $REMOTE_ROOT/staging-api.loyalty.lt && ./deploy/staging-bootstrap.sh"
   fi
 fi
+fi
 
 # ------------------------------------------------------ 4. verify the API
 
+if want api; then
 bold "Verifying the live spec"
 
 if (( DRY_RUN )); then
@@ -334,6 +415,7 @@ const n = Object.keys(paths).filter((p) => /^\/\{locale\}\/(shop|sms)\b/.test(p)
 console.log(`    ok — ${n} public paths, no ghosts, credentials required together, envelope as documented`);
 NODE
 fi
+fi
 
 # Serveris visada turi atitikti GitHub. Vietiniai serverio pakeitimai deploy'o
 # nestabdo: sekami failai keliauja į `git stash`, o nesekami, kuriuos parsiunčiamas
@@ -371,10 +453,12 @@ REMOTE
 
 # -------------------------------------------------- 5. deploy the frontends
 
+if want_any_frontend; then
 bold "Deploying the frontends"
 
 for entry in "${FRONTENDS[@]}"; do
-  IFS='|' read -r local_dir remote_dir pm2_name _url <<< "$entry"
+  IFS='|' read -r local_dir remote_dir pm2_name _url target <<< "$entry"
+  want "$target" || continue
   dest="$REMOTE_ROOT/$remote_dir"
 
   if (( DRY_RUN )); then
@@ -403,9 +487,11 @@ fi
 if ! (( DRY_RUN )); then
   remote_node "pm2 save" >/dev/null
 fi
+fi
 
 # --------------------------------------------------- 5b. deploy the MCPs
 
+if want mcp; then
 bold "Deploying the MCP servers"
 
 # Tuščias masyvas su `set -u` bash 3.2 (macOS) laikomas neapibrėžtu, todėl sąlyga.
@@ -454,9 +540,11 @@ done
 if ! (( DRY_RUN )) && [[ -n "${MCP_PRESENT[*]+x}" ]]; then
   remote_node "pm2 save" >/dev/null
 fi
+fi
 
 # ------------------------------------------------------- 6. deploy docs
 
+if want docs; then
 bold "Deploying docs.loyalty.lt"
 
 if (( DRY_RUN )); then
@@ -476,9 +564,11 @@ $(sync_from_github "$REMOTE_ROOT/docs.loyalty.lt" "docs.loyalty.lt")
   remote_node "cd $REMOTE_ROOT/docs.loyalty.lt && pm2 reload ecosystem.config.cjs --update-env && pm2 save" >/dev/null
   echo "    pm2 reloaded"
 fi
+fi
 
 # ------------------------------------------- 7. verify the docs and frontends
 
+if want docs; then
 bold "Verifying the published docs"
 
 if (( DRY_RUN )); then
@@ -526,11 +616,16 @@ if (weight(stagingHealth.version) < weight(prodHealth.version)) {
 if (bad) process.exit(1);
 console.log(`    ok — ${MUST_EXIST.length} pages serving, llms.txt clean`);
 NODE
+fi
+fi
+
+if want_any_frontend && ! (( DRY_RUN )); then
 
   # Frontendai: užtenka, kad atsakytų 2xx/3xx — 502 reikštų, kad build'as
   # nulūžo arba pm2 procesas nepakilo po reload'o.
   for entry in "${FRONTENDS[@]}"; do
-    IFS='|' read -r _local _remote pm2_name url <<< "$entry"
+    IFS='|' read -r _local _remote pm2_name url target <<< "$entry"
+    want "$target" || continue
     code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$url" || echo 000)
 
     if [[ "$code" =~ ^(2|3) ]]; then
@@ -543,7 +638,7 @@ fi
 
 # MCP serveriai atsako tik per /health - / ten nėra, o /mcp be JSON-RPC
 # užklausos grąžina 405. 000 reiškia, kad domenas dar nenukreiptas.
-if ! (( DRY_RUN )); then
+if want mcp && ! (( DRY_RUN )); then
   for entry in ${MCP_PRESENT[@]+"${MCP_PRESENT[@]}"}; do
     IFS='|' read -r _local _remote pm2_name _repo health <<< "$entry"
     code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "$health" || echo 000)
@@ -559,4 +654,9 @@ if ! (( DRY_RUN )); then
 fi
 
 bold "Done"
-echo "    https://docs.loyalty.lt/docs"
+DEPLOYED=()
+for target in "${TARGETS_ALL[@]}"; do
+  want "$target" && DEPLOYED+=("$target")
+done
+echo "    sudeployinta: ${DEPLOYED[*]-nieko}"
+want docs && echo "    https://docs.loyalty.lt/docs"
