@@ -659,4 +659,4 @@ for target in "${TARGETS_ALL[@]}"; do
   want "$target" && DEPLOYED+=("$target")
 done
 echo "    sudeployinta: ${DEPLOYED[*]-nieko}"
-want docs && echo "    https://docs.loyalty.lt/docs"
+if want docs; then echo "    https://docs.loyalty.lt/docs"; fi
