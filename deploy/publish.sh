@@ -309,7 +309,8 @@ else
     composer install --no-dev --no-interaction --optimize-autoloader --quiet
     php artisan route:clear
     php artisan config:clear
-    php artisan l5-swagger:generate" | tail -4
+    php artisan l5-swagger:generate
+    php artisan queue:restart" | tail -4
 fi
 
 # NOTE: migrations are deliberately not run here. Laravel refuses to migrate a
