@@ -29,7 +29,7 @@ const ways: Way[] = [
     text: 'APIs, SDKs and integration guides for points, cards, games and offers.',
     links: [
       ['API Basics', '/docs/api-reference/overview'],
-      ['API Reference', '/docs/shop-points/shopGetCardBalance'],
+      ['API Reference', '/docs/loyalty-cards/getShopLoyaltyCards'],
       ['SDKs', '/docs/sdk/overview'],
     ],
   },
