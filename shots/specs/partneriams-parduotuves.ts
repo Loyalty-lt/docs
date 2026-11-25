@@ -1,0 +1,123 @@
+import type { Shot } from '../types.ts'
+
+const add = { app: 'portal' as const, url: '/lt/shops/add', ready: 'text=Pridėti naują parduotuvę' }
+
+const shots: Shot[] = [
+  {
+    id: 'parduotuves-sarasas',
+    app: 'portal',
+    url: '/lt/shops',
+    ready: 'text=Demo salonas – Centras',
+    alt: 'Parduotuvių sąrašas: paieška, dvi parduotuvės su adresu, kontaktais, POS tipu ir būsena, dešinėje veiksmų mygtukai.',
+    marks: [
+      { n: 1, target: 'text=Pridėti parduotuvę', label: 'Pridėti parduotuvę', text: 'nauja parduotuvė.' },
+      { n: 2, target: 'text=Importuoti iš Excel', label: 'Importuoti iš Excel', text: 'daug parduotuvių iš karto.' },
+      { n: 3, target: 'input[placeholder^="Ieškoti pagal pavadinimą"]', to: 'text=Ieškoti', label: 'Ieškoti', text: 'randa pagal pavadinimą, adresą ar miestą.' },
+      { n: 4, target: 'table', label: 'Parduotuvių sąrašas', text: 'adresas, šios dienos darbo laikas, kontaktai, POS tipas ir būsena.' },
+      { n: 5, target: 'table tbody tr:first-child td:last-child', label: 'Veiksmai', text: 'akis – peržiūrėti, pieštukas – redaguoti, šiukšlinė – ištrinti.' },
+    ],
+  },
+  {
+    id: 'parduotuves-nauja',
+    ...add,
+    alt: 'Naujos parduotuvės forma: pavadinimas, logotipas, adresas ir kontaktai.',
+    clip: 'text=Parduotuvės duomenys',
+    clipTo: 'label=El. pašto adresas',
+    pad: 44,
+    marks: [
+      { n: 1, target: 'label=Parduotuvės pavadinimas *', label: 'Parduotuvės pavadinimas', text: 'taip parduotuvę matys klientai ir kasininkai.' },
+      { n: 2, target: 'text=Pasirinkti failą', label: 'Pasirinkti failą', text: 'parduotuvės logotipas. Nebūtinas.' },
+      { n: 3, target: 'text=Tai yra internetinė parduotuvė', label: 'Tai yra internetinė parduotuvė', text: 'vietoj adreso įvesite svetainę.' },
+      { n: 4, target: 'label=Gatvė ir namo numeris *', label: 'Gatvė ir namo numeris', text: 'pradėkite rašyti ir pasirinkite adresą iš sąrašo.' },
+      { n: 5, target: 'label=Platuma', to: 'label=Ilguma', label: 'Platuma ir Ilguma', text: 'vieta žemėlapyje.' },
+      { n: 6, target: 'label=Telefono numeris', to: 'label=El. pašto adresas', label: 'Telefono numeris ir El. pašto adresas', text: 'kontaktai, kuriuos matys klientai.' },
+    ],
+  },
+  {
+    id: 'parduotuves-darbo-laikas',
+    ...add,
+    alt: 'Darbo laiko blokas: pirmadienio ir antradienio atidarymo ir uždarymo laikai, pietų pertrauka.',
+    setup: [{ click: 'text=Pietų pertrauka', nth: 1 }],
+    clip: 'form >> text=Darbo laikas',
+    clipTo: 'form div.border:has(> div > [id="tuesday_open"])',
+    pad: 30,
+    marks: [
+      { n: 1, target: 'form >> text=Pirmadienis', label: 'Pirmadienis', text: 'nuimkite varnelę, jei tą dieną nedirbate.' },
+      { n: 2, target: 'form div.border:has(> div > [id="monday_open"]) div.ml-6 > div:first-child', nth: 1, label: 'Atidaroma ir Uždaroma', text: 'valandos ir minutės.' },
+      { n: 3, target: 'text=Pietų pertrauka', nth: 1, label: 'Pietų pertrauka', text: 'pažymėjus atsiranda pertraukos laikas.' },
+    ],
+  },
+  {
+    id: 'parduotuves-pos',
+    ...add,
+    alt: 'POS sistemos pasirinkimas: Paprasta POS, Pilna POS ir Žaidimų POS, po jais – „Parduotuvė yra aktyvi“ ir „Sukurti parduotuvę“.',
+    clip: 'form div.space-y-4:has(> div.grid [id="pos_simple"])',
+    clipTo: 'form >> text=Sukurti parduotuvę',
+    pad: 30,
+    marks: [
+      { n: 1, target: 'form >> text=Paprasta POS', closest: 'div.border', label: 'Paprasta POS', text: 'kasininkas renka sumą. Tinka salonams, kavinėms.' },
+      { n: 2, target: 'form >> text=Pilna POS', closest: 'div.border', label: 'Pilna POS', text: 'kasininkas renkasi prekes iš jūsų sąrašo.' },
+      { n: 3, target: 'form >> text=Žaidimų POS', closest: 'div.border', label: 'Žaidimų POS', text: 'tik žaidimai, be sumų.' },
+      { n: 4, target: 'text=Parduotuvė yra aktyvi', label: 'Parduotuvė yra aktyvi', text: 'neaktyvios parduotuvės nemato nei klientai, nei kasa.' },
+      { n: 5, target: 'form >> text=Sukurti parduotuvę', label: 'Sukurti parduotuvę', text: 'išsaugo.' },
+    ],
+  },
+  {
+    id: 'parduotuves-importas',
+    app: 'portal',
+    url: '/lt/shops/import',
+    ready: 'text=Importuoti parduotuves',
+    alt: 'Parduotuvių importo puslapis: šablono atsisiuntimas ir užpildyto failo įkėlimas.',
+    marks: [
+      { n: 1, target: 'text=Atsisiųsti šabloną', label: 'Atsisiųsti šabloną', text: 'Excel failas su teisingais stulpeliais.' },
+      { n: 2, target: 'text=Pasirinkti', label: 'Pasirinkti', text: 'užpildytas failas (.xlsx arba .xls).' },
+      { n: 3, target: 'text=Įkelti ir importuoti', label: 'Įkelti ir importuoti', text: 'mygtukas veikia pasirinkus failą.' },
+      { n: 4, target: 'text=Importavimo gairės', closest: 'div', label: 'Importavimo gairės', text: 'privalomi laukai ir ribos.' },
+    ],
+  },
+  {
+    id: 'parduotuves-viena',
+    app: 'portal',
+    url: '/lt/shops/1',
+    ready: 'text=Kasos greiti mygtukai',
+    alt: 'Parduotuvės informacija: tipas, adresas, kontaktai, darbo laikas, POS tipas ir žemėlapis.',
+    clip: 'text=Parduotuvės informacija',
+    clipTo: 'iframe',
+    pad: 24,
+    marks: [
+      { n: 1, target: 'text=Darbo laikas', to: 'starts=Sekmadienis', label: 'Darbo laikas', text: 'taip jį mato klientai.' },
+      { n: 2, target: 'text=POS Tipas', to: 'text=Paprasta POS', label: 'POS Tipas', text: 'kokį langą mato kasininkas.' },
+    ],
+  },
+  {
+    id: 'parduotuves-kasa',
+    app: 'portal',
+    url: '/lt/shops/1',
+    ready: 'text=Kasos greiti mygtukai',
+    alt: 'Blokas „Kasos greiti mygtukai“: keturi mygtukai su suma ir pirkimo dalimi, nuolaidos ir užraktas.',
+    setup: [{ type: ['input[aria-label="Kasos užraktas po neveiklumo"]', '3'] }],
+    clip: 'div.rounded-card:has(input[aria-label="Kasos užraktas po neveiklumo"])',
+    marks: [
+      { n: 1, target: 'text=Pridėti mygtuką', label: 'Pridėti mygtuką', text: 'nauja eilutė sąrašo gale.' },
+      { n: 2, target: 'input[aria-label="Pavadinimas"]', nth: 1, label: 'Pavadinimas', text: 'kas rašoma ant mygtuko kasoje.' },
+      { n: 3, target: 'input[aria-label="Suma"]', nth: 1, label: 'Suma', text: 'kiek mygtukas įveda.' },
+      { n: 4, target: 'button[aria-label="Pirkimo dalis"]', nth: 1, label: 'Pirkimo dalis', text: 'jei parinkta, kasa neklausia, už ką suma.' },
+      { n: 5, target: 'text=Tvarkyti nuolaidas', label: 'Tvarkyti nuolaidas', text: 'atveria puslapį „Kasos nuolaidos“.' },
+      { n: 6, target: 'input[aria-label="Kasos užraktas po neveiklumo"]', to: 'text=min.', label: 'Kasos užraktas po neveiklumo', text: 'po kiek minučių kasa paprašys PIN. 0 – niekada.' },
+      { n: 7, target: 'text=Išsaugoti', label: 'Išsaugoti', text: 'atsiranda ką nors pakeitus.' },
+    ],
+  },
+  {
+    id: 'parduotuves-istrinti',
+    app: 'portal',
+    url: '/lt/shops',
+    ready: 'text=Demo salonas – Centras',
+    alt: 'Langas, prašantis patvirtinti parduotuvės ištrynimą.',
+    setup: [{ click: 'table tbody tr:nth-child(2) td:last-child button:last-of-type' }, { wait: 'text=Patvirtinti ištrynimą' }],
+    clip: '[role="dialog"]',
+    marks: [
+      { n: 1, target: '[role="dialog"] >> text=Ištrinti', label: 'Ištrinti', text: 'ištrina visam laikui.' },
+    ],
+  },
+]
+export default shots

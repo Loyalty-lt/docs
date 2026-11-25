@@ -1,0 +1,59 @@
+---
+title: Lygių pranešimai
+description: Kaip automatiškai pranešti klientui, kad jo lygis pakilo, nukrito ar tuoj pakils.
+icon: BellRing
+screen: [/loyalty-tiers/notifications, /loyalty-tiers/notifications/add, "/loyalty-tiers/notifications/[id]"]
+---
+
+Taisyklė siunčia klientui pranešimą, kai pasikeičia jo lygis. Siųsti galima push, el. paštu ir SMS – tais kanalais, kurie įeina į jūsų planą.
+
+Atidarykite <Path>Lojalumo lygiai</Path> ir spauskite <Ui>Tvarkyti pranešimus</Ui>.
+
+<Shot id="lygiu-pranesimai-sarasas" />
+
+## Sukurti taisyklę
+
+<Steps>
+<Step>
+
+Spauskite <Ui>Pridėti pranešimą</Ui> ir pasirinkite įvykį. Jei reikia, pasirinkite vieną lygį.
+
+<Shot id="lygiu-pranesimai-naujas" />
+
+</Step>
+<Step>
+
+Pažymėkite kanalus ir įrašykite antraštę bei tekstą. Kintamąjį įterpiate jį spustelėję, pvz., `{{tier}}` – lygio pavadinimas.
+
+</Step>
+<Step>
+
+Spauskite <Ui>Išsaugoti taisyklę</Ui>.
+
+</Step>
+</Steps>
+
+<Callout type="warn" title="SMS kainuoja">
+Už kiekvieną SMS mokate pagal savo kainas. Push ir el. laiškai skaičiuojami į plano kiekį.
+</Callout>
+
+## Įvykiai
+
+| Įvykis | Kada siunčiama |
+| --- | --- |
+| Pakilo lygis | Klientas pasiekė aukštesnį lygį. |
+| Artėja kitas lygis | Klientas nuėjo nurodytą kelio dalį, pvz., 80 %. |
+| Baigiasi atidėjimas | Lygis netrukus nukris. |
+| Nukrito lygis | Klientas grįžo į žemesnį lygį. |
+| Lygis priskirtas ranka | Lygį pakeitėte kliento puslapyje. |
+
+## Patikrinti
+
+Sąraše spauskite <Ui>Testuoti sau</Ui>. Bandomasis pranešimas ateis jums, ne klientams.
+
+## Jei kas nors nepavyko
+
+| Ką matote | Ką daryti |
+| --- | --- |
+| „Tavo plane nėra nė vieno pranešimų kanalo.“ | Pakeiskite planą arba įjunkite paslaugą. |
+| Klientas negavo | Push gauna tik tie, kas turi programėlę. SMS ir el. laiškams reikia telefono ar el. pašto. |

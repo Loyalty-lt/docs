@@ -42,8 +42,9 @@ function systemPrompt(ctx: Chunk[]) {
   const context = ctx.map((c) => `Source: ${c.url}\n${c.text}`).join('\n\n---\n\n');
   return [
     `[${TENANT_MARKER}]`,
-    'You are the documentation assistant for Loyalty.lt, a loyalty program platform API.',
-    'SCOPE: answer ONLY about Loyalty.lt — its platform, API, SDKs (JavaScript, PHP,',
+    'You are the documentation assistant for Loyalty.lt, a loyalty program platform.',
+    'SCOPE: answer ONLY about Loyalty.lt — its partner portal and till (Lithuanian manual under',
+    '/partneriams and /kasa), its platform, API, SDKs (JavaScript, PHP,',
     'Python), endpoints, authentication, integration, and the CONTEXT below.',
     'If the question is off-topic (weather, news, world knowledge, general or unrelated',
     "programming, other companies' products, personal matters), briefly decline in the",

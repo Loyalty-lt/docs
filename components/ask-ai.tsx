@@ -6,7 +6,11 @@ import remarkGfm from 'remark-gfm';
 
 type Msg = { role: 'user' | 'assistant'; content: string; think?: string };
 
-export function AskAI() {
+const EN = { ask: 'Ask AI', intro: 'Ask anything about the Loyalty.lt API, SDKs or integration.', placeholder: 'Ask a question…', error: 'Sorry, something went wrong.', thinking: 'Thinking…', thoughts: 'Thoughts' };
+const LT: typeof EN = { ask: 'Klauskite', intro: 'Klauskite apie partnerių portalą ar kasą.', placeholder: 'Jūsų klausimas…', error: 'Nepavyko atsakyti. Bandykite dar kartą.', thinking: 'Galvoja…', thoughts: 'Samprotavimas' };
+
+export function AskAI({ lang = 'en' }: { lang?: 'en' | 'lt' }) {
+  const text = lang === 'lt' ? LT : EN;
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -71,7 +75,7 @@ export function AskAI() {
         }
       }
     } catch {
-      patchLast((m) => ({ ...m, content: m.content || 'Sorry, something went wrong.' }));
+      patchLast((m) => ({ ...m, content: m.content || text.error }));
     } finally {
       setBusy(false);
     }
@@ -84,7 +88,7 @@ export function AskAI() {
           onClick={() => setOpen(true)}
           className="fixed bottom-4 right-4 z-40 inline-flex items-center gap-1.5 rounded-2xl border bg-fd-secondary px-4 py-2.5 text-sm font-medium text-fd-secondary-foreground shadow-lg transition-colors hover:bg-fd-accent hover:text-fd-accent-foreground"
         >
-          <Sparkles className="size-4 text-fd-primary" /> Ask AI
+          <Sparkles className="size-4 text-fd-primary" /> {text.ask}
         </button>
       )}
 
@@ -96,7 +100,7 @@ export function AskAI() {
           >
             <div className="flex items-center justify-between border-b px-4 py-3">
               <span className="inline-flex items-center gap-2 font-semibold">
-                <Sparkles className="size-4 text-fd-primary" /> Ask AI
+                <Sparkles className="size-4 text-fd-primary" /> {text.ask}
               </span>
               <button onClick={() => setOpen(false)} className="text-fd-muted-foreground hover:text-fd-foreground">
                 <X className="size-4" />
@@ -106,7 +110,7 @@ export function AskAI() {
             <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
               {messages.length === 0 && (
                 <p className="py-8 text-center text-sm text-fd-muted-foreground">
-                  Ask anything about the Loyalty.lt API, SDKs or integration.
+                  {text.intro}
                 </p>
               )}
               {messages.map((m, i) => {
@@ -114,7 +118,7 @@ export function AskAI() {
                 return (
                   <div key={i} className={m.role === 'user' ? 'text-right' : ''}>
                     {m.role === 'assistant' && m.think ? (
-                      <Thinking text={m.think} live={busy && isLast && !m.content} />
+                      <Thinking text={m.think} live={busy && isLast && !m.content} label={busy && isLast && !m.content ? text.thinking : text.thoughts} />
                     ) : null}
                     {m.role === 'user' ? (
                       <div className="inline-block max-w-[85%] whitespace-pre-wrap rounded-xl bg-fd-primary px-3 py-2 text-sm text-fd-primary-foreground">
@@ -136,7 +140,7 @@ export function AskAI() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), send())}
-                placeholder="Ask a question…"
+                placeholder={text.placeholder}
                 className="flex-1 rounded-lg border bg-fd-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-fd-ring"
               />
               <button
@@ -178,7 +182,7 @@ function Markdown({ text }: { text: string }) {
   );
 }
 
-function Thinking({ text, live }: { text: string; live: boolean }) {
+function Thinking({ text, live, label }: { text: string; live: boolean; label: string }) {
   const [open, setOpen] = useState(true);
   const ref = useRef<HTMLDivElement>(null);
   // auto-collapse once the answer starts; keep expanded while actively thinking
@@ -195,7 +199,7 @@ function Thinking({ text, live }: { text: string; live: boolean }) {
         className="flex w-full items-center gap-1.5 px-3 py-2 font-medium text-fd-muted-foreground"
       >
         <Brain className="size-3.5" />
-        {live ? 'Thinking…' : 'Thoughts'}
+        {label}
         <ChevronRight className={'ml-auto size-3.5 transition-transform ' + (open ? 'rotate-90' : '')} />
       </button>
       {open && (

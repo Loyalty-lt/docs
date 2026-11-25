@@ -1,0 +1,89 @@
+---
+title: Darbuotojai
+description: Kaip pridėti darbuotoją, duoti jam kodą, nustatyti rolę ir matyti prisijungimus.
+icon: UserCog
+screen: [/staff, /staff/add, "/staff/[id]", "/staff/[id]/edit"]
+---
+
+Kiekvienas, kas dirba kasoje, turi savo darbuotojo įrašą. Taip pirkime matote, kas pardavė.
+
+Atidarykite <Path>Darbuotojai → Visi darbuotojai</Path>.
+
+<Shot id="darbuotojai-sarasas" />
+
+## Pridėti darbuotoją
+
+<Steps>
+<Step>
+
+Spauskite <Ui>Pridėti darbuotoją</Ui>, įrašykite vardą, el. paštą ir pareigas.
+
+<Shot id="darbuotojai-naujas" />
+
+</Step>
+<Step>
+
+Pasirinkite rolę.
+
+| Rolė | Ką gali |
+| --- | --- |
+| Darbuotojas | Dirbti kasoje. |
+| Vadovas | Dirbti kasoje, tvirtinti nuolaidas savo PIN ir naudotis portalu. |
+
+</Step>
+<Step>
+
+Spauskite <Ui>Sukurti</Ui>. Tada darbuotojo puslapyje priskirkite parduotuves ir teises.
+
+</Step>
+<Step>
+
+Duokite darbuotojui kodą: <Ui>Generuoti kortelę</Ui> sukuria kortelę su kodu, <Ui>Siųsti pasveikinimo laišką</Ui> jį išsiunčia el. paštu.
+
+</Step>
+</Steps>
+
+<Callout type="warn" title="Kodas yra kaip raktas">
+Su kodu prie kasos prisijungia bet kas. Neklijuokite jo matomoje vietoje. Pametus – sugeneruokite naują.
+</Callout>
+
+Daug darbuotojų iš karto: pažymėkite juos ir spauskite <Ui>A4 QR lapas</Ui> – kodus išspausdinsite viename lape.
+
+## Darbuotojo puslapis
+
+Sąraše spauskite akį.
+
+<Shot id="darbuotojai-vienas" />
+
+- **Apžvalga** – duomenys, kasos PIN ir įrenginiai, kuriuose jis galioja.
+- **Teisės** – ką mato ir gali keisti portale.
+- **Priskirtos parduotuvės** – kur gali dirbti. Nieko nepasirinkus – visose.
+- **Prisijungimų istorija** – kada, kaip ir kokiu įrenginiu jungėsi.
+
+## Kasos PIN
+
+PIN darbuotojas susikuria pats kasoje, pirmą kartą prisijungęs kodu. Portale matote tik ar jis sukurtas.
+
+Jei PIN pamirštas ar jį sužinojo kitas, spauskite <Ui>Atstatyti PIN</Ui>. Kitą kartą darbuotojas jungsis kodu ir susikurs naują PIN.
+
+## Prisijungimų istorija
+
+<Shot id="darbuotojas-prisijungimai" />
+
+Matote ir nepavykusius bandymus. Įrenginio kodas toks pat, kaip kasos kampe ir puslapyje [Kasos įrenginiai](/partneriams/kasos-irenginiai).
+
+## Darbuotojas išėjo
+
+Išjunkite darbuotoją arba jį ištrinkite.
+
+<Callout type="error" title="Ištrynimas neatšaukiamas">
+Ankstesni pirkimai lieka. Jei gali grįžti – darbuotoją tik išjunkite.
+</Callout>
+
+## Jei kas nors nepavyko
+
+| Ką matote | Ką daryti |
+| --- | --- |
+| Darbuotojas negali prisijungti | Patikrinkite, ar jis aktyvus ir ar jam priskirta ta parduotuvė. |
+| PIN „Užrakintas iki …“ | Per daug neteisingų bandymų. Palaukite arba atstatykite PIN. |
+| Nėra įrenginio prisijungimo istorijoje | Tai seni prisijungimai. Naujuose įrenginys rašomas. |

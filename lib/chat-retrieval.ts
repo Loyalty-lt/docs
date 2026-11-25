@@ -17,7 +17,11 @@ const TOP_K = 10;
 
 const ai = API_KEY ? new OpenAI({ baseURL: AI_BASE_URL, apiKey: API_KEY }) : null;
 
-const DOCS_DIR = join(process.cwd(), 'content/docs');
+// Folder → the address its pages have on the site.
+const SECTIONS = [
+  [join(process.cwd(), 'content/docs'), '/docs'],
+  [join(process.cwd(), 'content/manual'), ''],
+] as const;
 const CACHE_FILE = join(process.cwd(), '.embed-cache.json');
 const STOPWORDS = new Set(
   'the a an is are was were be been being to of in on for with and or not this that it as at by from your you can'.split(' '),
@@ -55,16 +59,18 @@ let CORPUS: Chunk[] | null = null;
 function corpus(): Chunk[] {
   if (CORPUS) return CORPUS;
   const chunks: Chunk[] = [];
-  for (const file of walk(DOCS_DIR)) {
-    const rel = file.slice(DOCS_DIR.length + 1).replace(/\.mdx?$/, '').replace(/\/index$/, '');
-    chunks.push(...mdxToChunks(readFileSync(file, 'utf8'), `/docs/${rel}`.replace(/\/$/, '')));
+  for (const [dir, base] of SECTIONS) {
+    for (const file of walk(dir)) {
+      const rel = file.slice(dir.length + 1).replace(/\.mdx?$/, '').replace(/\/?index$/, '');
+      chunks.push(...mdxToChunks(readFileSync(file, 'utf8'), `${base}/${rel}`.replace(/\/$/, '')));
+    }
   }
   CORPUS = chunks;
   return chunks;
 }
 
 function tokenize(s: string) {
-  return s.toLowerCase().replace(/[^a-z0-9\s-]/g, ' ').split(/\s+/).filter((w) => w.length > 2 && !STOPWORDS.has(w));
+  return s.toLowerCase().replace(/[^\p{L}0-9\s-]/gu, ' ').split(/\s+/).filter((w) => w.length > 2 && !STOPWORDS.has(w));
 }
 
 function keywordRetrieve(query: string): Chunk[] {

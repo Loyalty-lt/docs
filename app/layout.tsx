@@ -1,4 +1,3 @@
-import { RootProvider } from 'fumadocs-ui/provider/next';
 import './global.css';
 import type { Metadata } from 'next';
 
@@ -12,15 +11,14 @@ export const metadata: Metadata = {
   icons: { icon: '/favicon.ico' },
 };
 
+// Each section brings its own provider: the developers' docs in English, the manual in Lithuanian.
 export default function Layout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://cdn.loyalty.lt" crossOrigin="anonymous" />
       </head>
-      <body className="flex flex-col min-h-screen">
-        <RootProvider>{children}</RootProvider>
-      </body>
+      <body className="flex flex-col min-h-screen">{children}</body>
     </html>
   );
 }

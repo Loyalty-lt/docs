@@ -10,7 +10,10 @@
     "start": "next start --port 3098 --hostname 0.0.0.0",
     "gen:openapi": "node scripts/scope-openapi.mjs",
     "build:mcp": "npm --prefix mcp run build",
-    "types:check": "next typegen && tsc --noEmit"
+    "types:check": "next typegen && tsc --noEmit",
+    "shots": "node --experimental-strip-types --no-warnings shots/run.ts",
+    "shots:seed": "php shots/seed/run.php",
+    "test": "node --experimental-strip-types --no-warnings --test shots/*.check.ts content.check.ts"
   },
   "dependencies": {
     "@scalar/api-client-react": "^2.0.20",
@@ -27,7 +30,8 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-markdown": "^10.1.0",
-    "remark-gfm": "^4.0.1"
+    "remark-gfm": "^4.0.1",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
@@ -36,8 +40,10 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "postcss": "^8.5.24",
+    "puppeteer-core": "^24.43.0",
     "tailwindcss": "^4.3.3",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "yaml": "^2.9.1"
   },
   "engines": {
     "node": ">=20.0"

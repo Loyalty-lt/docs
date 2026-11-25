@@ -1,0 +1,4462 @@
+{
+ "ai-raktai": {
+  "file": "ai-raktai.webp",
+  "w": 1135,
+  "h": 710,
+  "alt": "AI agento raktų puslapis: serverio adresas, prijungimo nurodymai ir jūsų raktai.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Naujas raktas",
+    "text": "naujam asistentui."
+   },
+   {
+    "n": 2,
+    "label": "Asistentas",
+    "text": "kaip prijungti kiekvieną."
+   },
+   {
+    "n": 3,
+    "label": "Jūsų raktai",
+    "text": "kada naudoti ir iki kada galioja."
+   }
+  ]
+ },
+ "akcijos-nauja": {
+  "file": "akcijos-nauja.webp",
+  "w": 1132,
+  "h": 1014,
+  "alt": "Akcijos forma: pavadinimas, aprašymas, nuotrauka, mygtuko tekstas, nuoroda ir rodymo laikas.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pavadinimas",
+    "text": "lietuviškai privalomas."
+   },
+   {
+    "n": 2,
+    "label": "Nuotrauka",
+    "text": "JPG ar PNG, iki 2 MB."
+   },
+   {
+    "n": 3,
+    "label": "Nuoroda",
+    "text": "kur klientas pateks paspaudęs."
+   },
+   {
+    "n": 4,
+    "label": "Rodymo laikas",
+    "text": "nebūtinas."
+   },
+   {
+    "n": 5,
+    "label": "Pateikti tvirtinti",
+    "text": "Loyalty.lt peržiūrės akciją."
+   }
+  ]
+ },
+ "akcijos-sarasas": {
+  "file": "akcijos-sarasas.webp",
+  "w": 1132,
+  "h": 412,
+  "alt": "Akcijų sąrašas: viena laukia patvirtinimo, kita patvirtinta.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pateikti akciją",
+    "text": "nauja akcija."
+   },
+   {
+    "n": 2,
+    "label": "Būsena",
+    "text": "klientai mato tik patvirtintą."
+   }
+  ]
+ },
+ "api-raktai": {
+  "file": "api-raktai.webp",
+  "w": 1132,
+  "h": 371,
+  "alt": "API raktų sąrašas: pavadinimas, raktas, aplinka, būsena ir paskutinis naudojimas.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Naujas API raktas",
+    "text": "naujai programai."
+   },
+   {
+    "n": 2,
+    "label": "Paskutinis naudojimas",
+    "text": "ar raktas dar naudojamas."
+   }
+  ]
+ },
+ "api-raktas-naujas": {
+  "file": "api-raktas-naujas.webp",
+  "w": 1132,
+  "h": 786,
+  "alt": "Naujo API rakto forma: pavadinimas, aplinka, IP adresai ir pastabos.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pavadinimas",
+    "text": "kam raktas skirtas."
+   },
+   {
+    "n": 2,
+    "label": "Aplinka",
+    "text": "tikriems ar bandymo duomenims."
+   },
+   {
+    "n": 3,
+    "label": "Leistini IP adresai",
+    "text": "raktas veiks tik iš jų."
+   },
+   {
+    "n": 4,
+    "label": "Sukurti API raktą",
+    "text": "slaptas kodas rodomas vieną kartą."
+   }
+  ]
+ },
+ "ataskaitos": {
+  "file": "ataskaitos.webp",
+  "w": 1132,
+  "h": 900,
+  "alt": "Ataskaitų puslapis: tipas, parduotuvė, datos, formatas ir greitas generavimas.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Ataskaitos tipas",
+    "text": "ko reikia."
+   },
+   {
+    "n": 2,
+    "label": "Datos",
+    "text": "laikotarpis."
+   },
+   {
+    "n": 3,
+    "label": "Formatas",
+    "text": "PDF ar skaičiuoklė."
+   },
+   {
+    "n": 4,
+    "label": "Generuoti ataskaitą",
+    "text": "sukuria failą."
+   },
+   {
+    "n": 5,
+    "label": "Greitas generavimas",
+    "text": "vienu paspaudimu."
+   },
+   {
+    "n": 6,
+    "label": "Ataskaitų istorija",
+    "text": "anksčiau sukurtos."
+   }
+  ]
+ },
+ "atsiskaitymai-apzvalga": {
+  "file": "atsiskaitymai-apzvalga.webp",
+  "w": 1132,
+  "h": 999,
+  "alt": "Atsiskaitymų apžvalga: numatoma suma, neapmokėtos sąskaitos, naudojimas ir naujausios sąskaitos.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Numatoma suma",
+    "text": "kiek kainuos šis mėnuo."
+   },
+   {
+    "n": 2,
+    "label": "Neapmokėtos sąskaitos",
+    "text": "ką reikia apmokėti."
+   },
+   {
+    "n": 3,
+    "label": "Dabartinis mėnuo",
+    "text": "išsamiai."
+   },
+   {
+    "n": 4,
+    "label": "Sąskaitos",
+    "text": "visos sąskaitos."
+   }
+  ]
+ },
+ "atsiskaitymai-menuo": {
+  "file": "atsiskaitymai-menuo.webp",
+  "w": 1132,
+  "h": 1615,
+  "alt": "Dabartinio mėnesio puslapis: plano ribos, naudojimas ir kainodara.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Mėnuo",
+    "text": "pasirinkite kitą mėnesį."
+   },
+   {
+    "n": 2,
+    "label": "Mėnesinis planas",
+    "text": "kiek įeina ir kiek sunaudota."
+   },
+   {
+    "n": 3,
+    "label": "Naudojimas",
+    "text": "kiekviena paslauga."
+   },
+   {
+    "n": 4,
+    "label": "Kainodaros",
+    "text": "kas bus sąskaitoje."
+   }
+  ]
+ },
+ "darbuotojai-naujas": {
+  "file": "darbuotojai-naujas.webp",
+  "w": 1132,
+  "h": 605,
+  "alt": "Naujo darbuotojo forma: vardas, el. paštas, pareigos, skyrius ir rolė.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Vardas",
+    "text": "vardas ir pavardė."
+   },
+   {
+    "n": 2,
+    "label": "Rolė",
+    "text": "darbuotojas ar vadovas."
+   },
+   {
+    "n": 3,
+    "label": "Reikalinga NFC kortelė",
+    "text": "jei jungsis pridėdamas kortelę."
+   },
+   {
+    "n": 4,
+    "label": "Sukurti",
+    "text": "išsaugo darbuotoją."
+   }
+  ]
+ },
+ "darbuotojai-sarasas": {
+  "file": "darbuotojai-sarasas.webp",
+  "w": 1392,
+  "h": 661,
+  "alt": "Darbuotojų sąrašas: rolė, pareigos, paskutinis prisijungimas, kasos PIN ir veiksmai.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pridėti darbuotoją",
+    "text": "naujas žmogus."
+   },
+   {
+    "n": 2,
+    "label": "A4 QR lapas",
+    "text": "pažymėtų darbuotojų kodai spausdinimui."
+   },
+   {
+    "n": 3,
+    "label": "Kasos PIN",
+    "text": "sukurtas ar dar ne."
+   },
+   {
+    "n": 4,
+    "label": "Veiksmai",
+    "text": "QR kodas, peržiūrėti, redaguoti, ištrinti."
+   }
+  ]
+ },
+ "darbuotojai-vienas": {
+  "file": "darbuotojai-vienas.webp",
+  "w": 1392,
+  "h": 680,
+  "alt": "Darbuotojo puslapis: duomenys, kasos PIN, įrenginiai ir mygtukai viršuje.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Skirtukai",
+    "text": "apžvalga, teisės, parduotuvės, prisijungimai."
+   },
+   {
+    "n": 2,
+    "label": "Generuoti kortelę",
+    "text": "kortelė su prisijungimo kodu."
+   },
+   {
+    "n": 3,
+    "label": "Siųsti laišką",
+    "text": "kodas el. paštu."
+   },
+   {
+    "n": 4,
+    "label": "Atstatyti PIN",
+    "text": "pamirštas ar sužinotas."
+   },
+   {
+    "n": 5,
+    "label": "Kasos PIN",
+    "text": "būsena ir įrenginiai."
+   }
+  ]
+ },
+ "darbuotojas-prisijungimai": {
+  "file": "darbuotojas-prisijungimai.webp",
+  "w": 1132,
+  "h": 599,
+  "alt": "Darbuotojo prisijungimų istorija: laikas, būdas, įrenginys, parduotuvė ir IP adresas.",
+  "marks": []
+ },
+ "imone-duomenys": {
+  "file": "imone-duomenys.webp",
+  "w": 1132,
+  "h": 1138,
+  "alt": "Įmonės informacijos puslapis: pavadinimai, kodai, adresas, kontaktai.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Skirtukai",
+    "text": "duomenys, bankas, prekės ženklas."
+   },
+   {
+    "n": 2,
+    "label": "Rodomas pavadinimas",
+    "text": "jį mato klientai."
+   },
+   {
+    "n": 3,
+    "label": "Juridinis pavadinimas",
+    "text": "rašomas sąskaitose."
+   },
+   {
+    "n": 4,
+    "label": "Sąskaitų el. paštas",
+    "text": "kam siunčiame sąskaitas."
+   }
+  ]
+ },
+ "imone-zenklas": {
+  "file": "imone-zenklas.webp",
+  "w": 1132,
+  "h": 1276,
+  "alt": "Prekės ženklo skirtukas: logotipas, spalvos ir peržiūra.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Įkelti logotipą",
+    "text": "PNG, JPG ar GIF, iki 2 MB."
+   },
+   {
+    "n": 2,
+    "label": "Spalvos",
+    "text": "naudojamos programėlėje."
+   },
+   {
+    "n": 3,
+    "label": "Prekės ženklo peržiūra",
+    "text": "kaip spalvos atrodys."
+   }
+  ]
+ },
+ "kasa-antspaudai": {
+  "file": "kasa-antspaudai.webp",
+  "w": 944,
+  "h": 828,
+  "alt": "Antspaudų kortelės langas: progresas 0 iš 6 ir mygtukas „Pridėti antspaudus“.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Antspaudų progresas",
+    "text": "kiek antspaudų klientas jau turi."
+   },
+   {
+    "n": 2,
+    "label": "Antspaudų skaičius",
+    "text": "kiek pridėti: − ir +."
+   },
+   {
+    "n": 3,
+    "label": "Pridėti antspaudus",
+    "text": "prideda. Surinkus visus, klientas gauna prizą."
+   }
+  ]
+ },
+ "kasa-atideti": {
+  "file": "kasa-atideti.webp",
+  "w": 772,
+  "h": 340,
+  "alt": "Atidėtų pirkimų sąrašas.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Atidėtas pirkimas",
+    "text": "kliento vardas, suma ir laikas. Spauskite, kad tęstumėte."
+   },
+   {
+    "n": 2,
+    "label": "Ištrinti",
+    "text": "pašalina atidėtą pirkimą."
+   }
+  ]
+ },
+ "kasa-grazinimas": {
+  "file": "kasa-grazinimas.webp",
+  "w": 689,
+  "h": 556,
+  "alt": "Grąžinimo langas: pirkimo dalys su varnelėmis ir sumomis.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Grąžinti",
+    "text": "grąžina pažymėtas dalis."
+   }
+  ]
+ },
+ "kasa-istorija": {
+  "file": "kasa-istorija.webp",
+  "w": 1440,
+  "h": 900,
+  "alt": "Kliento ankstesni pirkimai su mygtukais „Grąžinti“.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Grąžinti",
+    "text": "atidaro grąžinimo langą."
+   }
+  ]
+ },
+ "kasa-kas-dirba": {
+  "file": "kasa-kas-dirba.webp",
+  "w": 550,
+  "h": 355,
+  "alt": "Langas „Kas dirba?“ su darbuotojų sąrašu.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Darbuotojas",
+    "text": "pasirinkite save pele ar skaičiumi dešinėje."
+   },
+   {
+    "n": 2,
+    "label": "Kitas darbuotojas (su kodu)",
+    "text": "kai jūsų sąraše dar nėra."
+   }
+  ]
+ },
+ "kasa-klavisai": {
+  "file": "kasa-klavisai.webp",
+  "w": 476,
+  "h": 570,
+  "alt": "Klavišų trumpinių sąrašas.",
+  "marks": []
+ },
+ "kasa-klientas-kortele": {
+  "file": "kasa-klientas-kortele.webp",
+  "w": 495,
+  "h": 862,
+  "alt": "Klientas kasoje: vardas, lygis, taškai, žaidimai, kuponai ir ankstesni pirkimai.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Klientas",
+    "text": "vardas ir kortelės numeris."
+   },
+   {
+    "n": 2,
+    "label": "Lygis",
+    "text": "paspaudę matote lygio nuolaidą ir kiek liko iki kito lygio. Šalia – gimtadienio ženklas."
+   },
+   {
+    "n": 3,
+    "label": "Kliento taškai",
+    "text": "kiek taškų turi dabar."
+   },
+   {
+    "n": 4,
+    "label": "Žaidimai ir Kuponai",
+    "text": "kiek jų turi klientas; paspaudę atidarysite."
+   },
+   {
+    "n": 5,
+    "label": "Ankstesni pirkimai",
+    "text": "istorija ir grąžinimas."
+   },
+   {
+    "n": 6,
+    "label": "Atnaujinti",
+    "text": "iš naujo įkelia kliento taškus ir kuponus."
+   },
+   {
+    "n": 7,
+    "label": "Pašalinti klientą",
+    "text": "pirkimas tęsiamas be kliento."
+   }
+  ]
+ },
+ "kasa-klientas-naujas": {
+  "file": "kasa-klientas-naujas.webp",
+  "w": 1440,
+  "h": 900,
+  "alt": "Naujo kliento registracija: telefonas, vardas, pavardė, el. paštas, dvi sutikimų varnelės, kortelės numeris ir SMS kalba.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Klientas sutinka gauti naujienas SMS žinutėmis",
+    "text": "pažymėkite tik klientui sutikus."
+   },
+   {
+    "n": 2,
+    "label": "Klientas sutinka gauti naujienas el. paštu",
+    "text": "klientas gaus laišką ir jame patvirtins."
+   },
+   {
+    "n": 3,
+    "label": "Registruoti",
+    "text": "sukuria klientą ir atidaro jį kasoje."
+   }
+  ]
+ },
+ "kasa-klientas-paieska": {
+  "file": "kasa-klientas-paieska.webp",
+  "w": 1440,
+  "h": 900,
+  "alt": "Kliento paieška telefonu: perjungiklis, numerio laukas, klaviatūra ir mygtukas „Rasti arba užregistruoti“.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Kortelė",
+    "text": "ieškoti pagal 9 skaitmenų kortelės numerį."
+   },
+   {
+    "n": 2,
+    "label": "Telefonas",
+    "text": "ieškoti pagal telefono numerį. Kasa įsimena, ką naudojote paskutinį kartą."
+   },
+   {
+    "n": 3,
+    "label": "Rasti arba užregistruoti",
+    "text": "esamas klientas atsidaro iškart, naujam – registracijos langas."
+   }
+  ]
+ },
+ "kasa-kuponai": {
+  "file": "kasa-kuponai.webp",
+  "w": 1440,
+  "h": 900,
+  "alt": "Kliento kuponai: du galiojantys kuponai.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Kuponai",
+    "text": "šio kliento kuponai."
+   },
+   {
+    "n": 2,
+    "label": "Kuponas",
+    "text": "kodas, nuolaida ir būsena. Spauskite, kad atidarytumėte."
+   }
+  ]
+ },
+ "kasa-kuponas": {
+  "file": "kasa-kuponas.webp",
+  "w": 584,
+  "h": 497,
+  "alt": "Kupono langas: pavadinimas, nuolaida, sąlygos ir mygtukas „Panaudoti kuponą“.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Kuponas",
+    "text": "ką jis duoda ir kokiomis sąlygomis."
+   },
+   {
+    "n": 2,
+    "label": "Panaudoti kuponą",
+    "text": "kuponas tampa panaudotu."
+   }
+  ]
+ },
+ "kasa-langas": {
+  "file": "kasa-langas.webp",
+  "w": 1440,
+  "h": 900,
+  "alt": "Kasos langas kompiuteryje: kairėje suma, nuolaidos ir klaviatūra, viduryje greiti mygtukai, dešinėje klientas ir krepšelis.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Suma",
+    "text": "kiek renkate šiuo metu."
+   },
+   {
+    "n": 2,
+    "label": "Nuolaida (F6)",
+    "text": "nuolaidos, kurias leido vadovas."
+   },
+   {
+    "n": 3,
+    "label": "Klaviatūra",
+    "text": "sumai rinkti pele ar pirštu. Veikia ir kompiuterio klavišai."
+   },
+   {
+    "n": 4,
+    "label": "Greiti mygtukai",
+    "text": "dažniausios sumos vienu paspaudimu."
+   },
+   {
+    "n": 5,
+    "label": "Nuskenuokite kliento kortelę",
+    "text": "trys būdai rasti ar užregistruoti klientą."
+   },
+   {
+    "n": 6,
+    "label": "Mokėti (F12)",
+    "text": "užbaigia pirkimą."
+   },
+   {
+    "n": 7,
+    "label": "Keisti darbuotoją",
+    "text": "kitas darbuotojas prisijungia savo PIN."
+   }
+  ]
+ },
+ "kasa-mokejimas": {
+  "file": "kasa-mokejimas.webp",
+  "w": 1004,
+  "h": 600,
+  "alt": "Mokėjimo langas su suma.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Mokėti",
+    "text": "įrašo pirkimą. Klientas iškart gauna pranešimą."
+   }
+  ]
+ },
+ "kasa-nustatymai": {
+  "file": "kasa-nustatymai.webp",
+  "w": 1200,
+  "h": 1760,
+  "alt": "Kasos nustatymai: išvaizda, kalba, parduotuvė, spausdintuvas, mokėjimo būdas ir kasos išdėstymas.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Keisti parduotuvę",
+    "text": "kai dirbate keliose."
+   },
+   {
+    "n": 2,
+    "label": "Spausdintuvo nustatymai",
+    "text": "kvitų spausdintuvas."
+   },
+   {
+    "n": 3,
+    "label": "Klausti mokėjimo būdo",
+    "text": "prieš mokant pasirinkti grynuosius ar kortelę."
+   },
+   {
+    "n": 4,
+    "label": "Kasos išdėstymas",
+    "text": "valdymas, klaviatūra, mygtukų dydis ir krepšelio pusė."
+   },
+   {
+    "n": 5,
+    "label": "Pamiršti mane šiame įrenginyje",
+    "text": "čia vėl jungsitės kodu."
+   },
+   {
+    "n": 6,
+    "label": "Programos versija",
+    "text": "čia ją matote, kai kreipiatės pagalbos."
+   }
+  ]
+ },
+ "kasa-parduotuve": {
+  "file": "kasa-parduotuve.webp",
+  "w": 1100,
+  "h": 900,
+  "alt": "Parduotuvės pasirinkimas: paieška ir dvi parduotuvės.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Parduotuvė",
+    "text": "pasirinkite tą, kurioje dirbate. Kasa ją įsimena."
+   }
+  ]
+ },
+ "kasa-pin": {
+  "file": "kasa-pin.webp",
+  "w": 581,
+  "h": 557,
+  "alt": "PIN įvedimo langas.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "PIN",
+    "text": "4 skaitmenys. Įvedus ketvirtą, kasa atsirakina pati."
+   },
+   {
+    "n": 2,
+    "label": "Jungtis kodu",
+    "text": "pamiršus PIN prisijunkite darbuotojo kodu."
+   }
+  ]
+ },
+ "kasa-prisijungti": {
+  "file": "kasa-prisijungti.webp",
+  "w": 625,
+  "h": 720,
+  "alt": "Prisijungimo langas: laukas darbuotojo kodui, klaviatūros ir kameros mygtukai, „Prisijungti“, apačioje įrenginio kodas.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Klaviatūra",
+    "text": "ekraninė klaviatūra kodui įvesti."
+   },
+   {
+    "n": 2,
+    "label": "Kamera",
+    "text": "nuskenuoja QR kodą nuo darbuotojo kortelės."
+   },
+   {
+    "n": 3,
+    "label": "Prisijungti",
+    "text": "prisijungia įvestu kodu."
+   },
+   {
+    "n": 4,
+    "label": "Įrenginys",
+    "text": "šios kasos kodas, programos versija ir serveris."
+   },
+   {
+    "n": 5,
+    "label": "Keisti kalbą",
+    "text": "lietuvių arba anglų."
+   }
+  ]
+ },
+ "kasa-skydelis": {
+  "file": "kasa-skydelis.webp",
+  "w": 1440,
+  "h": 1250,
+  "alt": "Kasos skydelis: klientai, taškai, pajamos ir šios dienos statistika.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Šiandienos statistika",
+    "text": "šios dienos klientai, taškai, pajamos ir sandoriai."
+   },
+   {
+    "n": 2,
+    "label": "Mėnesio veikla",
+    "text": "kiek taškų duota per pastaruosius mėnesius."
+   },
+   {
+    "n": 3,
+    "label": "Paskutinė veikla",
+    "text": "pirkimai ir taškai."
+   }
+  ]
+ },
+ "kasa-spausdintuvas": {
+  "file": "kasa-spausdintuvas.webp",
+  "w": 1100,
+  "h": 900,
+  "alt": "Spausdintuvo nustatymai be pridėtų spausdintuvų: mygtukai „Pridėti spausdintuvą“ ir „Ieškoti spausdintuvų“.",
+  "marks": []
+ },
+ "kasa-suma-krepselis": {
+  "file": "kasa-suma-krepselis.webp",
+  "w": 1440,
+  "h": 900,
+  "alt": "Krepšelis su dviem sumomis: procedūros su nuolaida ir kosmetika.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Procedūros",
+    "text": "suma su nuolaida; po pavadinimu – nuolaida ir suma be jos."
+   },
+   {
+    "n": 2,
+    "label": "Kosmetika",
+    "text": "antra suma tame pačiame pirkime."
+   },
+   {
+    "n": 3,
+    "label": "×",
+    "text": "pašalina sumą iš krepšelio."
+   },
+   {
+    "n": 4,
+    "label": "Kasos nuolaida",
+    "text": "kiek nuolaidos pritaikyta visam pirkimui."
+   },
+   {
+    "n": 5,
+    "label": "Mokėti (F12)",
+    "text": "galutinė suma."
+   }
+  ]
+ },
+ "kasa-suma-nuolaida": {
+  "file": "kasa-suma-nuolaida.webp",
+  "w": 398,
+  "h": 735,
+  "alt": "Pritaikyta 20 procentų nuolaida: vietoj 100 eurų rodoma 80.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Nuolaida 20 %",
+    "text": "juodas mygtukas – nuolaida pritaikyta; dar kartą paspaudus nuimama."
+   },
+   {
+    "n": 2,
+    "label": "€100.00 −20 %",
+    "text": "suma be nuolaidos ir nuolaidos dydis."
+   },
+   {
+    "n": 3,
+    "label": "€80.00",
+    "text": "kiek klientas mokės."
+   }
+  ]
+ },
+ "kasa-suma-priezastis": {
+  "file": "kasa-suma-priezastis.webp",
+  "w": 860,
+  "h": 428,
+  "alt": "Langas, kuriame kasininkas įrašo nuolaidos priežastį.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pritaikyti nuolaidą",
+    "text": "nuolaida pritaikoma tik įrašius priežastį."
+   }
+  ]
+ },
+ "kasa-suma-surinkta": {
+  "file": "kasa-suma-surinkta.webp",
+  "w": 398,
+  "h": 735,
+  "alt": "Surinkta 100 eurų suma ir mygtukas OK.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Suma",
+    "text": "skaičiai renkami nuo centų: 10000 yra €100.00."
+   },
+   {
+    "n": 2,
+    "label": "OK",
+    "text": "patvirtina sumą; kompiuteryje – klavišas Enter."
+   },
+   {
+    "n": 3,
+    "label": "Išvalyti",
+    "text": "ištrina surinktą sumą; kompiuteryje – Delete."
+   }
+  ]
+ },
+ "kasa-suma-telefonas": {
+  "file": "kasa-suma-telefonas.webp",
+  "w": 390,
+  "h": 844,
+  "alt": "Kasa telefone: suma, nuolaidos, klaviatūra ir apatinė juosta.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Nuolaida",
+    "text": "tie patys nuolaidų mygtukai."
+   },
+   {
+    "n": 2,
+    "label": "OK",
+    "text": "patvirtina sumą."
+   }
+  ]
+ },
+ "kasa-suma-uz-ka": {
+  "file": "kasa-suma-uz-ka.webp",
+  "w": 792,
+  "h": 664,
+  "alt": "Langas „Už ką ši suma?“ su pirkimo dalimis ir suma po nuolaidos prie kiekvienos.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Kosmetika",
+    "text": "šiai daliai nuolaida netaikoma, todėl suma liktų visa."
+   },
+   {
+    "n": 2,
+    "label": "Procedūros",
+    "text": "pažymėta iš anksto; čia matote sumą su nuolaida."
+   },
+   {
+    "n": 3,
+    "label": "Akcijos, abonementai ir Dovanų kuponas",
+    "text": "dalys be taškų."
+   }
+  ]
+ },
+ "kasa-taskai-iskeitimas": {
+  "file": "kasa-taskai-iskeitimas.webp",
+  "w": 628,
+  "h": 740,
+  "alt": "Nuolaidos taškais langas: 200 taškų yra 10 eurų.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Turima",
+    "text": "kiek taškų turi klientas ir kiek jie verti."
+   },
+   {
+    "n": 2,
+    "label": "−€10.00",
+    "text": "kiek bus nuimta nuo sumos."
+   },
+   {
+    "n": 3,
+    "label": "Greitas pasirinkimas",
+    "text": "dažniausi kiekiai vienu paspaudimu."
+   },
+   {
+    "n": 4,
+    "label": "Pritaikyti nuolaidą",
+    "text": "nuima sumą nuo pirkimo."
+   }
+  ]
+ },
+ "kasos-irenginiai": {
+  "file": "kasos-irenginiai.webp",
+  "w": 1132,
+  "h": 978,
+  "alt": "Kasos įrenginių sąrašas: kodas, programa, parduotuvė ir kas gali jungtis su PIN.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Kodas",
+    "text": "toks pat kasos kampe."
+   },
+   {
+    "n": 2,
+    "label": "Pavadinimas",
+    "text": "įrašykite, kur įrenginys stovi."
+   },
+   {
+    "n": 3,
+    "label": "Parduotuvė",
+    "text": "kuriai priklauso."
+   },
+   {
+    "n": 4,
+    "label": "Pašalinti iš įrenginio",
+    "text": "žmogus vėl jungsis kodu."
+   },
+   {
+    "n": 5,
+    "label": "Ištrinti",
+    "text": "visi vėl jungsis kodu."
+   }
+  ]
+ },
+ "kasos-nuolaidos-forma": {
+  "file": "kasos-nuolaidos-forma.webp",
+  "w": 700,
+  "h": 1838,
+  "alt": "Nuolaidos forma: pavadinimas, tipas, dydis, ribos, kam ir kada galioja, derinimas su lojalumo programa.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pavadinimas",
+    "text": "mygtuko užrašas kasoje."
+   },
+   {
+    "n": 2,
+    "label": "Kas nurodo dydį",
+    "text": "nustatytas čia arba įveda kasininkas."
+   },
+   {
+    "n": 3,
+    "label": "Kam taikoma",
+    "text": "parduotuvės, dalys, lygiai."
+   },
+   {
+    "n": 4,
+    "label": "Kada galioja",
+    "text": "datos, dienos, valandos."
+   },
+   {
+    "n": 5,
+    "label": "Derinimas",
+    "text": "ar kartu su lygiu ir taškais."
+   }
+  ]
+ },
+ "kasos-nuolaidos-pavyzdziai": {
+  "file": "kasos-nuolaidos-pavyzdziai.webp",
+  "w": 348,
+  "h": 495,
+  "alt": "Nuolaidų pavyzdžių sąrašas: procentai, fiksuota suma, laimingos valandos, studentams ir kiti.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Tuščia nuolaida",
+    "text": "pradėti nuo nulio."
+   }
+  ]
+ },
+ "kasos-nuolaidos-sarasas": {
+  "file": "kasos-nuolaidos-sarasas.webp",
+  "w": 1132,
+  "h": 465,
+  "alt": "Kasos nuolaidų sąrašas: keturios nuolaidos su sąlygomis, naudojimu ir veiksmais.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pridėti nuolaidą",
+    "text": "nauja nuolaida ar pavyzdys."
+   },
+   {
+    "n": 2,
+    "label": "Sąlygos",
+    "text": "kam, kada ir kaip galioja."
+   },
+   {
+    "n": 3,
+    "label": "Naudojimas",
+    "text": "kiek kartų ir kokia suma per 30 dienų."
+   },
+   {
+    "n": 4,
+    "label": "Įjungta",
+    "text": "išjungta kasoje nerodoma."
+   },
+   {
+    "n": 5,
+    "label": "Veiksmai",
+    "text": "eilė kasoje, redaguoti, kopijuoti, ištrinti."
+   }
+  ]
+ },
+ "klientai-lygis": {
+  "file": "klientai-lygis.webp",
+  "w": 476,
+  "h": 462,
+  "alt": "Lygio priskyrimo langas: lygis, galiojimas ir priežastis.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Lojalumo lygis",
+    "text": "kurį lygį duoti."
+   },
+   {
+    "n": 2,
+    "label": "Galioja iki",
+    "text": "tuščia – neribotai."
+   },
+   {
+    "n": 3,
+    "label": "Priežastis",
+    "text": "pastaba jums."
+   }
+  ]
+ },
+ "klientai-redaguoti": {
+  "file": "klientai-redaguoti.webp",
+  "w": 540,
+  "h": 584,
+  "alt": "Kliento duomenų langas: vardas, telefonas, el. paštas, gimimo data, lytis ir adresas.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Telefonas",
+    "text": "tuo numeriu klientas jungiasi programėlėje."
+   },
+   {
+    "n": 2,
+    "label": "Gimimo data",
+    "text": "reikalinga gimtadienio dovanoms."
+   },
+   {
+    "n": 3,
+    "label": "Išsaugoti",
+    "text": "įsigalioja iš karto."
+   }
+  ]
+ },
+ "klientai-sarasas": {
+  "file": "klientai-sarasas.webp",
+  "w": 1132,
+  "h": 1278,
+  "alt": "Klientų puslapis: paieška, filtrai, AI paieška žodžiais ir klientų sąrašas su lygiu bei taškais.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Paieška",
+    "text": "vardas, el. paštas ar telefonas."
+   },
+   {
+    "n": 2,
+    "label": "Rasti klientus žodžiais",
+    "text": "AI parenka filtrus pagal jūsų sakinį."
+   },
+   {
+    "n": 3,
+    "label": "Filtrai",
+    "text": "kortelė, lygis, taškai, data."
+   },
+   {
+    "n": 4,
+    "label": "Eksportuoti",
+    "text": "sąrašas CSV arba Excel faile."
+   },
+   {
+    "n": 5,
+    "label": "Klientų sąrašas",
+    "text": "akis – kliento puslapis, pieštukas – keisti duomenis."
+   },
+   {
+    "n": 6,
+    "label": "Importuoti korteles",
+    "text": "įkelti turimą klientų sąrašą."
+   }
+  ]
+ },
+ "klientai-vienas": {
+  "file": "klientai-vienas.webp",
+  "w": 1132,
+  "h": 1807,
+  "alt": "Kliento puslapis: kontaktai, lygis ir taškai, kortelė su QR kodu, sutikimai ir pirkimai.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Redaguoti",
+    "text": "keisti kliento duomenis."
+   },
+   {
+    "n": 2,
+    "label": "Priskirti lygį",
+    "text": "lygis ranka."
+   },
+   {
+    "n": 3,
+    "label": "QR kodas",
+    "text": "tas pats, kurį klientas rodo kasoje."
+   },
+   {
+    "n": 4,
+    "label": "Sutikimai",
+    "text": "SMS ir el. laiškų."
+   },
+   {
+    "n": 5,
+    "label": "Transakcijų istorija",
+    "text": "visi pirkimai; akis – pirkimo puslapis."
+   }
+  ]
+ },
+ "klientu-importas-failas": {
+  "file": "klientu-importas-failas.webp",
+  "w": 1132,
+  "h": 1349,
+  "alt": "Klientų importo pirmas žingsnis: šablonas, failo įkėlimas ir stulpelių paaiškinimai.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Žingsniai",
+    "text": "iš viso 4."
+   },
+   {
+    "n": 2,
+    "label": "Atsisiųsti Excel šabloną",
+    "text": "jei savo failo neturite."
+   },
+   {
+    "n": 3,
+    "label": "Jūsų failas",
+    "text": "Excel arba CSV."
+   },
+   {
+    "n": 4,
+    "label": "Toliau",
+    "text": "stulpelių priskyrimas."
+   }
+  ]
+ },
+ "korteles-bendra": {
+  "file": "korteles-bendra.webp",
+  "w": 1132,
+  "h": 950,
+  "alt": "Kortelės formos pirmas skirtukas: pavadinimas, aprašymas ir dvi varnelės; dešinėje kortelės peržiūra.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Skirtukai",
+    "text": "visa kortelės forma."
+   },
+   {
+    "n": 2,
+    "label": "Kortelė yra aktyvi",
+    "text": "nuėmus varnelę kortelė nenaudojama."
+   },
+   {
+    "n": 3,
+    "label": "Automatiškai priskirti naujiems klientams",
+    "text": "naujas klientas kortelę gauna pats."
+   },
+   {
+    "n": 4,
+    "label": "Peržiūra",
+    "text": "taip kortelė atrodys programėlėje."
+   }
+  ]
+ },
+ "korteles-dizainas": {
+  "file": "korteles-dizainas.webp",
+  "w": 1132,
+  "h": 970,
+  "alt": "Kortelės dizaino skirtukas: logotipas, fono nuotrauka, spalvos ir suliejimas.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Logotipas",
+    "text": "JPG, PNG ar WebP, iki 2 MB."
+   },
+   {
+    "n": 2,
+    "label": "Fono nuotrauka",
+    "text": "vietoj vienos spalvos."
+   },
+   {
+    "n": 3,
+    "label": "Spalvos",
+    "text": "teksto, etikečių ir QR kodo."
+   },
+   {
+    "n": 4,
+    "label": "Fonas",
+    "text": "permatomumas ir suliejimas."
+   }
+  ]
+ },
+ "korteles-sarasas": {
+  "file": "korteles-sarasas.webp",
+  "w": 1132,
+  "h": 773,
+  "alt": "Lojalumo kortelių puslapis: skaičiai, filtrai ir viena kortelė su taškų taisyklėmis bei veiksmų mygtukais.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pridėti naują lojalumo kortelę",
+    "text": "nauja kortelė."
+   },
+   {
+    "n": 2,
+    "label": "Taisyklės",
+    "text": "už kiek duodami taškai, ko jie verti ir kiek galioja."
+   },
+   {
+    "n": 3,
+    "label": "Veiksmai",
+    "text": "peržiūrėti, redaguoti, parodyti QR kodą, išjungti."
+   },
+   {
+    "n": 4,
+    "label": "Ištrinti",
+    "text": "neatšaukiama."
+   }
+  ]
+ },
+ "korteles-taskai": {
+  "file": "korteles-taskai.webp",
+  "w": 1132,
+  "h": 1230,
+  "alt": "Kortelės taškų skirtukas: kaupimas, ribos ir iškeitimas; dešinėje taškų simuliacija.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pradiniai bonus taškai",
+    "text": "dovana naujam klientui."
+   },
+   {
+    "n": 2,
+    "label": "Taškų galiojimo laikas",
+    "text": "po kiek dienų taškai dingsta."
+   },
+   {
+    "n": 3,
+    "label": "Taškų konvertavimas",
+    "text": "už kiek eurų kiek taškų."
+   },
+   {
+    "n": 4,
+    "label": "Ribos",
+    "text": "mažiausiai ir daugiausia taškų už pirkinį."
+   },
+   {
+    "n": 5,
+    "label": "Taškų iškeitimas",
+    "text": "kiek taškų kiek eurų verti."
+   },
+   {
+    "n": 6,
+    "label": "Taškais ne daugiau kaip",
+    "text": "kokią pirkinio dalį galima padengti taškais."
+   },
+   {
+    "n": 7,
+    "label": "Taškų simuliacija",
+    "text": "pavyzdys pagal jūsų taisykles."
+   }
+  ]
+ },
+ "korteles-viena": {
+  "file": "korteles-viena.webp",
+  "w": 1132,
+  "h": 756,
+  "alt": "Kortelės puslapis: klientai, išduoti ir panaudoti taškai, transakcijos, taškų taisyklės.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Skaičiai",
+    "text": "klientai, išduoti ir panaudoti taškai, pirkimai."
+   },
+   {
+    "n": 2,
+    "label": "Peržiūrėti QR kodą",
+    "text": "kodas klientams."
+   },
+   {
+    "n": 3,
+    "label": "Redaguoti",
+    "text": "keisti taisykles ar išvaizdą."
+   },
+   {
+    "n": 4,
+    "label": "Taisyklės",
+    "text": "kas galioja dabar."
+   }
+  ]
+ },
+ "kuponai-sarasas": {
+  "file": "kuponai-sarasas.webp",
+  "w": 1132,
+  "h": 972,
+  "alt": "Kuponų puslapis: aktyvūs, panaudoti ir pasibaigę kuponai, filtrai ir sąrašas.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Skaičiai",
+    "text": "kiek aktyvių, panaudotų, pasibaigusių."
+   },
+   {
+    "n": 2,
+    "label": "Filtruoti",
+    "text": "pagal kodą, klientą, būseną, datą."
+   },
+   {
+    "n": 3,
+    "label": "Kuponų sąrašas",
+    "text": "kam išduotas, už ką ir kokios būsenos."
+   },
+   {
+    "n": 4,
+    "label": "Skenuoti ir panaudoti",
+    "text": "panaudoti kuponą be kasos."
+   }
+  ]
+ },
+ "kuponai-skenuoti": {
+  "file": "kuponai-skenuoti.webp",
+  "w": 1132,
+  "h": 693,
+  "alt": "Kupono patikrinimas: pasirinkta parduotuvė, įrašytas kodas, dešinėje galiojančio kupono duomenys.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Parduotuvė",
+    "text": "kur kuponas panaudojamas."
+   },
+   {
+    "n": 2,
+    "label": "Kupono kodas",
+    "text": "įrašykite ar nuskenuokite skeneriu."
+   },
+   {
+    "n": 3,
+    "label": "Patikrinti kuponą",
+    "text": "dar nieko nepanaudoja."
+   },
+   {
+    "n": 4,
+    "label": "Panaudoti kuponą",
+    "text": "neatšaukiama."
+   }
+  ]
+ },
+ "kuponai-vienas": {
+  "file": "kuponai-vienas.webp",
+  "w": 1132,
+  "h": 779,
+  "alt": "Panaudoto kupono puslapis: kodas, klientas, pasiūlymas, kada ir kur panaudotas.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pagrindinė informacija",
+    "text": "kodas ir galiojimas."
+   },
+   {
+    "n": 2,
+    "label": "Peržiūrėti klientą",
+    "text": "kliento puslapis."
+   },
+   {
+    "n": 3,
+    "label": "Panaudojimo informacija",
+    "text": "kada ir kur panaudotas."
+   }
+  ]
+ },
+ "lygiai-dalis": {
+  "file": "lygiai-dalis.webp",
+  "w": 604,
+  "h": 2075,
+  "alt": "Pirkimo dalies langas: pavadinimas, taškų daugiklis, lygio nuolaida, mokėjimas taškais ir kada taisyklės galioja.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pavadinimas",
+    "text": "kasininkas jį mato kasoje."
+   },
+   {
+    "n": 2,
+    "label": "Taškų daugiklis",
+    "text": "0 – taškų nėra."
+   },
+   {
+    "n": 3,
+    "label": "Savas taškų kaupimas",
+    "text": "kitoks kursas nei kortelės."
+   },
+   {
+    "n": 4,
+    "label": "Taikyti lygio nuolaidą",
+    "text": "ar galioja lygio procentas."
+   },
+   {
+    "n": 5,
+    "label": "Galima apmokėti taškais",
+    "text": "ar šią dalį galima padengti taškais."
+   },
+   {
+    "n": 6,
+    "label": "Numatytoji dalis",
+    "text": "kai dalis nenurodyta."
+   },
+   {
+    "n": 7,
+    "label": "Kada taisyklės galioja",
+    "text": "datos ir savaitės dienos."
+   }
+  ]
+ },
+ "lygiai-dalys": {
+  "file": "lygiai-dalys.webp",
+  "w": 1108,
+  "h": 485,
+  "alt": "Pirkimo dalių sąrašas: kosmetika, procedūros, akcijos ir dovanų kuponas su jų taisyklėmis.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pridėti dalį",
+    "text": "nauja pirkimo dalis."
+   },
+   {
+    "n": 2,
+    "label": "Numatytoji",
+    "text": "taikoma, kai kasininkas dalies nepasirenka."
+   },
+   {
+    "n": 3,
+    "label": "Taisyklės",
+    "text": "taškai, lygio nuolaida, mokėjimas taškais."
+   }
+  ]
+ },
+ "lygiai-lygis": {
+  "file": "lygiai-lygis.webp",
+  "w": 700,
+  "h": 1190,
+  "alt": "Naujo lygio langas: pavadinimas, slenkstis, taškų daugiklis, nuolaida, taško vertė ir privalumai.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pavadinimas",
+    "text": "kaip lygį matys klientas."
+   },
+   {
+    "n": 2,
+    "label": "Slenkstis",
+    "text": "nuo kokios reikšmės lygis pasiekiamas."
+   },
+   {
+    "n": 3,
+    "label": "Taškų daugiklis",
+    "text": "1,2 – penktadaliu daugiau taškų."
+   },
+   {
+    "n": 4,
+    "label": "Nuolaida",
+    "text": "procentai šio lygio klientams."
+   },
+   {
+    "n": 5,
+    "label": "Formulė",
+    "text": "sąlyga vietoj skaičiaus."
+   },
+   {
+    "n": 6,
+    "label": "Privalumai",
+    "text": "ką dar gauna klientas, po vieną eilutėje."
+   }
+  ]
+ },
+ "lygiai-puslapis": {
+  "file": "lygiai-puslapis.webp",
+  "w": 1132,
+  "h": 1668,
+  "alt": "Lojalumo lygių puslapis: skaičiai, programos nustatymai ir trijų lygių sąrašas.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pridėti lygį",
+    "text": "naujas lygis."
+   },
+   {
+    "n": 2,
+    "label": "Šablonai",
+    "text": "paruoštos programos."
+   },
+   {
+    "n": 3,
+    "label": "Sukurti programą su AI",
+    "text": "aprašote žodžiais, AI pasiūlo lygius."
+   },
+   {
+    "n": 4,
+    "label": "Programos nustatymai",
+    "text": "pagal ką kylama ir kiek laikosi."
+   },
+   {
+    "n": 5,
+    "label": "Lygiai",
+    "text": "nuo žemiausio iki aukščiausio."
+   },
+   {
+    "n": 6,
+    "label": "Veiksmai",
+    "text": "keisti eilę, redaguoti, ištrinti."
+   }
+  ]
+ },
+ "lygiu-pranesimai-naujas": {
+  "file": "lygiu-pranesimai-naujas.webp",
+  "w": 1132,
+  "h": 1164,
+  "alt": "Naujo pranešimo forma: įvykis, lygis, kanalai, antraštė, tekstas ir kintamieji.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Įvykis",
+    "text": "kada siųsti ir kuriam lygiui."
+   },
+   {
+    "n": 2,
+    "label": "Kanalai",
+    "text": "push, el. paštas, SMS."
+   },
+   {
+    "n": 3,
+    "label": "Parašyti su AI",
+    "text": "AI pasiūlo tekstą, jūs jį pataisote."
+   },
+   {
+    "n": 4,
+    "label": "Antraštė ir Tekstas",
+    "text": "ką gaus klientas."
+   },
+   {
+    "n": 5,
+    "label": "Galimi kintamieji",
+    "text": "spustelėjus įterpiami į tekstą."
+   },
+   {
+    "n": 6,
+    "label": "Išsaugoti taisyklę",
+    "text": "taisyklė pradeda galioti."
+   }
+  ]
+ },
+ "lygiu-pranesimai-sarasas": {
+  "file": "lygiu-pranesimai-sarasas.webp",
+  "w": 1132,
+  "h": 319,
+  "alt": "Lygių pranešimų sąrašas: dvi taisyklės su kanalais ir veiksmų mygtukais.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pridėti pranešimą",
+    "text": "nauja taisyklė."
+   },
+   {
+    "n": 2,
+    "label": "Kanalai",
+    "text": "kuo siunčiama."
+   },
+   {
+    "n": 3,
+    "label": "Testuoti sau",
+    "text": "bandomasis pranešimas jums."
+   }
+  ]
+ },
+ "mokejimu-surinkimas": {
+  "file": "mokejimu-surinkimas.webp",
+  "w": 1132,
+  "h": 2108,
+  "alt": "Mokėjimų surinkimo puslapis: kaip veikia, kainos, skaičiuoklė, nustatymai ir Stripe paskyros susiejimas.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Kainų struktūra",
+    "text": "Stripe ir platformos mokesčiai."
+   },
+   {
+    "n": 2,
+    "label": "Mokesčių skaičiuoklė",
+    "text": "kiek liks nuo sumos."
+   },
+   {
+    "n": 3,
+    "label": "Nuolaidos kodas",
+    "text": "jei jį turite."
+   },
+   {
+    "n": 4,
+    "label": "Sukurti Stripe paskyrą",
+    "text": "nuo čia pradedama."
+   }
+  ]
+ },
+ "nustatymai": {
+  "file": "nustatymai.webp",
+  "w": 1132,
+  "h": 964,
+  "alt": "Nustatymų puslapis: skirtukai, asmeniniai duomenys ir slaptažodis.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Skirtukai",
+    "text": "visi nustatymai."
+   },
+   {
+    "n": 2,
+    "label": "Slaptažodis",
+    "text": "dabartinis ir naujas."
+   },
+   {
+    "n": 3,
+    "label": "Atnaujinti slaptažodį",
+    "text": "įsigalioja iš karto."
+   }
+  ]
+ },
+ "parduotuves-darbo-laikas": {
+  "file": "parduotuves-darbo-laikas.webp",
+  "w": 1102,
+  "h": 440,
+  "alt": "Darbo laiko blokas: pirmadienio ir antradienio atidarymo ir uždarymo laikai, pietų pertrauka.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pirmadienis",
+    "text": "nuimkite varnelę, jei tą dieną nedirbate."
+   },
+   {
+    "n": 2,
+    "label": "Atidaroma ir Uždaroma",
+    "text": "valandos ir minutės."
+   },
+   {
+    "n": 3,
+    "label": "Pietų pertrauka",
+    "text": "pažymėjus atsiranda pertraukos laikas."
+   }
+  ]
+ },
+ "parduotuves-importas": {
+  "file": "parduotuves-importas.webp",
+  "w": 1132,
+  "h": 944,
+  "alt": "Parduotuvių importo puslapis: šablono atsisiuntimas ir užpildyto failo įkėlimas.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Atsisiųsti šabloną",
+    "text": "Excel failas su teisingais stulpeliais."
+   },
+   {
+    "n": 2,
+    "label": "Pasirinkti",
+    "text": "užpildytas failas (.xlsx arba .xls)."
+   },
+   {
+    "n": 3,
+    "label": "Įkelti ir importuoti",
+    "text": "mygtukas veikia pasirinkus failą."
+   },
+   {
+    "n": 4,
+    "label": "Importavimo gairės",
+    "text": "privalomi laukai ir ribos."
+   }
+  ]
+ },
+ "parduotuves-istrinti": {
+  "file": "parduotuves-istrinti.webp",
+  "w": 540,
+  "h": 194,
+  "alt": "Langas, prašantis patvirtinti parduotuvės ištrynimą.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Ištrinti",
+    "text": "ištrina visam laikui."
+   }
+  ]
+ },
+ "parduotuves-kasa": {
+  "file": "parduotuves-kasa.webp",
+  "w": 1120,
+  "h": 618,
+  "alt": "Blokas „Kasos greiti mygtukai“: keturi mygtukai su suma ir pirkimo dalimi, nuolaidos ir užraktas.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pridėti mygtuką",
+    "text": "nauja eilutė sąrašo gale."
+   },
+   {
+    "n": 2,
+    "label": "Pavadinimas",
+    "text": "kas rašoma ant mygtuko kasoje."
+   },
+   {
+    "n": 3,
+    "label": "Suma",
+    "text": "kiek mygtukas įveda."
+   },
+   {
+    "n": 4,
+    "label": "Pirkimo dalis",
+    "text": "jei parinkta, kasa neklausia, už ką suma."
+   },
+   {
+    "n": 5,
+    "label": "Tvarkyti nuolaidas",
+    "text": "atveria puslapį „Kasos nuolaidos“."
+   },
+   {
+    "n": 6,
+    "label": "Kasos užraktas po neveiklumo",
+    "text": "po kiek minučių kasa paprašys PIN. 0 – niekada."
+   },
+   {
+    "n": 7,
+    "label": "Išsaugoti",
+    "text": "atsiranda ką nors pakeitus."
+   }
+  ]
+ },
+ "parduotuves-nauja": {
+  "file": "parduotuves-nauja.webp",
+  "w": 1130,
+  "h": 1002,
+  "alt": "Naujos parduotuvės forma: pavadinimas, logotipas, adresas ir kontaktai.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Parduotuvės pavadinimas",
+    "text": "taip parduotuvę matys klientai ir kasininkai."
+   },
+   {
+    "n": 2,
+    "label": "Pasirinkti failą",
+    "text": "parduotuvės logotipas. Nebūtinas."
+   },
+   {
+    "n": 3,
+    "label": "Tai yra internetinė parduotuvė",
+    "text": "vietoj adreso įvesite svetainę."
+   },
+   {
+    "n": 4,
+    "label": "Gatvė ir namo numeris",
+    "text": "pradėkite rašyti ir pasirinkite adresą iš sąrašo."
+   },
+   {
+    "n": 5,
+    "label": "Platuma ir Ilguma",
+    "text": "vieta žemėlapyje."
+   },
+   {
+    "n": 6,
+    "label": "Telefono numeris ir El. pašto adresas",
+    "text": "kontaktai, kuriuos matys klientai."
+   }
+  ]
+ },
+ "parduotuves-pos": {
+  "file": "parduotuves-pos.webp",
+  "w": 1102,
+  "h": 380,
+  "alt": "POS sistemos pasirinkimas: Paprasta POS, Pilna POS ir Žaidimų POS, po jais – „Parduotuvė yra aktyvi“ ir „Sukurti parduotuvę“.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Paprasta POS",
+    "text": "kasininkas renka sumą. Tinka salonams, kavinėms."
+   },
+   {
+    "n": 2,
+    "label": "Pilna POS",
+    "text": "kasininkas renkasi prekes iš jūsų sąrašo."
+   },
+   {
+    "n": 3,
+    "label": "Žaidimų POS",
+    "text": "tik žaidimai, be sumų."
+   },
+   {
+    "n": 4,
+    "label": "Parduotuvė yra aktyvi",
+    "text": "neaktyvios parduotuvės nemato nei klientai, nei kasa."
+   },
+   {
+    "n": 5,
+    "label": "Sukurti parduotuvę",
+    "text": "išsaugo."
+   }
+  ]
+ },
+ "parduotuves-redaguoti": {
+  "file": "parduotuves-redaguoti.webp",
+  "w": 1440,
+  "h": 3553,
+  "alt": "x",
+  "marks": []
+ },
+ "parduotuves-sarasas": {
+  "file": "parduotuves-sarasas.webp",
+  "w": 1132,
+  "h": 434,
+  "alt": "Parduotuvių sąrašas: paieška, dvi parduotuvės su adresu, kontaktais, POS tipu ir būsena, dešinėje veiksmų mygtukai.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pridėti parduotuvę",
+    "text": "nauja parduotuvė."
+   },
+   {
+    "n": 2,
+    "label": "Importuoti iš Excel",
+    "text": "daug parduotuvių iš karto."
+   },
+   {
+    "n": 3,
+    "label": "Ieškoti",
+    "text": "randa pagal pavadinimą, adresą ar miestą."
+   },
+   {
+    "n": 4,
+    "label": "Parduotuvių sąrašas",
+    "text": "adresas, šios dienos darbo laikas, kontaktai, POS tipas ir būsena."
+   },
+   {
+    "n": 5,
+    "label": "Veiksmai",
+    "text": "akis – peržiūrėti, pieštukas – redaguoti, šiukšlinė – ištrinti."
+   }
+  ]
+ },
+ "parduotuves-viena": {
+  "file": "parduotuves-viena.webp",
+  "w": 346,
+  "h": 946,
+  "alt": "Parduotuvės informacija: tipas, adresas, kontaktai, darbo laikas, POS tipas ir žemėlapis.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Darbo laikas",
+    "text": "taip jį mato klientai."
+   },
+   {
+    "n": 2,
+    "label": "POS Tipas",
+    "text": "kokį langą mato kasininkas."
+   }
+  ]
+ },
+ "pasiulymai-kategorijai": {
+  "file": "pasiulymai-kategorijai.webp",
+  "w": 1132,
+  "h": 760,
+  "alt": "Akcijos kategorijai forma: kam taikyti, kategorija, nuolaida ir galiojimas.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Kam taikyti",
+    "text": "kategorijai ar visam katalogui."
+   },
+   {
+    "n": 2,
+    "label": "Kategorija",
+    "text": "kartu ir jos pakategorės."
+   },
+   {
+    "n": 3,
+    "label": "Nuolaida, %",
+    "text": "visoms prekėms vienoda."
+   },
+   {
+    "n": 4,
+    "label": "Galiojimas",
+    "text": "tuščia – nuo dabar ir kol išjungsite."
+   }
+  ]
+ },
+ "pasiulymai-nauja": {
+  "file": "pasiulymai-nauja.webp",
+  "w": 1392,
+  "h": 1376,
+  "alt": "Akcijos forma: prekė, kaina, kaina su nuolaida, prieinamumas, galiojimas ir parduotuvės.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Produktas",
+    "text": "kuriai prekei."
+   },
+   {
+    "n": 2,
+    "label": "Kaina",
+    "text": "įprasta kaina."
+   },
+   {
+    "n": 3,
+    "label": "Nuolaida",
+    "text": "kaina su nuolaida arba procentas."
+   },
+   {
+    "n": 4,
+    "label": "Akcijos galiojimas",
+    "text": "nuo kada iki kada."
+   },
+   {
+    "n": 5,
+    "label": "Sukurti akciją",
+    "text": "išsaugo."
+   }
+  ]
+ },
+ "pasiulymai-sarasas": {
+  "file": "pasiulymai-sarasas.webp",
+  "w": 1132,
+  "h": 1004,
+  "alt": "Produktų akcijų sąrašas: kainos, prieinamumas, būsena, datos ir veiksmai.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Sukurti akciją",
+    "text": "vienai prekei."
+   },
+   {
+    "n": 2,
+    "label": "Akcija kategorijai",
+    "text": "daug prekių iš karto."
+   },
+   {
+    "n": 3,
+    "label": "Kaina",
+    "text": "akcijos, įprasta ir nuolaida."
+   },
+   {
+    "n": 4,
+    "label": "Datos",
+    "text": "kada akcija galioja."
+   }
+  ]
+ },
+ "paslaugos": {
+  "file": "paslaugos.webp",
+  "w": 1132,
+  "h": 1019,
+  "alt": "Paslaugų ir kainų puslapis: priedėliai su kainomis ir mygtukais „Įjungti“.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Įjungti",
+    "text": "mokestis pridedamas prie sąskaitos."
+   }
+  ]
+ },
+ "pastas-auditorijos": {
+  "file": "pastas-auditorijos.webp",
+  "w": 1132,
+  "h": 712,
+  "alt": "El. pašto auditorijų sąrašas su gavėjų skaičiumi.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Sukurti auditoriją",
+    "text": "naujas išsaugotas filtras."
+   },
+   {
+    "n": 2,
+    "label": "Gavėjai",
+    "text": "kiek žmonių atitinka dabar."
+   }
+  ]
+ },
+ "pastas-domenai": {
+  "file": "pastas-domenai.webp",
+  "w": 1132,
+  "h": 473,
+  "alt": "Siuntėjo domenų sąrašas: patvirtintas domenas ir veiksmai.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pridėti domeną",
+    "text": "naujas domenas."
+   },
+   {
+    "n": 2,
+    "label": "Būsena",
+    "text": "patvirtintas ar dar ne."
+   },
+   {
+    "n": 3,
+    "label": "Veiksmai",
+    "text": "DNS įrašai, patikrinti, ištrinti."
+   }
+  ]
+ },
+ "pastas-kampanijos": {
+  "file": "pastas-kampanijos.webp",
+  "w": 1132,
+  "h": 769,
+  "alt": "El. pašto kampanijų sąrašas: juodraštis, suplanuota ir išsiųsta.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Sukurti kampaniją",
+    "text": "naujas laiškas."
+   },
+   {
+    "n": 2,
+    "label": "Kampanijų sąrašas",
+    "text": "būsena, gavėjai ir rezultatai."
+   }
+  ]
+ },
+ "pastas-laiskai": {
+  "file": "pastas-laiskai.webp",
+  "w": 1126,
+  "h": 826,
+  "alt": "Išsiųstų laiškų sąrašas: gavėjas, tema, būsena ir laikas.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Būsena",
+    "text": "išsiųsta, atidaryta, paspausta."
+   }
+  ]
+ },
+ "pastas-nauja": {
+  "file": "pastas-nauja.webp",
+  "w": 1132,
+  "h": 834,
+  "alt": "Naujos el. pašto kampanijos žingsniai: pavadinimas, kam, nuo, tema, siuntimo laikas, turinys, sekimas.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Kam",
+    "text": "gavėjai ir jų skaičius."
+   },
+   {
+    "n": 2,
+    "label": "Tema",
+    "text": "ką klientas mato pašto dėžutėje."
+   },
+   {
+    "n": 3,
+    "label": "Turinys",
+    "text": "laiško dizainas."
+   },
+   {
+    "n": 4,
+    "label": "Baigti vėliau",
+    "text": "išsaugo juodraštį."
+   },
+   {
+    "n": 5,
+    "label": "Siųsti dabar",
+    "text": "neatšaukiama."
+   }
+  ]
+ },
+ "pastas-sablonai": {
+  "file": "pastas-sablonai.webp",
+  "w": 1132,
+  "h": 712,
+  "alt": "El. pašto šablonų sąrašas.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Sukurti šabloną",
+    "text": "atidaro redaktorių."
+   },
+   {
+    "n": 2,
+    "label": "Veiksmai",
+    "text": "redaguoti, ištrinti."
+   }
+  ]
+ },
+ "pastas-sutikimai": {
+  "file": "pastas-sutikimai.webp",
+  "w": 1126,
+  "h": 1098,
+  "alt": "El. pašto sutikimų puslapis: kam siunčiame ir sutikimų sąrašas.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Kam siunčiame",
+    "text": "tik sutikusiems ar visiems neatsisakiusiems."
+   },
+   {
+    "n": 2,
+    "label": "Pridėti sutikimą",
+    "text": "vienas adresas."
+   },
+   {
+    "n": 3,
+    "label": "Masinis importas",
+    "text": "atsisakiusieji praleidžiami."
+   }
+  ]
+ },
+ "pastas-taisykles": {
+  "file": "pastas-taisykles.webp",
+  "w": 1132,
+  "h": 712,
+  "alt": "El. pašto automatizavimo taisyklės su jungikliais.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Sukurti taisyklę",
+    "text": "nauja taisyklė."
+   },
+   {
+    "n": 2,
+    "label": "Statusas",
+    "text": "įjungti ar išjungti."
+   },
+   {
+    "n": 3,
+    "label": "Veiksmai",
+    "text": "kas gautų, redaguoti, paleisti dabar, ištrinti."
+   }
+  ]
+ },
+ "pastas-viena": {
+  "file": "pastas-viena.webp",
+  "w": 1132,
+  "h": 1020,
+  "alt": "Išsiųstos el. pašto kampanijos puslapis: gavėjai, atidaryta, paspausta, atmesta ir laiško turinys.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Rezultatai",
+    "text": "atidaryta, paspausta, atmesta, atsisakė."
+   },
+   {
+    "n": 2,
+    "label": "Nuorodos",
+    "text": "ką žmonės paspaudė."
+   },
+   {
+    "n": 3,
+    "label": "Siųsti neatidariusiems",
+    "text": "pakartotinis laiškas."
+   }
+  ]
+ },
+ "planas": {
+  "file": "planas.webp",
+  "w": 1132,
+  "h": 1720,
+  "alt": "Plano puslapis: dabartinis planas, limitų panaudojimas ir kiti planai.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Limitų panaudojimas",
+    "text": "kiek liko."
+   },
+   {
+    "n": 2,
+    "label": "Dabartinis",
+    "text": "jūsų planas."
+   },
+   {
+    "n": 3,
+    "label": "Pasirinkti",
+    "text": "pakeisti planą."
+   }
+  ]
+ },
+ "pranesimai": {
+  "file": "pranesimai.webp",
+  "w": 1132,
+  "h": 356,
+  "alt": "Pranešimų sąrašas.",
+  "marks": []
+ },
+ "prekes-eksportas": {
+  "file": "prekes-eksportas.webp",
+  "w": 1132,
+  "h": 554,
+  "alt": "Prekių eksportas: formatas, ką įtraukti ir mygtukas „Pradėti eksportavimą“.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Eksportavimo formatas",
+    "text": "XML, CSV ar JSON."
+   },
+   {
+    "n": 2,
+    "label": "Ką įtraukti",
+    "text": "išjungtas prekes, kategorijas, akcijas."
+   },
+   {
+    "n": 3,
+    "label": "Pradėti eksportavimą",
+    "text": "failas atsisiunčiamas."
+   }
+  ]
+ },
+ "prekes-importas": {
+  "file": "prekes-importas.webp",
+  "w": 1132,
+  "h": 840,
+  "alt": "Prekių importas: šablono atsisiuntimas, failo įkėlimas ir instrukcijos.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Atsisiųsti XML šabloną",
+    "text": "kokie laukai reikalingi."
+   },
+   {
+    "n": 2,
+    "label": "XML failas",
+    "text": "iki 10 MB."
+   },
+   {
+    "n": 3,
+    "label": "Importuoti produktus",
+    "text": "įkelia prekes."
+   }
+  ]
+ },
+ "prekes-nauja": {
+  "file": "prekes-nauja.webp",
+  "w": 793,
+  "h": 1225,
+  "alt": "Naujos prekės forma: pavadinimas, aprašymas, nuotrauka, tipas, pirkimo dalis ir kodai.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Parašyti su AI",
+    "text": "pasiūlo pavadinimą ir aprašymą."
+   },
+   {
+    "n": 2,
+    "label": "Tipas",
+    "text": "prekė ar paslauga."
+   },
+   {
+    "n": 3,
+    "label": "Pirkimo dalis",
+    "text": "nuo jos priklauso taškai ir nuolaidos."
+   },
+   {
+    "n": 4,
+    "label": "Kodai",
+    "text": "kad kasoje prekę būtų galima nuskenuoti."
+   }
+  ]
+ },
+ "prekes-sarasas": {
+  "file": "prekes-sarasas.webp",
+  "w": 1132,
+  "h": 1010,
+  "alt": "Prekių sąrašas: skaičiai, filtrai, kainos, pasiūlymai, kategorijos ir būsena.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pridėti produktą",
+    "text": "nauja prekė ar paslauga."
+   },
+   {
+    "n": 2,
+    "label": "Importuoti",
+    "text": "daug prekių iš XML failo."
+   },
+   {
+    "n": 3,
+    "label": "Eksportuoti",
+    "text": "išsaugoti prekes faile."
+   },
+   {
+    "n": 4,
+    "label": "Produktų sąrašas",
+    "text": "perbraukta kaina – įprasta, kita – akcijos."
+   }
+  ]
+ },
+ "prekes-viena": {
+  "file": "prekes-viena.webp",
+  "w": 1132,
+  "h": 624,
+  "alt": "Prekės puslapis: nuotrauka, kaina, akcijos kaina, kategorija, parduotuvės ir būsena.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Skirtukai",
+    "text": "apžvalga, kainos ir statistika."
+   },
+   {
+    "n": 2,
+    "label": "Kainodara",
+    "text": "įprasta ir akcijos kaina."
+   },
+   {
+    "n": 3,
+    "label": "Redaguoti",
+    "text": "keisti prekę."
+   }
+  ]
+ },
+ "prisijungimas": {
+  "file": "prisijungimas.webp",
+  "w": 1440,
+  "h": 900,
+  "alt": "Portalo prisijungimo langas: el. paštas, slaptažodis ir mygtukas „Prisijungti“.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "El. paštas",
+    "text": "kuriuo gavote kvietimą."
+   },
+   {
+    "n": 2,
+    "label": "Slaptažodis",
+    "text": "bent 8 simboliai."
+   },
+   {
+    "n": 3,
+    "label": "Pamiršote slaptažodį?",
+    "text": "atsiųsime nuorodą."
+   }
+  ]
+ },
+ "prisijungimas-slaptazodis": {
+  "file": "prisijungimas-slaptazodis.webp",
+  "w": 1440,
+  "h": 900,
+  "alt": "Slaptažodžio atkūrimo langas su el. pašto lauku.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "El. paštas",
+    "text": "kuriuo jungiatės."
+   },
+   {
+    "n": 2,
+    "label": "Siųsti atstatymo laišką",
+    "text": "laiškas ateina per kelias minutes."
+   }
+  ]
+ },
+ "push-kampanijos": {
+  "file": "push-kampanijos.webp",
+  "w": 1132,
+  "h": 769,
+  "alt": "Push kampanijų sąrašas: skaičiai, filtrai ir trys kampanijos su gavėjais bei pristatymu.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Sukurti kampaniją",
+    "text": "naujas pranešimas."
+   },
+   {
+    "n": 2,
+    "label": "Rezultatai",
+    "text": "gavėjai, išsiųsta, pristatymo rodiklis."
+   },
+   {
+    "n": 3,
+    "label": "Peržiūrėti",
+    "text": "kampanijos puslapis."
+   }
+  ]
+ },
+ "push-nauja": {
+  "file": "push-nauja.webp",
+  "w": 1132,
+  "h": 1002,
+  "alt": "Push kampanijos forma: pavadinimas, antraštė, tekstas, paveikslėlis, nuoroda, auditorija; dešinėje gavėjų skaičius.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Kampanijos pavadinimas",
+    "text": "klientai jo nemato."
+   },
+   {
+    "n": 2,
+    "label": "Antraštė ir tekstas",
+    "text": "ką klientas mato telefone."
+   },
+   {
+    "n": 3,
+    "label": "Nuoroda paspaudus",
+    "text": "kur klientas pateks."
+   },
+   {
+    "n": 4,
+    "label": "Tikslinė auditorija",
+    "text": "kam siųsti."
+   },
+   {
+    "n": 5,
+    "label": "Gavėjų skaičius",
+    "text": "kiek gaus ir kiek liko plane."
+   },
+   {
+    "n": 6,
+    "label": "Siųsti ar išsaugoti",
+    "text": "išsiųsto atšaukti negalima."
+   }
+  ]
+ },
+ "push-taisykle": {
+  "file": "push-taisykle.webp",
+  "w": 1132,
+  "h": 2190,
+  "alt": "Push taisyklės forma: pavadinimas, kintamieji, AI, antraštė, tekstas, kada ir kaip dažnai siųsti.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pavadinimas",
+    "text": "matote tik jūs."
+   },
+   {
+    "n": 2,
+    "label": "Galimi kintamieji",
+    "text": "įterpia kliento vardą, taškus ir kita."
+   },
+   {
+    "n": 3,
+    "label": "Generuoti su AI",
+    "text": "pasiūlo tekstą."
+   },
+   {
+    "n": 4,
+    "label": "Pranešimas",
+    "text": "ką klientas gaus."
+   },
+   {
+    "n": 5,
+    "label": "Paleidimo konfigūracija",
+    "text": "kada, kokiu laiku ir kaip dažnai."
+   },
+   {
+    "n": 6,
+    "label": "Išsaugoti taisyklę",
+    "text": "įjungta veikia iš karto."
+   }
+  ]
+ },
+ "push-taisykles": {
+  "file": "push-taisykles.webp",
+  "w": 1132,
+  "h": 758,
+  "alt": "Push automatizavimo taisyklės: gimtadienio sveikinimas ir priminimas seniai nesilankiusiems.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pridėti taisyklę",
+    "text": "nauja taisyklė."
+   },
+   {
+    "n": 2,
+    "label": "Tipas",
+    "text": "kada siunčiama."
+   },
+   {
+    "n": 3,
+    "label": "Išsiųsta",
+    "text": "kiek pranešimų išėjo."
+   },
+   {
+    "n": 4,
+    "label": "Veiksmai",
+    "text": "redaguoti, sustabdyti, ištrinti."
+   }
+  ]
+ },
+ "push-viena": {
+  "file": "push-viena.webp",
+  "w": 1132,
+  "h": 583,
+  "alt": "Išsiųstos push kampanijos puslapis: pranešimo peržiūra, informacija ir statistika.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pranešimo peržiūra",
+    "text": "ką gavo klientas."
+   },
+   {
+    "n": 2,
+    "label": "Statistika",
+    "text": "gavėjai, sėkmingi ir nesėkmingi siuntimai."
+   }
+  ]
+ },
+ "registracija": {
+  "file": "registracija.webp",
+  "w": 1440,
+  "h": 900,
+  "alt": "Partnerio registracijos pradžia: įmonės paieška pagal pavadinimą ir jos duomenys.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Žingsniai",
+    "text": "iš viso 6."
+   },
+   {
+    "n": 2,
+    "label": "Ieškokite pagal pavadinimą",
+    "text": "duomenys užsipildo patys."
+   }
+  ]
+ },
+ "saskaitos-laukia": {
+  "file": "saskaitos-laukia.webp",
+  "w": 1132,
+  "h": 731,
+  "alt": "Neapmokėtų sąskaitų puslapis: bendra suma, sąskaitos ir būsimos išlaidos.",
+  "marks": []
+ },
+ "saskaitos-sarasas": {
+  "file": "saskaitos-sarasas.webp",
+  "w": 1132,
+  "h": 723,
+  "alt": "Sąskaitų sąrašas: sumos, filtrai, numeris, laikotarpis, būsena ir terminas.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Sumos",
+    "text": "iš viso, apmokėta, neapmokėta."
+   },
+   {
+    "n": 2,
+    "label": "Mokėjimo terminas",
+    "text": "iki kada apmokėti."
+   },
+   {
+    "n": 3,
+    "label": "Veiksmai",
+    "text": "peržiūrėti, atsisiųsti PDF."
+   }
+  ]
+ },
+ "saskaitos-viena": {
+  "file": "saskaitos-viena.webp",
+  "w": 1132,
+  "h": 985,
+  "alt": "Sąskaitos puslapis: būsena, suma, terminas, eilutės ir paslaugų ataskaita.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Atsisiųsti",
+    "text": "PDF failas."
+   },
+   {
+    "n": 2,
+    "label": "Mokėjimo terminas",
+    "text": "iki kada apmokėti."
+   },
+   {
+    "n": 3,
+    "label": "Mokėti",
+    "text": "galutinė suma."
+   }
+  ]
+ },
+ "skydelis": {
+  "file": "skydelis.webp",
+  "w": 1132,
+  "h": 2535,
+  "alt": "Portalo pagrindinis puslapis: sąskaitos, pradžios vadovas, AI ataskaita, skaičiai ir grafikai.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Sąskaitos",
+    "text": "ar yra neapmokėtų."
+   },
+   {
+    "n": 2,
+    "label": "Pradžios vadovas",
+    "text": "ką dar verta padaryti."
+   },
+   {
+    "n": 3,
+    "label": "Ataskaita žmonių kalba",
+    "text": "klausimas savo žodžiais."
+   },
+   {
+    "n": 4,
+    "label": "Skaičiai",
+    "text": "klientai, kortelės, taškai, pirkimai."
+   },
+   {
+    "n": 5,
+    "label": "Grafikai",
+    "text": "kaip keitėsi per metus."
+   }
+  ]
+ },
+ "skydelis-meniu": {
+  "file": "skydelis-meniu.webp",
+  "w": 1440,
+  "h": 900,
+  "alt": "Portalo meniu kairėje: paieška, skiltys, pagalba, kalba ir pranešimai.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pagalba",
+    "text": "vadovo puslapis apie šį ekraną."
+   },
+   {
+    "n": 2,
+    "label": "Ieškoti",
+    "text": "klientai, pirkimai, puslapiai."
+   },
+   {
+    "n": 3,
+    "label": "Skiltys",
+    "text": "programa, klientai, marketingas, administravimas."
+   }
+  ]
+ },
+ "sms-analitika": {
+  "file": "sms-analitika.webp",
+  "w": 1132,
+  "h": 1225,
+  "alt": "SMS analitika: skirtukai, laikotarpis ir rodikliai.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Skirtukai",
+    "text": "efektyvumas, automatizacija, įžvalgos."
+   }
+  ]
+ },
+ "sms-kampanijos": {
+  "file": "sms-kampanijos.webp",
+  "w": 1132,
+  "h": 769,
+  "alt": "SMS kampanijų sąrašas: juodraštis, suplanuota ir išsiųsta kampanija.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Sukurti kampaniją",
+    "text": "nauja kampanija."
+   },
+   {
+    "n": 2,
+    "label": "Statusas ir patvirtinimas",
+    "text": "išsiunčiama tik patvirtinta."
+   },
+   {
+    "n": 3,
+    "label": "Dubliuoti",
+    "text": "kopija naujai kampanijai."
+   },
+   {
+    "n": 4,
+    "label": "Atšaukti kampaniją",
+    "text": "kol dar neišsiųsta."
+   }
+  ]
+ },
+ "sms-nauja": {
+  "file": "sms-nauja.webp",
+  "w": 1132,
+  "h": 1558,
+  "alt": "SMS kampanijos forma: pavadinimas, siuntėjas, šablonas, tekstas, gavėjai, planavimas; dešinėje kaina ir peržiūra.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Siuntėjo vardas",
+    "text": "ką klientas mato vietoj numerio."
+   },
+   {
+    "n": 2,
+    "label": "Generuoti su AI",
+    "text": "pasiūlo tekstą."
+   },
+   {
+    "n": 3,
+    "label": "Žinutės turinys",
+    "text": "po juo – ženklai ir dalys."
+   },
+   {
+    "n": 4,
+    "label": "Iš sutikimų",
+    "text": "tie, kurie sutiko."
+   },
+   {
+    "n": 5,
+    "label": "Planavimas",
+    "text": "siųsti vėliau."
+   },
+   {
+    "n": 6,
+    "label": "Numatoma kaina",
+    "text": "kiek kainuos."
+   },
+   {
+    "n": 7,
+    "label": "Pateikti patvirtinimui",
+    "text": "Loyalty.lt peržiūri prieš siunčiant."
+   }
+  ]
+ },
+ "sms-sablonai": {
+  "file": "sms-sablonai.webp",
+  "w": 1132,
+  "h": 745,
+  "alt": "SMS šablonų sąrašas: pavadinimas, turinys, kategorija ir panaudojimų skaičius.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Sukurti šabloną",
+    "text": "naujas tekstas."
+   },
+   {
+    "n": 2,
+    "label": "Šablonai",
+    "text": "tekstas, kategorija, kiek kartų panaudotas."
+   }
+  ]
+ },
+ "sms-sablonas": {
+  "file": "sms-sablonas.webp",
+  "w": 1132,
+  "h": 1018,
+  "alt": "SMS šablono forma: pavadinimas, aprašymas, kategorija ir žinutės tekstas.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Šablono pavadinimas",
+    "text": "matote tik jūs."
+   },
+   {
+    "n": 2,
+    "label": "Kategorija",
+    "text": "reklama, priminimas ar automatinė."
+   },
+   {
+    "n": 3,
+    "label": "Žinutės tekstas",
+    "text": "ką gaus klientas."
+   },
+   {
+    "n": 4,
+    "label": "Peržiūra",
+    "text": "kaip atrodys telefone."
+   }
+  ]
+ },
+ "sms-sutikimai": {
+  "file": "sms-sutikimai.webp",
+  "w": 1126,
+  "h": 910,
+  "alt": "SMS sutikimų puslapis: skaičiai, filtrai ir numeriai su šaltiniu bei data.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pridėti sutikimą",
+    "text": "vienas numeris."
+   },
+   {
+    "n": 2,
+    "label": "Masinis importas",
+    "text": "daug numerių."
+   },
+   {
+    "n": 3,
+    "label": "Šaltinis",
+    "text": "iš kur gautas sutikimas."
+   },
+   {
+    "n": 4,
+    "label": "Atšaukti",
+    "text": "nebesiųsti šiam numeriui."
+   }
+  ]
+ },
+ "sms-taisykle": {
+  "file": "sms-taisykle.webp",
+  "w": 1132,
+  "h": 1968,
+  "alt": "SMS taisyklės forma: pavadinimas, siuntėjas, šablonas, tekstas, trigeris, valandos ir dienos.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Siuntėjo vardas",
+    "text": "patvirtintas vardas."
+   },
+   {
+    "n": 2,
+    "label": "Tekstas",
+    "text": "iš šablono arba savas."
+   },
+   {
+    "n": 3,
+    "label": "Trigeris",
+    "text": "kada siųsti."
+   },
+   {
+    "n": 4,
+    "label": "Valandos",
+    "text": "kada siųsti galima."
+   },
+   {
+    "n": 5,
+    "label": "Išsaugoti taisyklę",
+    "text": "įjungta siunčia pati."
+   }
+  ]
+ },
+ "sms-taisykles": {
+  "file": "sms-taisykles.webp",
+  "w": 1132,
+  "h": 712,
+  "alt": "SMS automatizavimo taisyklės: pavadinimas, trigeris, vėlinimas, būsena, kiek suveikė.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Sukurti taisyklę",
+    "text": "nauja taisyklė."
+   },
+   {
+    "n": 2,
+    "label": "Trigerio tipas",
+    "text": "kada siunčiama."
+   },
+   {
+    "n": 3,
+    "label": "Veiksmai",
+    "text": "redaguoti, išjungti, ištrinti."
+   }
+  ]
+ },
+ "sms-vardai": {
+  "file": "sms-vardai.webp",
+  "w": 1132,
+  "h": 704,
+  "alt": "Siuntėjo vardų sąrašas: patvirtintas numatytasis ir laukiantis patvirtinimo.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pridėti siuntėjo vardą",
+    "text": "naujas vardas."
+   },
+   {
+    "n": 2,
+    "label": "Patvirtinimas",
+    "text": "naudoti galima tik patvirtintą."
+   },
+   {
+    "n": 3,
+    "label": "Numatytasis",
+    "text": "parenkamas pats."
+   }
+  ]
+ },
+ "sms-viena": {
+  "file": "sms-viena.webp",
+  "w": 1132,
+  "h": 651,
+  "alt": "Išsiųstos SMS kampanijos puslapis: išsiųsta, pristatyta, nepavyko, kaina, tekstas ir laikai.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Rezultatai",
+    "text": "pristatyta, nepavyko, kaina."
+   },
+   {
+    "n": 2,
+    "label": "Gavėjai",
+    "text": "kiekvienas numeris."
+   },
+   {
+    "n": 3,
+    "label": "Dubliuoti",
+    "text": "siųsti panašią."
+   }
+  ]
+ },
+ "sms-zinutes": {
+  "file": "sms-zinutes.webp",
+  "w": 1126,
+  "h": 934,
+  "alt": "SMS žinučių sąrašas: data, gavėjas, siuntėjas, turinys, būsena ir kaina.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Paieška",
+    "text": "numeris, tekstas ar ID."
+   },
+   {
+    "n": 2,
+    "label": "Kaina",
+    "text": "kiek kainavo žinutė."
+   }
+  ]
+ },
+ "tmp-api": {
+  "file": "tmp-api.webp",
+  "w": 1132,
+  "h": 371,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-api-credentials": {
+  "file": "tmp-api-credentials.webp",
+  "w": 1132,
+  "h": 371,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-apiadd": {
+  "file": "tmp-apiadd.webp",
+  "w": 1132,
+  "h": 786,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-bill": {
+  "file": "tmp-bill.webp",
+  "w": 1132,
+  "h": 999,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-billcontract": {
+  "file": "tmp-billcontract.webp",
+  "w": 1132,
+  "h": 342,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-billcur": {
+  "file": "tmp-billcur.webp",
+  "w": 1132,
+  "h": 1615,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-billinv": {
+  "file": "tmp-billinv.webp",
+  "w": 1132,
+  "h": 723,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-billinv1": {
+  "file": "tmp-billinv1.webp",
+  "w": 1132,
+  "h": 985,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-billpend": {
+  "file": "tmp-billpend.webp",
+  "w": 1132,
+  "h": 731,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-billplan": {
+  "file": "tmp-billplan.webp",
+  "w": 1132,
+  "h": 1720,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-billserv": {
+  "file": "tmp-billserv.webp",
+  "w": 1132,
+  "h": 1019,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-business": {
+  "file": "tmp-business.webp",
+  "w": 1132,
+  "h": 1138,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-business2": {
+  "file": "tmp-business2.webp",
+  "w": 1132,
+  "h": 488,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-business3": {
+  "file": "tmp-business3.webp",
+  "w": 1132,
+  "h": 1276,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-cards": {
+  "file": "tmp-cards.webp",
+  "w": 1132,
+  "h": 773,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-cust": {
+  "file": "tmp-cust.webp",
+  "w": 1132,
+  "h": 1278,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-cust1": {
+  "file": "tmp-cust1.webp",
+  "w": 1132,
+  "h": 1807,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-custedit": {
+  "file": "tmp-custedit.webp",
+  "w": 1132,
+  "h": 1807,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-custlygis": {
+  "file": "tmp-custlygis.webp",
+  "w": 1132,
+  "h": 1807,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-dalis": {
+  "file": "tmp-dalis.webp",
+  "w": 1132,
+  "h": 1668,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-dizainas": {
+  "file": "tmp-dizainas.webp",
+  "w": 1132,
+  "h": 950,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-forgot": {
+  "file": "tmp-forgot.webp",
+  "w": 1440,
+  "h": 900,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-forma": {
+  "file": "tmp-forma.webp",
+  "w": 1440,
+  "h": 1700,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-game1": {
+  "file": "tmp-game1.webp",
+  "w": 1132,
+  "h": 980,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-gameadd": {
+  "file": "tmp-gameadd.webp",
+  "w": 1132,
+  "h": 2688,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-gamemanage": {
+  "file": "tmp-gamemanage.webp",
+  "w": 1132,
+  "h": 4880,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-games": {
+  "file": "tmp-games.webp",
+  "w": 1132,
+  "h": 760,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-gamestats": {
+  "file": "tmp-gamestats.webp",
+  "w": 1132,
+  "h": 1646,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-home": {
+  "file": "tmp-home.webp",
+  "w": 1132,
+  "h": 2535,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-imp": {
+  "file": "tmp-imp.webp",
+  "w": 1132,
+  "h": 1349,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-kuponai": {
+  "file": "tmp-kuponai.webp",
+  "w": 1132,
+  "h": 972,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-kuponas": {
+  "file": "tmp-kuponas.webp",
+  "w": 1132,
+  "h": 779,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-login": {
+  "file": "tmp-login.webp",
+  "w": 1440,
+  "h": 900,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-lygiai": {
+  "file": "tmp-lygiai.webp",
+  "w": 1132,
+  "h": 1668,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-lygis": {
+  "file": "tmp-lygis.webp",
+  "w": 1132,
+  "h": 1668,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-mail": {
+  "file": "tmp-mail.webp",
+  "w": 1132,
+  "h": 963,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-maila": {
+  "file": "tmp-maila.webp",
+  "w": 1132,
+  "h": 712,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-mailadd": {
+  "file": "tmp-mailadd.webp",
+  "w": 1132,
+  "h": 834,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-mailc": {
+  "file": "tmp-mailc.webp",
+  "w": 1132,
+  "h": 769,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-mailc1": {
+  "file": "tmp-mailc1.webp",
+  "w": 1132,
+  "h": 1020,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-mailcons": {
+  "file": "tmp-mailcons.webp",
+  "w": 1132,
+  "h": 2309,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-maild": {
+  "file": "tmp-maild.webp",
+  "w": 1132,
+  "h": 473,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-mailm": {
+  "file": "tmp-mailm.webp",
+  "w": 1132,
+  "h": 1629,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-mailseg": {
+  "file": "tmp-mailseg.webp",
+  "w": 1132,
+  "h": 712,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-mailt": {
+  "file": "tmp-mailt.webp",
+  "w": 1132,
+  "h": 712,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-mcp": {
+  "file": "tmp-mcp.webp",
+  "w": 1132,
+  "h": 3835,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-notif": {
+  "file": "tmp-notif.webp",
+  "w": 1132,
+  "h": 234,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-notifications": {
+  "file": "tmp-notifications.webp",
+  "w": 1132,
+  "h": 234,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-nuolaida": {
+  "file": "tmp-nuolaida.webp",
+  "w": 1132,
+  "h": 465,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-offer1": {
+  "file": "tmp-offer1.webp",
+  "w": 1132,
+  "h": 830,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-offeradd": {
+  "file": "tmp-offeradd.webp",
+  "w": 1132,
+  "h": 1376,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-offerbulk": {
+  "file": "tmp-offerbulk.webp",
+  "w": 1132,
+  "h": 760,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-offers": {
+  "file": "tmp-offers.webp",
+  "w": 1132,
+  "h": 1004,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-onb": {
+  "file": "tmp-onb.webp",
+  "w": 1440,
+  "h": 900,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-pay": {
+  "file": "tmp-pay.webp",
+  "w": 1132,
+  "h": 2108,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-pending": {
+  "file": "tmp-pending.webp",
+  "w": 1440,
+  "h": 900,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-pexport": {
+  "file": "tmp-pexport.webp",
+  "w": 1132,
+  "h": 554,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-pimport": {
+  "file": "tmp-pimport.webp",
+  "w": 1132,
+  "h": 840,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-posdev": {
+  "file": "tmp-posdev.webp",
+  "w": 1132,
+  "h": 538,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-product1": {
+  "file": "tmp-product1.webp",
+  "w": 1132,
+  "h": 624,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-productadd": {
+  "file": "tmp-productadd.webp",
+  "w": 1132,
+  "h": 3087,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-products": {
+  "file": "tmp-products.webp",
+  "w": 1132,
+  "h": 1010,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-push": {
+  "file": "tmp-push.webp",
+  "w": 1132,
+  "h": 949,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-pusha": {
+  "file": "tmp-pusha.webp",
+  "w": 1132,
+  "h": 758,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-pushaadd": {
+  "file": "tmp-pushaadd.webp",
+  "w": 1132,
+  "h": 2190,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-pushadd": {
+  "file": "tmp-pushadd.webp",
+  "w": 1132,
+  "h": 1002,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-pushc": {
+  "file": "tmp-pushc.webp",
+  "w": 1132,
+  "h": 769,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-pushc1": {
+  "file": "tmp-pushc1.webp",
+  "w": 1132,
+  "h": 583,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-reports": {
+  "file": "tmp-reports.webp",
+  "w": 1132,
+  "h": 900,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-settings": {
+  "file": "tmp-settings.webp",
+  "w": 1132,
+  "h": 964,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-skan": {
+  "file": "tmp-skan.webp",
+  "w": 1440,
+  "h": 900,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-sms": {
+  "file": "tmp-sms.webp",
+  "w": 1132,
+  "h": 860,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-smsa": {
+  "file": "tmp-smsa.webp",
+  "w": 1132,
+  "h": 712,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-smsaadd": {
+  "file": "tmp-smsaadd.webp",
+  "w": 1132,
+  "h": 1968,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-smsadd": {
+  "file": "tmp-smsadd.webp",
+  "w": 1132,
+  "h": 1558,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-smsan": {
+  "file": "tmp-smsan.webp",
+  "w": 1132,
+  "h": 1225,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-smsc": {
+  "file": "tmp-smsc.webp",
+  "w": 1132,
+  "h": 769,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-smsc1": {
+  "file": "tmp-smsc1.webp",
+  "w": 1132,
+  "h": 651,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-smscons": {
+  "file": "tmp-smscons.webp",
+  "w": 1132,
+  "h": 1449,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-smsm": {
+  "file": "tmp-smsm.webp",
+  "w": 1132,
+  "h": 1509,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-smsn": {
+  "file": "tmp-smsn.webp",
+  "w": 1132,
+  "h": 704,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-smst": {
+  "file": "tmp-smst.webp",
+  "w": 1132,
+  "h": 761,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-smstadd": {
+  "file": "tmp-smstadd.webp",
+  "w": 1132,
+  "h": 1018,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-staff": {
+  "file": "tmp-staff.webp",
+  "w": 1132,
+  "h": 761,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-staff3": {
+  "file": "tmp-staff3.webp",
+  "w": 1132,
+  "h": 732,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-staffadd": {
+  "file": "tmp-staffadd.webp",
+  "w": 1132,
+  "h": 605,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-taskai": {
+  "file": "tmp-taskai.webp",
+  "w": 1132,
+  "h": 1230,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-ticket2": {
+  "file": "tmp-ticket2.webp",
+  "w": 1132,
+  "h": 958,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-ticketnew": {
+  "file": "tmp-ticketnew.webp",
+  "w": 1132,
+  "h": 839,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-tickets": {
+  "file": "tmp-tickets.webp",
+  "w": 1132,
+  "h": 895,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-ticketset": {
+  "file": "tmp-ticketset.webp",
+  "w": 1132,
+  "h": 1088,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-tx": {
+  "file": "tmp-tx.webp",
+  "w": 1132,
+  "h": 1377,
+  "alt": "x",
+  "marks": []
+ },
+ "tmp-tx1": {
+  "file": "tmp-tx1.webp",
+  "w": 1132,
+  "h": 1203,
+  "alt": "x",
+  "marks": []
+ },
+ "transakcijos-sarasas": {
+  "file": "transakcijos-sarasas.webp",
+  "w": 1132,
+  "h": 1377,
+  "alt": "Transakcijų sąrašas: filtrai, nuorodos numeris, data, klientas, parduotuvė, darbuotojas, suma, taškai ir būsena.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Paieška",
+    "text": "nuorodos numeris arba klientas."
+   },
+   {
+    "n": 2,
+    "label": "Filtrai",
+    "text": "parduotuvė, darbuotojas, būsena, data."
+   },
+   {
+    "n": 3,
+    "label": "Grąžinimas",
+    "text": "suma su minusu."
+   },
+   {
+    "n": 4,
+    "label": "Personalas",
+    "text": "kas pardavė."
+   },
+   {
+    "n": 5,
+    "label": "Veiksmai",
+    "text": "atidaryti pirkimą."
+   }
+  ]
+ },
+ "transakcijos-viena": {
+  "file": "transakcijos-viena.webp",
+  "w": 1132,
+  "h": 1256,
+  "alt": "Pirkimo puslapis: sumokėta, taškai, nuolaida, išklotinė pagal dalis, klientas, darbuotojas, kasa ir parduotuvė.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Santrauka",
+    "text": "kiek sumokėta, taškų ir nuolaidos."
+   },
+   {
+    "n": 2,
+    "label": "Pirkimo išklotinė",
+    "text": "kiekviena dalis atskirai."
+   },
+   {
+    "n": 3,
+    "label": "Klientas",
+    "text": "kas pirko."
+   },
+   {
+    "n": 4,
+    "label": "Darbuotojas",
+    "text": "kas pardavė."
+   },
+   {
+    "n": 5,
+    "label": "Kasa",
+    "text": "kokiu įrenginiu."
+   }
+  ]
+ },
+ "uzklausos-nauja": {
+  "file": "uzklausos-nauja.webp",
+  "w": 1132,
+  "h": 839,
+  "alt": "Naujos užklausos forma: tema, aprašymas, priedai, tipas, kategorija ir prioritetas.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Tema",
+    "text": "trumpai, kas nutiko."
+   },
+   {
+    "n": 2,
+    "label": "Priedai",
+    "text": "ekrano nuotrauka labai padeda."
+   },
+   {
+    "n": 3,
+    "label": "Prioritetas",
+    "text": "kaip greitai reikia."
+   },
+   {
+    "n": 4,
+    "label": "Pateikti užklausą",
+    "text": "išsiunčia mums."
+   }
+  ]
+ },
+ "uzklausos-sarasas": {
+  "file": "uzklausos-sarasas.webp",
+  "w": 1132,
+  "h": 895,
+  "alt": "Užklausų sąrašas: numeris, tema, tipas, prioritetas ir būsena.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Nauja užklausa",
+    "text": "parašyti mums."
+   },
+   {
+    "n": 2,
+    "label": "El. pašto nustatymai",
+    "text": "užklausos laiškais."
+   },
+   {
+    "n": 3,
+    "label": "Užklausos",
+    "text": "spauskite temą – atsidaro susirašinėjimas."
+   }
+  ]
+ },
+ "uzklausos-viena": {
+  "file": "uzklausos-viena.webp",
+  "w": 1132,
+  "h": 978,
+  "alt": "Užklausos puslapis: susirašinėjimas, komentaro laukas ir mygtukai.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pridėti komentarą",
+    "text": "jūsų atsakymas."
+   },
+   {
+    "n": 2,
+    "label": "Uždaryti užklausą",
+    "text": "kai problema išspręsta."
+   }
+  ]
+ },
+ "x-agreement": {
+  "file": "x-agreement.webp",
+  "w": 1132,
+  "h": 198,
+  "alt": "x",
+  "marks": []
+ },
+ "x-api-credentials": {
+  "file": "x-api-credentials.webp",
+  "w": 1132,
+  "h": 371,
+  "alt": "x",
+  "marks": []
+ },
+ "x-api-credentials_add": {
+  "file": "x-api-credentials_add.webp",
+  "w": 1132,
+  "h": 786,
+  "alt": "x",
+  "marks": []
+ },
+ "x-billing": {
+  "file": "x-billing.webp",
+  "w": 1132,
+  "h": 999,
+  "alt": "x",
+  "marks": []
+ },
+ "x-billing_contract": {
+  "file": "x-billing_contract.webp",
+  "w": 1132,
+  "h": 342,
+  "alt": "x",
+  "marks": []
+ },
+ "x-billing_current-month": {
+  "file": "x-billing_current-month.webp",
+  "w": 1132,
+  "h": 1615,
+  "alt": "x",
+  "marks": []
+ },
+ "x-billing_invoices": {
+  "file": "x-billing_invoices.webp",
+  "w": 1132,
+  "h": 723,
+  "alt": "x",
+  "marks": []
+ },
+ "x-billing_invoices_1": {
+  "file": "x-billing_invoices_1.webp",
+  "w": 1132,
+  "h": 937,
+  "alt": "x",
+  "marks": []
+ },
+ "x-billing_plan": {
+  "file": "x-billing_plan.webp",
+  "w": 1132,
+  "h": 1720,
+  "alt": "x",
+  "marks": []
+ },
+ "x-billing_services": {
+  "file": "x-billing_services.webp",
+  "w": 1132,
+  "h": 1019,
+  "alt": "x",
+  "marks": []
+ },
+ "x-business": {
+  "file": "x-business.webp",
+  "w": 1132,
+  "h": 1138,
+  "alt": "x",
+  "marks": []
+ },
+ "x-coupons": {
+  "file": "x-coupons.webp",
+  "w": 1132,
+  "h": 972,
+  "alt": "x",
+  "marks": []
+ },
+ "x-coupons_1": {
+  "file": "x-coupons_1.webp",
+  "w": 1132,
+  "h": 446,
+  "alt": "x",
+  "marks": []
+ },
+ "x-coupons_scan": {
+  "file": "x-coupons_scan.webp",
+  "w": 1132,
+  "h": 537,
+  "alt": "x",
+  "marks": []
+ },
+ "x-customers": {
+  "file": "x-customers.webp",
+  "w": 1132,
+  "h": 1278,
+  "alt": "x",
+  "marks": []
+ },
+ "x-customers_6": {
+  "file": "x-customers_6.webp",
+  "w": 1132,
+  "h": 1513,
+  "alt": "x",
+  "marks": []
+ },
+ "x-customers_import": {
+  "file": "x-customers_import.webp",
+  "w": 1132,
+  "h": 1349,
+  "alt": "x",
+  "marks": []
+ },
+ "x-email": {
+  "file": "x-email.webp",
+  "w": 1132,
+  "h": 963,
+  "alt": "x",
+  "marks": []
+ },
+ "x-email_automations": {
+  "file": "x-email_automations.webp",
+  "w": 1132,
+  "h": 712,
+  "alt": "x",
+  "marks": []
+ },
+ "x-email_campaigns": {
+  "file": "x-email_campaigns.webp",
+  "w": 1132,
+  "h": 769,
+  "alt": "x",
+  "marks": []
+ },
+ "x-email_campaigns_1": {
+  "file": "x-email_campaigns_1.webp",
+  "w": 1132,
+  "h": 1020,
+  "alt": "x",
+  "marks": []
+ },
+ "x-email_campaigns_add": {
+  "file": "x-email_campaigns_add.webp",
+  "w": 1132,
+  "h": 834,
+  "alt": "x",
+  "marks": []
+ },
+ "x-email_consents": {
+  "file": "x-email_consents.webp",
+  "w": 1132,
+  "h": 2309,
+  "alt": "x",
+  "marks": []
+ },
+ "x-email_domains": {
+  "file": "x-email_domains.webp",
+  "w": 1132,
+  "h": 473,
+  "alt": "x",
+  "marks": []
+ },
+ "x-email_messages": {
+  "file": "x-email_messages.webp",
+  "w": 1132,
+  "h": 1629,
+  "alt": "x",
+  "marks": []
+ },
+ "x-email_segments": {
+  "file": "x-email_segments.webp",
+  "w": 1132,
+  "h": 712,
+  "alt": "x",
+  "marks": []
+ },
+ "x-email_templates": {
+  "file": "x-email_templates.webp",
+  "w": 1132,
+  "h": 712,
+  "alt": "x",
+  "marks": []
+ },
+ "x-games": {
+  "file": "x-games.webp",
+  "w": 1132,
+  "h": 760,
+  "alt": "x",
+  "marks": []
+ },
+ "x-games_1": {
+  "file": "x-games_1.webp",
+  "w": 1132,
+  "h": 980,
+  "alt": "x",
+  "marks": []
+ },
+ "x-games_1_manage": {
+  "file": "x-games_1_manage.webp",
+  "w": 1132,
+  "h": 4880,
+  "alt": "x",
+  "marks": []
+ },
+ "x-games_1_stats": {
+  "file": "x-games_1_stats.webp",
+  "w": 1132,
+  "h": 1646,
+  "alt": "x",
+  "marks": []
+ },
+ "x-games_add": {
+  "file": "x-games_add.webp",
+  "w": 1132,
+  "h": 2688,
+  "alt": "x",
+  "marks": []
+ },
+ "x-home": {
+  "file": "x-home.webp",
+  "w": 1132,
+  "h": 2535,
+  "alt": "x",
+  "marks": []
+ },
+ "x-loyalty-cards": {
+  "file": "x-loyalty-cards.webp",
+  "w": 1132,
+  "h": 773,
+  "alt": "x",
+  "marks": []
+ },
+ "x-loyalty-cards_1_edit": {
+  "file": "x-loyalty-cards_1_edit.webp",
+  "w": 1132,
+  "h": 950,
+  "alt": "x",
+  "marks": []
+ },
+ "x-loyalty-tiers": {
+  "file": "x-loyalty-tiers.webp",
+  "w": 1132,
+  "h": 1668,
+  "alt": "x",
+  "marks": []
+ },
+ "x-loyalty-tiers_notifications": {
+  "file": "x-loyalty-tiers_notifications.webp",
+  "w": 1132,
+  "h": 319,
+  "alt": "x",
+  "marks": []
+ },
+ "x-mcp": {
+  "file": "x-mcp.webp",
+  "w": 1132,
+  "h": 3835,
+  "alt": "x",
+  "marks": []
+ },
+ "x-notifications": {
+  "file": "x-notifications.webp",
+  "w": 1132,
+  "h": 234,
+  "alt": "x",
+  "marks": []
+ },
+ "x-payment-collection": {
+  "file": "x-payment-collection.webp",
+  "w": 1132,
+  "h": 2108,
+  "alt": "x",
+  "marks": []
+ },
+ "x-pos-devices": {
+  "file": "x-pos-devices.webp",
+  "w": 1132,
+  "h": 538,
+  "alt": "x",
+  "marks": []
+ },
+ "x-pos-discounts": {
+  "file": "x-pos-discounts.webp",
+  "w": 1132,
+  "h": 465,
+  "alt": "x",
+  "marks": []
+ },
+ "x-products": {
+  "file": "x-products.webp",
+  "w": 1132,
+  "h": 1010,
+  "alt": "x",
+  "marks": []
+ },
+ "x-products_1": {
+  "file": "x-products_1.webp",
+  "w": 1132,
+  "h": 624,
+  "alt": "x",
+  "marks": []
+ },
+ "x-products_add": {
+  "file": "x-products_add.webp",
+  "w": 1132,
+  "h": 3087,
+  "alt": "x",
+  "marks": []
+ },
+ "x-products_export": {
+  "file": "x-products_export.webp",
+  "w": 1132,
+  "h": 554,
+  "alt": "x",
+  "marks": []
+ },
+ "x-products_import": {
+  "file": "x-products_import.webp",
+  "w": 1132,
+  "h": 840,
+  "alt": "x",
+  "marks": []
+ },
+ "x-products_offers": {
+  "file": "x-products_offers.webp",
+  "w": 1132,
+  "h": 1004,
+  "alt": "x",
+  "marks": []
+ },
+ "x-products_offers_1": {
+  "file": "x-products_offers_1.webp",
+  "w": 1132,
+  "h": 830,
+  "alt": "x",
+  "marks": []
+ },
+ "x-products_offers_add": {
+  "file": "x-products_offers_add.webp",
+  "w": 1132,
+  "h": 1376,
+  "alt": "x",
+  "marks": []
+ },
+ "x-products_offers_bulk": {
+  "file": "x-products_offers_bulk.webp",
+  "w": 1132,
+  "h": 760,
+  "alt": "x",
+  "marks": []
+ },
+ "x-promotions": {
+  "file": "x-promotions.webp",
+  "w": 1132,
+  "h": 412,
+  "alt": "x",
+  "marks": []
+ },
+ "x-promotions_1": {
+  "file": "x-promotions_1.webp",
+  "w": 1132,
+  "h": 1102,
+  "alt": "x",
+  "marks": []
+ },
+ "x-promotions_add": {
+  "file": "x-promotions_add.webp",
+  "w": 1132,
+  "h": 1014,
+  "alt": "x",
+  "marks": []
+ },
+ "x-push": {
+  "file": "x-push.webp",
+  "w": 1132,
+  "h": 949,
+  "alt": "x",
+  "marks": []
+ },
+ "x-push_automations": {
+  "file": "x-push_automations.webp",
+  "w": 1132,
+  "h": 758,
+  "alt": "x",
+  "marks": []
+ },
+ "x-push_automations_add": {
+  "file": "x-push_automations_add.webp",
+  "w": 1132,
+  "h": 2190,
+  "alt": "x",
+  "marks": []
+ },
+ "x-push_campaigns": {
+  "file": "x-push_campaigns.webp",
+  "w": 1132,
+  "h": 769,
+  "alt": "x",
+  "marks": []
+ },
+ "x-push_campaigns_1": {
+  "file": "x-push_campaigns_1.webp",
+  "w": 1132,
+  "h": 583,
+  "alt": "x",
+  "marks": []
+ },
+ "x-push_campaigns_add": {
+  "file": "x-push_campaigns_add.webp",
+  "w": 1132,
+  "h": 1002,
+  "alt": "x",
+  "marks": []
+ },
+ "x-reports": {
+  "file": "x-reports.webp",
+  "w": 1132,
+  "h": 900,
+  "alt": "x",
+  "marks": []
+ },
+ "x-settings": {
+  "file": "x-settings.webp",
+  "w": 1132,
+  "h": 964,
+  "alt": "x",
+  "marks": []
+ },
+ "x-sms": {
+  "file": "x-sms.webp",
+  "w": 1132,
+  "h": 860,
+  "alt": "x",
+  "marks": []
+ },
+ "x-sms_analytics": {
+  "file": "x-sms_analytics.webp",
+  "w": 1132,
+  "h": 1225,
+  "alt": "x",
+  "marks": []
+ },
+ "x-sms_automation": {
+  "file": "x-sms_automation.webp",
+  "w": 1132,
+  "h": 712,
+  "alt": "x",
+  "marks": []
+ },
+ "x-sms_automation_add": {
+  "file": "x-sms_automation_add.webp",
+  "w": 1132,
+  "h": 1968,
+  "alt": "x",
+  "marks": []
+ },
+ "x-sms_campaigns": {
+  "file": "x-sms_campaigns.webp",
+  "w": 1132,
+  "h": 769,
+  "alt": "x",
+  "marks": []
+ },
+ "x-sms_campaigns_1": {
+  "file": "x-sms_campaigns_1.webp",
+  "w": 1132,
+  "h": 651,
+  "alt": "x",
+  "marks": []
+ },
+ "x-sms_campaigns_add": {
+  "file": "x-sms_campaigns_add.webp",
+  "w": 1132,
+  "h": 1558,
+  "alt": "x",
+  "marks": []
+ },
+ "x-sms_consents": {
+  "file": "x-sms_consents.webp",
+  "w": 1132,
+  "h": 1449,
+  "alt": "x",
+  "marks": []
+ },
+ "x-sms_messages": {
+  "file": "x-sms_messages.webp",
+  "w": 1132,
+  "h": 1509,
+  "alt": "x",
+  "marks": []
+ },
+ "x-sms_sender-names": {
+  "file": "x-sms_sender-names.webp",
+  "w": 1132,
+  "h": 704,
+  "alt": "x",
+  "marks": []
+ },
+ "x-sms_templates": {
+  "file": "x-sms_templates.webp",
+  "w": 1132,
+  "h": 761,
+  "alt": "x",
+  "marks": []
+ },
+ "x-sms_templates_add": {
+  "file": "x-sms_templates_add.webp",
+  "w": 1132,
+  "h": 1018,
+  "alt": "x",
+  "marks": []
+ },
+ "x-staff": {
+  "file": "x-staff.webp",
+  "w": 1132,
+  "h": 761,
+  "alt": "x",
+  "marks": []
+ },
+ "x-staff_3": {
+  "file": "x-staff_3.webp",
+  "w": 1132,
+  "h": 732,
+  "alt": "x",
+  "marks": []
+ },
+ "x-staff_add": {
+  "file": "x-staff_add.webp",
+  "w": 1132,
+  "h": 605,
+  "alt": "x",
+  "marks": []
+ },
+ "x-tickets": {
+  "file": "x-tickets.webp",
+  "w": 1132,
+  "h": 895,
+  "alt": "x",
+  "marks": []
+ },
+ "x-tickets_2": {
+  "file": "x-tickets_2.webp",
+  "w": 1132,
+  "h": 958,
+  "alt": "x",
+  "marks": []
+ },
+ "x-tickets_new": {
+  "file": "x-tickets_new.webp",
+  "w": 1132,
+  "h": 839,
+  "alt": "x",
+  "marks": []
+ },
+ "x-tickets_settings": {
+  "file": "x-tickets_settings.webp",
+  "w": 1132,
+  "h": 1088,
+  "alt": "x",
+  "marks": []
+ },
+ "x-transactions": {
+  "file": "x-transactions.webp",
+  "w": 1132,
+  "h": 1377,
+  "alt": "x",
+  "marks": []
+ },
+ "x-transactions_5": {
+  "file": "x-transactions_5.webp",
+  "w": 1132,
+  "h": 1203,
+  "alt": "x",
+  "marks": []
+ },
+ "zaidimai-antspaudai": {
+  "file": "zaidimai-antspaudai.webp",
+  "w": 1132,
+  "h": 4904,
+  "alt": "Antspaudų žaidimo nustatymai: antspaudų skaičius, išdėstymas, spalvos, tekstai ir atlygis; dešinėje peržiūra telefone.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Reikalingų žymėjimų skaičius",
+    "text": "kiek antspaudų reikia surinkti."
+   },
+   {
+    "n": 2,
+    "label": "Kortelės pavadinimas",
+    "text": "ką klientas renka."
+   },
+   {
+    "n": 3,
+    "label": "Atlygio tipas",
+    "text": "nemokama prekė, nuolaida ar taškai."
+   },
+   {
+    "n": 4,
+    "label": "Galiojimo laikas",
+    "text": "per kiek dienų reikia surinkti."
+   },
+   {
+    "n": 5,
+    "label": "Pradėti iš naujo po surinkimo",
+    "text": "po dovanos pradedama nauja kortelė."
+   }
+  ]
+ },
+ "zaidimai-kuponai": {
+  "file": "zaidimai-kuponai.webp",
+  "w": 1102,
+  "h": 891,
+  "alt": "Kuponų nustatymai, parduotuvės, galiojimo laikotarpis ir mygtukas „Sukurti žaidimą“.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Leisti kelis aktyvius kuponus",
+    "text": "ar klientas gali turėti kelis nepanaudotus."
+   },
+   {
+    "n": 2,
+    "label": "Kuponų galiojimo laikas",
+    "text": "tuščia – be pabaigos."
+   },
+   {
+    "n": 3,
+    "label": "Taikyti visoms parduotuvėms",
+    "text": "išjungę pasirinkite kelias."
+   },
+   {
+    "n": 4,
+    "label": "Galiojimo laikotarpis",
+    "text": "nuo kada iki kada."
+   },
+   {
+    "n": 5,
+    "label": "Sukurti žaidimą",
+    "text": "toliau – prizai."
+   }
+  ]
+ },
+ "zaidimai-naujas": {
+  "file": "zaidimai-naujas.webp",
+  "w": 1122,
+  "h": 655,
+  "alt": "Naujo žaidimo forma: žaidimo tipas, pavadinimas ir aprašymas.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Žaidimo tipas",
+    "text": "populiariausi trys."
+   },
+   {
+    "n": 2,
+    "label": "Rodyti visus žaidimų tipus",
+    "text": "viktorina, loterija, kalendorius ir kiti."
+   },
+   {
+    "n": 3,
+    "label": "Pavadinimas",
+    "text": "kaip žaidimą matys klientas."
+   }
+  ]
+ },
+ "zaidimai-sarasas": {
+  "file": "zaidimai-sarasas.webp",
+  "w": 1132,
+  "h": 760,
+  "alt": "Žaidimų puslapis: skaičiai, filtrai ir antspaudų žaidimas su veiksmų mygtukais.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pridėti žaidimą",
+    "text": "naujas žaidimas."
+   },
+   {
+    "n": 2,
+    "label": "Peržiūrėti",
+    "text": "žaidimo puslapis."
+   },
+   {
+    "n": 3,
+    "label": "Statistika",
+    "text": "kas ir kiek žaidė."
+   },
+   {
+    "n": 4,
+    "label": "Deaktyvuoti",
+    "text": "paslepia žaidimą."
+   }
+  ]
+ },
+ "zaidimai-vienas": {
+  "file": "zaidimai-vienas.webp",
+  "w": 1132,
+  "h": 980,
+  "alt": "Žaidimo puslapis: informacija, pranešimų automatizacijos, statistika ir mygtukai viršuje.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Bendri nustatymai",
+    "text": "pavadinimas, datos, parduotuvės."
+   },
+   {
+    "n": 2,
+    "label": "Antspaudų nustatymai",
+    "text": "prizas ir išvaizda."
+   },
+   {
+    "n": 3,
+    "label": "Pranešimų automatizacijos",
+    "text": "priminimai apie žaidimą."
+   },
+   {
+    "n": 4,
+    "label": "Peržiūrėti išsamią statistiką",
+    "text": "žaidėjai ir prizai."
+   }
+  ]
+ }
+}

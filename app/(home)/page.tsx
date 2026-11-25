@@ -1,42 +1,69 @@
 import Link from 'next/link';
+import { Code2, MonitorSmartphone, Store, type LucideIcon } from 'lucide-react';
 
-const cards = [
-  { title: 'API Basics', href: '/docs/api-reference/overview', desc: 'Authentication, error handling, staging — start here.' },
-  { title: 'API Reference', href: '/docs/shop-points/shopGetCardBalance', desc: 'Every Shop, Partner & SMS endpoint with a live playground.' },
-  { title: 'SDKs', href: '/docs/sdk/overview', desc: 'JavaScript / TypeScript, PHP and Python client libraries.' },
+type Way = { icon: LucideIcon; title: string; href: string; text: string; links: [string, string][] };
+
+const ways: Way[] = [
+  {
+    icon: Store,
+    title: 'Partneriams',
+    href: '/partneriams',
+    text: 'Kaip tvarkyti parduotuves, korteles, klientus, kampanijas ir sąskaitas portale.',
+    links: [],
+  },
+  {
+    icon: MonitorSmartphone,
+    title: 'Kasai',
+    href: '/kasa',
+    text: 'Kaip parduoti, duoti taškus, taikyti nuolaidas ir grąžinti pinigus kasos programėlėje.',
+    links: [
+      ['Naujam kasininkui', '/kasa/naujam-kasininkui'],
+      ['Diegimas', '/kasa/diegimas'],
+      ['Problemos', '/kasa/problemos'],
+    ],
+  },
+  {
+    icon: Code2,
+    title: 'Developers',
+    href: '/docs',
+    text: 'APIs, SDKs and integration guides for points, cards, games and offers.',
+    links: [
+      ['API Basics', '/docs/api-reference/overview'],
+      ['API Reference', '/docs/shop-points/shopGetCardBalance'],
+      ['SDKs', '/docs/sdk/overview'],
+    ],
+  },
 ];
 
 export default function HomePage() {
   return (
-    <main className="flex flex-1 flex-col items-center justify-center px-4 py-24 text-center">
-      <span className="mb-4 rounded-full border px-3 py-1 text-xs font-medium text-fd-muted-foreground">
-        Loyalty.lt Developer Platform
-      </span>
-      <h1 className="max-w-2xl text-4xl font-bold tracking-tight sm:text-5xl">
-        Build loyalty into your product
-      </h1>
+    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center px-4 py-16 sm:py-24">
+      <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">Loyalty.lt vadovai</h1>
       <p className="mt-4 max-w-xl text-fd-muted-foreground">
-        APIs, SDKs and integration guides for points, loyalty cards, games, offers and QR
-        authentication across the Loyalty.lt platform.
+        Pasirinkite, ką naudojate. Ieškoti galite visuose vadovuose iš karto – paieška viršuje.
       </p>
-      <div className="mt-8 flex gap-3">
-        <Link href="/docs" className="rounded-lg bg-fd-primary px-5 py-2.5 font-medium text-fd-primary-foreground">
-          Get started
-        </Link>
-        <Link href="/docs/sdk/overview" className="rounded-lg border px-5 py-2.5 font-medium">
-          Browse SDKs
-        </Link>
-      </div>
-      <div className="mt-16 grid w-full max-w-4xl gap-4 sm:grid-cols-3">
-        {cards.map((c) => (
-          <Link
-            key={c.href}
-            href={c.href}
-            className="rounded-xl border p-5 text-left transition-colors hover:bg-fd-muted"
-          >
-            <h2 className="font-semibold">{c.title}</h2>
-            <p className="mt-1 text-sm text-fd-muted-foreground">{c.desc}</p>
-          </Link>
+      <div className="mt-10 grid gap-4 md:grid-cols-3">
+        {ways.map(({ icon: Icon, title, href, text, links }) => (
+          <section key={href} className="relative rounded-xl border p-6 transition-colors hover:bg-fd-muted">
+            <Icon className="size-6 text-fd-primary" aria-hidden />
+            <h2 className="mt-4 text-lg font-semibold">
+              <Link href={href} className="after:absolute after:inset-0">
+                {title}
+              </Link>
+            </h2>
+            <p className="mt-1 text-sm text-fd-muted-foreground">{text}</p>
+            {links.length > 0 && (
+              <ul className="mt-4 space-y-1.5 text-sm">
+                {links.map(([label, to]) => (
+                  <li key={to} className="relative z-10 w-fit">
+                    <Link href={to} className="underline underline-offset-4 hover:text-fd-primary">
+                      {label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
         ))}
       </div>
     </main>

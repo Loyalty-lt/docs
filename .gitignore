@@ -23,3 +23,8 @@ next-env.d.ts
 # misc
 .DS_Store
 npm-debug.log*
+# the demo world is made with the API's own tables: not for a public repository
+/shots/api/
+/shots/seed/
+/shots/.session.json
+/shots/.failed
