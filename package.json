@@ -1,6 +1,6 @@
 {
   "name": "loyalty-lt-docs-next",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "private": true,
   "scripts": {
     "predev": "npm run gen:openapi",
