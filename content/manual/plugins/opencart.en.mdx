@@ -1,0 +1,101 @@
+---
+title: OpenCart
+description: How to install and connect the Loyalty.lt extension in an OpenCart shop.
+icon: ShoppingBasket
+---
+
+The extension works with OpenCart 4. Download it from the [Loyalty.lt website](https://loyalty.lt/en/business#integrations).
+
+<Callout type="warn" title="Do not rename the file">
+The file must be called `loyalty_lt.ocmod.zip`. OpenCart does not install a renamed file.
+</Callout>
+
+## Install
+
+<Steps>
+<Step>
+
+In the admin open "Extensions → Installer" and upload the file you downloaded.
+
+</Step>
+<Step>
+
+Press the green install button next to "Loyalty.lt" in the list.
+
+</Step>
+<Step>
+
+Open "Extensions → Extensions" and choose "Modules" in the list.
+
+</Step>
+<Step>
+
+Press the install button next to "Loyalty.lt", then the edit button.
+
+</Step>
+</Steps>
+
+## Connect the shop
+
+<Steps>
+<Step>
+
+Create an API key in the partner portal. See [API keys](/partners/api-keys).
+
+</Step>
+<Step>
+
+In the "API settings" tab switch the integration on, enter the API key and the API secret and choose the environment. Press "Save and check".
+
+</Step>
+<Step>
+
+In the "General settings" tab choose the shop and the loyalty card. Press "Save and refresh the rules".
+
+</Step>
+<Step>
+
+The "Overview" tab must say "Connected".
+
+</Step>
+</Steps>
+
+The page follows the language of your admin: Lithuanian or English.
+
+## Choose what the shopper sees
+
+In "General settings" you can switch every part on and off separately: QR sign-in, points badges, spending points, coupons, the tier discount, stamps and the app invitation.
+
+Discounts appear in the order total as separate lines: the tier discount, the coupon and the points.
+
+<Callout type="warn" title="The invitation costs money">
+Every invitation is charged as a text message.
+</Callout>
+
+## Set when points are awarded
+
+In the same tab choose the order statuses for awarding, cancelling and refunding points. If you choose nothing, points are awarded when the order is complete.
+
+At the bottom of the order page there is a "Loyalty.lt" panel. It shows what was sent and how many points were awarded.
+
+## Export products to the app
+
+Open the "Product export" tab. Link the shop's categories to Loyalty.lt categories, save and press "Export now".
+
+See [Products](/partners/products).
+
+## If something went wrong
+
+| What you see | What to do |
+| --- | --- |
+| The file does not upload | Check that it is called `loyalty_lt.ocmod.zip`. |
+| "Not connected" | Check the key, the secret and the environment. |
+| "Customer has no Loyalty.lt card" | The customer has no account yet. Points are awarded once they register with the same e-mail. |
+| No points are awarded | Check that the order reached the status you chose for awarding points. |
+| The boxes are missing in the shop | Another theme may have different templates. Write to us through the help in the partner portal. |
+
+## Related pages
+
+- [API keys](/partners/api-keys)
+- [Loyalty cards](/partners/loyalty-cards)
+- [Transactions](/partners/transactions)

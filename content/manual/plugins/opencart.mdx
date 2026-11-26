@@ -1,0 +1,101 @@
+---
+title: OpenCart
+description: Kaip įdiegti ir prijungti Loyalty.lt plėtinį OpenCart parduotuvėje.
+icon: ShoppingBasket
+---
+
+Plėtinys veikia su OpenCart 4. Atsisiųskite jį iš [Loyalty.lt svetainės](https://loyalty.lt/lt/business#integrations).
+
+<Callout type="warn" title="Nepervadinkite failo">
+Failas turi vadintis `loyalty_lt.ocmod.zip`. Pervadinto failo OpenCart neįdiegs.
+</Callout>
+
+## Įdiegti
+
+<Steps>
+<Step>
+
+Administravimo aplinkoje atidarykite „Extensions → Installer“ ir įkelkite atsisiųstą failą.
+
+</Step>
+<Step>
+
+Sąraše prie „Loyalty.lt“ spauskite žalią diegimo mygtuką.
+
+</Step>
+<Step>
+
+Atidarykite „Extensions → Extensions“ ir sąraše pasirinkite „Modules“.
+
+</Step>
+<Step>
+
+Prie „Loyalty.lt“ spauskite diegimo mygtuką, tada – redagavimo mygtuką.
+
+</Step>
+</Steps>
+
+## Prijungti parduotuvę
+
+<Steps>
+<Step>
+
+Partnerių portale sukurkite API raktą. Žr. [API raktai](/partners/api-keys).
+
+</Step>
+<Step>
+
+Skirtuke „API nustatymai“ įjunkite integraciją, įrašykite API raktą ir API slaptažodį, pasirinkite aplinką. Spauskite „Išsaugoti ir patikrinti“.
+
+</Step>
+<Step>
+
+Skirtuke „Bendri nustatymai“ pasirinkite parduotuvę ir lojalumo kortelę. Spauskite „Išsaugoti ir atnaujinti taisykles“.
+
+</Step>
+<Step>
+
+Skirtuke „Apžvalga“ turi būti parašyta „Prijungta“.
+
+</Step>
+</Steps>
+
+Puslapio kalba atitinka jūsų administravimo aplinkos kalbą: lietuvių arba anglų.
+
+## Pasirinkti, kas rodoma pirkėjui
+
+Skirtuke „Bendri nustatymai“ kiekvieną dalį galite įjungti ir išjungti atskirai: QR prisijungimą, taškų ženkliukus, taškų panaudojimą, kuponus, lygio nuolaidą, antspaudus ir kvietimą į programėlę.
+
+Nuolaidos užsakymo sumoje rodomos atskiromis eilutėmis: lygio nuolaida, kuponas ir taškai.
+
+<Callout type="warn" title="Kvietimas kainuoja">
+Kiekviena kvietimo žinutė apmokestinama kaip SMS.
+</Callout>
+
+## Nustatyti, kada skiriami taškai
+
+Tame pačiame skirtuke pasirinkite užsakymo būsenas taškams skirti, atšaukti ir grąžinti. Jei nieko nepasirenkate, taškai skiriami, kai užsakymas įvykdytas.
+
+Užsakymo puslapio apačioje yra skydelis „Loyalty.lt“. Jame matote, kas išsiųsta ir kiek taškų skirta.
+
+## Eksportuoti prekes į programėlę
+
+Atidarykite skirtuką „Produktų eksportas“. Susiekite parduotuvės kategorijas su Loyalty.lt kategorijomis, išsaugokite ir spauskite „Eksportuoti dabar“.
+
+Žr. [Prekės](/partners/products).
+
+## Jei kas nors nepavyko
+
+| Ką matote | Ką daryti |
+| --- | --- |
+| Failas neįsikelia | Patikrinkite, ar jis vadinasi `loyalty_lt.ocmod.zip`. |
+| „Neprijungta“ | Patikrinkite raktą, slaptažodį ir aplinką. |
+| „Klientas be Loyalty.lt kortelės“ | Klientas dar neturi paskyros. Taškai bus skirti, kai jis užsiregistruos tuo pačiu el. paštu. |
+| Taškai neskiriami | Patikrinkite, ar užsakymas pasiekė būseną, kurią pasirinkote taškams skirti. |
+| Langelių parduotuvėje nėra | Kita tema gali turėti kitokius šablonus. Parašykite mums per partnerių portalo pagalbą. |
+
+## Susiję puslapiai
+
+- [API raktai](/partners/api-keys)
+- [Lojalumo kortelės](/partners/loyalty-cards)
+- [Operacijos](/partners/transactions)
