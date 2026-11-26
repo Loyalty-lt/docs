@@ -4,17 +4,30 @@ description: How to install the till on a computer, tablet or phone, or open it 
 icon: Download
 ---
 
-The till works on every device. Choose yours.
+The till works on every device. Choose yours. The links always lead to the newest version.
 
-<Tabs items={['Windows', 'macOS', 'iPhone and iPad', 'Android', 'Browser']}>
+<TillVersion />
+
+<Tabs items={['Windows', 'macOS', 'Linux', 'iPhone and iPad', 'Android', 'Browser']}>
 <Tab value="Windows">
 
-Download the installer from the staff app section of [loyalty.lt](https://loyalty.lt/lt/business) and run it. No administrator rights are needed.
+<TillDownload os="windows" />
+
+Run the downloaded file. No administrator rights are needed.
 
 </Tab>
 <Tab value="macOS">
 
-Download the file, open it and move the app into the **Applications** folder. macOS 10.15 or newer.
+<TillDownload os="macos" />
+
+Open the downloaded file and move the app into the **Applications** folder. macOS 10.15 or newer.
+
+</Tab>
+<Tab value="Linux">
+
+<TillDownload os="linux" />
+
+Unpack the file and run the `partner_staff_flutter` program.
 
 </Tab>
 <Tab value="iPhone and iPad">

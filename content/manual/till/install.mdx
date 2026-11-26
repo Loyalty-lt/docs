@@ -5,17 +5,30 @@ icon: Download
 screen: till:diegimas
 ---
 
-Kasa veikia visuose įrenginiuose. Pasirinkite savo.
+Kasa veikia visuose įrenginiuose. Pasirinkite savo. Nuorodos visada veda į naujausią versiją.
 
-<Tabs items={['Windows', 'macOS', 'iPhone ir iPad', 'Android', 'Naršyklė']}>
+<TillVersion />
+
+<Tabs items={['Windows', 'macOS', 'Linux', 'iPhone ir iPad', 'Android', 'Naršyklė']}>
 <Tab value="Windows">
 
-Atsisiųskite diegimo failą iš [loyalty.lt](https://loyalty.lt/lt/business) skilties apie darbuotojų programėlę ir paleiskite. Administratoriaus teisių nereikia.
+<TillDownload os="windows" />
+
+Paleiskite atsisiųstą failą. Administratoriaus teisių nereikia.
 
 </Tab>
 <Tab value="macOS">
 
-Atsisiųskite failą, atidarykite jį ir perkelkite programą į aplanką **Applications**. Tinka macOS 10.15 ir naujesnė.
+<TillDownload os="macos" />
+
+Atidarykite atsisiųstą failą ir perkelkite programą į aplanką **Applications**. Tinka macOS 10.15 ir naujesnė.
+
+</Tab>
+<Tab value="Linux">
+
+<TillDownload os="linux" />
+
+Išarchyvuokite failą ir paleiskite programą `partner_staff_flutter`.
 
 </Tab>
 <Tab value="iPhone ir iPad">

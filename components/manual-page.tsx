@@ -11,7 +11,7 @@ import { notFound } from 'next/navigation';
 import type { ComponentProps } from 'react';
 import { PdfLink } from './pdf-link';
 import { Shot } from './shot';
-import { TillVersion } from './till-version';
+import { TillDownload, TillVersion } from './till-version';
 import { Key, Path, Ui } from './ui';
 
 export type Section = 'partners' | 'till';
@@ -39,7 +39,7 @@ const linkIn = (lang: Lang, page: Page, origin = '') => {
 
 export const mdxComponents = (lang: Lang, page: Page, origin?: string) => {
   const LangShot = (p: ComponentProps<typeof Shot>) => <Shot {...p} lang={lang} />;
-  return { ...defaultMdxComponents, a: linkIn(lang, page, origin), Callout, Card, Cards, Step, Steps, Tab, Tabs, Shot: LangShot, Ui, Key, Path, TillVersion: () => <TillVersion lang={lang} /> };
+  return { ...defaultMdxComponents, a: linkIn(lang, page, origin), Callout, Card, Cards, Step, Steps, Tab, Tabs, Shot: LangShot, Ui, Key, Path, TillVersion: () => <TillVersion lang={lang} />, TillDownload: (p: { os: 'windows' | 'macos' | 'linux' }) => <TillDownload {...p} lang={lang} /> };
 };
 
 export async function ManualPage({ section, ...props }: ManualProps & { section: Section }) {
