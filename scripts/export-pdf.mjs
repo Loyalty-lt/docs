@@ -56,7 +56,8 @@ try {
       });
       const t0 = Date.now();
       const took = (what) => console.log(`  ${lang}/${section}: ${what} ${((Date.now() - t0) / 1000).toFixed(0)} s`);
-      await page.goto(`${BASE}/print/${lang}/${section}`, { waitUntil: 'load', timeout: 300_000 });
+      const res = await page.goto(`${BASE}/print/${lang}/${section}`, { waitUntil: 'load', timeout: 300_000 });
+      if (res?.status() !== 200) throw new Error(`${BASE}/print/${lang}/${section} answered ${res?.status()}: is the docs site running?`);
       took('page');
       // Every picture loaded before printing (they are lazy on the site).
       await page.evaluate(async () => {
@@ -80,6 +81,8 @@ try {
       });
       took('pdf');
       console.log(`${path.basename(file)}  ${(statSync(file).size / 1e6).toFixed(1)} MB`);
+      // A guide with its pictures is megabytes; a few kilobytes is an error page.
+      if (statSync(file).size < 1e6) throw new Error(`${path.basename(file)} is too small: not the guide`);
       await page.close();
     }
   }
