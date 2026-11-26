@@ -94,7 +94,7 @@ const words = (() => {
   for (const lang of ['lt', 'en'] as const) {
     const before = all.size
     const portal = path.join(here, `../partners.loyalty.lt/src/i18n/messages/${lang}`)
-    const till = path.join(here, `../partner_staff_flutter/assets/translations/${lang}.json`)
+    const till = path.join(here, `../staff.loyalty.lt/assets/translations/${lang}.json`)
     all.clear()
     if (existsSync(portal)) walk(portal).filter((f) => f.endsWith('.json')).forEach((f) => add(json(f)))
     if (existsSync(till)) add(json(till))
@@ -102,7 +102,7 @@ const words = (() => {
     void before
   }
   const portal = path.join(here, '../partners.loyalty.lt/src/i18n/messages/lt')
-  const till = path.join(here, '../partner_staff_flutter/assets/translations/lt.json')
+  const till = path.join(here, '../staff.loyalty.lt/assets/translations/lt.json')
   return { byLang, complete: existsSync(portal) && existsSync(till) }
 })()
 

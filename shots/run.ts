@@ -18,7 +18,7 @@ const here = import.meta.dirname
 const CHROME = process.env.CHROME ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 const PORTAL = process.env.PORTAL ?? 'http://localhost:3056'
 const API = process.env.API ?? 'http://127.0.0.1:8011'
-const TILL_BUILD = process.env.TILL_BUILD ?? path.join(here, '../../partner_staff_flutter/build/web')
+const TILL_BUILD = process.env.TILL_BUILD ?? path.join(here, '../../staff.loyalty.lt/build/web')
 const TILL_PORT = 8012
 const TILL = `http://127.0.0.1:${TILL_PORT}`
 const OUT = path.join(here, '../public/shots')
@@ -51,7 +51,7 @@ if (LANG === 'en') {
   for (const f of readdirSync(path.join(msgs, 'lt')).filter((f) => f.endsWith('.json'))) {
     if (existsSync(path.join(msgs, 'en', f))) pair(JSON.parse(readFileSync(path.join(msgs, 'lt', f), 'utf8')), JSON.parse(readFileSync(path.join(msgs, 'en', f), 'utf8')))
   }
-  const tr = path.join(here, '../../partner_staff_flutter/assets/translations')
+  const tr = path.join(here, '../../staff.loyalty.lt/assets/translations')
   pair(JSON.parse(readFileSync(path.join(tr, 'lt.json'), 'utf8')), JSON.parse(readFileSync(path.join(tr, 'en.json'), 'utf8')))
   for (const [lt, en] of Object.entries(DATA)) DICT.set(lt, [en, ...(DICT.get(lt) ?? []).filter((e) => e !== en)])
 }
