@@ -5,6 +5,7 @@
   "icon": "MonitorSmartphone",
   "pages": [
     "index",
+    "kas-naujo",
     "naujam-kasininkui",
     "---Pradžia---",
     "diegimas",

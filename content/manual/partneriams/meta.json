@@ -5,6 +5,7 @@
   "icon": "Store",
   "pages": [
     "index",
+    "kas-naujo",
     "pirmos-30-minuciu",
     "prisijungimas",
     "registracija",

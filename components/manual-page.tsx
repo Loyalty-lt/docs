@@ -8,6 +8,7 @@ import { DocsBody, DocsDescription, DocsPage, DocsTitle } from 'fumadocs-ui/layo
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Shot } from './shot';
+import { TillVersion } from './till-version';
 import { Key, Path, Ui } from './ui';
 
 export type Section = 'partneriams' | 'kasa';
@@ -27,7 +28,7 @@ export async function ManualPage({ section, ...props }: ManualProps & { section:
       <DocsTitle>{page.data.title}</DocsTitle>
       <DocsDescription className="mb-0">{page.data.description}</DocsDescription>
       <DocsBody>
-        <MDX components={{ ...defaultMdxComponents, a: createRelativeLink(manual, page), Callout, Card, Cards, Step, Steps, Tab, Tabs, Shot, Ui, Key, Path }} />
+        <MDX components={{ ...defaultMdxComponents, a: createRelativeLink(manual, page), Callout, Card, Cards, Step, Steps, Tab, Tabs, Shot, Ui, Key, Path, TillVersion }} />
       </DocsBody>
     </DocsPage>
   );
