@@ -553,7 +553,7 @@ if (( DRY_RUN )); then
 else
   # The manual's PDFs (npm run pdf) are not in git: sent before the build, which links them.
   if compgen -G "$DOCS_LOCAL/public/pdf/*.pdf" >/dev/null; then
-    rsync -az --chmod=D755,F644 -e "ssh -i $SSH_KEY -p $SSH_PORT -o BatchMode=yes" "$DOCS_LOCAL/public/pdf/" "$SSH_HOST:$REMOTE_ROOT/docs.loyalty.lt/public/pdf/"
+    rsync -rtz -e "ssh -i $SSH_KEY -p $SSH_PORT -o BatchMode=yes" "$DOCS_LOCAL/public/pdf/" "$SSH_HOST:$REMOTE_ROOT/docs.loyalty.lt/public/pdf/"
     echo "    PDFs sent: $(ls "$DOCS_LOCAL"/public/pdf/*.pdf | wc -l | tr -d ' ')"
   else
     warn "    no PDFs in public/pdf (npm run pdf): the manual's download links stay as they were"
