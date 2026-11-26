@@ -146,7 +146,7 @@ Shop API.
 | Status | Cause |
 |--------|-------|
 | `401` | A header missing, wrong key/secret, wrong environment, or an expired credential |
-| `403` | IP not allowlisted, or the partner's plan does not include API access |
+| `403` | IP not allowlisted, or an individually agreed plan without API access (every standard plan includes it) |
 
 Both return the standard envelope with a `request_id` — see
 [API Overview](/docs/api-reference/overview).

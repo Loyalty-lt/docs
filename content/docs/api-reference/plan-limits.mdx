@@ -84,8 +84,9 @@ person operating your integration, rather than a generic failure.
 `403` with `data.feature: "address_registry"`. See
 [Addresses](/docs/api-reference/addresses).
 
-API access itself is a plan feature. If the partner's plan does not include it, every
-request answers `403` — see [Authentication](/docs/api-reference/authentication).
+API access is part of every plan — Start, Grow, Pro and Enterprise. Only an individually
+agreed plan can leave it out; then every request answers `403` — see
+[Authentication](/docs/api-reference/authentication).
 
 Requests are rate limited to 300 per minute per API key; over that the answer is `429`.
 

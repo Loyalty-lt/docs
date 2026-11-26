@@ -136,7 +136,7 @@ stays readable from an uptime monitor.
 |------|---------|------------|
 | `200` / `201` | Success | — |
 | `401` | Missing or invalid credentials | Check the key/secret pair and the environment |
-| `403` | Authenticated but not allowed | Credential lacks access, IP not allowlisted, or API not in plan |
+| `403` | Authenticated but not allowed | Credential lacks access, IP not allowlisted, or an individually agreed plan without API access |
 | `404` | Not found | — |
 | `422` | Validation failed | Read `errors` and fix the request |
 | `429` | Throttled | Retry with exponential backoff |
