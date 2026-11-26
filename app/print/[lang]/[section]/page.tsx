@@ -10,8 +10,8 @@ type Props = { params: Promise<{ lang: string; section: string }> };
 type Node = { type: string; url?: string; index?: Node; children?: Node[] };
 
 const TITLES = {
-  lt: { partners: 'Loyalty.lt partnerių portalo vadovas', till: 'Loyalty.lt kasos vadovas' },
-  en: { partners: 'Loyalty.lt partner portal guide', till: 'Loyalty.lt till guide' },
+  lt: { partners: 'Loyalty.lt partnerių portalo vadovas', till: 'Loyalty.lt kasos vadovas', plugins: 'Loyalty.lt el. parduotuvių papildinių vadovas' },
+  en: { partners: 'Loyalty.lt partner portal guide', till: 'Loyalty.lt till guide', plugins: 'Loyalty.lt online shop plugins guide' },
 };
 
 const urls = (n: Node): string[] => [...(n.index?.url ? [n.index.url] : []), ...(n.type === 'page' && n.url ? [n.url] : []), ...(n.children ?? []).flatMap(urls)];

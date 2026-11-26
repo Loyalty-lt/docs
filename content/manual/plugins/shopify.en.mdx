@@ -1,0 +1,91 @@
+---
+title: Shopify
+description: How to install and connect the Loyalty.lt app in a Shopify shop.
+icon: ShoppingBag
+---
+
+Shopify shops use the "Loyalty.lt" app. It is installed through Shopify, not from a zip file.
+
+## Install
+
+<Steps>
+<Step>
+
+Write to us through the help in the partner portal and give your shop's address. We send you an install link.
+
+</Step>
+<Step>
+
+Open the link while signed in to Shopify and confirm the install.
+
+</Step>
+<Step>
+
+The app appears under "Apps" in the Shopify admin.
+
+</Step>
+</Steps>
+
+## Connect the shop
+
+<Steps>
+<Step>
+
+Create an API key in the partner portal. See [API keys](/partners/api-keys).
+
+</Step>
+<Step>
+
+Open the settings page of the app. Enter the API key and the API secret and choose the environment.
+
+</Step>
+<Step>
+
+Choose the shop and the loyalty card, switch the module on and save.
+
+</Step>
+</Steps>
+
+<Callout title="The app's own pages are in Lithuanian">
+The settings pages inside the app are shown in Lithuanian for now. What your customers see follows the shop's language.
+</Callout>
+
+## Put the boxes into the theme
+
+The boxes are added in the Shopify theme editor. Open "Online Store → Themes → Customize".
+
+| Block | Where to put it |
+| --- | --- |
+| The Loyalty.lt widget | "App embeds" – switch it on. It shows the balance in the corner of the page. |
+| Points for a product | On the product page, next to the price. |
+| Points for the cart | On the cart page. |
+| Discounts in the cart | On the cart page. The customer uses points and coupons here. |
+| QR sign-in | On the sign-in page or any other page. |
+| The Loyalty.lt card | On the customer account page. |
+
+Add the checkout and thank-you page boxes in "Settings → Checkout → Customize".
+
+## How discounts are applied
+
+The tier discount, the coupon and the points are combined into one Shopify discount code. It is applied to the cart by itself.
+
+If the customer removes the code or the order is cancelled, the points and the coupon go back to them.
+
+## Set when points are awarded
+
+On the settings page choose which order statuses award points, and when points are cancelled and refunded.
+
+## If something went wrong
+
+| What you see | What to do |
+| --- | --- |
+| The boxes are empty | Open the app in the Shopify admin. This renews its connection to the shop. |
+| The blocks are missing in the theme editor | Check that the app is installed and that the module is switched on. |
+| No points are awarded | Check that the order reached the status you chose for awarding points. |
+| The discount does not combine with another code | Shopify limits combining discounts. Allow combining in the settings of your own code. |
+
+## Related pages
+
+- [API keys](/partners/api-keys)
+- [Loyalty cards](/partners/loyalty-cards)
+- [Transactions](/partners/transactions)

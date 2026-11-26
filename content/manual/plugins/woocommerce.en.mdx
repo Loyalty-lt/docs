@@ -1,0 +1,121 @@
+---
+title: WooCommerce
+description: How to install and connect the Loyalty.lt plugin in a WordPress shop.
+icon: ShoppingCart
+---
+
+The plugin is for WordPress shops that run WooCommerce. You need WordPress 6.5, WooCommerce 8.2 and PHP 7.4 or newer.
+
+Download it from the [Loyalty.lt website](https://loyalty.lt/en/business#integrations).
+
+## Install
+
+<Steps>
+<Step>
+
+In the WordPress dashboard open "Plugins → Add Plugin" and press "Upload Plugin".
+
+</Step>
+<Step>
+
+Choose the zip file you downloaded and press "Install Now".
+
+</Step>
+<Step>
+
+Press "Activate Plugin". A "Loyalty.lt" item appears in the menu on the left.
+
+</Step>
+</Steps>
+
+Updating works the same way: upload the new zip file and confirm that you want to replace the current version.
+
+## Connect the shop
+
+<Steps>
+<Step>
+
+Create an API key in the partner portal. See [API keys](/partners/api-keys).
+
+</Step>
+<Step>
+
+Open "Loyalty.lt → API settings". Enter the API key and the API secret, choose the environment and save.
+
+</Step>
+<Step>
+
+Open "General settings". Choose the shop and the loyalty card, then save.
+
+</Step>
+<Step>
+
+The "Overview" tab must say "Connected".
+
+</Step>
+</Steps>
+
+<Callout type="warn" title="The key must match the environment">
+A test key does not work with the live environment, and the other way round. If they are mixed up you see "Not connected".
+</Callout>
+
+## Choose what the shopper sees
+
+In "General settings" you can switch every part on and off separately.
+
+| Setting | What it does |
+| --- | --- |
+| Show Loyalty.lt in the store | When off, customers see nothing and orders are not sent. |
+| QR login | The QR box on the sign-in and checkout pages. |
+| Points badges next to prices | Shows how many points the customer gets for a product. |
+| Points in the cart summary | The line that says how many points the order brings. |
+| Spend points in the cart and at checkout | The customer chooses how many points to use. |
+| App coupons | The customer sees their coupons and can enter a code. |
+| Tier discount | The discount of the customer's tier is applied to the cart by itself. |
+| Stamp card | Every paid order adds a stamp. |
+| App invitation after an order | A customer without a card can get a link by text message. |
+| Floating points widget | Shows the balance in the corner of the page to a signed-in customer. |
+
+<Callout type="warn" title="The invitation costs money">
+Every invitation is charged as a text message.
+</Callout>
+
+## Set when points are awarded
+
+Choose three order statuses in the same tab.
+
+| Setting | Advice |
+| --- | --- |
+| Points are awarded when the order becomes | Usually "Completed". |
+| Cancellation when the order becomes | Awarded points are taken back, spent points return to the customer. |
+| Refund when the order becomes | Points are taken back according to the refunded amount. |
+
+Every order page has a "Loyalty.lt" box. It shows what was sent and how many points were awarded.
+
+## Export products to the app
+
+Open "Product export". Link the shop's categories to Loyalty.lt categories and run the export. The result is shown below.
+
+See [Products](/partners/products).
+
+## Put a box on any page
+
+| Shortcode | What it shows |
+| --- | --- |
+| `[loyalty_qr_login]` | The QR sign-in or card linking. |
+| `[loyalty_points_badge id=""]` | The points badge of a product. |
+
+## If something went wrong
+
+| What you see | What to do |
+| --- | --- |
+| "Not connected" | Check the key, the secret and the environment. Create a new key if you no longer have the old secret. |
+| "Customer has no Loyalty.lt card" | The customer has no account yet. Points are awarded once they register with the same e-mail. |
+| No points are awarded | Check that the order reached the status you chose for awarding points. |
+| The product export failed | Your plan must include products in the app. See [Plan and invoices](/partners/billing). |
+
+## Related pages
+
+- [API keys](/partners/api-keys)
+- [Loyalty cards](/partners/loyalty-cards)
+- [Transactions](/partners/transactions)

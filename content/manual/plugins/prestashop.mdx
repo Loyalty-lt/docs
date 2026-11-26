@@ -1,0 +1,98 @@
+---
+title: PrestaShop
+description: Kaip įdiegti ir prijungti Loyalty.lt modulį PrestaShop parduotuvėje.
+icon: Store
+---
+
+Modulis veikia su PrestaShop 1.7.7, 8 ir 9. Atsisiųskite jį iš [Loyalty.lt svetainės](https://loyalty.lt/lt/business#integrations).
+
+## Įdiegti
+
+<Steps>
+<Step>
+
+Parduotuvės administravimo aplinkoje atidarykite „Moduliai → Modulių tvarkyklė“.
+
+</Step>
+<Step>
+
+Spauskite „Įkelti modulį“ ir pasirinkite atsisiųstą zip failą.
+
+</Step>
+<Step>
+
+Kai modulis įdiegtas, spauskite „Konfigūruoti“.
+
+</Step>
+</Steps>
+
+Atnaujinama taip pat: įkelkite naują zip failą. Nustatymai lieka.
+
+## Prijungti parduotuvę
+
+<Steps>
+<Step>
+
+Partnerių portale sukurkite API raktą. Žr. [API raktai](/partners/api-keys).
+
+</Step>
+<Step>
+
+Skirtuke „API nustatymai“ įrašykite „API raktas“ ir „API slaptažodis“, pasirinkite „Aplinka“. Spauskite „Išsaugoti ir patikrinti“.
+
+</Step>
+<Step>
+
+Skirtuke „Bendri nustatymai“ pasirinkite parduotuvę ir lojalumo kortelę. Spauskite „Išsaugoti ir atnaujinti taisykles“.
+
+</Step>
+<Step>
+
+Skirtuke „Apžvalga“ turi būti parašyta „Prijungta“.
+
+</Step>
+</Steps>
+
+<Callout type="warn" title="Raktas turi atitikti aplinką">
+Bandomosios aplinkos raktas neveikia su tikra aplinka ir atvirkščiai. Sumaišius matysite „Neprijungta“.
+</Callout>
+
+## Pasirinkti, kas rodoma pirkėjui
+
+Skirtuke „Bendri nustatymai“ kiekvieną dalį galite įjungti ir išjungti atskirai: QR prisijungimą, taškų ženkliukus, taškų panaudojimą, kuponus, lygio nuolaidą, antspaudus ir kvietimą į programėlę.
+
+Nuolaidos krepšelyje rodomos kaip atskiros eilutės. Jei klientas tokią eilutę pašalina, taškai ar kuponas jam grąžinami.
+
+<Callout type="warn" title="Kvietimas kainuoja">
+Kiekviena kvietimo žinutė apmokestinama kaip SMS.
+</Callout>
+
+## Nustatyti, kada skiriami taškai
+
+Tame pačiame skirtuke pasirinkite užsakymo būsenas taškams skirti, atšaukti ir grąžinti. Paprastai taškai skiriami, kai užsakymas pristatytas.
+
+Užsakymo puslapyje yra skydelis „Loyalty.lt“. Jame matote, kas išsiųsta ir kiek taškų skirta.
+
+## Eksportuoti prekes į programėlę
+
+Atidarykite skirtuką „Produktų eksportas“. Susiekite parduotuvės kategorijas su Loyalty.lt kategorijomis ir spauskite „Eksportuoti dabar“.
+
+Kad eksportas vyktų pats, skirtuke „Apžvalga“ rasite „Cron“ adresą. Jį perduokite savo svetainės prižiūrėtojui.
+
+Žr. [Prekės](/partners/products).
+
+## Jei kas nors nepavyko
+
+| Ką matote | Ką daryti |
+| --- | --- |
+| „Neprijungta“ | Patikrinkite raktą, slaptažodį ir aplinką. |
+| Langelių parduotuvėje nėra | Išvalykite parduotuvės talpyklą. Pakeitus temą atidarykite modulio nustatymus – modulis prisijungs iš naujo. |
+| „Klientas be Loyalty.lt kortelės“ | Klientas dar neturi paskyros. Taškai bus skirti, kai jis užsiregistruos tuo pačiu el. paštu. |
+| Taškai neskiriami | Patikrinkite, ar užsakymas pasiekė būseną, kurią pasirinkote taškams skirti. |
+| Prekių eksportas nepavyko | Jūsų planas turi turėti prekių rodymą programėlėje. Žr. [Planas ir sąskaitos](/partners/billing). |
+
+## Susiję puslapiai
+
+- [API raktai](/partners/api-keys)
+- [Lojalumo kortelės](/partners/loyalty-cards)
+- [Operacijos](/partners/transactions)

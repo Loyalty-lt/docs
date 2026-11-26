@@ -14,7 +14,7 @@ import { Shot } from './shot';
 import { TillDownload, TillVersion } from './till-version';
 import { Key, Path, Ui } from './ui';
 
-export type Section = 'partners' | 'till';
+export type Section = 'partners' | 'till' | 'plugins';
 export type ManualProps = { params: Promise<{ lang: string; slug?: string[] }> };
 
 const pageOf = async (section: Section, { params }: ManualProps) => {
@@ -32,7 +32,7 @@ const linkIn = (lang: Lang, page: Page, origin = '') => {
   const Relative = createRelativeLink(manual, page);
   return function A(props: ComponentProps<'a'>) {
     const to = props.href ?? '';
-    const local = /^\/(partners|till)(\/|#|$)/.test(to) || to === '/' ? href(lang, to) : to;
+    const local = /^\/(partners|till|plugins)(\/|#|$)/.test(to) || to === '/' ? href(lang, to) : to;
     return <Relative {...props} href={local.startsWith('/') ? origin + local : local} />;
   };
 };

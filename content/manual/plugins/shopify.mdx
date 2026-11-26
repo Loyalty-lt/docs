@@ -1,0 +1,87 @@
+---
+title: Shopify
+description: Kaip įdiegti ir prijungti Loyalty.lt programėlę Shopify parduotuvėje.
+icon: ShoppingBag
+---
+
+Shopify parduotuvėms skirta programėlė „Loyalty.lt“. Ji diegiama per Shopify, ne iš zip failo.
+
+## Įdiegti
+
+<Steps>
+<Step>
+
+Parašykite mums per partnerių portalo pagalbą ir nurodykite savo parduotuvės adresą. Atsiųsime diegimo nuorodą.
+
+</Step>
+<Step>
+
+Atidarykite nuorodą prisijungę prie Shopify ir patvirtinkite diegimą.
+
+</Step>
+<Step>
+
+Programėlė atsiras Shopify administravimo aplinkos skiltyje „Apps“.
+
+</Step>
+</Steps>
+
+## Prijungti parduotuvę
+
+<Steps>
+<Step>
+
+Partnerių portale sukurkite API raktą. Žr. [API raktai](/partners/api-keys).
+
+</Step>
+<Step>
+
+Programėlėje atidarykite „Nustatymai“. Įrašykite API raktą ir API slaptažodį, pasirinkite „Aplinka“.
+
+</Step>
+<Step>
+
+Pasirinkite „Parduotuvė“ ir „Lojalumo kortelė“, įjunkite „Įjungti modulį“ ir išsaugokite.
+
+</Step>
+</Steps>
+
+## Įdėti langelius į temą
+
+Langeliai į temą dedami Shopify temos redaktoriuje. Atidarykite „Online Store → Themes → Customize“.
+
+| Blokas | Kur dėti |
+| --- | --- |
+| Loyalty.lt valdiklis | „App embeds“ – įjunkite jungiklį. Rodo likutį puslapio kampe. |
+| Taškai už prekę | Prekės puslapyje, prie kainos. |
+| Taškai už krepšelį | Krepšelio puslapyje. |
+| Nuolaidos krepšelyje | Krepšelio puslapyje. Čia klientas naudoja taškus ir kuponus. |
+| QR prisijungimas | Prisijungimo arba bet kuriame kitame puslapyje. |
+| Loyalty.lt kortelė | Kliento paskyros puslapyje. |
+
+Atsiskaitymo ir padėkos puslapių langelius pridėkite per „Settings → Checkout → Customize“.
+
+## Kaip pritaikomos nuolaidos
+
+Lygio nuolaida, kuponas ir taškai sudedami į vieną Shopify nuolaidos kodą. Jis pritaikomas krepšeliui pats.
+
+Jei klientas kodą pašalina arba užsakymas atšaukiamas, taškai ir kuponas jam grąžinami.
+
+## Nustatyti, kada skiriami taškai
+
+Skiltyje „Nustatymai“ pasirinkite, kokios būsenos užsakymams skiriami taškai, kada jie atšaukiami ir kada grąžinami.
+
+## Jei kas nors nepavyko
+
+| Ką matote | Ką daryti |
+| --- | --- |
+| Langeliai tušti | Atidarykite programėlę Shopify administravimo aplinkoje. Taip atnaujinamas jos ryšys su parduotuve. |
+| Blokų nėra temos redaktoriuje | Patikrinkite, ar programėlė įdiegta ir ar „Įjungti modulį“ įjungta. |
+| Taškai neskiriami | Patikrinkite, ar užsakymas pasiekė būseną, kurią pasirinkote taškams skirti. |
+| Nuolaida nepritaikoma kartu su kitu kodu | Shopify riboja kelių nuolaidų derinimą. Leiskite derinti nuolaidas savo kodo nustatymuose. |
+
+## Susiję puslapiai
+
+- [API raktai](/partners/api-keys)
+- [Lojalumo kortelės](/partners/loyalty-cards)
+- [Operacijos](/partners/transactions)

@@ -1,0 +1,15 @@
+{
+  "title": "El. parduotuvės",
+  "description": "Papildiniai ir moduliai",
+  "root": true,
+  "icon": "Plug",
+  "pages": [
+    "index",
+    "---Papildiniai---",
+    "woocommerce",
+    "prestashop",
+    "shopify",
+    "---Kita---",
+    "other-platforms"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "title": "Online shops",
+  "description": "Plugins and modules",
+  "root": true,
+  "icon": "Plug",
+  "pages": [
+    "index",
+    "---Plugins---",
+    "woocommerce",
+    "prestashop",
+    "shopify",
+    "---Other---",
+    "other-platforms"
+  ]
+}

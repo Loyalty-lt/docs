@@ -1,0 +1,98 @@
+---
+title: PrestaShop
+description: How to install and connect the Loyalty.lt module in a PrestaShop shop.
+icon: Store
+---
+
+The module works with PrestaShop 1.7.7, 8 and 9. Download it from the [Loyalty.lt website](https://loyalty.lt/en/business#integrations).
+
+## Install
+
+<Steps>
+<Step>
+
+In the shop's back office open "Modules → Module Manager".
+
+</Step>
+<Step>
+
+Press "Upload a module" and choose the zip file you downloaded.
+
+</Step>
+<Step>
+
+When the module is installed, press "Configure".
+
+</Step>
+</Steps>
+
+Updating works the same way: upload the new zip file. The settings stay.
+
+## Connect the shop
+
+<Steps>
+<Step>
+
+Create an API key in the partner portal. See [API keys](/partners/api-keys).
+
+</Step>
+<Step>
+
+In the "API settings" tab enter the API key and the API secret and choose the environment. Press "Save and check".
+
+</Step>
+<Step>
+
+In the "General settings" tab choose the shop and the loyalty card. Press "Save and refresh the rules".
+
+</Step>
+<Step>
+
+The "Overview" tab must say "Connected".
+
+</Step>
+</Steps>
+
+<Callout type="warn" title="The key must match the environment">
+A test key does not work with the live environment, and the other way round. If they are mixed up you see "Not connected".
+</Callout>
+
+## Choose what the shopper sees
+
+In "General settings" you can switch every part on and off separately: QR sign-in, points badges, spending points, coupons, the tier discount, stamps and the app invitation.
+
+Discounts appear in the cart as separate lines. If the customer removes such a line, the points or the coupon go back to them.
+
+<Callout type="warn" title="The invitation costs money">
+Every invitation is charged as a text message.
+</Callout>
+
+## Set when points are awarded
+
+In the same tab choose the order statuses for awarding, cancelling and refunding points. Points are usually awarded when the order is delivered.
+
+The order page has a "Loyalty.lt" panel. It shows what was sent and how many points were awarded.
+
+## Export products to the app
+
+Open the "Product export" tab. Link the shop's categories to Loyalty.lt categories and press "Export now".
+
+For the export to run by itself, the "Overview" tab shows a cron address. Give it to the person who maintains your site.
+
+See [Products](/partners/products).
+
+## If something went wrong
+
+| What you see | What to do |
+| --- | --- |
+| "Not connected" | Check the key, the secret and the environment. |
+| The boxes are missing in the shop | Clear the shop's cache. After changing the theme open the module's settings – the module hooks itself in again. |
+| "Customer has no Loyalty.lt card" | The customer has no account yet. Points are awarded once they register with the same e-mail. |
+| No points are awarded | Check that the order reached the status you chose for awarding points. |
+| The product export failed | Your plan must include products in the app. See [Plan and invoices](/partners/billing). |
+
+## Related pages
+
+- [API keys](/partners/api-keys)
+- [Loyalty cards](/partners/loyalty-cards)
+- [Transactions](/partners/transactions)

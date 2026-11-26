@@ -1,0 +1,121 @@
+---
+title: WooCommerce
+description: Kaip įdiegti ir prijungti Loyalty.lt įskiepį WordPress parduotuvėje.
+icon: ShoppingCart
+---
+
+Įskiepis skirtas WordPress parduotuvėms su WooCommerce. Reikia WordPress 6.5, WooCommerce 8.2 ir PHP 7.4 arba naujesnių.
+
+Atsisiųskite jį iš [Loyalty.lt svetainės](https://loyalty.lt/lt/business#integrations).
+
+## Įdiegti
+
+<Steps>
+<Step>
+
+WordPress valdymo skydelyje atidarykite „Įskiepiai → Pridėti įskiepį“ ir spauskite „Įkelti įskiepį“.
+
+</Step>
+<Step>
+
+Pasirinkite atsisiųstą zip failą ir spauskite „Įdiegti dabar“.
+
+</Step>
+<Step>
+
+Spauskite „Aktyvuoti įskiepį“. Meniu kairėje atsiras punktas „Loyalty.lt“.
+
+</Step>
+</Steps>
+
+Atnaujinama taip pat: įkelkite naują zip failą ir patvirtinkite, kad norite pakeisti esamą versiją.
+
+## Prijungti parduotuvę
+
+<Steps>
+<Step>
+
+Partnerių portale sukurkite API raktą. Žr. [API raktai](/partners/api-keys).
+
+</Step>
+<Step>
+
+Atidarykite „Loyalty.lt → API nustatymai“. Įrašykite „API raktas“ ir „API slaptažodis“, pasirinkite „Aplinka“ ir išsaugokite.
+
+</Step>
+<Step>
+
+Atidarykite „Bendri nustatymai“. Pasirinkite parduotuvę ir lojalumo kortelę, tada išsaugokite.
+
+</Step>
+<Step>
+
+Skirtuke „Apžvalga“ turi būti parašyta „Prijungta“.
+
+</Step>
+</Steps>
+
+<Callout type="warn" title="Raktas turi atitikti aplinką">
+Bandomosios aplinkos raktas neveikia su tikra aplinka ir atvirkščiai. Sumaišius matysite „Neprijungta“.
+</Callout>
+
+## Pasirinkti, kas rodoma pirkėjui
+
+Skirtuke „Bendri nustatymai“ kiekvieną dalį galite įjungti ir išjungti atskirai.
+
+| Nustatymas | Ką daro |
+| --- | --- |
+| Rodyti Loyalty.lt parduotuvėje | Išjungus klientai nieko nemato, o užsakymai nesiunčiami. |
+| QR prisijungimas | QR langelis prisijungimo ir atsiskaitymo puslapiuose. |
+| Taškų ženkliukai prie kainų | Rodo, kiek taškų klientas gaus už prekę. |
+| Taškai krepšelio suvestinėje | Eilutė „Už šį užsakymą bus skirta“. |
+| Taškų panaudojimas krepšelyje ir atsiskaitant | Klientas pasirenka, kiek taškų panaudoti. |
+| Programėlės kuponai | Klientas mato savo kuponus ir gali įvesti kodą. |
+| Lygio nuolaida | Kliento lygio nuolaida pritaikoma krepšeliui pati. |
+| Antspaudų kortelė | Kiekvienas apmokėtas užsakymas prideda antspaudą. |
+| Kvietimas į programėlę po užsakymo | Klientas be kortelės gali gauti nuorodą SMS žinute. |
+| Plaukiojantis taškų valdiklis | Prisijungusiam klientui rodo likutį puslapio kampe. |
+
+<Callout type="warn" title="Kvietimas kainuoja">
+Kiekviena kvietimo žinutė apmokestinama kaip SMS.
+</Callout>
+
+## Nustatyti, kada skiriami taškai
+
+Tame pačiame skirtuke pasirinkite tris užsakymo būsenas.
+
+| Nustatymas | Patarimas |
+| --- | --- |
+| Taškai skiriami, kai užsakymas tampa | Paprastai – „Įvykdytas“. |
+| Atšaukimas, kai užsakymas tampa | Skirti taškai atimami, panaudoti grąžinami klientui. |
+| Grąžinimas, kai užsakymas tampa | Taškai atimami pagal grąžintą sumą. |
+
+Kiekvieno užsakymo puslapyje yra langelis „Loyalty.lt“. Jame matote, kas išsiųsta ir kiek taškų skirta.
+
+## Eksportuoti prekes į programėlę
+
+Atidarykite „Produktų eksportas“. Susiekite parduotuvės kategorijas su Loyalty.lt kategorijomis ir paleiskite eksportą. Rezultatas rodomas žemiau.
+
+Žr. [Prekės](/partners/products).
+
+## Įdėti langelį į bet kurį puslapį
+
+| Trumpasis kodas | Ką rodo |
+| --- | --- |
+| `[loyalty_qr_login]` | QR prisijungimą arba kortelės susiejimą. |
+| `[loyalty_points_badge id=""]` | Prekės taškų ženkliuką. |
+
+## Jei kas nors nepavyko
+
+| Ką matote | Ką daryti |
+| --- | --- |
+| „Neprijungta“ | Patikrinkite raktą, slaptažodį ir aplinką. Sukurkite naują raktą, jei senojo slaptažodžio nebeturite. |
+| „Klientas be Loyalty.lt kortelės“ | Klientas dar neturi paskyros. Taškai bus skirti, kai jis užsiregistruos tuo pačiu el. paštu. |
+| Taškai neskiriami | Patikrinkite, ar užsakymas pasiekė būseną, kurią pasirinkote taškams skirti. |
+| Prekių eksportas nepavyko | Jūsų planas turi turėti prekių rodymą programėlėje. Žr. [Planas ir sąskaitos](/partners/billing). |
+
+## Susiję puslapiai
+
+- [API raktai](/partners/api-keys)
+- [Lojalumo kortelės](/partners/loyalty-cards)
+- [Operacijos](/partners/transactions)
