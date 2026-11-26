@@ -1,0 +1,31 @@
+{
+  "title": "Till",
+  "description": "The staff app",
+  "root": true,
+  "icon": "MonitorSmartphone",
+  "pages": [
+    "index",
+    "whats-new",
+    "new-cashier",
+    "---Getting started---",
+    "install",
+    "sign-in",
+    "---Selling---",
+    "customer",
+    "amount-and-discount",
+    "points",
+    "coupons",
+    "games",
+    "payment",
+    "parked-sales",
+    "past-purchases",
+    "---Device---",
+    "dashboard",
+    "settings",
+    "printer",
+    "kiosk",
+    "shortcuts",
+    "updates",
+    "troubleshooting"
+  ]
+}

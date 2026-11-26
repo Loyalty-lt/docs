@@ -1,0 +1,77 @@
+---
+title: Loyalty tiers
+description: How to create tiers with discounts and set up purchase parts.
+icon: Medal
+---
+
+Tiers make customers come back: the more they buy, the more they get. Here you also set what a purchase consists of.
+
+Open <Path>Loyalty tiers</Path>.
+
+<Shot id="lygiai-puslapis" />
+
+## Start from a template
+
+Press <Ui>Templates</Ui>, look through them and press <Ui>Use</Ui>.
+
+<Callout type="warn" title="Replaces your current tiers">
+Applying a template replaces the current tiers with the template's tiers.
+</Callout>
+
+## Programme settings
+
+| Field | What it means |
+| --- | --- |
+| Metric | What moves a customer up: points earned, amount spent or visits. |
+| Period | Over what time it counts: always, 3, 6 or 12 months, or a calendar year. |
+| Allow downgrade | When on, a customer can drop. When off, a reached tier stays for good. |
+| Grace (days) | How many days a tier holds after falling below the threshold. |
+
+Changes are saved at once.
+
+## Add a tier
+
+Press <Ui>Add tier</Ui> and fill in the window.
+
+<Shot id="lygiai-lygis" />
+
+The <Ui>Formula</Ui> switch lets you write a condition instead of a number. If the formula fails, the simple value applies. AI can write the formula – describe the rule in your own words and check it with <Ui>Test</Ui>.
+
+The arrows in the list change the order of tiers. The bin deletes a tier.
+
+## Purchase parts
+
+Parts let you apply different rules, for example: a tier discount only on cosmetics, and no points for a gift voucher. The cashier chooses what each amount is for.
+
+<Shot id="lygiai-dalys" />
+
+Press <Ui>Add part</Ui> or the pencil.
+
+<Shot id="lygiai-dalis" />
+
+- **Points multiplier** – 0 means “no points”, 1 – as usual, 2 – double.
+- **Apply the tier discount** – whether the customer's tier discount applies to this part. Below you can set another percentage for a single tier.
+- **Can be paid with points** – whether the customer can cover this part with points.
+- **Counts towards tier progress** – whether this amount moves the customer up.
+- **Default part** – applies when the cashier does not choose one.
+
+<Callout title="Promotions and memberships">
+Create a part “Promotions, memberships”: multiplier 0, no tier discount, no paying with points. Then a promotion does not stack with the loyalty discount.
+</Callout>
+
+## Assign a tier manually
+
+Open the customer's page and press <Ui>Assign tier</Ui>. More in [Customers](/partners/customers).
+
+## If something goes wrong
+
+| What you see | What to do |
+| --- | --- |
+| The customer should have moved up but did not | Tiers are recalculated after a purchase and once a day. Check that the part counts towards tier progress. |
+| No tier discount at the till | Check that the purchase part allows it and the programme is on. |
+| “The formula must return a number.” | The formula's result must be a number, such as `amount > 50 ? 2 : 1`. |
+
+## Related pages
+
+- [Tier notifications](/partners/tier-notifications)
+- [Loyalty cards](/partners/loyalty-cards)

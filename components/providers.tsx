@@ -1,5 +1,7 @@
+import { defineI18nUI } from 'fumadocs-ui/i18n';
 import { RootProvider } from 'fumadocs-ui/provider/next';
 import type { ReactNode } from 'react';
+import { i18n, type Lang } from '@/lib/i18n';
 
 // Fumadocs' own words in Lithuanian, for the manual: the library looks a word up together with the
 // place it is used in, "Search(search trigger)".
@@ -33,9 +35,12 @@ export function DocsProvider({ children }: { children: ReactNode }) {
   return <RootProvider>{children}</RootProvider>;
 }
 
-export function ManualProvider({ children }: { children: ReactNode }) {
+const ui = defineI18nUI(i18n, { lt: { displayName: 'Lietuvių', ...LT }, en: { displayName: 'English' } });
+
+// The manual and the home page, in their language, with the language switch.
+export function ManualProvider({ lang, children }: { lang: Lang; children: ReactNode }) {
   return (
-    <RootProvider i18n={{ locale: 'lt', translations: LT }} search={{ options: { api: '/api/search/manual' } }}>
+    <RootProvider i18n={ui.provider(lang)} search={{ options: { api: '/api/search/manual' } }}>
       {children}
     </RootProvider>
   );

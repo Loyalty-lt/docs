@@ -1,9 +1,10 @@
 import type { BaseLayoutProps } from 'fumadocs-ui/layouts/shared';
 import { gitConfig, logo } from './shared';
 
-export function baseOptions(): BaseLayoutProps {
+export function baseOptions(lang: 'lt' | 'en' = 'en'): BaseLayoutProps {
   return {
     nav: {
+      url: lang === 'lt' ? '/' : '/en',
       title: (
         <>
           {/* CDN wordmark; light-on-dark variant swaps in for dark theme */}
@@ -15,7 +16,7 @@ export function baseOptions(): BaseLayoutProps {
     githubUrl: `https://github.com/${gitConfig.user}`,
     links: [
       {
-        text: 'Partners Portal',
+        text: lang === 'lt' ? 'Partnerių portalas' : 'Partners Portal',
         url: 'https://partners.loyalty.lt',
         external: true,
       },

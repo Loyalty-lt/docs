@@ -1,0 +1,102 @@
+---
+title: Loyalty cards
+description: How to create a card, set up earning and redeeming points, and the card's look.
+icon: CreditCard
+---
+
+The card decides how many points a customer gets and what they are worth. The customer sees it in the Loyalty.lt app.
+
+Open <Path>Loyalty Cards → All Cards</Path>.
+
+<Shot id="korteles-sarasas" />
+
+## Create a card
+
+Press <Ui>Add a new loyalty card</Ui>. The form has 5 tabs; on the right you see at once how the card will look.
+
+<Steps>
+<Step>
+
+**General.** Type the name in Lithuanian and English. Other languages open under <Ui>Translations</Ui>.
+
+<Shot id="korteles-bendra" />
+
+</Step>
+<Step>
+
+**Design.** Upload a logo or a background picture and choose the colours.
+
+<Shot id="korteles-dizainas" />
+
+</Step>
+<Step>
+
+**Points.** Set what points are given for and how to spend them.
+
+<Shot id="korteles-taskai" />
+
+</Step>
+<Step>
+
+**Shops.** Keep all, or choose only some.
+
+</Step>
+<Step>
+
+**Terms.** Write the programme's rules. The customer sees them next to the card. Finally press <Ui>Create</Ui>.
+
+</Step>
+</Steps>
+
+<Callout title="How to check">
+The “Points simulation” block on the right shows how many points a customer would get for a sample purchase. <Ui>Refresh</Ui> picks another amount.
+</Callout>
+
+### Points settings
+
+| Field | What it means |
+| --- | --- |
+| Initial bonus points | The customer gets them once, when their card appears. |
+| Points expiration (days) | After this many days, unused points expire. Empty – they never expire. |
+| Minimum and maximum points | Limits for one purchase. Empty – no limit. |
+| Enable points redemption | The customer can pay part of a purchase with points. |
+| At most this % paid with points | The largest share of a purchase that points can cover. |
+
+If different goods need different rules, use [purchase parts](/partners/loyalty-tiers#purchase-parts).
+
+## View a card
+
+In the list press the eye. You see how many customers have the card and how many points were given and used.
+
+<Shot id="korteles-viena" />
+
+<Ui>View QR code</Ui> opens a code you can print. A customer scans it with the app and the card appears for them.
+
+## Change a card
+
+In the list press the pencil, change and press <Ui>Save</Ui>.
+
+<Callout type="warn" title="Applies at once">
+A new points rate applies to the next purchase. Points already given do not change.
+</Callout>
+
+The switch at the bottom of the card turns it off. Customers cannot use a card that is off, but the data stays.
+
+## Delete a card
+
+<Callout type="error" title="Cannot be undone">
+A deleted card cannot be restored. If it is only temporarily not needed, turn it off with the switch.
+</Callout>
+
+## If something goes wrong
+
+| What you see | What to do |
+| --- | --- |
+| The till gives no points | Check that the card is active, earning is on and the shop is assigned to the card. |
+| The till does not let customers pay with points | Check <Ui>Enable points redemption</Ui>, the minimum points and the largest share. |
+| A customer does not see the card | <Ui>Assign to new customers automatically</Ui> must be ticked, or the customer must scan the QR code. |
+
+## Related pages
+
+- [Loyalty tiers](/partners/loyalty-tiers) – more benefits for the most loyal
+- [Points at the till](/till/points) – how the cashier uses points

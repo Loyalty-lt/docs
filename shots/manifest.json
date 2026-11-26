@@ -22,6 +22,29 @@
    }
   ]
  },
+ "ai-raktai.en": {
+  "file": "ai-raktai.en.webp",
+  "w": 1135,
+  "h": 710,
+  "alt": "The AI agent keys page: the server address, connection steps and your keys.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "New key",
+    "text": "for a new assistant."
+   },
+   {
+    "n": 2,
+    "label": "Assistant",
+    "text": "how to connect each one."
+   },
+   {
+    "n": 3,
+    "label": "Your keys",
+    "text": "when they were used and until when they are valid."
+   }
+  ]
+ },
  "akcijos-nauja": {
   "file": "akcijos-nauja.webp",
   "w": 1132,
@@ -55,6 +78,39 @@
    }
   ]
  },
+ "akcijos-nauja.en": {
+  "file": "akcijos-nauja.en.webp",
+  "w": 1132,
+  "h": 994,
+  "alt": "The promotion form: title, description, picture, button text, link and display time.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Title",
+    "text": "Lithuanian is required."
+   },
+   {
+    "n": 2,
+    "label": "Image",
+    "text": "JPG or PNG, up to 2 MB."
+   },
+   {
+    "n": 3,
+    "label": "Link",
+    "text": "where the customer goes with a tap."
+   },
+   {
+    "n": 4,
+    "label": "Display time",
+    "text": "optional."
+   },
+   {
+    "n": 5,
+    "label": "Submit for approval",
+    "text": "Loyalty.lt reviews the promotion."
+   }
+  ]
+ },
  "akcijos-sarasas": {
   "file": "akcijos-sarasas.webp",
   "w": 1132,
@@ -73,6 +129,24 @@
    }
   ]
  },
+ "akcijos-sarasas.en": {
+  "file": "akcijos-sarasas.en.webp",
+  "w": 1132,
+  "h": 412,
+  "alt": "The promotions list: one waiting for approval, one approved.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Submit a promotion",
+    "text": "a new promotion."
+   },
+   {
+    "n": 2,
+    "label": "Status",
+    "text": "customers see only an approved one."
+   }
+  ]
+ },
  "api-raktai": {
   "file": "api-raktai.webp",
   "w": 1132,
@@ -88,6 +162,24 @@
     "n": 2,
     "label": "Paskutinis naudojimas",
     "text": "ar raktas dar naudojamas."
+   }
+  ]
+ },
+ "api-raktai.en": {
+  "file": "api-raktai.en.webp",
+  "w": 1132,
+  "h": 349,
+  "alt": "The API keys list: name, key, environment, status and last use.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "New API key",
+    "text": "for a new program."
+   },
+   {
+    "n": 2,
+    "label": "Last used",
+    "text": "whether the key is still in use."
    }
   ]
  },
@@ -116,6 +208,34 @@
     "n": 4,
     "label": "Sukurti API raktą",
     "text": "slaptas kodas rodomas vieną kartą."
+   }
+  ]
+ },
+ "api-raktas-naujas.en": {
+  "file": "api-raktas-naujas.en.webp",
+  "w": 1132,
+  "h": 786,
+  "alt": "The new API key form: name, environment, IP addresses and notes.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Name",
+    "text": "what the key is for."
+   },
+   {
+    "n": 2,
+    "label": "Environment",
+    "text": "real or test data."
+   },
+   {
+    "n": 3,
+    "label": "Allowed IP addresses",
+    "text": "the key works only from them."
+   },
+   {
+    "n": 4,
+    "label": "Create API key",
+    "text": "the secret is shown once."
    }
   ]
  },
@@ -157,6 +277,44 @@
    }
   ]
  },
+ "ataskaitos.en": {
+  "file": "ataskaitos.en.webp",
+  "w": 1132,
+  "h": 900,
+  "alt": "The reports page: type, shop, dates, format and quick generate.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Report type",
+    "text": "what you need."
+   },
+   {
+    "n": 2,
+    "label": "Dates",
+    "text": "the period."
+   },
+   {
+    "n": 3,
+    "label": "Format",
+    "text": "PDF or a spreadsheet."
+   },
+   {
+    "n": 4,
+    "label": "Generate report",
+    "text": "creates the file."
+   },
+   {
+    "n": 5,
+    "label": "Quick generate",
+    "text": "with one press."
+   },
+   {
+    "n": 6,
+    "label": "Report history",
+    "text": "reports made earlier."
+   }
+  ]
+ },
  "atsiskaitymai-apzvalga": {
   "file": "atsiskaitymai-apzvalga.webp",
   "w": 1132,
@@ -182,6 +340,34 @@
     "n": 4,
     "label": "Sąskaitos",
     "text": "visos sąskaitos."
+   }
+  ]
+ },
+ "atsiskaitymai-apzvalga.en": {
+  "file": "atsiskaitymai-apzvalga.en.webp",
+  "w": 1132,
+  "h": 979,
+  "alt": "The billing overview: estimate, unpaid invoices, usage and the latest invoices.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Estimated amount",
+    "text": "what this month will cost."
+   },
+   {
+    "n": 2,
+    "label": "Unpaid invoices",
+    "text": "what needs paying."
+   },
+   {
+    "n": 3,
+    "label": "Current Month",
+    "text": "in detail."
+   },
+   {
+    "n": 4,
+    "label": "Invoices",
+    "text": "all invoices."
    }
   ]
  },
@@ -213,6 +399,34 @@
    }
   ]
  },
+ "atsiskaitymai-menuo.en": {
+  "file": "atsiskaitymai-menuo.en.webp",
+  "w": 1132,
+  "h": 1615,
+  "alt": "The current month page: plan limits, usage and pricing.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Month",
+    "text": "choose another month."
+   },
+   {
+    "n": 2,
+    "label": "Monthly plan",
+    "text": "what is included and how much is used."
+   },
+   {
+    "n": 3,
+    "label": "Usage",
+    "text": "each service."
+   },
+   {
+    "n": 4,
+    "label": "Pricing",
+    "text": "what will be on the invoice."
+   }
+  ]
+ },
  "darbuotojai-naujas": {
   "file": "darbuotojai-naujas.webp",
   "w": 1132,
@@ -241,6 +455,34 @@
    }
   ]
  },
+ "darbuotojai-naujas.en": {
+  "file": "darbuotojai-naujas.en.webp",
+  "w": 1132,
+  "h": 605,
+  "alt": "The new staff member form: name, email, position, department and role.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Name",
+    "text": "first and last name."
+   },
+   {
+    "n": 2,
+    "label": "Role",
+    "text": "staff member or manager."
+   },
+   {
+    "n": 3,
+    "label": "Needs NFC Card",
+    "text": "if they will sign in by holding a card."
+   },
+   {
+    "n": 4,
+    "label": "Create",
+    "text": "saves the staff member."
+   }
+  ]
+ },
  "darbuotojai-sarasas": {
   "file": "darbuotojai-sarasas.webp",
   "w": 1392,
@@ -266,6 +508,34 @@
     "n": 4,
     "label": "Veiksmai",
     "text": "QR kodas, peržiūrėti, redaguoti, ištrinti."
+   }
+  ]
+ },
+ "darbuotojai-sarasas.en": {
+  "file": "darbuotojai-sarasas.en.webp",
+  "w": 1392,
+  "h": 639,
+  "alt": "The staff list: role, position, last sign-in, till PIN and actions.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Add staff member",
+    "text": "a new person."
+   },
+   {
+    "n": 2,
+    "label": "A4 QR sheet",
+    "text": "the ticked staff members' codes for printing."
+   },
+   {
+    "n": 3,
+    "label": "Till PIN",
+    "text": "set or not yet."
+   },
+   {
+    "n": 4,
+    "label": "Actions",
+    "text": "QR code, view, edit, delete."
    }
   ]
  },
@@ -302,11 +572,51 @@
    }
   ]
  },
+ "darbuotojai-vienas.en": {
+  "file": "darbuotojai-vienas.en.webp",
+  "w": 1392,
+  "h": 660,
+  "alt": "A staff member's page: details, till PIN, devices and the buttons at the top.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Tabs",
+    "text": "overview, permissions, shops, sign-ins."
+   },
+   {
+    "n": 2,
+    "label": "Generate Card",
+    "text": "a card with the sign-in code."
+   },
+   {
+    "n": 3,
+    "label": "Send an email",
+    "text": "the code by email."
+   },
+   {
+    "n": 4,
+    "label": "Reset PIN",
+    "text": "forgotten or learned by someone."
+   },
+   {
+    "n": 5,
+    "label": "Till PIN",
+    "text": "status and devices."
+   }
+  ]
+ },
  "darbuotojas-prisijungimai": {
   "file": "darbuotojas-prisijungimai.webp",
   "w": 1132,
   "h": 599,
   "alt": "Darbuotojo prisijungimų istorija: laikas, būdas, įrenginys, parduotuvė ir IP adresas.",
+  "marks": []
+ },
+ "darbuotojas-prisijungimai.en": {
+  "file": "darbuotojas-prisijungimai.en.webp",
+  "w": 1132,
+  "h": 617,
+  "alt": "A staff member's sign-in history: time, method, device, shop and IP address.",
   "marks": []
  },
  "imone-duomenys": {
@@ -337,6 +647,34 @@
    }
   ]
  },
+ "imone-duomenys.en": {
+  "file": "imone-duomenys.en.webp",
+  "w": 1132,
+  "h": 1138,
+  "alt": "The company information page: names, codes, address, contacts.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Tabs",
+    "text": "details, bank, brand."
+   },
+   {
+    "n": 2,
+    "label": "Display name",
+    "text": "customers see it."
+   },
+   {
+    "n": 3,
+    "label": "Legal name",
+    "text": "goes on invoices."
+   },
+   {
+    "n": 4,
+    "label": "Billing email",
+    "text": "where we send invoices."
+   }
+  ]
+ },
  "imone-zenklas": {
   "file": "imone-zenklas.webp",
   "w": 1132,
@@ -357,6 +695,29 @@
     "n": 3,
     "label": "Prekės ženklo peržiūra",
     "text": "kaip spalvos atrodys."
+   }
+  ]
+ },
+ "imone-zenklas.en": {
+  "file": "imone-zenklas.en.webp",
+  "w": 1132,
+  "h": 1276,
+  "alt": "The brand tab: logo, colours and preview.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Upload logo",
+    "text": "PNG, JPG or GIF, up to 2 MB."
+   },
+   {
+    "n": 2,
+    "label": "Colours",
+    "text": "used in the app."
+   },
+   {
+    "n": 3,
+    "label": "Branding preview",
+    "text": "how the colours will look."
    }
   ]
  },
@@ -383,6 +744,29 @@
    }
   ]
  },
+ "kasa-antspaudai.en": {
+  "file": "kasa-antspaudai.en.webp",
+  "w": 944,
+  "h": 828,
+  "alt": "The stamp card window: 0 of 6 collected and the “Add Stamps” button.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Stamp progress",
+    "text": "how many stamps the customer already has."
+   },
+   {
+    "n": 2,
+    "label": "Number of stamps",
+    "text": "how many to add: − and +."
+   },
+   {
+    "n": 3,
+    "label": "Add Stamps",
+    "text": "adds them. With all collected, the customer gets the prize."
+   }
+  ]
+ },
  "kasa-atideti": {
   "file": "kasa-atideti.webp",
   "w": 772,
@@ -401,6 +785,24 @@
    }
   ]
  },
+ "kasa-atideti.en": {
+  "file": "kasa-atideti.en.webp",
+  "w": 772,
+  "h": 340,
+  "alt": "The list of parked sales.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Parked sale",
+    "text": "the customer's name, amount and time. Tap to continue."
+   },
+   {
+    "n": 2,
+    "label": "Delete",
+    "text": "removes the parked sale."
+   }
+  ]
+ },
  "kasa-grazinimas": {
   "file": "kasa-grazinimas.webp",
   "w": 689,
@@ -414,6 +816,19 @@
    }
   ]
  },
+ "kasa-grazinimas.en": {
+  "file": "kasa-grazinimas.en.webp",
+  "w": 678,
+  "h": 556,
+  "alt": "The refund window: the parts of the purchase with ticks and amounts.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Refund",
+    "text": "refunds the ticked parts."
+   }
+  ]
+ },
  "kasa-istorija": {
   "file": "kasa-istorija.webp",
   "w": 1440,
@@ -424,6 +839,19 @@
     "n": 1,
     "label": "Grąžinti",
     "text": "atidaro grąžinimo langą."
+   }
+  ]
+ },
+ "kasa-istorija.en": {
+  "file": "kasa-istorija.en.webp",
+  "w": 1440,
+  "h": 900,
+  "alt": "The customer's previous purchases with “Refund” buttons.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Refund",
+    "text": "opens the refund window."
    }
   ]
  },
@@ -445,11 +873,36 @@
    }
   ]
  },
+ "kasa-kas-dirba.en": {
+  "file": "kasa-kas-dirba.en.webp",
+  "w": 550,
+  "h": 355,
+  "alt": "The “Who is working?” window with the list of staff.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Staff member",
+    "text": "choose yourself with the mouse or the number on the right."
+   },
+   {
+    "n": 2,
+    "label": "Someone else (staff code)",
+    "text": "when you are not in the list yet."
+   }
+  ]
+ },
  "kasa-klavisai": {
   "file": "kasa-klavisai.webp",
   "w": 476,
   "h": 570,
   "alt": "Klavišų trumpinių sąrašas.",
+  "marks": []
+ },
+ "kasa-klavisai.en": {
+  "file": "kasa-klavisai.en.webp",
+  "w": 444,
+  "h": 570,
+  "alt": "The list of keyboard shortcuts.",
   "marks": []
  },
  "kasa-klientas-kortele": {
@@ -495,6 +948,49 @@
    }
   ]
  },
+ "kasa-klientas-kortele.en": {
+  "file": "kasa-klientas-kortele.en.webp",
+  "w": 495,
+  "h": 862,
+  "alt": "The customer at the till: name, tier, points, games, coupons and previous purchases.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Customer",
+    "text": "name and card number."
+   },
+   {
+    "n": 2,
+    "label": "Tier",
+    "text": "tap to see the tier discount and how far the next tier is. Next to it – the birthday badge."
+   },
+   {
+    "n": 3,
+    "label": "Customer points",
+    "text": "how many points they have now."
+   },
+   {
+    "n": 4,
+    "label": "Games and Coupons",
+    "text": "how many the customer has; tap to open."
+   },
+   {
+    "n": 5,
+    "label": "Previous Purchases",
+    "text": "history and refunds."
+   },
+   {
+    "n": 6,
+    "label": "Refresh",
+    "text": "reloads the customer's points and coupons."
+   },
+   {
+    "n": 7,
+    "label": "Clear Client",
+    "text": "the sale goes on without a customer."
+   }
+  ]
+ },
  "kasa-klientas-naujas": {
   "file": "kasa-klientas-naujas.webp",
   "w": 1440,
@@ -515,6 +1011,29 @@
     "n": 3,
     "label": "Registruoti",
     "text": "sukuria klientą ir atidaro jį kasoje."
+   }
+  ]
+ },
+ "kasa-klientas-naujas.en": {
+  "file": "kasa-klientas-naujas.en.webp",
+  "w": 1440,
+  "h": 900,
+  "alt": "Registering a new customer: phone, first and last name, email, two consent ticks, card number and SMS language.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "The customer agrees to receive news by SMS",
+    "text": "tick only if the customer agrees."
+   },
+   {
+    "n": 2,
+    "label": "The customer agrees to receive news by email",
+    "text": "the customer gets an email and confirms in it."
+   },
+   {
+    "n": 3,
+    "label": "Register",
+    "text": "creates the customer and opens them at the till."
    }
   ]
  },
@@ -541,6 +1060,29 @@
    }
   ]
  },
+ "kasa-klientas-paieska.en": {
+  "file": "kasa-klientas-paieska.en.webp",
+  "w": 1440,
+  "h": 900,
+  "alt": "Finding a customer by phone: the switch, the number field, the keypad and the find button.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Card",
+    "text": "search by the 9-digit card number."
+   },
+   {
+    "n": 2,
+    "label": "Phone",
+    "text": "search by phone number. The till remembers what you used last time."
+   },
+   {
+    "n": 3,
+    "label": "Find or register",
+    "text": "an existing customer opens at once; a new one gets the registration window."
+   }
+  ]
+ },
  "kasa-kuponai": {
   "file": "kasa-kuponai.webp",
   "w": 1440,
@@ -559,6 +1101,24 @@
    }
   ]
  },
+ "kasa-kuponai.en": {
+  "file": "kasa-kuponai.en.webp",
+  "w": 1440,
+  "h": 900,
+  "alt": "The customer's coupons: two valid coupons.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Coupons",
+    "text": "this customer's coupons."
+   },
+   {
+    "n": 2,
+    "label": "Coupon",
+    "text": "code, discount and status. Tap to open."
+   }
+  ]
+ },
  "kasa-kuponas": {
   "file": "kasa-kuponas.webp",
   "w": 584,
@@ -574,6 +1134,24 @@
     "n": 2,
     "label": "Panaudoti kuponą",
     "text": "kuponas tampa panaudotu."
+   }
+  ]
+ },
+ "kasa-kuponas.en": {
+  "file": "kasa-kuponas.en.webp",
+  "w": 584,
+  "h": 497,
+  "alt": "The coupon window: title, discount, terms and the “Redeem coupon” button.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Coupon",
+    "text": "what it gives and on what terms."
+   },
+   {
+    "n": 2,
+    "label": "Redeem coupon",
+    "text": "the coupon becomes used."
    }
   ]
  },
@@ -620,6 +1198,49 @@
    }
   ]
  },
+ "kasa-langas.en": {
+  "file": "kasa-langas.en.webp",
+  "w": 1440,
+  "h": 900,
+  "alt": "The till on a computer: amount, discounts and keypad on the left, quick keys in the middle, customer and basket on the right.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Amount",
+    "text": "what you are entering now."
+   },
+   {
+    "n": 2,
+    "label": "Discount (F6)",
+    "text": "the discounts your manager allowed."
+   },
+   {
+    "n": 3,
+    "label": "Keypad",
+    "text": "to enter the amount with the mouse or a finger. Computer keys work too."
+   },
+   {
+    "n": 4,
+    "label": "Quick keys",
+    "text": "the most common amounts with one press."
+   },
+   {
+    "n": 5,
+    "label": "Scan Customer Card",
+    "text": "three ways to find or register a customer."
+   },
+   {
+    "n": 6,
+    "label": "Pay (F12)",
+    "text": "finishes the purchase."
+   },
+   {
+    "n": 7,
+    "label": "Switch staff",
+    "text": "another staff member signs in with their PIN."
+   }
+  ]
+ },
  "kasa-mokejimas": {
   "file": "kasa-mokejimas.webp",
   "w": 1004,
@@ -630,6 +1251,19 @@
     "n": 1,
     "label": "Mokėti",
     "text": "įrašo pirkimą. Klientas iškart gauna pranešimą."
+   }
+  ]
+ },
+ "kasa-mokejimas.en": {
+  "file": "kasa-mokejimas.en.webp",
+  "w": 1004,
+  "h": 600,
+  "alt": "The payment window with the amount.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pay",
+    "text": "records the purchase. The customer gets a notice at once."
    }
   ]
  },
@@ -671,6 +1305,44 @@
    }
   ]
  },
+ "kasa-nustatymai.en": {
+  "file": "kasa-nustatymai.en.webp",
+  "w": 1200,
+  "h": 1760,
+  "alt": "The till's settings: look, language, shop, printer, payment method and layout.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Change shop",
+    "text": "when you work in several."
+   },
+   {
+    "n": 2,
+    "label": "Printer settings",
+    "text": "the receipt printer."
+   },
+   {
+    "n": 3,
+    "label": "Ask for payment method",
+    "text": "choose cash or card before paying."
+   },
+   {
+    "n": 4,
+    "label": "Till layout",
+    "text": "control, keyboard, button size and basket side."
+   },
+   {
+    "n": 5,
+    "label": "Forget me on this device",
+    "text": "here you will sign in with your code again."
+   },
+   {
+    "n": 6,
+    "label": "App Version",
+    "text": "you see it here when asking for help."
+   }
+  ]
+ },
  "kasa-parduotuve": {
   "file": "kasa-parduotuve.webp",
   "w": 1100,
@@ -681,6 +1353,19 @@
     "n": 1,
     "label": "Parduotuvė",
     "text": "pasirinkite tą, kurioje dirbate. Kasa ją įsimena."
+   }
+  ]
+ },
+ "kasa-parduotuve.en": {
+  "file": "kasa-parduotuve.en.webp",
+  "w": 1100,
+  "h": 900,
+  "alt": "Choosing the shop: search and two shops.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Shop",
+    "text": "choose the one you work in. The till remembers it."
    }
   ]
  },
@@ -699,6 +1384,24 @@
     "n": 2,
     "label": "Jungtis kodu",
     "text": "pamiršus PIN prisijunkite darbuotojo kodu."
+   }
+  ]
+ },
+ "kasa-pin.en": {
+  "file": "kasa-pin.en.webp",
+  "w": 588,
+  "h": 557,
+  "alt": "The PIN window.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "PIN",
+    "text": "4 digits. After the fourth, the till unlocks by itself."
+   },
+   {
+    "n": 2,
+    "label": "Use staff code",
+    "text": "forgot the PIN? Sign in with your staff code."
    }
   ]
  },
@@ -735,6 +1438,39 @@
    }
   ]
  },
+ "kasa-prisijungti.en": {
+  "file": "kasa-prisijungti.en.webp",
+  "w": 619,
+  "h": 720,
+  "alt": "Sign-in screen: a field for the staff code, keyboard and camera buttons, “Sign in”, the device code at the bottom.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Keyboard",
+    "text": "an on-screen keyboard to type the code."
+   },
+   {
+    "n": 2,
+    "label": "Camera",
+    "text": "scans the QR code on the staff card."
+   },
+   {
+    "n": 3,
+    "label": "Login",
+    "text": "signs in with the code typed."
+   },
+   {
+    "n": 4,
+    "label": "Device",
+    "text": "this till's code, the app version and the server."
+   },
+   {
+    "n": 5,
+    "label": "Change language",
+    "text": "Lithuanian or English."
+   }
+  ]
+ },
  "kasa-skydelis": {
   "file": "kasa-skydelis.webp",
   "w": 1440,
@@ -758,11 +1494,41 @@
    }
   ]
  },
+ "kasa-skydelis.en": {
+  "file": "kasa-skydelis.en.webp",
+  "w": 1440,
+  "h": 1250,
+  "alt": "The till's dashboard: customers, points, revenue and today's numbers.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Today's statistics",
+    "text": "today's customers, points, revenue and sales."
+   },
+   {
+    "n": 2,
+    "label": "Monthly activity",
+    "text": "points given over the last months."
+   },
+   {
+    "n": 3,
+    "label": "Recent activity",
+    "text": "purchases and points."
+   }
+  ]
+ },
  "kasa-spausdintuvas": {
   "file": "kasa-spausdintuvas.webp",
   "w": 1100,
   "h": 900,
   "alt": "Spausdintuvo nustatymai be pridėtų spausdintuvų: mygtukai „Pridėti spausdintuvą“ ir „Ieškoti spausdintuvų“.",
+  "marks": []
+ },
+ "kasa-spausdintuvas.en": {
+  "file": "kasa-spausdintuvas.en.webp",
+  "w": 1100,
+  "h": 900,
+  "alt": "Printer settings with no printers yet: the buttons to add and to find a printer.",
   "marks": []
  },
  "kasa-suma-krepselis": {
@@ -798,6 +1564,39 @@
    }
   ]
  },
+ "kasa-suma-krepselis.en": {
+  "file": "kasa-suma-krepselis.en.webp",
+  "w": 1440,
+  "h": 900,
+  "alt": "The basket with two amounts: treatments with a discount and cosmetics.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Treatments",
+    "text": "the amount with the discount; under the name – the discount and the amount without it."
+   },
+   {
+    "n": 2,
+    "label": "Cosmetics",
+    "text": "a second amount in the same purchase."
+   },
+   {
+    "n": 3,
+    "label": "×",
+    "text": "removes the amount from the basket."
+   },
+   {
+    "n": 4,
+    "label": "Till discount",
+    "text": "how much discount applies to the whole purchase."
+   },
+   {
+    "n": 5,
+    "label": "Pay (F12)",
+    "text": "the final amount."
+   }
+  ]
+ },
  "kasa-suma-nuolaida": {
   "file": "kasa-suma-nuolaida.webp",
   "w": 398,
@@ -821,6 +1620,29 @@
    }
   ]
  },
+ "kasa-suma-nuolaida.en": {
+  "file": "kasa-suma-nuolaida.en.webp",
+  "w": 398,
+  "h": 735,
+  "alt": "A 20 percent discount applied: 80 shown instead of 100 euros.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Nuolaida 20 %",
+    "text": "a discount button, named by your manager. Black – the discount is on; press again to remove it."
+   },
+   {
+    "n": 2,
+    "label": "€100.00 −20 %",
+    "text": "the amount without the discount and the discount size."
+   },
+   {
+    "n": 3,
+    "label": "€80.00",
+    "text": "what the customer pays."
+   }
+  ]
+ },
  "kasa-suma-priezastis": {
   "file": "kasa-suma-priezastis.webp",
   "w": 860,
@@ -831,6 +1653,19 @@
     "n": 1,
     "label": "Pritaikyti nuolaidą",
     "text": "nuolaida pritaikoma tik įrašius priežastį."
+   }
+  ]
+ },
+ "kasa-suma-priezastis.en": {
+  "file": "kasa-suma-priezastis.en.webp",
+  "w": 860,
+  "h": 428,
+  "alt": "The window where the cashier types the reason for a discount.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Apply discount",
+    "text": "the discount applies only with a reason."
    }
   ]
  },
@@ -857,6 +1692,29 @@
    }
   ]
  },
+ "kasa-suma-surinkta.en": {
+  "file": "kasa-suma-surinkta.en.webp",
+  "w": 398,
+  "h": 735,
+  "alt": "An amount of 100 euros entered and the OK button.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Amount",
+    "text": "digits start from the cents: 10000 is €100.00."
+   },
+   {
+    "n": 2,
+    "label": "OK",
+    "text": "confirms the amount; on a computer – the Enter key."
+   },
+   {
+    "n": 3,
+    "label": "Clear",
+    "text": "deletes the amount entered; on a computer – Delete."
+   }
+  ]
+ },
  "kasa-suma-telefonas": {
   "file": "kasa-suma-telefonas.webp",
   "w": 390,
@@ -872,6 +1730,24 @@
     "n": 2,
     "label": "OK",
     "text": "patvirtina sumą."
+   }
+  ]
+ },
+ "kasa-suma-telefonas.en": {
+  "file": "kasa-suma-telefonas.en.webp",
+  "w": 390,
+  "h": 844,
+  "alt": "The till on a phone: amount, discounts, keypad and the bottom bar.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Discount",
+    "text": "the same discount buttons."
+   },
+   {
+    "n": 2,
+    "label": "OK",
+    "text": "confirms the amount."
    }
   ]
  },
@@ -895,6 +1771,29 @@
     "n": 3,
     "label": "Akcijos, abonementai ir Dovanų kuponas",
     "text": "dalys be taškų."
+   }
+  ]
+ },
+ "kasa-suma-uz-ka.en": {
+  "file": "kasa-suma-uz-ka.en.webp",
+  "w": 792,
+  "h": 664,
+  "alt": "The window asking what the amount is for, with the purchase parts and the discounted amount next to each.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Cosmetics",
+    "text": "the discount does not apply to this part, so the amount stays whole."
+   },
+   {
+    "n": 2,
+    "label": "Treatments",
+    "text": "chosen in advance; here you see the amount with the discount."
+   },
+   {
+    "n": 3,
+    "label": "Promotions, memberships and Gift voucher",
+    "text": "parts that earn no points."
    }
   ]
  },
@@ -923,6 +1822,34 @@
     "n": 4,
     "label": "Pritaikyti nuolaidą",
     "text": "nuima sumą nuo pirkimo."
+   }
+  ]
+ },
+ "kasa-taskai-iskeitimas.en": {
+  "file": "kasa-taskai-iskeitimas.en.webp",
+  "w": 628,
+  "h": 740,
+  "alt": "The points discount window: 200 points are 10 euros.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Available",
+    "text": "how many points the customer has and what they are worth."
+   },
+   {
+    "n": 2,
+    "label": "−€10.00",
+    "text": "how much comes off the amount."
+   },
+   {
+    "n": 3,
+    "label": "Quick choice",
+    "text": "the most common amounts with one tap."
+   },
+   {
+    "n": 4,
+    "label": "Apply discount",
+    "text": "takes the amount off the purchase."
    }
   ]
  },
@@ -959,6 +1886,39 @@
    }
   ]
  },
+ "kasos-irenginiai.en": {
+  "file": "kasos-irenginiai.en.webp",
+  "w": 1132,
+  "h": 978,
+  "alt": "The till devices list: code, app, shop and who can sign in with a PIN.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Code",
+    "text": "the same as in the till's corner."
+   },
+   {
+    "n": 2,
+    "label": "Name",
+    "text": "write where the device stands."
+   },
+   {
+    "n": 3,
+    "label": "Shop",
+    "text": "which shop it belongs to."
+   },
+   {
+    "n": 4,
+    "label": "Remove from device",
+    "text": "the person will sign in with the code again."
+   },
+   {
+    "n": 5,
+    "label": "Delete",
+    "text": "everyone will sign in with the code again."
+   }
+  ]
+ },
  "kasos-nuolaidos-forma": {
   "file": "kasos-nuolaidos-forma.webp",
   "w": 700,
@@ -992,6 +1952,39 @@
    }
   ]
  },
+ "kasos-nuolaidos-forma.en": {
+  "file": "kasos-nuolaidos-forma.en.webp",
+  "w": 700,
+  "h": 1838,
+  "alt": "The discount form: name, type, size, limits, for whom and when, combining with the loyalty programme.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Name",
+    "text": "the label of the button at the till."
+   },
+   {
+    "n": 2,
+    "label": "Who sets the size",
+    "text": "set here or entered by the cashier."
+   },
+   {
+    "n": 3,
+    "label": "What it applies to",
+    "text": "shops, parts, tiers."
+   },
+   {
+    "n": 4,
+    "label": "When it applies",
+    "text": "dates, days, hours."
+   },
+   {
+    "n": 5,
+    "label": "With the loyalty programme",
+    "text": "whether together with the tier and points."
+   }
+  ]
+ },
  "kasos-nuolaidos-pavyzdziai": {
   "file": "kasos-nuolaidos-pavyzdziai.webp",
   "w": 348,
@@ -1002,6 +1995,19 @@
     "n": 1,
     "label": "Tuščia nuolaida",
     "text": "pradėti nuo nulio."
+   }
+  ]
+ },
+ "kasos-nuolaidos-pavyzdziai.en": {
+  "file": "kasos-nuolaidos-pavyzdziai.en.webp",
+  "w": 348,
+  "h": 495,
+  "alt": "The list of discount examples: percent, fixed amount, happy hours, students and others.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Empty discount",
+    "text": "start from nothing."
    }
   ]
  },
@@ -1038,6 +2044,39 @@
    }
   ]
  },
+ "kasos-nuolaidos-sarasas.en": {
+  "file": "kasos-nuolaidos-sarasas.en.webp",
+  "w": 1132,
+  "h": 465,
+  "alt": "The till discounts list: four discounts with conditions, usage and actions.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Add discount",
+    "text": "a new discount or an example."
+   },
+   {
+    "n": 2,
+    "label": "Conditions",
+    "text": "for whom, when and how it applies."
+   },
+   {
+    "n": 3,
+    "label": "Usage",
+    "text": "how many times and how much in 30 days."
+   },
+   {
+    "n": 4,
+    "label": "On",
+    "text": "a disabled one does not show at the till."
+   },
+   {
+    "n": 5,
+    "label": "Actions",
+    "text": "order at the till, edit, copy, delete."
+   }
+  ]
+ },
  "klientai-lygis": {
   "file": "klientai-lygis.webp",
   "w": 476,
@@ -1061,6 +2100,29 @@
    }
   ]
  },
+ "klientai-lygis.en": {
+  "file": "klientai-lygis.en.webp",
+  "w": 476,
+  "h": 462,
+  "alt": "The tier assignment window: tier, validity and reason.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Loyalty tier",
+    "text": "which tier to give."
+   },
+   {
+    "n": 2,
+    "label": "Valid until",
+    "text": "empty – without limit."
+   },
+   {
+    "n": 3,
+    "label": "Reason",
+    "text": "a note for you."
+   }
+  ]
+ },
  "klientai-redaguoti": {
   "file": "klientai-redaguoti.webp",
   "w": 540,
@@ -1081,6 +2143,29 @@
     "n": 3,
     "label": "Išsaugoti",
     "text": "įsigalioja iš karto."
+   }
+  ]
+ },
+ "klientai-redaguoti.en": {
+  "file": "klientai-redaguoti.en.webp",
+  "w": 540,
+  "h": 584,
+  "alt": "The customer's details window: name, phone, email, birth date, gender and address.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Phone",
+    "text": "the customer signs in to the app with this number."
+   },
+   {
+    "n": 2,
+    "label": "Date of birth",
+    "text": "needed for birthday gifts."
+   },
+   {
+    "n": 3,
+    "label": "Save",
+    "text": "applies at once."
    }
   ]
  },
@@ -1122,6 +2207,44 @@
    }
   ]
  },
+ "klientai-sarasas.en": {
+  "file": "klientai-sarasas.en.webp",
+  "w": 1132,
+  "h": 1278,
+  "alt": "The customers page: search, filters, AI search in words and the customer list with tier and points.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Search",
+    "text": "name, email or phone."
+   },
+   {
+    "n": 2,
+    "label": "Find customers in plain words",
+    "text": "AI picks the filters from your sentence."
+   },
+   {
+    "n": 3,
+    "label": "Filters",
+    "text": "card, tier, points, date."
+   },
+   {
+    "n": 4,
+    "label": "Export",
+    "text": "the list as a CSV or Excel file."
+   },
+   {
+    "n": 5,
+    "label": "Customer list",
+    "text": "the eye – the customer's page, the pencil – change details."
+   },
+   {
+    "n": 6,
+    "label": "Import cards",
+    "text": "upload an existing customer list."
+   }
+  ]
+ },
  "klientai-vienas": {
   "file": "klientai-vienas.webp",
   "w": 1132,
@@ -1155,6 +2278,39 @@
    }
   ]
  },
+ "klientai-vienas.en": {
+  "file": "klientai-vienas.en.webp",
+  "w": 1132,
+  "h": 1856,
+  "alt": "A customer's page: contacts, tier and points, the card with its QR code, consents and purchases.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Edit",
+    "text": "change the customer's details."
+   },
+   {
+    "n": 2,
+    "label": "Assign tier",
+    "text": "a tier by hand."
+   },
+   {
+    "n": 3,
+    "label": "QR code",
+    "text": "the same one the customer shows at the till."
+   },
+   {
+    "n": 4,
+    "label": "Consents",
+    "text": "SMS and email."
+   },
+   {
+    "n": 5,
+    "label": "Transaction history",
+    "text": "all purchases; the eye – the purchase page."
+   }
+  ]
+ },
  "klientu-importas-failas": {
   "file": "klientu-importas-failas.webp",
   "w": 1132,
@@ -1180,6 +2336,34 @@
     "n": 4,
     "label": "Toliau",
     "text": "stulpelių priskyrimas."
+   }
+  ]
+ },
+ "klientu-importas-failas.en": {
+  "file": "klientu-importas-failas.en.webp",
+  "w": 1132,
+  "h": 1349,
+  "alt": "The first step of the customer import: template, file upload and the column guide.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Steps",
+    "text": "4 in total."
+   },
+   {
+    "n": 2,
+    "label": "Download Excel template",
+    "text": "if you have no file of your own."
+   },
+   {
+    "n": 3,
+    "label": "Your file",
+    "text": "Excel or CSV."
+   },
+   {
+    "n": 4,
+    "label": "Next",
+    "text": "matching the columns."
    }
   ]
  },
@@ -1211,6 +2395,34 @@
    }
   ]
  },
+ "korteles-bendra.en": {
+  "file": "korteles-bendra.en.webp",
+  "w": 1132,
+  "h": 950,
+  "alt": "The first tab of the card form: name, description and two ticks; the card preview on the right.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Tabs",
+    "text": "the whole card form."
+   },
+   {
+    "n": 2,
+    "label": "Card is active",
+    "text": "untick it and the card is not used."
+   },
+   {
+    "n": 3,
+    "label": "Assign to new customers automatically",
+    "text": "a new customer gets the card by themselves."
+   },
+   {
+    "n": 4,
+    "label": "Preview",
+    "text": "how the card will look in the app."
+   }
+  ]
+ },
  "korteles-dizainas": {
   "file": "korteles-dizainas.webp",
   "w": 1132,
@@ -1239,6 +2451,34 @@
    }
   ]
  },
+ "korteles-dizainas.en": {
+  "file": "korteles-dizainas.en.webp",
+  "w": 1132,
+  "h": 950,
+  "alt": "The card's design tab: logo, background picture, colours and blur.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Logo",
+    "text": "JPG, PNG or WebP, up to 2 MB."
+   },
+   {
+    "n": 2,
+    "label": "Background image",
+    "text": "instead of a single colour."
+   },
+   {
+    "n": 3,
+    "label": "Colours",
+    "text": "text, labels and the QR code."
+   },
+   {
+    "n": 4,
+    "label": "Background",
+    "text": "opacity and blur."
+   }
+  ]
+ },
  "korteles-sarasas": {
   "file": "korteles-sarasas.webp",
   "w": 1132,
@@ -1264,6 +2504,34 @@
     "n": 4,
     "label": "Ištrinti",
     "text": "neatšaukiama."
+   }
+  ]
+ },
+ "korteles-sarasas.en": {
+  "file": "korteles-sarasas.en.webp",
+  "w": 1132,
+  "h": 773,
+  "alt": "The loyalty cards page: numbers, filters and one card with its points rules and action buttons.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Add a new loyalty card",
+    "text": "a new card."
+   },
+   {
+    "n": 2,
+    "label": "Rules",
+    "text": "what earns points, what they are worth and how long they last."
+   },
+   {
+    "n": 3,
+    "label": "Actions",
+    "text": "view, edit, show the QR code, turn off."
+   },
+   {
+    "n": 4,
+    "label": "Delete",
+    "text": "cannot be undone."
    }
   ]
  },
@@ -1310,6 +2578,49 @@
    }
   ]
  },
+ "korteles-taskai.en": {
+  "file": "korteles-taskai.en.webp",
+  "w": 1132,
+  "h": 1206,
+  "alt": "The card's points tab: earning, limits and redemption; the points simulation on the right.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Initial bonus points",
+    "text": "a gift for a new customer."
+   },
+   {
+    "n": 2,
+    "label": "Points validity (days)",
+    "text": "after how many days points expire."
+   },
+   {
+    "n": 3,
+    "label": "Points conversion",
+    "text": "how many points for how many euros."
+   },
+   {
+    "n": 4,
+    "label": "Limits",
+    "text": "the least and the most points per purchase."
+   },
+   {
+    "n": 5,
+    "label": "Points redemption",
+    "text": "how many points are worth how many euros."
+   },
+   {
+    "n": 6,
+    "label": "Points cover at most, % of the amount",
+    "text": "the largest share of a purchase points can cover."
+   },
+   {
+    "n": 7,
+    "label": "Points simulation",
+    "text": "an example by your rules."
+   }
+  ]
+ },
  "korteles-viena": {
   "file": "korteles-viena.webp",
   "w": 1132,
@@ -1335,6 +2646,34 @@
     "n": 4,
     "label": "Taisyklės",
     "text": "kas galioja dabar."
+   }
+  ]
+ },
+ "korteles-viena.en": {
+  "file": "korteles-viena.en.webp",
+  "w": 1132,
+  "h": 756,
+  "alt": "A card's page: customers, points given and used, transactions, points rules.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Numbers",
+    "text": "customers, points given and used, purchases."
+   },
+   {
+    "n": 2,
+    "label": "View QR code",
+    "text": "a code for customers."
+   },
+   {
+    "n": 3,
+    "label": "Edit",
+    "text": "change the rules or the look."
+   },
+   {
+    "n": 4,
+    "label": "Rules",
+    "text": "what applies now."
    }
   ]
  },
@@ -1366,6 +2705,34 @@
    }
   ]
  },
+ "kuponai-sarasas.en": {
+  "file": "kuponai-sarasas.en.webp",
+  "w": 1132,
+  "h": 972,
+  "alt": "The coupons page: active, used and expired coupons, filters and the list.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Numbers",
+    "text": "how many are active, used, expired."
+   },
+   {
+    "n": 2,
+    "label": "Filter",
+    "text": "by code, customer, status, date."
+   },
+   {
+    "n": 3,
+    "label": "Coupon list",
+    "text": "who it belongs to, what for and its status."
+   },
+   {
+    "n": 4,
+    "label": "Scan and redeem",
+    "text": "redeem a coupon without the till."
+   }
+  ]
+ },
  "kuponai-skenuoti": {
   "file": "kuponai-skenuoti.webp",
   "w": 1132,
@@ -1394,6 +2761,34 @@
    }
   ]
  },
+ "kuponai-skenuoti.en": {
+  "file": "kuponai-skenuoti.en.webp",
+  "w": 1132,
+  "h": 693,
+  "alt": "Checking a coupon: the shop chosen, the code typed, the valid coupon details on the right.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Shop",
+    "text": "where the coupon is redeemed."
+   },
+   {
+    "n": 2,
+    "label": "Coupon code",
+    "text": "type it or scan it with a scanner."
+   },
+   {
+    "n": 3,
+    "label": "Check coupon",
+    "text": "does not redeem anything yet."
+   },
+   {
+    "n": 4,
+    "label": "Redeem coupon",
+    "text": "cannot be undone."
+   }
+  ]
+ },
  "kuponai-vienas": {
   "file": "kuponai-vienas.webp",
   "w": 1132,
@@ -1414,6 +2809,29 @@
     "n": 3,
     "label": "Panaudojimo informacija",
     "text": "kada ir kur panaudotas."
+   }
+  ]
+ },
+ "kuponai-vienas.en": {
+  "file": "kuponai-vienas.en.webp",
+  "w": 1132,
+  "h": 779,
+  "alt": "A used coupon: code, customer, offer, when and where it was redeemed.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Basic information",
+    "text": "code and validity."
+   },
+   {
+    "n": 2,
+    "label": "View customer",
+    "text": "the customer's page."
+   },
+   {
+    "n": 3,
+    "label": "Redemption information",
+    "text": "when and where it was redeemed."
    }
   ]
  },
@@ -1460,6 +2878,49 @@
    }
   ]
  },
+ "lygiai-dalis.en": {
+  "file": "lygiai-dalis.en.webp",
+  "w": 604,
+  "h": 2075,
+  "alt": "The purchase part window: name, points multiplier, tier discount, paying with points and when the rules apply.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Name",
+    "text": "the cashier sees it at the till."
+   },
+   {
+    "n": 2,
+    "label": "Points multiplier",
+    "text": "0 – no points."
+   },
+   {
+    "n": 3,
+    "label": "Own way of earning points",
+    "text": "a rate other than the card’s."
+   },
+   {
+    "n": 4,
+    "label": "Apply the tier discount",
+    "text": "whether the tier percentage applies."
+   },
+   {
+    "n": 5,
+    "label": "Can be paid with points",
+    "text": "whether points can cover this part."
+   },
+   {
+    "n": 6,
+    "label": "Default part",
+    "text": "when no part is chosen."
+   },
+   {
+    "n": 7,
+    "label": "When the rules apply",
+    "text": "dates and weekdays."
+   }
+  ]
+ },
  "lygiai-dalys": {
   "file": "lygiai-dalys.webp",
   "w": 1108,
@@ -1480,6 +2941,29 @@
     "n": 3,
     "label": "Taisyklės",
     "text": "taškai, lygio nuolaida, mokėjimas taškais."
+   }
+  ]
+ },
+ "lygiai-dalys.en": {
+  "file": "lygiai-dalys.en.webp",
+  "w": 1108,
+  "h": 465,
+  "alt": "The purchase parts list: cosmetics, treatments, promotions and gift voucher with their rules.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Add part",
+    "text": "a new purchase part."
+   },
+   {
+    "n": 2,
+    "label": "Default",
+    "text": "applies when the cashier does not choose a part."
+   },
+   {
+    "n": 3,
+    "label": "Rules",
+    "text": "points, tier discount, paying with points."
    }
   ]
  },
@@ -1521,6 +3005,44 @@
    }
   ]
  },
+ "lygiai-lygis.en": {
+  "file": "lygiai-lygis.en.webp",
+  "w": 700,
+  "h": 1190,
+  "alt": "The new tier window: name, threshold, points multiplier, discount, point value and benefits.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Name",
+    "text": "how the customer sees the tier."
+   },
+   {
+    "n": 2,
+    "label": "Threshold",
+    "text": "the value at which the tier is reached."
+   },
+   {
+    "n": 3,
+    "label": "Points multiplier",
+    "text": "1.2 – a fifth more points."
+   },
+   {
+    "n": 4,
+    "label": "Discount",
+    "text": "percent for this tier."
+   },
+   {
+    "n": 5,
+    "label": "Formula",
+    "text": "a condition instead of a number."
+   },
+   {
+    "n": 6,
+    "label": "Benefits",
+    "text": "what else the customer gets, one per line."
+   }
+  ]
+ },
  "lygiai-puslapis": {
   "file": "lygiai-puslapis.webp",
   "w": 1132,
@@ -1556,6 +3078,44 @@
     "n": 6,
     "label": "Veiksmai",
     "text": "keisti eilę, redaguoti, ištrinti."
+   }
+  ]
+ },
+ "lygiai-puslapis.en": {
+  "file": "lygiai-puslapis.en.webp",
+  "w": 1132,
+  "h": 1664,
+  "alt": "The loyalty tiers page: numbers, programme settings and three tiers.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Add tier",
+    "text": "a new tier."
+   },
+   {
+    "n": 2,
+    "label": "Templates",
+    "text": "ready programmes."
+   },
+   {
+    "n": 3,
+    "label": "Design with AI",
+    "text": "describe it in words; AI suggests the tiers."
+   },
+   {
+    "n": 4,
+    "label": "Programme settings",
+    "text": "what moves customers up and how long it lasts."
+   },
+   {
+    "n": 5,
+    "label": "Tiers",
+    "text": "from the lowest to the highest."
+   },
+   {
+    "n": 6,
+    "label": "Actions",
+    "text": "change the order, edit, delete."
    }
   ]
  },
@@ -1597,6 +3157,44 @@
    }
   ]
  },
+ "lygiu-pranesimai-naujas.en": {
+  "file": "lygiu-pranesimai-naujas.en.webp",
+  "w": 1132,
+  "h": 1164,
+  "alt": "The new notification form: event, tier, channels, title, text and variables.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Event",
+    "text": "when to send and for which tier."
+   },
+   {
+    "n": 2,
+    "label": "Channels",
+    "text": "push, email, SMS."
+   },
+   {
+    "n": 3,
+    "label": "Write with AI",
+    "text": "AI suggests the text, you correct it."
+   },
+   {
+    "n": 4,
+    "label": "Title and Text",
+    "text": "what the customer gets."
+   },
+   {
+    "n": 5,
+    "label": "Available variables",
+    "text": "click to insert into the text."
+   },
+   {
+    "n": 6,
+    "label": "Save rule",
+    "text": "the rule starts working."
+   }
+  ]
+ },
  "lygiu-pranesimai-sarasas": {
   "file": "lygiu-pranesimai-sarasas.webp",
   "w": 1132,
@@ -1617,6 +3215,29 @@
     "n": 3,
     "label": "Testuoti sau",
     "text": "bandomasis pranešimas jums."
+   }
+  ]
+ },
+ "lygiu-pranesimai-sarasas.en": {
+  "file": "lygiu-pranesimai-sarasas.en.webp",
+  "w": 1132,
+  "h": 319,
+  "alt": "The tier notifications list: two rules with channels and action buttons.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Add notification",
+    "text": "a new rule."
+   },
+   {
+    "n": 2,
+    "label": "Channels",
+    "text": "how it is sent."
+   },
+   {
+    "n": 3,
+    "label": "Send me a test",
+    "text": "a test notification to you."
    }
   ]
  },
@@ -1648,6 +3269,34 @@
    }
   ]
  },
+ "mokejimu-surinkimas.en": {
+  "file": "mokejimu-surinkimas.en.webp",
+  "w": 1132,
+  "h": 2108,
+  "alt": "The payment collection page: how it works, prices, calculator, settings and linking a Stripe account.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Pricing",
+    "text": "Stripe and platform fees."
+   },
+   {
+    "n": 2,
+    "label": "Fee calculator",
+    "text": "what is left from an amount."
+   },
+   {
+    "n": 3,
+    "label": "Discount code",
+    "text": "if you have one."
+   },
+   {
+    "n": 4,
+    "label": "Create a Stripe account",
+    "text": "start here."
+   }
+  ]
+ },
  "nustatymai": {
   "file": "nustatymai.webp",
   "w": 1132,
@@ -1671,6 +3320,29 @@
    }
   ]
  },
+ "nustatymai.en": {
+  "file": "nustatymai.en.webp",
+  "w": 1132,
+  "h": 964,
+  "alt": "The settings page: tabs, personal details and password.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Tabs",
+    "text": "all the settings."
+   },
+   {
+    "n": 2,
+    "label": "Password",
+    "text": "the current one and the new one."
+   },
+   {
+    "n": 3,
+    "label": "Update password",
+    "text": "applies at once."
+   }
+  ]
+ },
  "parduotuves-darbo-laikas": {
   "file": "parduotuves-darbo-laikas.webp",
   "w": 1102,
@@ -1691,6 +3363,29 @@
     "n": 3,
     "label": "Pietų pertrauka",
     "text": "pažymėjus atsiranda pertraukos laikas."
+   }
+  ]
+ },
+ "parduotuves-darbo-laikas.en": {
+  "file": "parduotuves-darbo-laikas.en.webp",
+  "w": 1102,
+  "h": 440,
+  "alt": "The opening hours block: Monday and Tuesday opening and closing times, lunch break.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Monday",
+    "text": "untick it if you do not work that day."
+   },
+   {
+    "n": 2,
+    "label": "Opens and Closes",
+    "text": "hours and minutes."
+   },
+   {
+    "n": 3,
+    "label": "Lunch break",
+    "text": "when ticked, the break time appears."
    }
   ]
  },
@@ -1722,6 +3417,34 @@
    }
   ]
  },
+ "parduotuves-importas.en": {
+  "file": "parduotuves-importas.en.webp",
+  "w": 1132,
+  "h": 944,
+  "alt": "The shop import page: downloading the template and uploading the filled-in file.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Download template",
+    "text": "an Excel file with the right columns."
+   },
+   {
+    "n": 2,
+    "label": "Choose",
+    "text": "the filled-in file (.xlsx or .xls)."
+   },
+   {
+    "n": 3,
+    "label": "Upload and import",
+    "text": "works once a file is chosen."
+   },
+   {
+    "n": 4,
+    "label": "Import guidelines",
+    "text": "required fields and limits."
+   }
+  ]
+ },
  "parduotuves-istrinti": {
   "file": "parduotuves-istrinti.webp",
   "w": 540,
@@ -1732,6 +3455,19 @@
     "n": 1,
     "label": "Ištrinti",
     "text": "ištrina visam laikui."
+   }
+  ]
+ },
+ "parduotuves-istrinti.en": {
+  "file": "parduotuves-istrinti.en.webp",
+  "w": 540,
+  "h": 194,
+  "alt": "The window asking to confirm deleting the shop.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Delete",
+    "text": "deletes it for good."
    }
   ]
  },
@@ -1778,6 +3514,49 @@
    }
   ]
  },
+ "parduotuves-kasa.en": {
+  "file": "parduotuves-kasa.en.webp",
+  "w": 1120,
+  "h": 618,
+  "alt": "The “Till quick keys” block: four keys with an amount and a purchase part, discounts and the lock.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Add key",
+    "text": "a new row at the end of the list."
+   },
+   {
+    "n": 2,
+    "label": "Label",
+    "text": "what is written on the key at the till."
+   },
+   {
+    "n": 3,
+    "label": "Amount",
+    "text": "what the key enters."
+   },
+   {
+    "n": 4,
+    "label": "Purchase part",
+    "text": "when chosen, the till does not ask what the amount is for."
+   },
+   {
+    "n": 5,
+    "label": "Manage discounts",
+    "text": "opens the “Till discounts” page."
+   },
+   {
+    "n": 6,
+    "label": "Lock the till when idle",
+    "text": "after how many minutes the till asks for the PIN. 0 – never."
+   },
+   {
+    "n": 7,
+    "label": "Save",
+    "text": "appears once something has changed."
+   }
+  ]
+ },
  "parduotuves-nauja": {
   "file": "parduotuves-nauja.webp",
   "w": 1130,
@@ -1816,6 +3595,44 @@
    }
   ]
  },
+ "parduotuves-nauja.en": {
+  "file": "parduotuves-nauja.en.webp",
+  "w": 1130,
+  "h": 1002,
+  "alt": "The new shop form: name, logo, address and contacts.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Shop name",
+    "text": "customers and cashiers see the shop by this name."
+   },
+   {
+    "n": 2,
+    "label": "Browse files",
+    "text": "the shop's logo. Optional."
+   },
+   {
+    "n": 3,
+    "label": "This is an online shop",
+    "text": "you enter a website instead of an address."
+   },
+   {
+    "n": 4,
+    "label": "Street and house number",
+    "text": "start typing and choose the address from the list."
+   },
+   {
+    "n": 5,
+    "label": "Latitude and Longitude",
+    "text": "the place on the map."
+   },
+   {
+    "n": 6,
+    "label": "Phone number and Email address",
+    "text": "contacts customers will see."
+   }
+  ]
+ },
  "parduotuves-pos": {
   "file": "parduotuves-pos.webp",
   "w": 1102,
@@ -1846,6 +3663,39 @@
     "n": 5,
     "label": "Sukurti parduotuvę",
     "text": "išsaugo."
+   }
+  ]
+ },
+ "parduotuves-pos.en": {
+  "file": "parduotuves-pos.en.webp",
+  "w": 1102,
+  "h": 364,
+  "alt": "Choosing the POS: Simple POS, Full POS and Games POS, below them – “Shop is active” and the create button.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Simple POS",
+    "text": "the cashier enters an amount. Suits salons and cafés."
+   },
+   {
+    "n": 2,
+    "label": "Full POS",
+    "text": "the cashier picks products from your list."
+   },
+   {
+    "n": 3,
+    "label": "Games POS",
+    "text": "games only, no amounts."
+   },
+   {
+    "n": 4,
+    "label": "Shop is active",
+    "text": "neither customers nor the till see an inactive shop."
+   },
+   {
+    "n": 5,
+    "label": "Create shop",
+    "text": "saves it."
    }
   ]
  },
@@ -1889,6 +3739,39 @@
    }
   ]
  },
+ "parduotuves-sarasas.en": {
+  "file": "parduotuves-sarasas.en.webp",
+  "w": 1132,
+  "h": 434,
+  "alt": "The shops list: search, two shops with address, contacts, POS type and status, action buttons on the right.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Add shop",
+    "text": "a new shop."
+   },
+   {
+    "n": 2,
+    "label": "Import from Excel",
+    "text": "many shops at once."
+   },
+   {
+    "n": 3,
+    "label": "Search",
+    "text": "finds by name, address or city."
+   },
+   {
+    "n": 4,
+    "label": "Shops list",
+    "text": "address, today's opening hours, contacts, POS type and status."
+   },
+   {
+    "n": 5,
+    "label": "Actions",
+    "text": "the eye – view, the pencil – edit, the bin – delete."
+   }
+  ]
+ },
  "parduotuves-viena": {
   "file": "parduotuves-viena.webp",
   "w": 346,
@@ -1904,6 +3787,24 @@
     "n": 2,
     "label": "POS Tipas",
     "text": "kokį langą mato kasininkas."
+   }
+  ]
+ },
+ "parduotuves-viena.en": {
+  "file": "parduotuves-viena.en.webp",
+  "w": 346,
+  "h": 946,
+  "alt": "Shop information: type, address, contacts, opening hours, POS type and map.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Opening hours",
+    "text": "this is how customers see them."
+   },
+   {
+    "n": 2,
+    "label": "POS Type",
+    "text": "which screen the cashier sees."
    }
   ]
  },
@@ -1932,6 +3833,34 @@
     "n": 4,
     "label": "Galiojimas",
     "text": "tuščia – nuo dabar ir kol išjungsite."
+   }
+  ]
+ },
+ "pasiulymai-kategorijai.en": {
+  "file": "pasiulymai-kategorijai.en.webp",
+  "w": 1132,
+  "h": 760,
+  "alt": "The category promotion form: scope, category, discount and validity.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Apply to",
+    "text": "a category or the whole catalogue."
+   },
+   {
+    "n": 2,
+    "label": "Category",
+    "text": "its subcategories too."
+   },
+   {
+    "n": 3,
+    "label": "Discount, %",
+    "text": "the same for all products."
+   },
+   {
+    "n": 4,
+    "label": "Validity",
+    "text": "empty – from now until you turn it off."
    }
   ]
  },
@@ -1968,6 +3897,39 @@
    }
   ]
  },
+ "pasiulymai-nauja.en": {
+  "file": "pasiulymai-nauja.en.webp",
+  "w": 1392,
+  "h": 1376,
+  "alt": "The promotion form: product, price, discounted price, availability, validity and shops.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Product",
+    "text": "which product."
+   },
+   {
+    "n": 2,
+    "label": "Price",
+    "text": "the usual price."
+   },
+   {
+    "n": 3,
+    "label": "Discount",
+    "text": "the discounted price or a percentage."
+   },
+   {
+    "n": 4,
+    "label": "Validity",
+    "text": "from when until when."
+   },
+   {
+    "n": 5,
+    "label": "Create Offer",
+    "text": "saves it."
+   }
+  ]
+ },
  "pasiulymai-sarasas": {
   "file": "pasiulymai-sarasas.webp",
   "w": 1132,
@@ -1996,6 +3958,34 @@
    }
   ]
  },
+ "pasiulymai-sarasas.en": {
+  "file": "pasiulymai-sarasas.en.webp",
+  "w": 1132,
+  "h": 1004,
+  "alt": "The product promotions list: prices, availability, status, dates and actions.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Create Offer",
+    "text": "for one product."
+   },
+   {
+    "n": 2,
+    "label": "Category promotion",
+    "text": "many products at once."
+   },
+   {
+    "n": 3,
+    "label": "Price",
+    "text": "promotional, usual and the discount."
+   },
+   {
+    "n": 4,
+    "label": "Dates",
+    "text": "when the promotion is valid."
+   }
+  ]
+ },
  "paslaugos": {
   "file": "paslaugos.webp",
   "w": 1132,
@@ -2006,6 +3996,19 @@
     "n": 1,
     "label": "Įjungti",
     "text": "mokestis pridedamas prie sąskaitos."
+   }
+  ]
+ },
+ "paslaugos.en": {
+  "file": "paslaugos.en.webp",
+  "w": 1132,
+  "h": 1019,
+  "alt": "The services and pricing page: add-ons with prices and “Enable” buttons.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Enable",
+    "text": "the fee is added to the invoice."
    }
   ]
  },
@@ -2024,6 +4027,24 @@
     "n": 2,
     "label": "Gavėjai",
     "text": "kiek žmonių atitinka dabar."
+   }
+  ]
+ },
+ "pastas-auditorijos.en": {
+  "file": "pastas-auditorijos.en.webp",
+  "w": 1132,
+  "h": 712,
+  "alt": "The email audiences list with the number of recipients.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Create audience",
+    "text": "a new saved filter."
+   },
+   {
+    "n": 2,
+    "label": "Recipients",
+    "text": "how many people match now."
    }
   ]
  },
@@ -2050,6 +4071,29 @@
    }
   ]
  },
+ "pastas-domenai.en": {
+  "file": "pastas-domenai.en.webp",
+  "w": 1132,
+  "h": 473,
+  "alt": "The sender domains list: a verified domain and its actions.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Add domain",
+    "text": "a new domain."
+   },
+   {
+    "n": 2,
+    "label": "Status",
+    "text": "verified or not yet."
+   },
+   {
+    "n": 3,
+    "label": "Actions",
+    "text": "DNS records, verify, delete."
+   }
+  ]
+ },
  "pastas-kampanijos": {
   "file": "pastas-kampanijos.webp",
   "w": 1132,
@@ -2068,6 +4112,24 @@
    }
   ]
  },
+ "pastas-kampanijos.en": {
+  "file": "pastas-kampanijos.en.webp",
+  "w": 1132,
+  "h": 769,
+  "alt": "The email campaigns list: a draft, a scheduled and a sent one.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Create Campaign",
+    "text": "a new email."
+   },
+   {
+    "n": 2,
+    "label": "Campaign list",
+    "text": "status, recipients and results."
+   }
+  ]
+ },
  "pastas-laiskai": {
   "file": "pastas-laiskai.webp",
   "w": 1126,
@@ -2078,6 +4140,19 @@
     "n": 1,
     "label": "Būsena",
     "text": "išsiųsta, atidaryta, paspausta."
+   }
+  ]
+ },
+ "pastas-laiskai.en": {
+  "file": "pastas-laiskai.en.webp",
+  "w": 1126,
+  "h": 826,
+  "alt": "The list of sent emails: recipient, subject, status and time.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "State",
+    "text": "sent, opened, clicked."
    }
   ]
  },
@@ -2114,6 +4189,39 @@
    }
   ]
  },
+ "pastas-nauja.en": {
+  "file": "pastas-nauja.en.webp",
+  "w": 1132,
+  "h": 834,
+  "alt": "The steps of a new email campaign: name, to, from, subject, sending time, content, tracking.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "To",
+    "text": "the recipients and their number."
+   },
+   {
+    "n": 2,
+    "label": "Subject",
+    "text": "what the customer sees in the inbox."
+   },
+   {
+    "n": 3,
+    "label": "Content",
+    "text": "the email's design."
+   },
+   {
+    "n": 4,
+    "label": "Finish later",
+    "text": "saves a draft."
+   },
+   {
+    "n": 5,
+    "label": "Send now",
+    "text": "cannot be undone."
+   }
+  ]
+ },
  "pastas-sablonai": {
   "file": "pastas-sablonai.webp",
   "w": 1132,
@@ -2129,6 +4237,24 @@
     "n": 2,
     "label": "Veiksmai",
     "text": "redaguoti, ištrinti."
+   }
+  ]
+ },
+ "pastas-sablonai.en": {
+  "file": "pastas-sablonai.en.webp",
+  "w": 1132,
+  "h": 712,
+  "alt": "The email templates list.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Create template",
+    "text": "opens the builder."
+   },
+   {
+    "n": 2,
+    "label": "Actions",
+    "text": "edit, delete."
    }
   ]
  },
@@ -2155,6 +4281,29 @@
    }
   ]
  },
+ "pastas-sutikimai.en": {
+  "file": "pastas-sutikimai.en.webp",
+  "w": 1126,
+  "h": 1098,
+  "alt": "The email consents page: who we send to and the list of consents.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Who we send to",
+    "text": "only those who consented, or everyone who has not opted out."
+   },
+   {
+    "n": 2,
+    "label": "Add consent",
+    "text": "one address."
+   },
+   {
+    "n": 3,
+    "label": "Bulk import",
+    "text": "those who opted out are skipped."
+   }
+  ]
+ },
  "pastas-taisykles": {
   "file": "pastas-taisykles.webp",
   "w": 1132,
@@ -2175,6 +4324,29 @@
     "n": 3,
     "label": "Veiksmai",
     "text": "kas gautų, redaguoti, paleisti dabar, ištrinti."
+   }
+  ]
+ },
+ "pastas-taisykles.en": {
+  "file": "pastas-taisykles.en.webp",
+  "w": 1132,
+  "h": 712,
+  "alt": "Email automation rules with switches.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Create rule",
+    "text": "a new rule."
+   },
+   {
+    "n": 2,
+    "label": "Status",
+    "text": "on or off."
+   },
+   {
+    "n": 3,
+    "label": "Actions",
+    "text": "who would get it, edit, run now, delete."
    }
   ]
  },
@@ -2201,6 +4373,29 @@
    }
   ]
  },
+ "pastas-viena.en": {
+  "file": "pastas-viena.en.webp",
+  "w": 1132,
+  "h": 1020,
+  "alt": "A sent email campaign: recipients, opened, clicked, bounced and the email content.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Results",
+    "text": "opened, clicked, bounced, unsubscribed."
+   },
+   {
+    "n": 2,
+    "label": "Links",
+    "text": "what people clicked."
+   },
+   {
+    "n": 3,
+    "label": "Send to non-openers",
+    "text": "a follow-up email."
+   }
+  ]
+ },
  "planas": {
   "file": "planas.webp",
   "w": 1132,
@@ -2224,11 +4419,41 @@
    }
   ]
  },
+ "planas.en": {
+  "file": "planas.en.webp",
+  "w": 1132,
+  "h": 1720,
+  "alt": "The plan page: the current plan, limit usage and other plans.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Limit usage",
+    "text": "how much is left."
+   },
+   {
+    "n": 2,
+    "label": "Current",
+    "text": "your plan."
+   },
+   {
+    "n": 3,
+    "label": "Select",
+    "text": "change the plan."
+   }
+  ]
+ },
  "pranesimai": {
   "file": "pranesimai.webp",
   "w": 1132,
   "h": 356,
   "alt": "Pranešimų sąrašas.",
+  "marks": []
+ },
+ "pranesimai.en": {
+  "file": "pranesimai.en.webp",
+  "w": 1132,
+  "h": 356,
+  "alt": "The list of notifications.",
   "marks": []
  },
  "prekes-eksportas": {
@@ -2254,6 +4479,29 @@
    }
   ]
  },
+ "prekes-eksportas.en": {
+  "file": "prekes-eksportas.en.webp",
+  "w": 1132,
+  "h": 554,
+  "alt": "Product export: format, what to include and the start button.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Export format",
+    "text": "XML, CSV or JSON."
+   },
+   {
+    "n": 2,
+    "label": "What to include",
+    "text": "inactive products, categories, promotions."
+   },
+   {
+    "n": 3,
+    "label": "Start Export",
+    "text": "the file downloads."
+   }
+  ]
+ },
  "prekes-importas": {
   "file": "prekes-importas.webp",
   "w": 1132,
@@ -2274,6 +4522,29 @@
     "n": 3,
     "label": "Importuoti produktus",
     "text": "įkelia prekes."
+   }
+  ]
+ },
+ "prekes-importas.en": {
+  "file": "prekes-importas.en.webp",
+  "w": 1132,
+  "h": 840,
+  "alt": "Product import: downloading the template, uploading a file and the instructions.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Download XML Template",
+    "text": "which fields are needed."
+   },
+   {
+    "n": 2,
+    "label": "XML file",
+    "text": "up to 10 MB."
+   },
+   {
+    "n": 3,
+    "label": "Import Products",
+    "text": "uploads the products."
    }
   ]
  },
@@ -2305,6 +4576,34 @@
    }
   ]
  },
+ "prekes-nauja.en": {
+  "file": "prekes-nauja.en.webp",
+  "w": 793,
+  "h": 1185,
+  "alt": "The new product form: name, description, picture, type, purchase part and codes.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Write with AI",
+    "text": "suggests the name and description."
+   },
+   {
+    "n": 2,
+    "label": "Type",
+    "text": "product or service."
+   },
+   {
+    "n": 3,
+    "label": "Purchase part",
+    "text": "points and discounts depend on it."
+   },
+   {
+    "n": 4,
+    "label": "Codes",
+    "text": "so the product can be scanned at the till."
+   }
+  ]
+ },
  "prekes-sarasas": {
   "file": "prekes-sarasas.webp",
   "w": 1132,
@@ -2333,6 +4632,34 @@
    }
   ]
  },
+ "prekes-sarasas.en": {
+  "file": "prekes-sarasas.en.webp",
+  "w": 1132,
+  "h": 1010,
+  "alt": "The products list: numbers, filters, prices, offers, categories and status.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Add product",
+    "text": "a new product or service."
+   },
+   {
+    "n": 2,
+    "label": "Import",
+    "text": "many products from an XML file."
+   },
+   {
+    "n": 3,
+    "label": "Export",
+    "text": "save products to a file."
+   },
+   {
+    "n": 4,
+    "label": "Products list",
+    "text": "the crossed-out price is the usual one, the other is the promotion."
+   }
+  ]
+ },
  "prekes-viena": {
   "file": "prekes-viena.webp",
   "w": 1132,
@@ -2353,6 +4680,29 @@
     "n": 3,
     "label": "Redaguoti",
     "text": "keisti prekę."
+   }
+  ]
+ },
+ "prekes-viena.en": {
+  "file": "prekes-viena.en.webp",
+  "w": 1132,
+  "h": 624,
+  "alt": "A product page: picture, price, promotional price, category, shops and status.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Tabs",
+    "text": "overview, prices and statistics."
+   },
+   {
+    "n": 2,
+    "label": "Pricing",
+    "text": "the usual and the promotional price."
+   },
+   {
+    "n": 3,
+    "label": "Edit",
+    "text": "change the product."
    }
   ]
  },
@@ -2397,6 +4747,47 @@
    }
   ]
  },
+ "prisijungimas-slaptazodis.en": {
+  "file": "prisijungimas-slaptazodis.en.webp",
+  "w": 1440,
+  "h": 900,
+  "alt": "The password reset window with the email field.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Email",
+    "text": "the one you sign in with."
+   },
+   {
+    "n": 2,
+    "label": "Send reset email",
+    "text": "the email arrives within minutes."
+   }
+  ]
+ },
+ "prisijungimas.en": {
+  "file": "prisijungimas.en.webp",
+  "w": 1440,
+  "h": 900,
+  "alt": "The portal sign-in window: email, password and the sign-in button.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Email",
+    "text": "the one you got the invitation to."
+   },
+   {
+    "n": 2,
+    "label": "Password",
+    "text": "at least 8 characters."
+   },
+   {
+    "n": 3,
+    "label": "Forgot password?",
+    "text": "we send you a link."
+   }
+  ]
+ },
  "push-kampanijos": {
   "file": "push-kampanijos.webp",
   "w": 1132,
@@ -2417,6 +4808,29 @@
     "n": 3,
     "label": "Peržiūrėti",
     "text": "kampanijos puslapis."
+   }
+  ]
+ },
+ "push-kampanijos.en": {
+  "file": "push-kampanijos.en.webp",
+  "w": 1132,
+  "h": 769,
+  "alt": "The push campaigns list: numbers, filters and three campaigns with recipients and delivery.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Create Campaign",
+    "text": "a new notification."
+   },
+   {
+    "n": 2,
+    "label": "Results",
+    "text": "recipients, sent, delivery rate."
+   },
+   {
+    "n": 3,
+    "label": "View",
+    "text": "the campaign's page."
    }
   ]
  },
@@ -2458,6 +4872,44 @@
    }
   ]
  },
+ "push-nauja.en": {
+  "file": "push-nauja.en.webp",
+  "w": 1132,
+  "h": 1002,
+  "alt": "The push campaign form: name, title, text, image, link, audience; the number of recipients on the right.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Campaign name",
+    "text": "customers do not see it."
+   },
+   {
+    "n": 2,
+    "label": "Title and text",
+    "text": "what the customer sees on the phone."
+   },
+   {
+    "n": 3,
+    "label": "Click URL",
+    "text": "where the customer goes."
+   },
+   {
+    "n": 4,
+    "label": "Target audience",
+    "text": "who to send to."
+   },
+   {
+    "n": 5,
+    "label": "Recipients",
+    "text": "how many will get it and how much is left in the plan."
+   },
+   {
+    "n": 6,
+    "label": "Send or save",
+    "text": "a sent notification cannot be recalled."
+   }
+  ]
+ },
  "push-taisykle": {
   "file": "push-taisykle.webp",
   "w": 1132,
@@ -2496,6 +4948,44 @@
    }
   ]
  },
+ "push-taisykle.en": {
+  "file": "push-taisykle.en.webp",
+  "w": 1132,
+  "h": 2174,
+  "alt": "The push rule form: name, variables, AI, title, text, when and how often to send.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Name",
+    "text": "only you see it."
+   },
+   {
+    "n": 2,
+    "label": "Available variables",
+    "text": "insert the customer's name, points and more."
+   },
+   {
+    "n": 3,
+    "label": "Generate with AI",
+    "text": "suggests the text."
+   },
+   {
+    "n": 4,
+    "label": "Notification",
+    "text": "what the customer gets."
+   },
+   {
+    "n": 5,
+    "label": "Trigger setup",
+    "text": "when, at what time and how often."
+   },
+   {
+    "n": 6,
+    "label": "Save rule",
+    "text": "works at once when on."
+   }
+  ]
+ },
  "push-taisykles": {
   "file": "push-taisykles.webp",
   "w": 1132,
@@ -2524,6 +5014,34 @@
    }
   ]
  },
+ "push-taisykles.en": {
+  "file": "push-taisykles.en.webp",
+  "w": 1132,
+  "h": 716,
+  "alt": "Push automation rules: a birthday greeting and a reminder for those who have not visited.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Add Rule",
+    "text": "a new rule."
+   },
+   {
+    "n": 2,
+    "label": "Type",
+    "text": "when it is sent."
+   },
+   {
+    "n": 3,
+    "label": "Sent",
+    "text": "how many notifications went out."
+   },
+   {
+    "n": 4,
+    "label": "Actions",
+    "text": "edit, pause, delete."
+   }
+  ]
+ },
  "push-viena": {
   "file": "push-viena.webp",
   "w": 1132,
@@ -2539,6 +5057,24 @@
     "n": 2,
     "label": "Statistika",
     "text": "gavėjai, sėkmingi ir nesėkmingi siuntimai."
+   }
+  ]
+ },
+ "push-viena.en": {
+  "file": "push-viena.en.webp",
+  "w": 1132,
+  "h": 583,
+  "alt": "A sent push campaign: preview, information and statistics.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Notification preview",
+    "text": "what the customer got."
+   },
+   {
+    "n": 2,
+    "label": "Statistics",
+    "text": "recipients, successful and failed sends."
    }
   ]
  },
@@ -2560,11 +5096,36 @@
    }
   ]
  },
+ "registracija.en": {
+  "file": "registracija.en.webp",
+  "w": 1440,
+  "h": 900,
+  "alt": "The start of partner registration: finding the company by name and its details.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Steps",
+    "text": "6 in total."
+   },
+   {
+    "n": 2,
+    "label": "Search by name",
+    "text": "the details fill in by themselves."
+   }
+  ]
+ },
  "saskaitos-laukia": {
   "file": "saskaitos-laukia.webp",
   "w": 1132,
   "h": 731,
   "alt": "Neapmokėtų sąskaitų puslapis: bendra suma, sąskaitos ir būsimos išlaidos.",
+  "marks": []
+ },
+ "saskaitos-laukia.en": {
+  "file": "saskaitos-laukia.en.webp",
+  "w": 1132,
+  "h": 731,
+  "alt": "The unpaid invoices page: total, invoices and charges still accumulating.",
   "marks": []
  },
  "saskaitos-sarasas": {
@@ -2590,6 +5151,29 @@
    }
   ]
  },
+ "saskaitos-sarasas.en": {
+  "file": "saskaitos-sarasas.en.webp",
+  "w": 1132,
+  "h": 723,
+  "alt": "The invoices list: totals, filters, number, period, status and due date.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Totals",
+    "text": "total, paid, unpaid."
+   },
+   {
+    "n": 2,
+    "label": "Due date",
+    "text": "until when to pay."
+   },
+   {
+    "n": 3,
+    "label": "Actions",
+    "text": "view, download PDF."
+   }
+  ]
+ },
  "saskaitos-viena": {
   "file": "saskaitos-viena.webp",
   "w": 1132,
@@ -2610,6 +5194,29 @@
     "n": 3,
     "label": "Mokėti",
     "text": "galutinė suma."
+   }
+  ]
+ },
+ "saskaitos-viena.en": {
+  "file": "saskaitos-viena.en.webp",
+  "w": 1132,
+  "h": 985,
+  "alt": "An invoice page: status, amount, due date, lines and the service report.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Download",
+    "text": "a PDF file."
+   },
+   {
+    "n": 2,
+    "label": "Due date",
+    "text": "until when to pay."
+   },
+   {
+    "n": 3,
+    "label": "Amount due",
+    "text": "the final amount."
    }
   ]
  },
@@ -2669,6 +5276,62 @@
    }
   ]
  },
+ "skydelis-meniu.en": {
+  "file": "skydelis-meniu.en.webp",
+  "w": 1440,
+  "h": 900,
+  "alt": "The portal's menu on the left: search, sections, help, language and notifications.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Help",
+    "text": "the guide page about this screen."
+   },
+   {
+    "n": 2,
+    "label": "Search",
+    "text": "customers, purchases, pages."
+   },
+   {
+    "n": 3,
+    "label": "Sections",
+    "text": "programme, customers, marketing, administration."
+   }
+  ]
+ },
+ "skydelis.en": {
+  "file": "skydelis.en.webp",
+  "w": 1132,
+  "h": 2535,
+  "alt": "The portal's start page: invoices, getting started, AI report, numbers and charts.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Invoices",
+    "text": "whether any are unpaid."
+   },
+   {
+    "n": 2,
+    "label": "Getting started",
+    "text": "what is still worth doing."
+   },
+   {
+    "n": 3,
+    "label": "The report in plain language",
+    "text": "a question in your own words."
+   },
+   {
+    "n": 4,
+    "label": "Numbers",
+    "text": "customers, cards, points, purchases."
+   },
+   {
+    "n": 5,
+    "label": "Charts",
+    "text": "how it changed over the year."
+   }
+  ]
+ },
  "sms-analitika": {
   "file": "sms-analitika.webp",
   "w": 1132,
@@ -2679,6 +5342,19 @@
     "n": 1,
     "label": "Skirtukai",
     "text": "efektyvumas, automatizacija, įžvalgos."
+   }
+  ]
+ },
+ "sms-analitika.en": {
+  "file": "sms-analitika.en.webp",
+  "w": 1132,
+  "h": 1189,
+  "alt": "SMS analytics: tabs, period and figures.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Tabs",
+    "text": "performance, automation, insights."
    }
   ]
  },
@@ -2707,6 +5383,34 @@
     "n": 4,
     "label": "Atšaukti kampaniją",
     "text": "kol dar neišsiųsta."
+   }
+  ]
+ },
+ "sms-kampanijos.en": {
+  "file": "sms-kampanijos.en.webp",
+  "w": 1132,
+  "h": 769,
+  "alt": "The SMS campaigns list: a draft, a scheduled and a sent campaign.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Create Campaign",
+    "text": "a new campaign."
+   },
+   {
+    "n": 2,
+    "label": "Status and approval",
+    "text": "only an approved one is sent."
+   },
+   {
+    "n": 3,
+    "label": "Duplicate",
+    "text": "a copy for a new campaign."
+   },
+   {
+    "n": 4,
+    "label": "Cancel campaign",
+    "text": "while it is not sent yet."
    }
   ]
  },
@@ -2753,6 +5457,49 @@
    }
   ]
  },
+ "sms-nauja.en": {
+  "file": "sms-nauja.en.webp",
+  "w": 1132,
+  "h": 1558,
+  "alt": "The SMS campaign form: name, sender, template, text, recipients, scheduling; cost and preview on the right.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Sender name",
+    "text": "what the customer sees instead of a number."
+   },
+   {
+    "n": 2,
+    "label": "Generate with AI",
+    "text": "suggests the text."
+   },
+   {
+    "n": 3,
+    "label": "Message content",
+    "text": "below it – characters and parts."
+   },
+   {
+    "n": 4,
+    "label": "From consents",
+    "text": "those who agreed."
+   },
+   {
+    "n": 5,
+    "label": "Scheduling",
+    "text": "send later."
+   },
+   {
+    "n": 6,
+    "label": "Cost Estimate",
+    "text": "what it will cost."
+   },
+   {
+    "n": 7,
+    "label": "Submit for Approval",
+    "text": "Loyalty.lt reviews it before sending."
+   }
+  ]
+ },
  "sms-sablonai": {
   "file": "sms-sablonai.webp",
   "w": 1132,
@@ -2768,6 +5515,24 @@
     "n": 2,
     "label": "Šablonai",
     "text": "tekstas, kategorija, kiek kartų panaudotas."
+   }
+  ]
+ },
+ "sms-sablonai.en": {
+  "file": "sms-sablonai.en.webp",
+  "w": 1132,
+  "h": 745,
+  "alt": "The SMS templates list: name, content, category and number of uses.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Create Template",
+    "text": "a new text."
+   },
+   {
+    "n": 2,
+    "label": "Templates",
+    "text": "text, category, how many times used."
    }
   ]
  },
@@ -2799,6 +5564,34 @@
    }
   ]
  },
+ "sms-sablonas.en": {
+  "file": "sms-sablonas.en.webp",
+  "w": 1132,
+  "h": 992,
+  "alt": "The SMS template form: name, description, category and message text.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Template name",
+    "text": "only you see it."
+   },
+   {
+    "n": 2,
+    "label": "Category",
+    "text": "promotion, reminder or automatic."
+   },
+   {
+    "n": 3,
+    "label": "Message text",
+    "text": "what the customer gets."
+   },
+   {
+    "n": 4,
+    "label": "Preview",
+    "text": "how it will look on the phone."
+   }
+  ]
+ },
  "sms-sutikimai": {
   "file": "sms-sutikimai.webp",
   "w": 1126,
@@ -2824,6 +5617,34 @@
     "n": 4,
     "label": "Atšaukti",
     "text": "nebesiųsti šiam numeriui."
+   }
+  ]
+ },
+ "sms-sutikimai.en": {
+  "file": "sms-sutikimai.en.webp",
+  "w": 1126,
+  "h": 910,
+  "alt": "The SMS consents page: numbers, filters and phone numbers with source and date.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Add consent",
+    "text": "one number."
+   },
+   {
+    "n": 2,
+    "label": "Bulk import",
+    "text": "many numbers."
+   },
+   {
+    "n": 3,
+    "label": "Source",
+    "text": "where the consent came from."
+   },
+   {
+    "n": 4,
+    "label": "Revoke",
+    "text": "stop sending to this number."
    }
   ]
  },
@@ -2860,6 +5681,39 @@
    }
   ]
  },
+ "sms-taisykle.en": {
+  "file": "sms-taisykle.en.webp",
+  "w": 1132,
+  "h": 1936,
+  "alt": "The SMS rule form: name, sender, template, text, trigger, hours and days.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Sender name",
+    "text": "an approved name."
+   },
+   {
+    "n": 2,
+    "label": "Text",
+    "text": "from a template or your own."
+   },
+   {
+    "n": 3,
+    "label": "Trigger",
+    "text": "when to send."
+   },
+   {
+    "n": 4,
+    "label": "Hours",
+    "text": "when sending is allowed."
+   },
+   {
+    "n": 5,
+    "label": "Save rule",
+    "text": "sends by itself when on."
+   }
+  ]
+ },
  "sms-taisykles": {
   "file": "sms-taisykles.webp",
   "w": 1132,
@@ -2880,6 +5734,29 @@
     "n": 3,
     "label": "Veiksmai",
     "text": "redaguoti, išjungti, ištrinti."
+   }
+  ]
+ },
+ "sms-taisykles.en": {
+  "file": "sms-taisykles.en.webp",
+  "w": 1132,
+  "h": 712,
+  "alt": "SMS automation rules: name, trigger, delay, status, how many times it fired.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Create Rule",
+    "text": "a new rule."
+   },
+   {
+    "n": 2,
+    "label": "Trigger type",
+    "text": "when it is sent."
+   },
+   {
+    "n": 3,
+    "label": "Actions",
+    "text": "edit, turn off, delete."
    }
   ]
  },
@@ -2906,6 +5783,29 @@
    }
   ]
  },
+ "sms-vardai.en": {
+  "file": "sms-vardai.en.webp",
+  "w": 1132,
+  "h": 704,
+  "alt": "The sender names list: an approved default name and one waiting for approval.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Add Sender Name",
+    "text": "a new name."
+   },
+   {
+    "n": 2,
+    "label": "Approval",
+    "text": "only an approved one can be used."
+   },
+   {
+    "n": 3,
+    "label": "Default",
+    "text": "chosen by itself."
+   }
+  ]
+ },
  "sms-viena": {
   "file": "sms-viena.webp",
   "w": 1132,
@@ -2929,6 +5829,29 @@
    }
   ]
  },
+ "sms-viena.en": {
+  "file": "sms-viena.en.webp",
+  "w": 1132,
+  "h": 647,
+  "alt": "A sent SMS campaign: sent, delivered, failed, cost, text and times.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Results",
+    "text": "delivered, failed, cost."
+   },
+   {
+    "n": 2,
+    "label": "Recipients",
+    "text": "every number."
+   },
+   {
+    "n": 3,
+    "label": "Duplicate",
+    "text": "send a similar one."
+   }
+  ]
+ },
  "sms-zinutes": {
   "file": "sms-zinutes.webp",
   "w": 1126,
@@ -2944,6 +5867,24 @@
     "n": 2,
     "label": "Kaina",
     "text": "kiek kainavo žinutė."
+   }
+  ]
+ },
+ "sms-zinutes.en": {
+  "file": "sms-zinutes.en.webp",
+  "w": 1126,
+  "h": 934,
+  "alt": "The SMS messages list: date, recipient, sender, content, status and cost.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Search",
+    "text": "number, text or ID."
+   },
+   {
+    "n": 2,
+    "label": "Cost",
+    "text": "what the message cost."
    }
   ]
  },
@@ -3631,6 +6572,39 @@
    }
   ]
  },
+ "transakcijos-sarasas.en": {
+  "file": "transakcijos-sarasas.en.webp",
+  "w": 1132,
+  "h": 1377,
+  "alt": "The transactions list: filters, reference number, date, customer, shop, staff, amount, points and status.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Search",
+    "text": "reference number or customer."
+   },
+   {
+    "n": 2,
+    "label": "Filters",
+    "text": "shop, staff, status, date."
+   },
+   {
+    "n": 3,
+    "label": "Refund",
+    "text": "an amount with a minus."
+   },
+   {
+    "n": 4,
+    "label": "Staff",
+    "text": "who sold it."
+   },
+   {
+    "n": 5,
+    "label": "Actions",
+    "text": "open the purchase."
+   }
+  ]
+ },
  "transakcijos-viena": {
   "file": "transakcijos-viena.webp",
   "w": 1132,
@@ -3664,6 +6638,39 @@
    }
   ]
  },
+ "transakcijos-viena.en": {
+  "file": "transakcijos-viena.en.webp",
+  "w": 1132,
+  "h": 1256,
+  "alt": "A purchase page: paid, points, discount, breakdown by part, customer, staff member, till and shop.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Summary",
+    "text": "what was paid, points and discounts."
+   },
+   {
+    "n": 2,
+    "label": "Purchase breakdown",
+    "text": "each part separately."
+   },
+   {
+    "n": 3,
+    "label": "Customer",
+    "text": "who bought."
+   },
+   {
+    "n": 4,
+    "label": "Staff member",
+    "text": "who sold."
+   },
+   {
+    "n": 5,
+    "label": "Till",
+    "text": "on which device."
+   }
+  ]
+ },
  "uzklausos-nauja": {
   "file": "uzklausos-nauja.webp",
   "w": 1132,
@@ -3692,6 +6699,34 @@
    }
   ]
  },
+ "uzklausos-nauja.en": {
+  "file": "uzklausos-nauja.en.webp",
+  "w": 1132,
+  "h": 839,
+  "alt": "The new ticket form: subject, description, attachments, type, category and priority.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Subject",
+    "text": "briefly, what happened."
+   },
+   {
+    "n": 2,
+    "label": "Attachments",
+    "text": "a screenshot helps a lot."
+   },
+   {
+    "n": 3,
+    "label": "Priority",
+    "text": "how soon it is needed."
+   },
+   {
+    "n": 4,
+    "label": "Submit Ticket",
+    "text": "sends it to us."
+   }
+  ]
+ },
  "uzklausos-sarasas": {
   "file": "uzklausos-sarasas.webp",
   "w": 1132,
@@ -3715,6 +6750,29 @@
    }
   ]
  },
+ "uzklausos-sarasas.en": {
+  "file": "uzklausos-sarasas.en.webp",
+  "w": 1132,
+  "h": 895,
+  "alt": "The support tickets list: number, subject, type, priority and status.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "New Ticket",
+    "text": "write to us."
+   },
+   {
+    "n": 2,
+    "label": "Email Settings",
+    "text": "tickets by email."
+   },
+   {
+    "n": 3,
+    "label": "All Tickets",
+    "text": "press the subject – the conversation opens."
+   }
+  ]
+ },
  "uzklausos-viena": {
   "file": "uzklausos-viena.webp",
   "w": 1132,
@@ -3730,6 +6788,24 @@
     "n": 2,
     "label": "Uždaryti užklausą",
     "text": "kai problema išspręsta."
+   }
+  ]
+ },
+ "uzklausos-viena.en": {
+  "file": "uzklausos-viena.en.webp",
+  "w": 1132,
+  "h": 978,
+  "alt": "A ticket page: the conversation, the comment field and the buttons.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Add comment",
+    "text": "your answer."
+   },
+   {
+    "n": 2,
+    "label": "Close ticket",
+    "text": "when the problem is solved."
    }
   ]
  },
@@ -4347,6 +7423,39 @@
    }
   ]
  },
+ "zaidimai-antspaudai.en": {
+  "file": "zaidimai-antspaudai.en.webp",
+  "w": 1132,
+  "h": 4860,
+  "alt": "Stamp game settings: number of stamps, layout, colours, texts and reward; the phone preview on the right.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Required stamps count",
+    "text": "how many stamps to collect."
+   },
+   {
+    "n": 2,
+    "label": "Card name",
+    "text": "what the customer collects."
+   },
+   {
+    "n": 3,
+    "label": "Reward type",
+    "text": "a free product, a discount or points."
+   },
+   {
+    "n": 4,
+    "label": "Expiration time (days)",
+    "text": "within how many days to collect."
+   },
+   {
+    "n": 5,
+    "label": "Reset after completion",
+    "text": "a new card starts after the gift."
+   }
+  ]
+ },
  "zaidimai-kuponai": {
   "file": "zaidimai-kuponai.webp",
   "w": 1102,
@@ -4380,6 +7489,39 @@
    }
   ]
  },
+ "zaidimai-kuponai.en": {
+  "file": "zaidimai-kuponai.en.webp",
+  "w": 1102,
+  "h": 891,
+  "alt": "Coupon settings, shops, validity period and the create button.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Allow Multiple Active Coupons",
+    "text": "whether a customer can have several unused ones."
+   },
+   {
+    "n": 2,
+    "label": "Coupon validity",
+    "text": "empty – no end."
+   },
+   {
+    "n": 3,
+    "label": "Apply to all shops",
+    "text": "turn off to choose some."
+   },
+   {
+    "n": 4,
+    "label": "Validity period",
+    "text": "from when until when."
+   },
+   {
+    "n": 5,
+    "label": "Create game",
+    "text": "next – the prizes."
+   }
+  ]
+ },
  "zaidimai-naujas": {
   "file": "zaidimai-naujas.webp",
   "w": 1122,
@@ -4400,6 +7542,29 @@
     "n": 3,
     "label": "Pavadinimas",
     "text": "kaip žaidimą matys klientas."
+   }
+  ]
+ },
+ "zaidimai-naujas.en": {
+  "file": "zaidimai-naujas.en.webp",
+  "w": 1122,
+  "h": 655,
+  "alt": "The new game form: game type, name and description.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Game type",
+    "text": "the three most popular."
+   },
+   {
+    "n": 2,
+    "label": "Show all game types",
+    "text": "quiz, lottery, calendar and more."
+   },
+   {
+    "n": 3,
+    "label": "Name",
+    "text": "how the customer sees the game."
    }
   ]
  },
@@ -4431,6 +7596,34 @@
    }
   ]
  },
+ "zaidimai-sarasas.en": {
+  "file": "zaidimai-sarasas.en.webp",
+  "w": 1132,
+  "h": 760,
+  "alt": "The games page: numbers, filters and the stamp game with action buttons.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "Add game",
+    "text": "a new game."
+   },
+   {
+    "n": 2,
+    "label": "View",
+    "text": "the game's page."
+   },
+   {
+    "n": 3,
+    "label": "Statistics",
+    "text": "who played and how much."
+   },
+   {
+    "n": 4,
+    "label": "Deactivate",
+    "text": "hides the game."
+   }
+  ]
+ },
  "zaidimai-vienas": {
   "file": "zaidimai-vienas.webp",
   "w": 1132,
@@ -4456,6 +7649,34 @@
     "n": 4,
     "label": "Peržiūrėti išsamią statistiką",
     "text": "žaidėjai ir prizai."
+   }
+  ]
+ },
+ "zaidimai-vienas.en": {
+  "file": "zaidimai-vienas.en.webp",
+  "w": 1132,
+  "h": 980,
+  "alt": "A game's page: information, notification automations, statistics and buttons at the top.",
+  "marks": [
+   {
+    "n": 1,
+    "label": "General settings",
+    "text": "name, dates, shops."
+   },
+   {
+    "n": 2,
+    "label": "Stamp card settings",
+    "text": "the prize and the look."
+   },
+   {
+    "n": 3,
+    "label": "Notification automations",
+    "text": "reminders about the game."
+   },
+   {
+    "n": 4,
+    "label": "View detailed statistics",
+    "text": "players and prizes."
    }
   ]
  }

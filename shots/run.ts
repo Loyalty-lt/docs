@@ -11,6 +11,7 @@ import path from 'node:path'
 import puppeteer, { type Browser, type BrowserContext, type ElementHandle, type Page } from 'puppeteer-core'
 import { composeHtml } from './compose.ts'
 import { BADGE, candidates, place, type Rect } from './place.ts'
+import EN, { DATA } from './en.ts'
 import { isMark, type App, type Shot, type Step } from './types.ts'
 
 const here = import.meta.dirname
@@ -29,9 +30,84 @@ const args = process.argv.slice(2)
 const only = args.includes('--only') ? args[args.indexOf('--only') + 1]!.split(',') : null
 const match = (id: string) => !only || only.some((p) => new RegExp(`^${p.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*')}$`).test(id))
 const isTill = (app: App) => app === 'till' || app === 'till-out'
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+
+// SHOTS_LANG=en: the same shots from the English screens, saved as <id>.en. The demo data stays as
+// it is (a Lithuanian salon); the programs' own words are looked up in their translations: every
+// Lithuanian text's English versions are tried, then the text itself (it may be data).
+const LANG = process.env.SHOTS_LANG === 'en' ? 'en' : 'lt'
+const outId = (s: Shot) => (LANG === 'en' ? `${s.id}.en` : s.id)
+const DICT = new Map<string, string[]>()
+if (LANG === 'en') {
+  const flat = (o: unknown, p = '', out: Record<string, string> = {}) => {
+    if (typeof o === 'string') out[p] = o.replace(/\s+/g, ' ').trim()
+    else if (o && typeof o === 'object') for (const [k, v] of Object.entries(o)) flat(v, p ? `${p}.${k}` : k, out)
+    return out
+  }
+  const pair = (lt: unknown, en: unknown) => {
+    const e = flat(en)
+    for (const [k, v] of Object.entries(flat(lt))) if (e[k] && e[k] !== v) DICT.set(v, [...new Set([...(DICT.get(v) ?? []), e[k]!])])
+  }
+  const msgs = path.join(here, '../../partners.loyalty.lt/src/i18n/messages')
+  for (const f of readdirSync(path.join(msgs, 'lt')).filter((f) => f.endsWith('.json'))) {
+    if (existsSync(path.join(msgs, 'en', f))) pair(JSON.parse(readFileSync(path.join(msgs, 'lt', f), 'utf8')), JSON.parse(readFileSync(path.join(msgs, 'en', f), 'utf8')))
+  }
+  const tr = path.join(here, '../../partner_staff_flutter/assets/translations')
+  pair(JSON.parse(readFileSync(path.join(tr, 'lt.json'), 'utf8')), JSON.parse(readFileSync(path.join(tr, 'en.json'), 'utf8')))
+  for (const [lt, en] of Object.entries(DATA)) DICT.set(lt, [en, ...(DICT.get(lt) ?? []).filter((e) => e !== en)])
+}
+let current: Shot | undefined
+const esc = (v: string) => v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+// Texts with blanks ("puslapis {page} iš {total}", the till's "{} taškai"): Lithuanian as a pattern, English to fill in.
+const PATTERNS = [...DICT].filter(([lt]) => /\{[^{}]*\}/.test(lt) && !/\{\w+,/.test(lt)).flatMap(([lt, ens]) => {
+  const names = [...lt.matchAll(/\{([^{}]*)\}/g)].map((m) => m[1]!)
+  const re = esc(lt).replace(/\\\{[^{}]*\\\}/g, '(.+?)')
+  return ens.map((en) => ({ re, names, en }))
+})
+// The English for one Lithuanian text: whole (exact) or its beginning (prefix).
+function english(v: string, prefix: boolean): string[] {
+  v = v.replace(/\s+/g, ' ').trim()
+  const out = [...(DICT.get(v) ?? [])]
+  for (const { re, names, en } of PATTERNS) {
+    const m = v.match(new RegExp(`^${re}${prefix ? '' : '$'}`))
+    if (!m) continue
+    let i = 0
+    out.push(en.replace(/\{([^{}]*)\}/g, (_, n: string) => m[(n ? names.indexOf(n) : i++) + 1] ?? ''))
+  }
+  if (prefix && v.length >= 3) for (const [lt, ens] of DICT) if (lt.startsWith(v)) out.push(...ens.map((e) => e.split('{')[0]!.trim()).filter((e) => e.length >= 3))
+  // A known text with something after it: "Nuolaida (F6)", "Įrenginys: 3F2A".
+  for (let k = v.length - 1; k >= 3; k--) {
+    if (!/[\s:(·–-]/.test(v[k]!)) continue
+    const head = DICT.get(v.slice(0, k).trim())
+    if (head) {
+      out.push(...head.map((h) => h + v.slice(v.slice(0, k).trimEnd().length)))
+      break
+    }
+  }
+  // Built from words: "puslapis 1 iš 4" → "page 1 of 4".
+  const words = v.split(' ').map((w) => DICT.get(w)?.[0] ?? w).join(' ')
+  if (words !== v) out.push(words)
+  return [...new Set(out)].slice(0, 12)
+}
+// The targets to try for one Lithuanian target, best first.
+function versions(target: string): string[] {
+  if (LANG !== 'en') return [target]
+  const own = current && EN[current.id]?.[2]?.[target]
+  const cut = target.indexOf(' >> ')
+  const scope = cut > 0 ? target.slice(0, cut) : ''
+  const rest = cut > 0 ? target.slice(cut + 4) : target
+  const inCss = (css: string) => {
+    const q = css.match(/(\^?=)"([^"]+)"/)
+    return q ? english(q[2]!, q[1] === '^=').map((e) => css.replace(q[0], `${q[1]}"${e.replace(/"/g, '\\"')}"`)) : []
+  }
+  const m = rest.match(/^(text|starts|label)=(.*)$/)
+  const found = m ? english(m[2]!, m[1] !== 'text').map((v) => `${m[1]}=${v}`) : inCss(rest)
+  const scopes = scope ? [...inCss(scope), scope] : ['']
+  const all = [...found, rest].flatMap((r) => scopes.map((sc) => (sc ? `${sc} >> ${r}` : r)))
+  return [...new Set([...(own ? [own] : []), ...all])]
+}
 
 const MAP = `<!doctype html><style>html,body{margin:0;height:100%;overflow:hidden;background:#eef0ea}</style><svg width="100%" height="100%" viewBox="0 0 400 260" preserveAspectRatio="xMidYMid slice" fill="none" stroke="#fff"><g fill="#e2ead6" stroke="none"><path d="M0 0h120v70H0zM250 150h150v110H250z"/></g><g stroke-width="14"><path d="M-10 100 410 60M-10 210 410 170M90-10l40 280M260-10l40 280"/></g><g stroke-width="6"><path d="M-10 30 410 10M-10 155l420-40M180-10l40 280M350-10l40 280"/></g><path d="M200 78c-16 0-28 12-28 28 0 20 28 48 28 48s28-28 28-48c0-16-12-28-28-28z" fill="#d93025" stroke="none"/><circle cx="200" cy="106" r="10" fill="#fff" stroke="none"/></svg>`
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
 async function main() {
   const shots: Shot[] = []
@@ -52,7 +128,7 @@ async function main() {
   const server = serveTill()
   const browser = await puppeteer.launch({
     executablePath: CHROME, headless: true, protocolTimeout: 180_000,
-    args: ['--font-render-hinting=none', '--hide-scrollbars', '--lang=lt-LT',
+    args: ['--font-render-hinting=none', '--hide-scrollbars', LANG === 'en' ? '--lang=en-GB' : '--lang=lt-LT',
       // The second lock: even a request the gate missed cannot leave for a real Loyalty.lt server.
       '--host-resolver-rules=MAP api.loyalty.lt 127.0.0.1:9, MAP staging-api.loyalty.lt 127.0.0.1:9, MAP ws.loyalty.lt 127.0.0.1:9, MAP partners.loyalty.lt 127.0.0.1:9, MAP staff.loyalty.lt 127.0.0.1:9'],
   })
@@ -61,7 +137,8 @@ async function main() {
   try {
     for (const s of todo) {
       try {
-        manifest[s.id] = await take(await ctx.page(s), s, browser)
+        current = s
+        manifest[outId(s)] = await take(await ctx.page(s), s, browser)
         console.log(`✓ ${s.id}`)
       } catch (e) {
         failed.push(`${s.id}: ${(e as Error).message}`)
@@ -130,7 +207,10 @@ class Contexts {
   }
   async snap(s: Shot, dir: string) {
     mkdirSync(dir, { recursive: true })
-    await this.pages.get(this.key(s))?.screenshot({ path: path.join(dir, `${s.id}.png`) as `${string}.png` })
+    const page = this.pages.get(this.key(s))
+    await page?.screenshot({ path: path.join(dir, `${s.id}.png`) as `${string}.png` })
+    // What the screen said, to see what a missing target is called now.
+    if (page) await dumpUi(page, s.id, isTill(s.app), dir).catch(() => {})
   }
   private key(s: Shot) {
     // A phone's till is a till of its own (touch, its own layout).
@@ -145,7 +225,9 @@ class Contexts {
     await gate(page)
     await page.emulateTimezone('Europe/Vilnius')
     await page.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: 'light' }, { name: 'prefers-reduced-motion', value: 'reduce' }])
-    await page.setExtraHTTPHeaders({ 'Accept-Language': 'lt-LT,lt;q=0.9' })
+    await page.setExtraHTTPHeaders({ 'Accept-Language': LANG === 'en' ? 'en-GB,en;q=0.9' : 'lt-LT,lt;q=0.9' })
+    // The till keeps its language like this (easy_localization through shared_preferences).
+    if (LANG === 'en') await page.evaluateOnNewDocument(() => localStorage.setItem('flutter.locale', '"en"'))
     page.on('dialog', (d) => void (d.type() === 'beforeunload' ? d.accept() : d.dismiss()))
     await viewport(page, s)
     if (s.app === 'portal') {
@@ -291,10 +373,15 @@ function listTargets(): string {
 }
 
 async function find(page: Page, target: string, nth?: number): Promise<{ el: ElementHandle<Element> | null; count: number }> {
-  const list = await page.evaluateHandle(findAll, target)
-  const count = await list.evaluate((l) => l.length)
-  const pick = nth !== undefined || count === 1 ? await list.evaluateHandle((l, i) => l[i] ?? null, (nth ?? 1) - 1) : null
-  return { el: (pick?.asElement() as ElementHandle<Element> | null) ?? null, count }
+  let r = { el: null as ElementHandle<Element> | null, count: 0 }
+  for (const t of versions(target)) {
+    const list = await page.evaluateHandle(findAll, t)
+    const count = await list.evaluate((l) => l.length)
+    const pick = nth !== undefined || count === 1 ? await list.evaluateHandle((l, i) => l[i] ?? null, (nth ?? 1) - 1) : null
+    r = { el: (pick?.asElement() as ElementHandle<Element> | null) ?? null, count }
+    if (count) return r
+  }
+  return r
 }
 
 async function waitFor(page: Page, target: string, nth?: number, timeout = 15_000) {
@@ -302,7 +389,7 @@ async function waitFor(page: Page, target: string, nth?: number, timeout = 15_00
   for (;;) {
     const r = await find(page, target, nth).catch(() => ({ el: null, count: 0 }))
     if (r.el) return r.el
-    if (Date.now() > until) throw new Error(`"${target}" matches ${r.count} elements (want ${nth !== undefined ? `at least ${nth}` : 'exactly 1; use nth or "css >> target"'})`)
+    if (Date.now() > until) throw new Error(`"${versions(target).join('" / "')}" matches ${r.count} elements (want ${nth !== undefined ? `at least ${nth}` : 'exactly 1; use nth or "css >> target"'})`)
     await sleep(250)
   }
 }
@@ -315,12 +402,15 @@ async function clickAt(page: Page, target: string, nth?: number) {
   await sleep(700)
 }
 
+// The portal's addresses carry the language: /lt/shops → /en/shops.
+const inLang = (url: string, till: boolean) => (LANG === 'en' && !till ? url.replace(/^\/lt(?=\/|$|\?)/, '/en') : url)
+
 async function hydrated(page: Page) {
   await page.waitForFunction(() => !document.querySelector('script[src*="/_next/"]') || Object.keys(document.querySelector('main') ?? document.body).some((k) => k.startsWith('__reactFiber')), { timeout: 60_000 })
 }
 
 async function step(page: Page, s: Step, till: boolean) {
-  if ('goto' in s) return void (await page.goto(`${till ? TILL : PORTAL}${s.goto}`, { waitUntil: 'domcontentloaded' }))
+  if ('goto' in s) return void (await page.goto(`${till ? TILL : PORTAL}${inLang(s.goto, till)}`, { waitUntil: 'domcontentloaded' }))
   if ('pause' in s) return sleep(s.pause) as Promise<void>
   if ('press' in s) {
     await page.keyboard.press(s.press as never)
@@ -395,7 +485,7 @@ async function take(page: Page, s: Shot, browser: Browser) {
   const till = isTill(s.app)
   const [vw, vh] = s.viewport ?? [1440, 900]
   await viewport(page, s)
-  await page.goto(`${till ? TILL : PORTAL}${s.url}`, { waitUntil: 'domcontentloaded' })
+  await page.goto(`${till ? TILL : PORTAL}${inLang(s.url, till)}`, { waitUntil: 'domcontentloaded' })
   if (till) {
     await semantics(page)
     if (s.app === 'till') await unlockTill(page)
@@ -464,7 +554,7 @@ async function take(page: Page, s: Shot, browser: Browser) {
     rects.push(rel)
   }
   const png = Buffer.from(await page.screenshot({ type: 'png', clip: { x: box.x, y: box.y, width: W, height: H }, captureBeyondViewport: true }))
-  await dumpUi(page, s.id, till)
+  await dumpUi(page, outId(s), till)
 
   const numbered = marks.map((m, i) => ({ m, r: rects[i]! })).filter((x) => isMark(x.m))
   const toPlace = numbered.map((x) => ({ n: (x.m as { n: number }).n, rect: x.r, arrow: isMark(x.m) ? x.m.arrow : undefined }))
@@ -507,19 +597,29 @@ async function take(page: Page, s: Shot, browser: Browser) {
     }), { waitUntil: 'load' })
     await composer.evaluate(() => document.fonts.ready)
     const el = await composer.$('#c')
-    const file = `${s.id}.webp`
+    const file = `${outId(s)}.webp`
     writeFileSync(path.join(OUT, file), await el!.screenshot({ type: 'webp', quality: 86, captureBeyondViewport: true }))
     // The same picture at 1×: what phones download (shot.tsx).
     await composer.setViewport({ width: W, height: Math.min(H, 6000), deviceScaleFactor: 1 })
-    writeFileSync(path.join(OUT, `${s.id}.1x.webp`), await el!.screenshot({ type: 'webp', quality: 86, captureBeyondViewport: true }))
-    return { file, w: W, h: H, alt: s.alt, marks: marks.filter(isMark).map((m) => ({ n: m.n, label: m.label, text: m.text })) }
+    writeFileSync(path.join(OUT, `${outId(s)}.1x.webp`), await el!.screenshot({ type: 'webp', quality: 86, captureBeyondViewport: true }))
+    return { file, w: W, h: H, ...words(s) }
   } finally {
     await composer.close()
   }
 }
 
+// The picture's alt text and legend, in the run's language (English: shots/en.ts).
+function words(s: Shot) {
+  const numbered = (s.marks ?? []).filter(isMark)
+  if (LANG === 'lt') return { alt: s.alt, marks: numbered.map((m) => ({ n: m.n, label: m.label, text: m.text })) }
+  const en = EN[s.id]
+  if (!en) throw new Error(`no English words in shots/en.ts`)
+  if ((en[1]?.length ?? 0) !== numbered.length) throw new Error(`shots/en.ts has ${en[1]?.length ?? 0} marks, the spec ${numbered.length}`)
+  return { alt: en[0], marks: numbered.map((m, i) => ({ n: m.n, label: en[1]![i]![0], text: en[1]![i]![1] })) }
+}
+
 // What the screen says, so the manual's words can be checked against it (content.check.ts).
-async function dumpUi(page: Page, id: string, till: boolean) {
+async function dumpUi(page: Page, id: string, till: boolean, dir = UI) {
   const strings = await page.evaluate((flutter: boolean) => {
     const norm = (s: string | null | undefined) => (s ?? '').replace(/\s+/g, ' ').trim()
     const out = new Set<string>()
@@ -542,7 +642,7 @@ async function dumpUi(page: Page, id: string, till: boolean) {
     }
     return [...out].sort()
   }, till)
-  writeFileSync(path.join(UI, `${id}.json`), `${JSON.stringify(strings, null, 1)}\n`)
+  writeFileSync(path.join(dir, `${id}.json`), `${JSON.stringify(strings, null, 1)}\n`)
 }
 
 await main()

@@ -549,8 +549,15 @@ if want docs; then
 bold "Deploying docs.loyalty.lt"
 
 if (( DRY_RUN )); then
-  warn "would pull, drop the cached spec, npm ci, build and reload pm2"
+  warn "would send the manual's PDFs, pull, drop the cached spec, npm ci, build and reload pm2"
 else
+  # The manual's PDFs (npm run pdf) are not in git: sent before the build, which links them.
+  if compgen -G "$DOCS_LOCAL/public/pdf/*.pdf" >/dev/null; then
+    rsync -az --chmod=D755,F644 -e "ssh -i $SSH_KEY -p $SSH_PORT -o BatchMode=yes" "$DOCS_LOCAL/public/pdf/" "$SSH_HOST:$REMOTE_ROOT/docs.loyalty.lt/public/pdf/"
+    echo "    PDFs sent: $(ls "$DOCS_LOCAL"/public/pdf/*.pdf | wc -l | tr -d ' ')"
+  else
+    warn "    no PDFs in public/pdf (npm run pdf): the manual's download links stay as they were"
+  fi
   remote_node "set -e
     cd $REMOTE_ROOT/docs.loyalty.lt
     # openapi/loyalty.json is tracked but the build regenerates it in place, so the
@@ -588,12 +595,26 @@ const MUST_EXIST = [
   '/docs/external-sms-api/sendSmsExternal',
   '/docs/mcp-server',
   '/docs/partner-ai-agent',
+  // The manual: Lithuanian at the plain address, English under /en.
+  '/',
+  '/en',
+  '/partners',
+  '/en/partners/shops',
+  '/till/customer',
+  '/en/till/customer',
 ];
 
 let bad = 0;
 for (const p of MUST_EXIST) {
   const r = await fetch('https://docs.loyalty.lt' + p, { redirect: 'manual' });
   if (r.status !== 200) { console.error(`    ${r.status} ${p}`); bad++; }
+}
+
+// Tills up to 1.6.15 open the old Lithuanian address.
+const old = await fetch('https://docs.loyalty.lt/kasa/klientas', { redirect: 'manual' });
+if (old.status !== 308 || !old.headers.get('location')?.endsWith('/till/customer')) {
+  console.error(`    /kasa/klientas → ${old.status} ${old.headers.get('location')}, not 308 /till/customer`);
+  bad++;
 }
 
 const llms = await (await fetch('https://docs.loyalty.lt/llms.txt')).text();

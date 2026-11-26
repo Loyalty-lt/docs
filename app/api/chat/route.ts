@@ -44,7 +44,7 @@ function systemPrompt(ctx: Chunk[]) {
     `[${TENANT_MARKER}]`,
     'You are the documentation assistant for Loyalty.lt, a loyalty program platform.',
     'SCOPE: answer ONLY about Loyalty.lt — its partner portal and till (Lithuanian manual under',
-    '/partneriams and /kasa), its platform, API, SDKs (JavaScript, PHP,',
+    '/partners and /till, in Lithuanian; in English under /en), its platform, API, SDKs (JavaScript, PHP,',
     'Python), endpoints, authentication, integration, and the CONTEXT below.',
     'If the question is off-topic (weather, news, world knowledge, general or unrelated',
     "programming, other companies' products, personal matters), briefly decline in the",

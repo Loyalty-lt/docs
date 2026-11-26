@@ -1,0 +1,31 @@
+{
+  "title": "Kasa",
+  "description": "Darbuotojų programėlė",
+  "root": true,
+  "icon": "MonitorSmartphone",
+  "pages": [
+    "index",
+    "whats-new",
+    "new-cashier",
+    "---Pradžia---",
+    "install",
+    "sign-in",
+    "---Pardavimas---",
+    "customer",
+    "amount-and-discount",
+    "points",
+    "coupons",
+    "games",
+    "payment",
+    "parked-sales",
+    "past-purchases",
+    "---Įrenginys---",
+    "dashboard",
+    "settings",
+    "printer",
+    "kiosk",
+    "shortcuts",
+    "updates",
+    "troubleshooting"
+  ]
+}

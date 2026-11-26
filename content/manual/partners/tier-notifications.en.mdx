@@ -1,0 +1,58 @@
+---
+title: Tier notifications
+description: How to tell a customer automatically that their tier went up, down or is about to go up.
+icon: BellRing
+---
+
+A rule sends the customer a notification when their tier changes. You can send push, email and SMS – the channels your plan includes.
+
+Open <Path>Loyalty tiers</Path> and press <Ui>Manage notifications</Ui>.
+
+<Shot id="lygiu-pranesimai-sarasas" />
+
+## Create a rule
+
+<Steps>
+<Step>
+
+Press <Ui>Add notification</Ui> and choose the event. If needed, choose one tier.
+
+<Shot id="lygiu-pranesimai-naujas" />
+
+</Step>
+<Step>
+
+Tick the channels and write the title and text. Click a variable to insert it, such as `{{tier}}` – the tier's name.
+
+</Step>
+<Step>
+
+Press <Ui>Save rule</Ui>.
+
+</Step>
+</Steps>
+
+<Callout type="warn" title="SMS costs money">
+You pay for every SMS at your rates. Push and emails count towards your plan.
+</Callout>
+
+## Events
+
+| Event | When it is sent |
+| --- | --- |
+| Tier upgraded | The customer reached a higher tier. |
+| Next tier approaching | The customer has gone the set share of the way, such as 80 %. |
+| Grace ending | The tier will drop soon. |
+| Tier downgraded | The customer went back to a lower tier. |
+| Tier assigned manually | You changed the tier on the customer's page. |
+
+## Test it
+
+In the list press <Ui>Send me a test</Ui>. The test notification comes to you, not to customers.
+
+## If something goes wrong
+
+| What you see | What to do |
+| --- | --- |
+| “Your plan includes no notification channels.” | Change the plan or turn the service on. |
+| The customer did not get it | Push reaches only those with the app. SMS and email need a phone or an email address. |

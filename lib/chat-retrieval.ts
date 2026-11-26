@@ -61,8 +61,11 @@ function corpus(): Chunk[] {
   const chunks: Chunk[] = [];
   for (const [dir, base] of SECTIONS) {
     for (const file of walk(dir)) {
-      const rel = file.slice(dir.length + 1).replace(/\.mdx?$/, '').replace(/\/?index$/, '');
-      chunks.push(...mdxToChunks(readFileSync(file, 'utf8'), `${base}/${rel}`.replace(/\/$/, '')));
+      let rel = file.slice(dir.length + 1).replace(/\.mdx?$/, '');
+      // The manual's English page (page.en.mdx) is at /en/…
+      const en = rel.endsWith('.en');
+      rel = rel.replace(/\.en$/, '').replace(/\/?index$/, '');
+      chunks.push(...mdxToChunks(readFileSync(file, 'utf8'), `${en ? '/en' : ''}${base}/${rel}`.replace(/\/$/, '') || '/'));
     }
   }
   CORPUS = chunks;

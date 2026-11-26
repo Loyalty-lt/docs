@@ -104,3 +104,13 @@ html > body[data-scroll-locked] {
   margin-right: 0px !important;
   --removed-body-scroll-bar-size: 0px !important;
 }
+
+/* The PDF of the manual (app/print, scripts/export-pdf.mjs): each page from a new sheet; pictures,
+   tables and steps not cut in half. */
+@media print {
+  @page { size: A4; margin: 14mm 12mm 16mm; }
+  html, body { background: #fff !important; }
+  .print-book article { break-before: page; }
+  .print-book figure, .print-book tr, .print-book [role='alert'], .print-book .fd-step { break-inside: avoid; }
+  .print-book h2, .print-book h3 { break-after: avoid; }
+}

@@ -1,0 +1,78 @@
+---
+title: Lojalumo lygiai
+description: Kaip sukurti lygius su nuolaidomis ir dovanomis, ir kaip nustatyti pirkimo dalis.
+icon: Medal
+screen: /loyalty-tiers
+---
+
+Lygiai skatina klientą grįžti: kuo daugiau perka, tuo daugiau gauna. Čia taip pat nustatote, iš kokių dalių susideda pirkimas.
+
+Atidarykite <Path>Lojalumo lygiai</Path>.
+
+<Shot id="lygiai-puslapis" />
+
+## Pradėti nuo šablono
+
+Spauskite <Ui>Šablonai</Ui>, peržiūrėkite ir spauskite <Ui>Naudoti</Ui>.
+
+<Callout type="warn" title="Pakeis dabartinius lygius">
+Pritaikius šabloną dabartiniai lygiai pakeičiami šablono lygiais.
+</Callout>
+
+## Programos nustatymai
+
+| Laukas | Ką reiškia |
+| --- | --- |
+| Metrika | Pagal ką kylama: uždirbti taškai, išleista suma ar apsilankymai. |
+| Galiojimas | Per kokį laiką skaičiuojama: visada, 3, 6, 12 mėnesių ar kalendoriniai metai. |
+| Leisti žeminti lygį | Įjungus klientas gali nukristi. Išjungus pasiektas lygis lieka visam laikui. |
+| Atidėjimas (d.) | Kiek dienų lygis dar laikosi nukritus žemiau slenksčio. |
+
+Pakeitimai išsaugomi iškart.
+
+## Pridėti lygį
+
+Spauskite <Ui>Pridėti lygį</Ui> ir užpildykite langą.
+
+<Shot id="lygiai-lygis" />
+
+Jungiklis <Ui>Formulė</Ui> leidžia vietoj skaičiaus įrašyti sąlygą. Jei formulė suklysta, galioja paprasta reikšmė. Formulę gali parašyti AI – aprašykite taisyklę savo žodžiais ir patikrinkite mygtuku <Ui>Tikrinti</Ui>.
+
+Lygių eilę keičia rodyklės sąraše. Šiukšlinė lygį ištrina.
+
+## Pirkimo dalys
+
+Dalys leidžia taikyti skirtingas taisykles, pavyzdžiui: lygio nuolaida tik kosmetikai, o už dovanų kuponą taškų nėra. Kasininkas renkasi, už ką kiekviena suma.
+
+<Shot id="lygiai-dalys" />
+
+Spauskite <Ui>Pridėti dalį</Ui> arba pieštuką.
+
+<Shot id="lygiai-dalis" />
+
+- **Taškų daugiklis** – 0 reiškia „taškų nėra“, 1 – įprastai, 2 – dvigubai.
+- **Taikyti lygio nuolaidą** – ar kliento lygio nuolaida galioja šiai daliai. Žemiau galite nurodyti kitą procentą atskiram lygiui.
+- **Galima apmokėti taškais** – ar šią dalį klientas gali padengti taškais.
+- **Skaičiuojama į lygio progresą** – ar ši suma kelia klientą aukščiau.
+- **Numatytoji dalis** – taikoma, kai kasininkas dalies nepasirenka.
+
+<Callout title="Akcijos ir abonementai">
+Sukurkite dalį „Akcijos, abonementai“: daugiklis 0, be lygio nuolaidos, taškais mokėti negalima. Tada akcija nesidubliuos su lojalumo nuolaida.
+</Callout>
+
+## Priskirti lygį ranka
+
+Atidarykite kliento puslapį ir spauskite <Ui>Priskirti lygį</Ui>. Plačiau – [Klientai](/partners/customers).
+
+## Jei kas nors nepavyko
+
+| Ką matote | Ką daryti |
+| --- | --- |
+| Klientas turėjo pakilti, bet nepakilo | Lygiai perskaičiuojami po pirkimo ir kartą per parą. Patikrinkite, ar dalis skaičiuojama į lygio progresą. |
+| Kasoje nėra lygio nuolaidos | Pažiūrėkite, ar ją leidžia pirkimo dalis ir ar programa įjungta. |
+| „Formulė turi grąžinti skaičių.“ | Formulės rezultatas turi būti skaičius, pvz., `amount > 50 ? 2 : 1`. |
+
+## Susiję puslapiai
+
+- [Lygių pranešimai](/partners/tier-notifications)
+- [Lojalumo kortelės](/partners/loyalty-cards)

@@ -28,3 +28,6 @@ npm-debug.log*
 /shots/seed/
 /shots/.session.json
 /shots/.failed
+
+# the manual as PDFs (npm run pdf): sent to the server by deploy/publish.sh, not kept in git
+/public/pdf/

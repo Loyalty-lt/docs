@@ -11,9 +11,12 @@ type Entry = { file: string; w: number; h: number; alt: string; marks: Mark[] };
 // Read when the page renders (not bundled), so new screenshots show without a rebuild.
 const manifest = () => JSON.parse(readFileSync(path.join(process.cwd(), 'shots/manifest.json'), 'utf8')) as Record<string, Entry>;
 
-export function Shot({ id, legend = true, caption }: { id: string; legend?: boolean; caption?: string }) {
-  const s = manifest()[id];
-  if (!s) return <div className="my-6 rounded-xl border border-dashed border-fd-border p-6 text-sm text-fd-muted-foreground">Nuotraukos „{id}“ dar nėra (npm run shots).</div>;
+// In English the English picture (`id.en`, made from the English screens), when there is one.
+export function Shot({ id: base, legend = true, caption, lang = 'lt' }: { id: string; legend?: boolean; caption?: string; lang?: 'lt' | 'en' }) {
+  const all = manifest();
+  const id = lang === 'en' && all[`${base}.en`] ? `${base}.en` : base;
+  const s = all[id];
+  if (!s) return <div className="my-6 rounded-xl border border-dashed border-fd-border p-6 text-sm text-fd-muted-foreground">{lang === 'lt' ? `Nuotraukos „${id}“ dar nėra (npm run shots).` : `The picture “${id}” is not made yet (npm run shots).`}</div>;
   // A narrow picture (a phone, a close-up) is shown at its own size, not blown up to the column.
   const narrow = s.w < 620;
   return (
