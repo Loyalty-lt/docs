@@ -88,6 +88,7 @@ reported; the rest of the feed still imports.
   <name>Espresso blend, 250 g</name>
   <description>Dark roast, ground for espresso machines.</description>
   <brand>KAVA virė</brand>
+  <brand_logo>https://cdn.example.com/brands/kava-vire.png</brand_logo>
   <model>EB-250</model>
   <ean>4771234567890</ean>
   <sku>SKU-1001</sku>
@@ -138,6 +139,7 @@ curl -X GET "https://api.loyalty.lt/lt/shop/xml-import/field-mappings" \
 | `name` **(required)** | `name`, `title`, `product_name` |
 | `description` | `description`, `desc` |
 | `brand` | `brand`, `manufacturer` |
+| `brand_logo` | `brand_logo`, `manufacturer_logo` (an `http(s)` image URL; the app shows it next to the brand) |
 | `model` | `model` |
 | `ean` | `ean`, `ean13`, `barcode` |
 | `sku` | `sku`, `code`, `id` |
