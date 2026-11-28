@@ -86,7 +86,7 @@ export function AskAI({ lang = 'en' }: { lang?: 'en' | 'lt' }) {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-4 right-4 z-40 inline-flex items-center gap-1.5 rounded-2xl border bg-fd-secondary px-4 py-2.5 text-sm font-medium text-fd-secondary-foreground shadow-lg transition-colors hover:bg-fd-accent hover:text-fd-accent-foreground"
+          className="fixed bottom-[92px] right-5 z-40 inline-flex items-center gap-1.5 rounded-2xl border bg-fd-secondary px-4 py-2.5 text-sm font-medium text-fd-secondary-foreground shadow-lg transition-colors hover:bg-fd-accent hover:text-fd-accent-foreground"
         >
           <Sparkles className="size-4 text-fd-primary" /> {text.ask}
         </button>

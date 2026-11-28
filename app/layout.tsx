@@ -1,5 +1,6 @@
 import './global.css';
 import type { Metadata } from 'next';
+import { SupportChat } from '@/components/support-chat';
 
 export const metadata: Metadata = {
   title: {
@@ -18,7 +19,10 @@ export default function Layout({ children }: LayoutProps<'/'>) {
       <head>
         <link rel="preconnect" href="https://cdn.loyalty.lt" crossOrigin="anonymous" />
       </head>
-      <body className="flex flex-col min-h-screen">{children}</body>
+      <body className="flex flex-col min-h-screen">
+        {children}
+        <SupportChat />
+      </body>
     </html>
   );
 }
